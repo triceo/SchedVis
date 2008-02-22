@@ -19,6 +19,6 @@ public interface ModelAccepting {
 	/**
 	 * Set the model for the element.
 	 */
-	public void setModel(cz.muni.fi.spc.SchedVis.model.Model model);
+	public void setModel(cz.muni.fi.spc.SchedVis.model.SQL model);
 
 }

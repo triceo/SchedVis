@@ -13,7 +13,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
-import cz.muni.fi.spc.SchedVis.model.Model;
+import cz.muni.fi.spc.SchedVis.model.SQL;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -103,9 +103,10 @@ public class MainMenu implements UIElement, ActionListener, ItemListener {
 			this.quit();
 		} else if (command.equals(MainMenu.ACTION_NEW)) {
 			try {
-				Model.getInstance("testing");
+				SQL.getInstance("testing");
 			} catch (final Exception e) {
 				System.err.println("Cannot instantiate the model, exiting.");
+				e.printStackTrace();
 				this.quit();
 			}
 		}

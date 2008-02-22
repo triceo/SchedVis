@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
 
-import cz.muni.fi.spc.SchedVis.model.Model;
+import cz.muni.fi.spc.SchedVis.model.SQL;
 
 
 
@@ -84,7 +84,7 @@ public class Timeline implements UIElement, ModelAccepting {
 	}
 
 	@Override
-	public void setModel(final Model model) {
+	public void setModel(final SQL model) {
 	}
 
 }
