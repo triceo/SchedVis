@@ -9,11 +9,10 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 
+import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-
-import cz.muni.fi.spc.SchedVis.model.SQL;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -24,13 +23,15 @@ public class MainMenu implements UIElement, ActionListener, ItemListener {
 	private static String ACTION_QUIT = "quit";
 	private static String ACTION_NEW = "new";
 	private final JMenuBar menuBar;
+	private final JFrame frame;
 
 	/**
 	 * Class constructor. Creates the whole menu thing.
 	 */
-	public MainMenu() {
+	public MainMenu(JFrame frame) {
 		// Create the menu bar.
 		this.menuBar = new JMenuBar();
+		this.frame = frame;
 		JMenu menu = null;
 		JMenuItem menuItem = null;
 
@@ -42,23 +43,11 @@ public class MainMenu implements UIElement, ActionListener, ItemListener {
 		this.menuBar.add(menu);
 
 		// a group of JMenuItems
-		menuItem = new JMenuItem("New", KeyEvent.VK_N);
+		menuItem = new JMenuItem("New data source", KeyEvent.VK_N);
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Process new batch of data.");
 		menuItem.setActionCommand(MainMenu.ACTION_NEW);
 		menuItem.addActionListener(this);
-		menu.add(menuItem);
-
-		menu.addSeparator();
-
-		menuItem = new JMenuItem("Open...", KeyEvent.VK_O);
-		menuItem.getAccessibleContext().setAccessibleDescription(
-				"Open an already processed batch of data.");
-		menu.add(menuItem);
-
-		menuItem = new JMenuItem("Save", KeyEvent.VK_S);
-		menuItem.getAccessibleContext().setAccessibleDescription(
-				"Save the current configuration.");
 		menu.add(menuItem);
 
 		menu.addSeparator();
@@ -102,13 +91,9 @@ public class MainMenu implements UIElement, ActionListener, ItemListener {
 		if (command.equals(MainMenu.ACTION_QUIT)) {
 			this.quit();
 		} else if (command.equals(MainMenu.ACTION_NEW)) {
-			try {
-				SQL.getInstance("testing");
-			} catch (final Exception e) {
-				System.err.println("Cannot instantiate the model, exiting.");
-				e.printStackTrace();
-				this.quit();
-			}
+			// display a dialog
+			final ImportDialog dialog = new ImportDialog(this.frame, true);
+			dialog.setVisible(true);
 		}
 	}
 

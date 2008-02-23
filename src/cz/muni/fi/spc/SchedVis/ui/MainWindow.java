@@ -17,29 +17,34 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
+import javax.swing.JOptionPane;
 
 /**
- * UI class for SchedVis' user interface.
+ * MainWindow class for SchedVis' user interface.
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class UI {
+public class MainWindow {
 	/**
 	 * Create the GUI and show it. For thread safety, this method should be
 	 * invoked from the event-dispatching thread.
 	 */
 	private static void createAndShowGUI() {
 		// Create and set up the window.
-		JFrame.setDefaultLookAndFeelDecorated(true);
 		final JFrame frame = new JFrame("SchedVis");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Create and set up the content pane.
-		final UI ui = new UI();
-		frame.setJMenuBar(new MainMenu().get());
+		final MainWindow ui = new MainWindow();
+		frame.setJMenuBar(new MainMenu(frame).get());
 		final Container pane = ui.createContentPane();
 		frame.setContentPane(pane);
+		
+		// display a dialog
+		final ImportDialog dialog = new ImportDialog(frame, true);
+		dialog.setVisible(true);
+		dialog.setVisible(false);
 
 		// Display the window.
 		frame.setMinimumSize(pane.getPreferredSize());
@@ -51,7 +56,7 @@ public class UI {
 		// creating and showing this application's GUI.
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				UI.createAndShowGUI();
+				MainWindow.createAndShowGUI();
 			}
 		});
 	}
