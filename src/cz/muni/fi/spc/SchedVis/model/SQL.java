@@ -23,7 +23,7 @@ public class SQL {
 	private static SQL lastInstance = null;
 	private static Connection conn = null;
 	private static Database db = null;
-	
+
 	/**
 	 * Return last used instance of this class.
 	 * 
@@ -41,8 +41,10 @@ public class SQL {
 	 * @return The model.
 	 * @throws java.lang.Exception
 	 */
-	public static SQL getInstance(final String name, final boolean newDatabase) throws java.lang.Exception {
-		if (!SQL.instances.containsKey(name) || SQL.instances.get(name) == null) {
+	public static SQL getInstance(final String name, final boolean newDatabase)
+			throws java.lang.Exception {
+		if (!SQL.instances.containsKey(name)
+				|| (SQL.instances.get(name) == null)) {
 			SQL.instances.put(name, new SQL(name, newDatabase));
 		}
 		SQL.lastInstance = SQL.instances.get(name);
@@ -55,12 +57,12 @@ public class SQL {
 	 * @param name
 	 *            Name of the database to load model from.
 	 * @throws java.lang.Exception
+	 * @todo implement some schema-validating tool
+	 * @todo find more specific exception(s) to throw
 	 */
-	// TODO implement some schema-validating tool
-	// TODO find more specific exception(s) to throw
 	protected SQL(final String name, boolean newDatabase) throws Exception {
 		// initialize SQLite
-		File file = new File(name + ".sqlite");
+		final File file = new File(name + ".sqlite");
 		if (newDatabase && file.exists()) {
 			throw new Exception("Database already exists.");
 		} else if (!newDatabase && !file.exists()) {

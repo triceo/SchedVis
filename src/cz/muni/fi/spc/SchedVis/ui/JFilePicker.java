@@ -12,7 +12,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.filechooser.FileFilter;
 
 /**
  * Implements a panel with a file-picking widget.
@@ -36,7 +35,8 @@ public class JFilePicker extends JPanel implements ActionListener {
 	/**
 	 * @param arg0
 	 */
-	public JFilePicker(final boolean arg0, final String label, final JFileFilter filter) {
+	public JFilePicker(final boolean arg0, final String label,
+			final JFileFilter filter) {
 		super(arg0);
 		this.specialize(label, filter);
 	}

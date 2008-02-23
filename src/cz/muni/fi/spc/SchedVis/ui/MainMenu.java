@@ -28,7 +28,7 @@ public class MainMenu implements UIElement, ActionListener, ItemListener {
 	/**
 	 * Class constructor. Creates the whole menu thing.
 	 */
-	public MainMenu(JFrame frame) {
+	public MainMenu(final JFrame frame) {
 		// Create the menu bar.
 		this.menuBar = new JMenuBar();
 		this.frame = frame;

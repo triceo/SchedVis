@@ -235,7 +235,7 @@ public class ImportDialog extends JDialog implements ActionListener {
 						this.display(false);
 					} else {
 						JOptionPane.showMessageDialog(this,
-							"Error while processing source files.");
+								"Error while processing source files.");
 					}
 				} else {
 					JOptionPane
@@ -285,7 +285,7 @@ public class ImportDialog extends JDialog implements ActionListener {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Process a new data set.
 	 * 
@@ -295,25 +295,27 @@ public class ImportDialog extends JDialog implements ActionListener {
 	 *            File with data about events.
 	 * @param name
 	 *            Name for the new dataset.
+	 * @fixme Damn this stupid dialog. Refactor somehow.
 	 */
-	// FIXME Damn this stupid dialog. Refactor somehow.
 	private boolean processSource(final File machineFile, final File dataFile,
 			final String name) {
-		JDialog dialog = new JDialog(this);
+		final JDialog dialog = new JDialog(this);
 		dialog.setModal(false);
 		dialog.setAlwaysOnTop(true);
 		dialog.setTitle("Processing source files...");
 		dialog.setMinimumSize(new Dimension(450, 71));
 		dialog.setLocationRelativeTo(this);
 		dialog.setResizable(false);
-		JPanel panel = new JPanel();
+		final JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.add(new JLabel("Processing your source files may take a while."));
-		panel.add(new JLabel("You might want to consider having yourself a nice warm cup of Java."));
+		panel
+				.add(new JLabel(
+						"You might want to consider having yourself a nice warm cup of Java."));
 		panel.add(new JLabel("Or whatever. Enjoy."));
 		dialog.add(panel);
-		dialog.setVisible(true);		
-		boolean result = Importer.process(machineFile, dataFile, name);
+		dialog.setVisible(true);
+		final boolean result = Importer.process(machineFile, dataFile, name);
 		dialog.setVisible(false);
 		return result;
 	}

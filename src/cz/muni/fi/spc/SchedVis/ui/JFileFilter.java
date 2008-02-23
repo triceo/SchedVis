@@ -3,6 +3,7 @@ package cz.muni.fi.spc.SchedVis.ui;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.filechooser.FileFilter;
 
@@ -14,20 +15,20 @@ import javax.swing.filechooser.FileFilter;
 public class JFileFilter extends FileFilter {
 	protected String description;
 
-	protected ArrayList exts = new ArrayList();
+	protected List<String> exts = new ArrayList<String>();
 
 	/** Return true if the given file is accepted by this filter. */
 	@Override
 	public boolean accept(final File f) {
-		// Little trick: if you don't do this, only directory names
-		// ending in one of the extentions appear in the window.
+		// If we don't do this, only directory names ending in one of the
+		// extensions appear in the window.
 		if (f.isDirectory()) {
 			return true;
 
 		} else if (f.isFile()) {
-			final Iterator it = this.exts.iterator();
+			final Iterator<String> it = this.exts.iterator();
 			while (it.hasNext()) {
-				if (f.getName().endsWith((String) it.next())) {
+				if (f.getName().endsWith(it.next())) {
 					return true;
 				}
 			}

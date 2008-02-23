@@ -17,7 +17,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
-import javax.swing.JOptionPane;
 
 /**
  * MainWindow class for SchedVis' user interface.
@@ -40,7 +39,7 @@ public class MainWindow {
 		frame.setJMenuBar(new MainMenu(frame).get());
 		final Container pane = ui.createContentPane();
 		frame.setContentPane(pane);
-		
+
 		// display a dialog
 		final ImportDialog dialog = new ImportDialog(frame, true);
 		dialog.setVisible(true);
@@ -105,8 +104,7 @@ public class MainWindow {
 		timePanel.add(new JSlider());
 		timePanel.add(new JCheckBox("Break after every step."));
 		settingsPanel.add(timePanel);
-		
-		
+
 		settingsPanel.setMinimumSize(new Dimension(250, 0));
 
 		leftPanel.add(statsPanel);

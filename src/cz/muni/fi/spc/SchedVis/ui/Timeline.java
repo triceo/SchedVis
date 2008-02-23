@@ -14,11 +14,9 @@ import javax.swing.JTextArea;
 
 import cz.muni.fi.spc.SchedVis.model.SQL;
 
-
-
 /**
  * Implements a timeline "widget," used to move forward or backwards on the
- * timeline. 
+ * timeline.
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
