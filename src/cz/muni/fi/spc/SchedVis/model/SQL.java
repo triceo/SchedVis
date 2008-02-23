@@ -97,7 +97,7 @@ public class SQL {
 					"'machines.txt' input file not found.");
 		}
 		try {
-			//this.parseMachines(new BufferedReader(new FileReader(mFile)));
+			this.parseMachines(new BufferedReader(new FileReader(mFile)));
 			this.parseDataSet(new BufferedReader(new FileReader(dsFile)));
 		} catch (final ParseException e) {
 			throw new ParseException("Error while parsing input files.", e
