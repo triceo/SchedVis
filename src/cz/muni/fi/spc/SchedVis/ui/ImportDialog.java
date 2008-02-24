@@ -26,7 +26,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JTextField;
 
 import cz.muni.fi.spc.SchedVis.model.Importer;
 import cz.muni.fi.spc.SchedVis.model.SQL;
@@ -48,8 +47,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 	 */
 	private static final long serialVersionUID = -23334905986074228L;
 	private final JFilePicker[] filePickers = new JFilePicker[3];
-	private JTextField fileName;
-	private JLabel fileNameLabel;
+	private JLabeledField fileName;
 	private JButton submitButton;
 	private ButtonGroup bg;
 
@@ -215,13 +213,11 @@ public class ImportDialog extends JDialog implements ActionListener,
 			this.filePickers[0].setEnabled(true);
 			this.filePickers[1].setEnabled(true);
 			this.fileName.setEnabled(true);
-			this.fileNameLabel.setEnabled(true);
 			this.filePickers[2].setEnabled(false);
 		} else if (command.equals(ImportDialog.ACTION_OLD_BUTTON_CLICKED)) {
 			this.filePickers[0].setEnabled(false);
 			this.filePickers[1].setEnabled(false);
 			this.fileName.setEnabled(false);
-			this.fileNameLabel.setEnabled(false);
 			this.filePickers[2].setEnabled(true);
 		} else if (command.equals(ImportDialog.ACTION_SUBMIT_BUTTON_CLICKED)) {
 			final Enumeration<AbstractButton> elems = this.bg.getElements();
@@ -229,7 +225,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 				// first radio selected
 				final String filename1 = this.filePickers[0].getValue();
 				final String filename2 = this.filePickers[1].getValue();
-				final String name = this.fileName.getText();
+				final String name = this.fileName.getValue();
 				final File file1 = new File(filename1);
 				final File file2 = new File(filename2);
 				if (file1.exists() && file2.exists() && (name.length() > 0)) {
@@ -355,12 +351,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 		namePane.setLayout(new FlowLayout(FlowLayout.RIGHT)); // start adding
 		// name-picking
 		// widget
-		this.fileNameLabel = new JLabel("Data set name:");
-		this.fileName = new JTextField(26);
-		this.fileName.setEnabled(false);
-		this.fileNameLabel.setLabelFor(this.fileName);
-		this.fileNameLabel.setEnabled(false);
-		namePane.add(this.fileNameLabel);
+		this.fileName = new JLabeledField("Data set name:");
 		namePane.add(this.fileName);
 		// use existing dataset option
 		final JPanel rbPane2 = new JPanel();
@@ -391,6 +382,9 @@ public class ImportDialog extends JDialog implements ActionListener,
 		this.setMinimumSize(new Dimension(560, 295));
 		this.setResizable(false);
 		this.addWindowListener(this);
+		// set default choice
+		buttonNew.setSelected(true);
+		this.filePickers[2].setEnabled(false);
 	}
 
 	public void windowActivated(final WindowEvent e) { // intentionally empty
@@ -407,11 +401,11 @@ public class ImportDialog extends JDialog implements ActionListener,
 	}
 
 	public void windowDeactivated(final WindowEvent e) { // intentionally
-															// empty
+		// empty
 	}
 
 	public void windowDeiconified(final WindowEvent e) { // intentionally
-															// empty
+		// empty
 	}
 
 	public void windowIconified(final WindowEvent e) { // intentionally empty
