@@ -4,15 +4,15 @@
 package cz.muni.fi.spc.SchedVis.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.JTextArea;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
-import cz.muni.fi.spc.SchedVis.model.SQL;
+import cz.muni.fi.spc.SchedVis.model.TimelineSliderModel;
 
 /**
  * Implements a timeline "widget," used to move forward or backwards on the
@@ -21,9 +21,11 @@ import cz.muni.fi.spc.SchedVis.model.SQL;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class Timeline implements UIElement, ModelAccepting {
+public class Timeline implements UIElement, ChangeListener {
 
 	private JPanel sliderPane = null;
+	private TimelineSliderModel tlsm = null;
+	private final JLabel sliderLabel;
 
 	/**
 	 * 
@@ -39,22 +41,15 @@ public class Timeline implements UIElement, ModelAccepting {
 		innerPane.add(new JButton("<"));
 		// middle slider
 		this.sliderPane.add(innerPane, BorderLayout.LINE_START);
-		final JSlider slider = new JSlider();
-		slider.setSnapToTicks(true);
-		slider.setPaintTicks(true);
-		slider.setExtent(0);
-		slider.setMinimum(1);
-		slider.setMaximum(100);
-		slider.setMinorTickSpacing(slider.getMaximum() / 20);
-		slider.setMajorTickSpacing(slider.getMaximum() / 5);
-		slider.setValue(slider.getMinimum());
-		slider.setMinimumSize(new Dimension(this.getSliderMinimumSize(slider
-				.getMinimum(), slider.getMaximum(), slider.getExtent()), 0));
+		final JTimelineSlider slider = new JTimelineSlider();
+		this.tlsm = new TimelineSliderModel(this);
+		slider.setModel(this.tlsm);
 		this.sliderPane.add(slider, BorderLayout.CENTER);
 		// right-side buttons
 		final JPanel innerPane2 = new JPanel();
-		innerPane2.add(new JPanel().add(new JTextArea(slider.getValue() + "/"
-				+ slider.getMaximum())), BorderLayout.LINE_END);
+		this.sliderLabel = new JLabel(this.getSliderDescription(slider
+				.getValue(), slider.getMaximum()));
+		innerPane2.add(this.sliderLabel, BorderLayout.LINE_END);
 		innerPane2.setLayout(new FlowLayout());
 		innerPane2.add(new JButton(">"));
 		innerPane2.add(new JButton(">>"));
@@ -67,22 +62,18 @@ public class Timeline implements UIElement, ModelAccepting {
 		return this.sliderPane;
 	}
 
-	private Integer getSliderMinimumSize(final Integer min, final Integer max,
-			final Integer extent) {
-		final Integer value = (max / (extent + 1)) * 3;
-		if (value >= max) {
-			return value;
-		} else {
-			return 100;
+	private String getSliderDescription(final Integer value,
+			final Integer maximum) {
+		return value + "/" + maximum;
+	}
+
+	public void stateChanged(final ChangeEvent e) {
+		if (e.getSource().equals(this.tlsm)) {
+			final TimelineSliderModel tlsm = (TimelineSliderModel) e
+					.getSource();
+			this.sliderLabel.setText(this.getSliderDescription(tlsm.getValue(),
+					tlsm.getMaximum()));
 		}
-	}
-
-	@Override
-	public void refresh() {
-	}
-
-	@Override
-	public void setModel(final SQL model) {
 	}
 
 }

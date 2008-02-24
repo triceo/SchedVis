@@ -34,16 +34,16 @@ public class MainWindow {
 		final JFrame frame = new JFrame("SchedVis");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+		// display a dialog
+		final ImportDialog dialog = new ImportDialog(frame, true);
+		dialog.setVisible(true);
+		dialog.setVisible(false);
+
 		// Create and set up the content pane.
 		final MainWindow ui = new MainWindow();
 		frame.setJMenuBar(new MainMenu(frame).get());
 		final Container pane = ui.createContentPane();
 		frame.setContentPane(pane);
-
-		// display a dialog
-		final ImportDialog dialog = new ImportDialog(frame, true);
-		dialog.setVisible(true);
-		dialog.setVisible(false);
 
 		// Display the window.
 		frame.setMinimumSize(pane.getPreferredSize());

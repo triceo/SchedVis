@@ -124,8 +124,8 @@ public class Importer {
 									"INSERT INTO events (id_event_types, id_machines, id_jobs, clock, need_cpus, need_platform, need_ram, need_hdd, cpus_assigned, expect_start, expect_end, deadline) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
 					// there may be multiple events
 					final String preppedData = unparsedData.substring(1); // remove
-																			// leading
-																			// |
+					// leading
+					// |
 					String[] jobs;
 					if (preppedData.contains("|")) {
 						jobs = preppedData.split("\\|");
@@ -149,22 +149,22 @@ public class Importer {
 									charNo);
 						}
 						eventInsStmt.setInt(3, new Integer(fields[0])); // job
-																		// ID
+						// ID
 						eventInsStmt.setInt(7, new Integer(fields[2])); // how
-																		// much
-																		// ram
-																		// needed
+						// much
+						// ram
+						// needed
 						eventInsStmt.setInt(8, new Integer(fields[3])); // how
-																		// much
-																		// hdd
-																		// needed
+						// much
+						// hdd
+						// needed
 						eventInsStmt.setDouble(9, new Double(fields[4])); // expected
-																			// start
+						// start
 						eventInsStmt.setDouble(10, new Double(fields[5])); // expected
-																			// finish
+						// finish
 						final Double deadline = new Double(fields[6]);
 						if (deadline >= 0) { // negative values mean no
-												// deadline
+							// deadline
 							eventInsStmt.setDouble(11, new Double(fields[6]));
 						}
 						eventInsStmt.execute();
@@ -248,13 +248,13 @@ public class Importer {
 				final String machineId = fields[0];
 				machineInsStmt.setString(1, machineId); // machine name
 				machineInsStmt.setInt(2, new Integer(fields[2])); // machine
-																	// speed
+				// speed
 				machineInsStmt.setString(3, fields[3]); // machine platform
 				machineInsStmt.setString(4, fields[4]); // machine os
 				machineInsStmt.setInt(5, new Integer(fields[5])); // machine
-																	// RAM
+				// RAM
 				machineInsStmt.setInt(6, new Integer(fields[6])); // machine
-																	// HDD
+				// HDD
 				// insert machine CPUs
 				try {
 					machineInsStmt.execute();
