@@ -12,6 +12,8 @@ import java.awt.GraphicsConfiguration;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.Enumeration;
 
@@ -25,7 +27,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
-import javax.swing.WindowConstants;
 
 import cz.muni.fi.spc.SchedVis.model.Importer;
 import cz.muni.fi.spc.SchedVis.model.SQL;
@@ -36,7 +37,8 @@ import cz.muni.fi.spc.SchedVis.model.SQL;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class ImportDialog extends JDialog implements ActionListener {
+public class ImportDialog extends JDialog implements ActionListener,
+		WindowListener {
 
 	private static String ACTION_NEW_BUTTON_CLICKED = "NewButton clicked.";
 	private static String ACTION_OLD_BUTTON_CLICKED = "OldButton clicked.";
@@ -225,8 +227,8 @@ public class ImportDialog extends JDialog implements ActionListener {
 			final Enumeration<AbstractButton> elems = this.bg.getElements();
 			if (this.bg.isSelected(elems.nextElement().getModel())) {
 				// first radio selected
-				final String filename1 = this.filePickers[0].getFilename();
-				final String filename2 = this.filePickers[1].getFilename();
+				final String filename1 = this.filePickers[0].getValue();
+				final String filename2 = this.filePickers[1].getValue();
 				final String name = this.fileName.getText();
 				final File file1 = new File(filename1);
 				final File file2 = new File(filename2);
@@ -244,7 +246,7 @@ public class ImportDialog extends JDialog implements ActionListener {
 				}
 			} else if (this.bg.isSelected(elems.nextElement().getModel())) {
 				// second radio selected
-				final String filename = this.filePickers[2].getFilename();
+				final String filename = this.filePickers[2].getValue();
 				final File file = new File(filename);
 				if (file.exists()) {
 					if (this.processSource(file)) {
@@ -262,7 +264,6 @@ public class ImportDialog extends JDialog implements ActionListener {
 				JOptionPane.showMessageDialog(this,
 						"Please pick at least one data source.");
 			}
-
 		}
 	}
 
@@ -387,8 +388,35 @@ public class ImportDialog extends JDialog implements ActionListener {
 		// some dialog settings
 		this.setLocationRelativeTo(this.getParent());
 		this.setTitle("Pick data source");
-		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.setMinimumSize(new Dimension(560, 295));
 		this.setResizable(false);
+		this.addWindowListener(this);
+	}
+
+	public void windowActivated(final WindowEvent e) { // intentionally empty
+	}
+
+	public void windowClosed(final WindowEvent e) { // intentionally empty
+	}
+
+	public void windowClosing(final WindowEvent e) {
+		if (!this.getOwner().isVisible()) {
+			// kill the app when it is the welcoming dialog
+			System.exit(0);
+		}
+	}
+
+	public void windowDeactivated(final WindowEvent e) { // intentionally
+															// empty
+	}
+
+	public void windowDeiconified(final WindowEvent e) { // intentionally
+															// empty
+	}
+
+	public void windowIconified(final WindowEvent e) { // intentionally empty
+	}
+
+	public void windowOpened(final WindowEvent e) { // intentionally empty
 	}
 }
