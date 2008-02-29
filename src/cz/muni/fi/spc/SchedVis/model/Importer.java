@@ -15,6 +15,8 @@ import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import javax.swing.SwingWorker;
+
 /**
  * A tool to import data from specific files into the SQLite database used by
  * this application.
@@ -22,7 +24,7 @@ import java.util.Iterator;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class Importer {
+public class Importer extends SwingWorker<Void, Void> {
 
 	private static SQL sql;
 	private static Integer EVENT_JOB_ARRIVAL = 1;
@@ -36,6 +38,47 @@ public class Importer {
 	private static Integer EVENT_MACHINE_RESTART_JOB_MOVE_BAD = 9;
 	private static Integer EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD = 10;
 	private static Integer EVENT_MACHINE_FAILURE_JOB_MOVE_BAD = 11;
+
+	private final File machinesFile;
+	private final File dataFile;
+	private final String name;
+
+	private boolean result = false;
+
+	public Importer(final File machinesFile, final File dataFile,
+			final String name) {
+		this.machinesFile = machinesFile;
+		this.dataFile = dataFile;
+		this.name = name;
+	}
+
+	@Override
+	public Void doInBackground() {
+		try {
+			Importer.sql = SQL.getInstance(this.name, true);
+		} catch (final Exception e) {
+			return null;
+		}
+		if (!this.machinesFile.canRead() || !this.dataFile.canRead()) {
+			return null;
+		}
+		this.updateProgressBar(true, 0);
+		try {
+			this.parseMachines(new BufferedReader(new FileReader(
+					this.machinesFile)));
+			this
+					.parseDataSet(new BufferedReader(new FileReader(
+							this.dataFile)));
+		} catch (final Exception e) {
+			return null;
+		}
+		this.result = true;
+		return null;
+	}
+
+	public boolean isSuccess() {
+		return this.result;
+	}
 
 	/**
 	 * Parse the data set and insert its data into database.
@@ -51,7 +94,7 @@ public class Importer {
 	 * @fixme Once data set format is sane, implement parsing of CPUs and
 	 *        architectures.
 	 */
-	private static void parseDataSet(final BufferedReader reader)
+	private void parseDataSet(final BufferedReader reader)
 			throws ParseException, IOException, SQLException {
 		// create event types table
 		try {
@@ -154,9 +197,11 @@ public class Importer {
 					parseData[1] = parts[6];
 					break;
 				case 4: // other known events
-					if (eventTypes.get(parts[0]).equals(Importer.EVENT_JOB_EXECUTION_START)) {
-						String strippedLine = parts[3].substring(1, parts[3].length() - 1);
-						String[] strParts = strippedLine.split(";");
+					if (eventTypes.get(parts[0]).equals(
+							Importer.EVENT_JOB_EXECUTION_START)) {
+						final String strippedLine = parts[3].substring(1,
+								parts[3].length() - 1);
+						final String[] strParts = strippedLine.split(";");
 						affectedMachineId = strParts[0];
 					}
 					parseData = new String[1];
@@ -182,7 +227,7 @@ public class Importer {
 				}
 				eventStmt.execute();
 				eventId++;
-				Integer parentEventId = eventId;
+				final Integer parentEventId = eventId;
 				if (parseData != null) { // parse the parameters
 					for (String machineLine : parseData) {
 						if (!machineLine.startsWith("<")
@@ -201,27 +246,28 @@ public class Importer {
 									charCount);
 						} else {
 							for (Integer job = 1; job < params.length; job++) {
-								final String jobDetails[] = params[job].split(";");
+								final String jobDetails[] = params[job]
+										.split(";");
 								eventDetailStmt.clearParameters();
 								eventDetailStmt.setInt(1, parentEventId);
 								eventDetailStmt.setString(2, params[0]);
-								eventDetailStmt.setInt(3,
-										new Integer(jobDetails[0]));
-								eventDetailStmt.setInt(4,
-										new Integer(jobDetails[1]));
+								eventDetailStmt.setInt(3, new Integer(
+										jobDetails[0]));
+								eventDetailStmt.setInt(4, new Integer(
+										jobDetails[1]));
 								eventDetailStmt.setString(5, jobDetails[2]);
 								eventDetailStmt.setString(6, jobDetails[3]);
-								eventDetailStmt.setInt(7,
-										new Integer(jobDetails[4]));
-								eventDetailStmt.setInt(8,
-										new Integer(jobDetails[5]));
-								eventDetailStmt.setInt(9,
-										new Integer(jobDetails[6]));
+								eventDetailStmt.setInt(7, new Integer(
+										jobDetails[4]));
+								eventDetailStmt.setInt(8, new Integer(
+										jobDetails[5]));
+								eventDetailStmt.setInt(9, new Integer(
+										jobDetails[6]));
 								eventDetailStmt.setInt(10, new Integer(
 										jobDetails[7]));
 								if (!jobDetails[8].equals("-1")) { // deadline
 									eventDetailStmt.setInt(11, new Integer(
-											jobDetails[8]));									
+											jobDetails[8]));
 								}
 								eventDetailStmt.execute();
 								eventId++;
@@ -230,6 +276,7 @@ public class Importer {
 					}
 				}
 				charCount += line.length(); // take the line as parsed
+				this.updateProgressBar(false, charCount);
 			}
 		}
 	}
@@ -250,7 +297,7 @@ public class Importer {
 	 * @todo Implement transactions.
 	 * @todo Implement foreign keys somehow. (No support in SQLite.)
 	 */
-	private static void parseMachines(final BufferedReader reader)
+	private void parseMachines(final BufferedReader reader)
 			throws ParseException, IOException, SQLException {
 		boolean isEOF = false;
 		Integer lineNo = 0;
@@ -263,7 +310,7 @@ public class Importer {
 					.executeUpdate("CREATE TABLE IF NOT EXISTS machine_groups (id_machine_groups INTEGER PRIMARY KEY, name TEXT UNIQUE);");
 		} catch (final SQLException e) {
 			throw new SQLException("Error creating machines table.", e);
-		}		
+		}
 		// create machines table
 		try {
 			final Statement stmt = Importer.sql.getConnection()
@@ -334,28 +381,21 @@ public class Importer {
 					}
 				}
 				charNo += line.length();
+				this.updateProgressBar(true, charNo);
 			}
 		}
 	}
 
-	public static boolean process(final File machinesFile, final File dataFile,
-			final String name) {
-		try {
-			Importer.sql = SQL.getInstance(name, true);
-		} catch (final Exception e) {
-			return false;
+	private void updateProgressBar(boolean parsingMachines,
+			final Integer charCount) {
+		final Double totalLength = new Double(this.machinesFile.length()
+				+ this.dataFile.length());
+		Double readLength = new Double(charCount);
+		if (!parsingMachines) {
+			readLength += this.machinesFile.length();
 		}
-		if (!machinesFile.canRead() || !dataFile.canRead()) {
-			return false;
-		}
-		try {
-			Importer.parseMachines(new BufferedReader(new FileReader(
-					machinesFile)));
-			Importer.parseDataSet(new BufferedReader(new FileReader(dataFile)));
-		} catch (final Exception e) {
-			return false;
-		}
-		return true;
+		this.setProgress(new Double((readLength * 100) / totalLength)
+				.intValue());
 	}
 
 }

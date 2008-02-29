@@ -4,6 +4,7 @@
 package cz.muni.fi.spc.SchedVis.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -14,6 +15,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Enumeration;
 
@@ -25,7 +28,9 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
+import javax.swing.WindowConstants;
 
 import cz.muni.fi.spc.SchedVis.model.Importer;
 import cz.muni.fi.spc.SchedVis.model.SQL;
@@ -37,7 +42,7 @@ import cz.muni.fi.spc.SchedVis.model.SQL;
  * 
  */
 public class ImportDialog extends JDialog implements ActionListener,
-		WindowListener {
+		WindowListener, PropertyChangeListener {
 
 	private static String ACTION_NEW_BUTTON_CLICKED = "NewButton clicked.";
 	private static String ACTION_OLD_BUTTON_CLICKED = "OldButton clicked.";
@@ -50,6 +55,9 @@ public class ImportDialog extends JDialog implements ActionListener,
 	private JLabeledField fileName;
 	private JButton submitButton;
 	private ButtonGroup bg;
+	private JProgressBar pb;
+	private Importer task;
+	private JDialog pd;
 
 	/**
 	 * 
@@ -229,12 +237,36 @@ public class ImportDialog extends JDialog implements ActionListener,
 				final File file1 = new File(filename1);
 				final File file2 = new File(filename2);
 				if (file1.exists() && file2.exists() && (name.length() > 0)) {
-					if (this.processSource(file1, file2, name)) {
-						this.display(false);
-					} else {
-						JOptionPane.showMessageDialog(this,
-								"Error while processing source files.");
-					}
+					// start the importing task
+					this.task = new Importer(file1, file2, name);
+					this.task.addPropertyChangeListener(this);
+					this.task.execute();
+					// show a dialog
+					// TODO convert this dialog into a separate class
+					this.pd = new JDialog();
+					this.setCursor(Cursor
+							.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					this.pd.setCursor(Cursor
+							.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					this.pd.setLocationRelativeTo(this);
+					this.pd.setModal(true);
+					this.pd.setTitle("Importing selected source files...");
+					this.pd.setMinimumSize(new Dimension(350, 60));
+					this.pd.setResizable(false);
+					this.pd
+							.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+					this.pb = new JProgressBar();
+					this.pb.setMinimum(0);
+					this.pb.setMaximum(100);
+					this.pb.setStringPainted(true);
+					this.pb.setEnabled(true);
+					this.pd.add(new JLabel(
+							"This may take a while. Please, be patient."),
+							BorderLayout.PAGE_END);
+					this.pd.add(new JLabel("Progress: "),
+							BorderLayout.LINE_START);
+					this.pd.add(this.pb);
+					this.pd.setVisible(true);
 				} else {
 					JOptionPane
 							.showMessageDialog(this,
@@ -283,38 +315,20 @@ public class ImportDialog extends JDialog implements ActionListener,
 		return true;
 	}
 
-	/**
-	 * Process a new data set.
-	 * 
-	 * @param machineFile
-	 *            File with data about machines.
-	 * @param dataFile
-	 *            File with data about events.
-	 * @param name
-	 *            Name for the new dataset.
-	 * @fixme Damn this stupid dialog. Refactor somehow.
-	 */
-	private boolean processSource(final File machineFile, final File dataFile,
-			final String name) {
-		final JDialog dialog = new JDialog(this);
-		dialog.setModal(false);
-		dialog.setAlwaysOnTop(true);
-		dialog.setTitle("Processing source files...");
-		dialog.setMinimumSize(new Dimension(450, 71));
-		dialog.setLocationRelativeTo(this);
-		dialog.setResizable(false);
-		final JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-		panel.add(new JLabel("Processing your source files may take a while."));
-		panel
-				.add(new JLabel(
-						"You might want to consider having yourself a nice warm cup of Java."));
-		panel.add(new JLabel("Or whatever. Enjoy."));
-		dialog.add(panel);
-		dialog.setVisible(true);
-		final boolean result = Importer.process(machineFile, dataFile, name);
-		dialog.setVisible(false);
-		return result;
+	public void propertyChange(final PropertyChangeEvent e) {
+		if (e.getPropertyName().equals("progress")) {
+			this.pb.setValue((Integer) e.getNewValue());
+		} else if (e.getPropertyName().equals("state")) {
+			if (this.task.isDone()) {
+				this.pd.setVisible(false);
+				this.setCursor(null);
+				if (this.task.isSuccess()) {
+					this.setVisible(false);
+				} else {
+					JOptionPane.showMessageDialog(this, "Error during import.");
+				}
+			}
+		}
 	}
 
 	private void specialize() {
