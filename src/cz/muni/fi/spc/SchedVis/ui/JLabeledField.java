@@ -56,6 +56,10 @@ public class JLabeledField extends JPanel {
 		this.specialize(label);
 	}
 
+	public String getValue() {
+		return this.value.getText();
+	}
+
 	@Override
 	public void setEnabled(final boolean enabled) {
 		this.value.setEnabled(enabled);
@@ -64,10 +68,6 @@ public class JLabeledField extends JPanel {
 
 	public void setValue(final String text) {
 		this.value.setText(text);
-	}
-	
-	public String getValue() {
-		return this.value.getText();
 	}
 
 	private void specialize(final String label) {
