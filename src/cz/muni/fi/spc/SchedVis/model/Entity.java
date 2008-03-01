@@ -12,6 +12,8 @@ import java.sql.SQLException;
  * 
  */
 public class Entity {
+	
+	protected static Integer INVALID_KEY_VALUE = -1;
 
 	protected static Connection getConnection() {
 		return SQL.getInstance().getConnection();

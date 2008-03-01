@@ -22,6 +22,7 @@ public class MainMenu implements UIElement, ActionListener, ItemListener {
 
 	private static String ACTION_QUIT = "quit";
 	private static String ACTION_NEW = "new";
+	private static String ACTION_MANAGE_GROUPS = "manage_groups";
 	private final JMenuBar menuBar;
 	private final JFrame frame;
 
@@ -66,6 +67,13 @@ public class MainMenu implements UIElement, ActionListener, ItemListener {
 				"The classical edit options.");
 		this.menuBar.add(menu);
 
+		menuItem = new JMenuItem("Manage groups...", KeyEvent.VK_G);
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Opens a dialog used to manage machine groups.");
+		menuItem.setActionCommand(MainMenu.ACTION_MANAGE_GROUPS);
+		menuItem.addActionListener(this);
+		menu.add(menuItem);
+
 		// Build the first menu.
 		menu = new JMenu("Help");
 		menu.setMnemonic(KeyEvent.VK_H);
@@ -91,8 +99,10 @@ public class MainMenu implements UIElement, ActionListener, ItemListener {
 		if (command.equals(MainMenu.ACTION_QUIT)) {
 			this.quit();
 		} else if (command.equals(MainMenu.ACTION_NEW)) {
-			// display a dialog
 			final ImportDialog dialog = new ImportDialog(this.frame, true);
+			dialog.setVisible(true);
+		} else if (command.equals(MainMenu.ACTION_MANAGE_GROUPS)) {
+			final GroupsDialog dialog = new GroupsDialog(this.frame, true);
 			dialog.setVisible(true);
 		}
 	}

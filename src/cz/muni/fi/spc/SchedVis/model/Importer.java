@@ -307,7 +307,7 @@ public class Importer extends SwingWorker<Void, Void> {
 			final Statement stmt = Importer.sql.getConnection()
 					.createStatement();
 			stmt
-					.executeUpdate("CREATE TABLE IF NOT EXISTS machine_groups (id_machine_groups INTEGER PRIMARY KEY, name TEXT UNIQUE);");
+					.executeUpdate("CREATE TABLE IF NOT EXISTS machine_groups (id_machine_groups INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE);");
 		} catch (final SQLException e) {
 			throw new SQLException("Error creating machines table.", e);
 		}
