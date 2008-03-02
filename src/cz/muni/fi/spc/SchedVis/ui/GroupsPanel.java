@@ -66,19 +66,23 @@ public class GroupsPanel extends JBorderedPanel {
 		this.specialize();
 	}
 
+	public AbstractSet<Integer> getSelectedGroups() {
+		final AbstractSet<Integer> selectedBoxes = new HashSet<Integer>();
+		for (final Integer groupId : this.boxes.keySet()) {
+			if (this.boxes.get(groupId).isSelected()) {
+				selectedBoxes.add(groupId);
+			}
+		}
+		return selectedBoxes;
+	}
+
 	private void specialize() {
 		this.setLayout(new GridLayout(0, 2));
 		this.update();
 	}
 
 	public void update() {
-		// get selected groups
-		AbstractSet<Integer> selectedBoxes = new HashSet<Integer>();
-		for (Integer groupId: this.boxes.keySet()) {
-			if (this.boxes.get(groupId).isSelected()) {
-				selectedBoxes.add(groupId);
-			}
-		}
+		final AbstractSet<Integer> selectedGroups = this.getSelectedGroups();
 		// assemble new groups
 		try {
 			final ResultSet rs = GroupEntity.getAllGroups();
@@ -94,9 +98,9 @@ public class GroupsPanel extends JBorderedPanel {
 		// update the widget with new groups
 		this.removeAll();
 		for (final Integer groupId : this.boxes.keySet()) {
-			JCheckBox box = this.boxes.get(groupId);
-			 // select those selected before
-			if (selectedBoxes.contains(groupId)) {
+			final JCheckBox box = this.boxes.get(groupId);
+			// select those selected before
+			if (selectedGroups.contains(groupId)) {
 				box.setSelected(true);
 			}
 			// add it to the screen
