@@ -1,13 +1,15 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis.model;
+package cz.muni.fi.spc.SchedVis.model.models;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.swing.DefaultListModel;
 import javax.swing.event.ListDataListener;
+
+import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -35,9 +37,9 @@ public class MachinesListModel extends DefaultListModel {
 	public void update() {
 		ResultSet rs;
 		if (this.groupId == null) {
-			rs = MachineEntity.getAllUngrouped();
+			rs = Machine.getAllUngrouped();
 		} else {
-			rs = MachineEntity.getAllInGroup(this.groupId);
+			rs = Machine.getAllInGroup(this.groupId);
 		}
 		try {
 			this.removeAllElements();

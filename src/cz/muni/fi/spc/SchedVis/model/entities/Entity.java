@@ -1,11 +1,13 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis.model;
+package cz.muni.fi.spc.SchedVis.model.entities;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
+import cz.muni.fi.spc.SchedVis.model.SQL;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>

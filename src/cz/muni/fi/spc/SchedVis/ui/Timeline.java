@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import cz.muni.fi.spc.SchedVis.model.TimelineSliderModel;
+import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
 
 /**
  * Implements a timeline "widget," used to move forward or backwards on the

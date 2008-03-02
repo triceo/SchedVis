@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis.model;
+package cz.muni.fi.spc.SchedVis.model.entities;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,7 +13,7 @@ import java.util.TreeSet;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class TimelineEntity extends Entity {
+public class Timeline extends Entity {
 
 	public static SortedSet<Number> getAllClocks() {
 		try {
@@ -67,7 +67,7 @@ public class TimelineEntity extends Entity {
 	/**
 	 * 
 	 */
-	public TimelineEntity() {
+	public Timeline() {
 		// TODO Auto-generated constructor stub
 	}
 

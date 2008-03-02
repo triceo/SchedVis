@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis.model;
+package cz.muni.fi.spc.SchedVis.model.entities;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,7 +11,7 @@ import java.sql.SQLException;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class MachineEntity extends Entity {
+public class Machine extends Entity {
 
 	public static ResultSet getAllUngrouped() {
 		try {
@@ -64,7 +64,7 @@ public class MachineEntity extends Entity {
 	/**
 	 * 
 	 */
-	public MachineEntity() {
+	public Machine() {
 		super();
 	}
 

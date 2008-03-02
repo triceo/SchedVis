@@ -6,7 +6,7 @@ package cz.muni.fi.spc.SchedVis.ui;
 import javax.swing.JList;
 import javax.swing.event.ListSelectionListener;
 
-import cz.muni.fi.spc.SchedVis.model.MachinesListModel;
+import cz.muni.fi.spc.SchedVis.model.models.MachinesListModel;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
