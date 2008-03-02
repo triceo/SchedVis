@@ -63,7 +63,7 @@ public class MainWindow {
 		dialog.setVisible(false);
 
 		// Create and set up the content pane.
-		MainWindow.frame.setJMenuBar(new MainMenu(MainWindow.frame).get());
+		MainWindow.frame.setJMenuBar(new JMainMenu(MainWindow.frame));
 		final Container pane = this.createContentPane();
 		MainWindow.frame.setContentPane(pane);
 

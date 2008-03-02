@@ -16,20 +16,24 @@ import javax.swing.JMenuItem;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class MainMenu implements ActionListener {
+public class JMainMenu extends JMenuBar implements ActionListener {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -301105021169477153L;
+	
 	private static String ACTION_QUIT = "quit";
 	private static String ACTION_NEW = "new";
 	private static String ACTION_MANAGE_GROUPS = "manage_groups";
-	private final JMenuBar menuBar;
+
 	private final JFrame frame;
 
 	/**
 	 * Class constructor. Creates the whole menu thing.
 	 */
-	public MainMenu(final JFrame frame) {
+	public JMainMenu(final JFrame frame) {
 		// Create the menu bar.
-		this.menuBar = new JMenuBar();
 		this.frame = frame;
 		JMenu menu = null;
 		JMenuItem menuItem = null;
@@ -39,13 +43,13 @@ public class MainMenu implements ActionListener {
 		menu.setMnemonic(KeyEvent.VK_F);
 		menu.getAccessibleContext().setAccessibleDescription(
 				"The classical file menu as seen in other apps.");
-		this.menuBar.add(menu);
+		this.add(menu);
 
 		// a group of JMenuItems
 		menuItem = new JMenuItem("New data source", KeyEvent.VK_N);
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Process new batch of data.");
-		menuItem.setActionCommand(MainMenu.ACTION_NEW);
+		menuItem.setActionCommand(JMainMenu.ACTION_NEW);
 		menuItem.addActionListener(this);
 		menu.add(menuItem);
 
@@ -54,7 +58,7 @@ public class MainMenu implements ActionListener {
 		menuItem = new JMenuItem("Quit", KeyEvent.VK_Q);
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Terminates the simulation and exits the application.");
-		menuItem.setActionCommand(MainMenu.ACTION_QUIT);
+		menuItem.setActionCommand(JMainMenu.ACTION_QUIT);
 		menuItem.addActionListener(this);
 		menu.add(menuItem);
 
@@ -63,12 +67,12 @@ public class MainMenu implements ActionListener {
 		menu.setMnemonic(KeyEvent.VK_E);
 		menu.getAccessibleContext().setAccessibleDescription(
 				"The classical edit options.");
-		this.menuBar.add(menu);
+		this.add(menu);
 
 		menuItem = new JMenuItem("Manage groups...", KeyEvent.VK_G);
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Opens a dialog used to manage machine groups.");
-		menuItem.setActionCommand(MainMenu.ACTION_MANAGE_GROUPS);
+		menuItem.setActionCommand(JMainMenu.ACTION_MANAGE_GROUPS);
 		menuItem.addActionListener(this);
 		menu.add(menuItem);
 
@@ -77,7 +81,7 @@ public class MainMenu implements ActionListener {
 		menu.setMnemonic(KeyEvent.VK_H);
 		menu.getAccessibleContext().setAccessibleDescription(
 				"The classical support options.");
-		this.menuBar.add(menu);
+		this.add(menu);
 
 		menuItem = new JMenuItem("Help contents...", KeyEvent.VK_H);
 		menuItem.getAccessibleContext().setAccessibleDescription(
@@ -94,19 +98,15 @@ public class MainMenu implements ActionListener {
 
 	public void actionPerformed(final ActionEvent event) {
 		final String command = event.getActionCommand();
-		if (command.equals(MainMenu.ACTION_QUIT)) {
+		if (command.equals(JMainMenu.ACTION_QUIT)) {
 			this.quit();
-		} else if (command.equals(MainMenu.ACTION_NEW)) {
+		} else if (command.equals(JMainMenu.ACTION_NEW)) {
 			final ImportDialog dialog = new ImportDialog(this.frame, true);
 			dialog.setVisible(true);
-		} else if (command.equals(MainMenu.ACTION_MANAGE_GROUPS)) {
+		} else if (command.equals(JMainMenu.ACTION_MANAGE_GROUPS)) {
 			final GroupsDialog dialog = new GroupsDialog(this.frame, true);
 			dialog.setVisible(true);
 		}
-	}
-
-	public JMenuBar get() {
-		return this.menuBar;
 	}
 
 	protected void quit() {
