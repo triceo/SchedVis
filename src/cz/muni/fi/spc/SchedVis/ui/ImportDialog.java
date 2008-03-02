@@ -228,6 +228,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 				final File file2 = new File(filename2);
 				if (file1.exists() && file2.exists() && (name.length() > 0)) {
 					new ImportProgressDialog(this, file1, file2, name);
+					MainWindow.update();
 				} else {
 					JOptionPane
 							.showMessageDialog(this,

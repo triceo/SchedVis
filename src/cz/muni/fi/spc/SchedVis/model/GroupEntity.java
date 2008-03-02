@@ -16,7 +16,7 @@ public class GroupEntity extends Entity {
 	public static ResultSet getAllGroups() {
 		try {
 			final PreparedStatement stmt = Entity
-					.getStatement("SELECT * FROM machine_groups ORDER BY name;");
+					.getStatement("SELECT * FROM machine_groups ORDER BY name ASC;");
 			return stmt.executeQuery();
 		} catch (final SQLException e) {
 			return null;

@@ -6,7 +6,6 @@ package cz.muni.fi.spc.SchedVis.ui;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
@@ -25,42 +24,53 @@ import javax.swing.JTree;
  * 
  */
 public class MainWindow {
-	/**
-	 * Create the GUI and show it. For thread safety, this method should be
-	 * invoked from the event-dispatching thread.
-	 */
-	private static void createAndShowGUI() {
-		// Create and set up the window.
-		final JFrame frame = new JFrame("SchedVis");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		// display a dialog
-		final ImportDialog dialog = new ImportDialog(frame, true);
-		dialog.setVisible(true);
-		dialog.setVisible(false);
+	private static GroupsPanel groupsPanel;
 
-		// Create and set up the content pane.
-		final MainWindow ui = new MainWindow();
-		frame.setJMenuBar(new MainMenu(frame).get());
-		final Container pane = ui.createContentPane();
-		frame.setContentPane(pane);
-
-		// Display the window.
-		frame.setMinimumSize(pane.getPreferredSize());
-		frame.setVisible(true);
-	}
+	private static JFrame frame;
 
 	public static void main(final String[] args) {
 		// Schedule a job for the event-dispatching thread:
 		// creating and showing this application's GUI.
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				MainWindow.createAndShowGUI();
+				final MainWindow ui = new MainWindow();
+				ui.createAndShowGUI();
 			}
 		});
 	}
 
+	public static void update() {
+		MainWindow.groupsPanel.update();
+		MainWindow.frame.pack();
+		MainWindow.frame.repaint();
+	}
+
 	String newline = "\n";
+
+	/**
+	 * Create the GUI and show it. For thread safety, this method should be
+	 * invoked from the event-dispatching thread.
+	 */
+	private void createAndShowGUI() {
+		// Create and set up the window.
+		MainWindow.frame = new JFrame("SchedVis");
+		MainWindow.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		// display a dialog
+		final ImportDialog dialog = new ImportDialog(MainWindow.frame, true);
+		dialog.setVisible(true);
+		dialog.setVisible(false);
+
+		// Create and set up the content pane.
+		MainWindow.frame.setJMenuBar(new MainMenu(MainWindow.frame).get());
+		final Container pane = this.createContentPane();
+		MainWindow.frame.setContentPane(pane);
+
+		// Display the window.
+		MainWindow.frame.setMinimumSize(pane.getPreferredSize());
+		MainWindow.frame.setVisible(true);
+	}
 
 	public Container createContentPane() {
 		// get right panel
@@ -85,19 +95,9 @@ public class MainWindow {
 		final JPanel settingsPanel = new JBorderedPanel("Settings");
 		settingsPanel.setLayout(new BoxLayout(settingsPanel,
 				BoxLayout.PAGE_AXIS));
-		// get per-CPU panel
-		final JPanel cpuPanel = new JBorderedPanel("Only show machines with:");
-		cpuPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		for (final int i : new int[] { 1, 2, 4, 8, 16 }) {
-			String text;
-			if (i == 1) {
-				text = " CPU";
-			} else {
-				text = " CPUs";
-			}
-			cpuPanel.add(new JCheckBox(i + text));
-		}
-		settingsPanel.add(cpuPanel);
+		// get panel with group picker
+		MainWindow.groupsPanel = new GroupsPanel("Show following groups:");
+		settingsPanel.add(MainWindow.groupsPanel);
 		// get timescale panel
 		final JPanel timePanel = new JBorderedPanel("Each step takes [s]:");
 		timePanel.setLayout(new BoxLayout(timePanel, BoxLayout.PAGE_AXIS));

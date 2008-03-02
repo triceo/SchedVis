@@ -271,6 +271,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 		} else if (command.equals(this.COMMAND__CLOSE_DIALOG)) {
 			this.setVisible(false);
 		}
+		MainWindow.update();
 	}
 
 	public void contentsChanged(final ListDataEvent e) {
