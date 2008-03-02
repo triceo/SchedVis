@@ -7,6 +7,10 @@ import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import javax.swing.JCheckBox;
 
@@ -22,6 +26,8 @@ public class GroupsPanel extends JBorderedPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 8820656296600471333L;
+
+	private final AbstractMap<Integer, JCheckBox> boxes = new HashMap<Integer, JCheckBox>();
 
 	/**
 	 * @param isDoubleBuffered
@@ -66,14 +72,35 @@ public class GroupsPanel extends JBorderedPanel {
 	}
 
 	public void update() {
-		this.removeAll();
+		// get selected groups
+		AbstractSet<Integer> selectedBoxes = new HashSet<Integer>();
+		for (Integer groupId: this.boxes.keySet()) {
+			if (this.boxes.get(groupId).isSelected()) {
+				selectedBoxes.add(groupId);
+			}
+		}
+		// assemble new groups
 		try {
 			final ResultSet rs = GroupEntity.getAllGroups();
+			this.boxes.clear();
 			while (rs.next()) {
-				this.add(new JCheckBox(rs.getString("name")));
+				this.boxes.put(rs.getInt("id_machine_groups"), new JCheckBox(rs
+						.getString("name")));
 			}
+			this.boxes.put(-1, new JCheckBox("Ungrouped"));
 		} catch (final SQLException e) {
 			// do nothing
+		}
+		// update the widget with new groups
+		this.removeAll();
+		for (final Integer groupId : this.boxes.keySet()) {
+			JCheckBox box = this.boxes.get(groupId);
+			 // select those selected before
+			if (selectedBoxes.contains(groupId)) {
+				box.setSelected(true);
+			}
+			// add it to the screen
+			this.add(box);
 		}
 	}
 
