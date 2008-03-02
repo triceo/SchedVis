@@ -37,7 +37,7 @@ public class GroupsListModel extends DefaultComboBoxModel {
 			while (rs.next()) {
 				this.addElement(rs.getObject("name"));
 			}
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			// do nothing
 		}
 	}

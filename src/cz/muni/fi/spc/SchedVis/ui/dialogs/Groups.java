@@ -100,8 +100,7 @@ public class Groups extends JDialog implements ActionListener,
 	 * @param title
 	 * @param modal
 	 */
-	public Groups(final Dialog owner, final String title,
-			final boolean modal) {
+	public Groups(final Dialog owner, final String title, final boolean modal) {
 		super(owner, title, modal);
 		this.specialize();
 	}
@@ -112,8 +111,8 @@ public class Groups extends JDialog implements ActionListener,
 	 * @param modal
 	 * @param gc
 	 */
-	public Groups(final Dialog owner, final String title,
-			final boolean modal, final GraphicsConfiguration gc) {
+	public Groups(final Dialog owner, final String title, final boolean modal,
+			final GraphicsConfiguration gc) {
 		super(owner, title, modal, gc);
 		this.specialize();
 	}
@@ -149,8 +148,7 @@ public class Groups extends JDialog implements ActionListener,
 	 * @param title
 	 * @param modal
 	 */
-	public Groups(final Frame owner, final String title,
-			final boolean modal) {
+	public Groups(final Frame owner, final String title, final boolean modal) {
 		super(owner, title, modal);
 		this.specialize();
 	}
@@ -161,8 +159,8 @@ public class Groups extends JDialog implements ActionListener,
 	 * @param modal
 	 * @param gc
 	 */
-	public Groups(final Frame owner, final String title,
-			final boolean modal, final GraphicsConfiguration gc) {
+	public Groups(final Frame owner, final String title, final boolean modal,
+			final GraphicsConfiguration gc) {
 		super(owner, title, modal, gc);
 		this.specialize();
 	}
@@ -244,7 +242,8 @@ public class Groups extends JDialog implements ActionListener,
 				this.availableMachinesList.update();
 				if (model.getSize() == 0) {
 					this.deleteGroupButton.setEnabled(false);
-					this.groupedMachinesList.setModel(new MachinesListModel(-1, this));
+					this.groupedMachinesList.setModel(new MachinesListModel(-1,
+							this));
 					this.groupedMachinesList.setEnabled(false);
 					this.availableMachinesList.setEnabled(false);
 					this.addMachineButton.setEnabled(false);
@@ -382,7 +381,7 @@ public class Groups extends JDialog implements ActionListener,
 	}
 
 	public void valueChanged(final ListSelectionEvent e) {
-		Object src = e.getSource(); 
+		final Object src = e.getSource();
 		if (src.equals(this.availableMachinesList)) {
 			if (this.availableMachinesList.getSelectedIndex() == -1) {
 				this.addMachineButton.setEnabled(false);
@@ -394,7 +393,7 @@ public class Groups extends JDialog implements ActionListener,
 				this.removeMachineButton.setEnabled(false);
 			} else {
 				this.removeMachineButton.setEnabled(true);
-			}			
+			}
 		}
 	}
 

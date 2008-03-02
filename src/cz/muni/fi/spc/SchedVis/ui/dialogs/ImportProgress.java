@@ -24,8 +24,7 @@ import cz.muni.fi.spc.SchedVis.model.Importer;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class ImportProgress extends JDialog implements
-		PropertyChangeListener {
+public class ImportProgress extends JDialog implements PropertyChangeListener {
 
 	/**
 	 * 

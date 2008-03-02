@@ -13,7 +13,7 @@ import cz.muni.fi.spc.SchedVis.ui.MainFrame;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
 public final class Main {
-	
+
 	private static MainFrame frame;
 
 	/**
@@ -27,12 +27,12 @@ public final class Main {
 		// creating and showing this application's GUI.
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				frame = new MainFrame();
-				frame.setVisible(true);
+				Main.frame = new MainFrame();
+				Main.frame.setVisible(true);
 			}
 		});
 	}
-	
+
 	public static void update() {
 		Main.frame.update();
 	}

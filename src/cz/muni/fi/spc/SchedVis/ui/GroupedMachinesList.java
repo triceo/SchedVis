@@ -23,7 +23,7 @@ public class GroupedMachinesList extends JList {
 	 * 
 	 */
 	public GroupedMachinesList(final Integer groupId,
-			ListSelectionListener owner) {
+			final ListSelectionListener owner) {
 		this.setModel(new MachinesListModel(groupId, null));
 		this.update();
 		this.addListSelectionListener(owner);

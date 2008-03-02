@@ -25,7 +25,7 @@ public class MainMenu extends JMenuBar implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = -301105021169477153L;
-	
+
 	private static String ACTION_QUIT = "quit";
 	private static String ACTION_NEW = "new";
 	private static String ACTION_MANAGE_GROUPS = "manage_groups";

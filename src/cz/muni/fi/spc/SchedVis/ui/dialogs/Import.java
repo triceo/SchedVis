@@ -39,8 +39,7 @@ import cz.muni.fi.spc.SchedVis.ui.common.JLabeledField;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class Import extends JDialog implements ActionListener,
-		WindowListener {
+public class Import extends JDialog implements ActionListener, WindowListener {
 
 	private static String ACTION_NEW_BUTTON_CLICKED = "NewButton clicked.";
 	private static String ACTION_OLD_BUTTON_CLICKED = "OldButton clicked.";
@@ -93,8 +92,7 @@ public class Import extends JDialog implements ActionListener,
 	 * @param title
 	 * @param modal
 	 */
-	public Import(final Dialog owner, final String title,
-			final boolean modal) {
+	public Import(final Dialog owner, final String title, final boolean modal) {
 		super(owner, title, modal);
 		this.specialize();
 	}
@@ -105,8 +103,8 @@ public class Import extends JDialog implements ActionListener,
 	 * @param modal
 	 * @param gc
 	 */
-	public Import(final Dialog owner, final String title,
-			final boolean modal, final GraphicsConfiguration gc) {
+	public Import(final Dialog owner, final String title, final boolean modal,
+			final GraphicsConfiguration gc) {
 		super(owner, title, modal, gc);
 		this.specialize();
 	}
@@ -142,8 +140,7 @@ public class Import extends JDialog implements ActionListener,
 	 * @param title
 	 * @param modal
 	 */
-	public Import(final Frame owner, final String title,
-			final boolean modal) {
+	public Import(final Frame owner, final String title, final boolean modal) {
 		super(owner, title, modal);
 		this.specialize();
 	}
@@ -154,8 +151,8 @@ public class Import extends JDialog implements ActionListener,
 	 * @param modal
 	 * @param gc
 	 */
-	public Import(final Frame owner, final String title,
-			final boolean modal, final GraphicsConfiguration gc) {
+	public Import(final Frame owner, final String title, final boolean modal,
+			final GraphicsConfiguration gc) {
 		super(owner, title, modal, gc);
 		this.specialize();
 	}
@@ -336,8 +333,7 @@ public class Import extends JDialog implements ActionListener,
 		final JPanel submitPane = new JPanel();
 		submitPane.setLayout(new FlowLayout(FlowLayout.CENTER));
 		this.submitButton = new JButton("Continue >>");
-		this.submitButton
-				.setActionCommand(Import.ACTION_SUBMIT_BUTTON_CLICKED);
+		this.submitButton.setActionCommand(Import.ACTION_SUBMIT_BUTTON_CLICKED);
 		this.submitButton.addActionListener(this);
 		submitPane.add(this.submitButton);
 		pane.add(submitPane);

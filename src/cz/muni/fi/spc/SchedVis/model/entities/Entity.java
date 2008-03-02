@@ -14,7 +14,7 @@ import cz.muni.fi.spc.SchedVis.model.SQL;
  * 
  */
 public class Entity {
-	
+
 	protected static Integer INVALID_KEY_VALUE = -1;
 
 	protected static Connection getConnection() {
