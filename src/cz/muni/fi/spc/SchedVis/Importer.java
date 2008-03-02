@@ -9,7 +9,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.ParseException;
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -18,6 +17,7 @@ import java.util.Iterator;
 import javax.swing.SwingWorker;
 
 import cz.muni.fi.spc.SchedVis.model.SQL;
+import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 
 /**
  * A tool to import data from specific files into the SQLite database used by
@@ -29,6 +29,7 @@ import cz.muni.fi.spc.SchedVis.model.SQL;
 public class Importer extends SwingWorker<Void, Void> {
 
 	private static SQL sql;
+
 	private static Integer EVENT_JOB_ARRIVAL = 1;
 	private static Integer EVENT_JOB_EXECUTION_START = 2;
 	private static Integer EVENT_JOB_CANCEL = 3;
@@ -40,6 +41,7 @@ public class Importer extends SwingWorker<Void, Void> {
 	private static Integer EVENT_MACHINE_RESTART_JOB_MOVE_BAD = 9;
 	private static Integer EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD = 10;
 	private static Integer EVENT_MACHINE_FAILURE_JOB_MOVE_BAD = 11;
+	AbstractMap<String, Integer> machineIds = new HashMap<String, Integer>();
 
 	private final File machinesFile;
 	private final File dataFile;
@@ -63,48 +65,51 @@ public class Importer extends SwingWorker<Void, Void> {
 	private void createSchema() throws SQLException {
 		// create machine groups' table
 		try {
-			final Statement stmt = Importer.sql.getConnection()
-					.createStatement();
-			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS machine_groups ("
-					+ "id_machine_groups INTEGER PRIMARY KEY AUTOINCREMENT, "
-					+ "name TEXT UNIQUE);");
+			Importer.sql
+					.getConnection()
+					.createStatement()
+					.executeUpdate(
+							"CREATE TABLE IF NOT EXISTS machine_groups ("
+									+ "id_machine_groups INTEGER PRIMARY KEY AUTOINCREMENT, "
+									+ "name TEXT UNIQUE);");
 		} catch (final SQLException e) {
-			throw new SQLException("Error creating machines table.", e);
+			throw new SQLException("Error creating machine groups' table.", e);
 		}
 		// create machines table
 		try {
-			final Statement stmt = Importer.sql.getConnection()
-					.createStatement();
-			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS machines ("
-					+ "id_machines TEXT PRIMARY KEY, "
-					+ "id_machine_groups INTEGER, " + "cpus INTEGER, "
-					+ "speed INTEGER, " + "platform TEXT, " + "os TEXT, "
-					+ "ram INTEGER, " + "hdd INTEGER);");
+			Importer.sql.getConnection().createStatement().executeUpdate(
+					"CREATE TABLE IF NOT EXISTS machines ("
+							+ "id_machines INTEGER PRIMARY KEY AUTOINCREMENT, "
+							+ "name TEXT UNIQUE"
+							+ "id_machine_groups INTEGER, " + "cpus INTEGER, "
+							+ "speed INTEGER, " + "platform TEXT, "
+							+ "os TEXT, " + "ram INTEGER, " + "hdd INTEGER);");
 		} catch (final SQLException e) {
 			throw new SQLException("Error creating machines table.", e);
 		}
 		// create event types table
 		try {
-			final Statement stmt = Importer.sql.getConnection()
-					.createStatement();
-			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS event_types ("
-					+ "id_event_types INTEGER PRIMARY KEY, " + "name TEXT);");
+			Importer.sql.getConnection().createStatement().executeUpdate(
+					"CREATE TABLE IF NOT EXISTS event_types ("
+							+ "id_event_types INTEGER PRIMARY KEY, "
+							+ "name TEXT);");
 		} catch (final SQLException e) {
 			throw new SQLException("Error creating event types' table.", e);
 		}
 		// create events' table
 		try {
-			final Statement stmt = Importer.sql.getConnection()
-					.createStatement();
-			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS events ("
-					+ "id_events INTEGER PRIMARY KEY AUTOINCREMENT, "
-					+ "parent_id_events INTEGER, " + "id_event_types INTEGER, "
-					+ "id_machines TEXT, " + "id_machines_target TEXT, "
-					+ "id_jobs INTEGER, " + "clock INTEGER, "
-					+ "need_cpus INTEGER, " + "need_platform TEXT, "
-					+ "need_ram INTEGER, " + "need_hdd INTEGER, "
-					+ "cpus_assigned TEXT, " + "expect_start INTEGER, "
-					+ "expect_end INTEGER, " + "deadline INTEGER);");
+			Importer.sql.getConnection().createStatement().executeUpdate(
+					"CREATE TABLE IF NOT EXISTS events ("
+							+ "id_events INTEGER PRIMARY KEY AUTOINCREMENT, "
+							+ "parent_id_events INTEGER, "
+							+ "id_event_types INTEGER, "
+							+ "id_machines INTEGER, "
+							+ "id_machines_target INTEGER, "
+							+ "id_jobs INTEGER, " + "clock INTEGER, "
+							+ "need_cpus INTEGER, " + "need_platform TEXT, "
+							+ "need_ram INTEGER, " + "need_hdd INTEGER, "
+							+ "cpus_assigned TEXT, " + "expect_start INTEGER, "
+							+ "expect_end INTEGER, " + "deadline INTEGER);");
 		} catch (final SQLException e) {
 			throw new SQLException("Error creating events' table.", e);
 		}
@@ -125,14 +130,22 @@ public class Importer extends SwingWorker<Void, Void> {
 			this.createSchema();
 			this.parseMachines(new BufferedReader(new FileReader(
 					this.machinesFile)));
-			this
-					.parseDataSet(new BufferedReader(new FileReader(
-							this.dataFile)));
+			this.parseDataSet(new BufferedReader(new FileReader(
+					this.dataFile)));
 		} catch (final Exception e) {
 			return null;
 		}
 		this.result = true;
 		return null;
+	}
+
+	private Integer getMachineId(final String name) {
+		if (this.machineIds.containsKey(name)) {
+			return this.machineIds.get(name);
+		} else {
+			this.machineIds.put(name, Machine.getIdWithName(name));
+			return this.getMachineId(name);
+		}
 	}
 
 	public boolean isSuccess() {
@@ -229,18 +242,18 @@ public class Importer extends SwingWorker<Void, Void> {
 							+ parts[0], charNo);
 				}
 				final Integer clock = new Integer(parts[1]);
-				String affectedMachineId = "";
-				String targetMachineId = "";
+				Integer affectedMachineId = Integer.MIN_VALUE;
+				Integer targetMachineId = Integer.MIN_VALUE;
 				Integer jobId = null;
 				String[] parseData = null;
 				switch (parts.length) { // verify event-specific parameters
 				case 3: // simple machine-(failure|restart) events
-					affectedMachineId = parts[2];
+					affectedMachineId = this.getMachineId(parts[2]);
 					break;
 				case 7: // (.*)move-job events
 					jobId = new Integer(parts[2]);
-					affectedMachineId = parts[3];
-					targetMachineId = parts[4];
+					affectedMachineId = this.getMachineId(parts[3]);
+					targetMachineId = this.getMachineId(parts[4]);
 					parseData = new String[2];
 					parseData[0] = parts[5];
 					parseData[1] = parts[6];
@@ -250,8 +263,8 @@ public class Importer extends SwingWorker<Void, Void> {
 							Importer.EVENT_JOB_EXECUTION_START)) {
 						final String strippedLine = parts[3].substring(1,
 								parts[3].length() - 1);
-						final String[] strParts = strippedLine.split(";");
-						affectedMachineId = strParts[0];
+						final String[] strParts = strippedLine.split("\\|");
+						affectedMachineId = this.getMachineId(strParts[0]);
 					}
 					parseData = new String[1];
 					parseData[0] = parts[3];
@@ -268,11 +281,18 @@ public class Importer extends SwingWorker<Void, Void> {
 				if (parseData != null) {
 					eventStmt.setInt(3, jobId);
 				}
-				if (affectedMachineId.length() > 0) {
-					eventStmt.setString(4, affectedMachineId);
+				if (affectedMachineId == -1) {
+					throw new ParseException("Unknown affected machine: "
+							+ affectedMachineId, charNo);
+				} else if (targetMachineId == -1) {
+					throw new ParseException("Unknown target machine: "
+							+ targetMachineId, charNo);
 				}
-				if (targetMachineId.length() > 0) {
-					eventStmt.setString(5, targetMachineId);
+				if (affectedMachineId > Integer.MIN_VALUE) {
+					eventStmt.setInt(4, affectedMachineId);
+				}
+				if (targetMachineId > Integer.MIN_VALUE) {
+					eventStmt.setInt(5, targetMachineId);
 				}
 				eventStmt.execute();
 				eventId++;
@@ -299,7 +319,8 @@ public class Importer extends SwingWorker<Void, Void> {
 										.split(";");
 								eventDetailStmt.clearParameters();
 								eventDetailStmt.setInt(1, parentEventId);
-								eventDetailStmt.setString(2, params[0]);
+								eventDetailStmt.setInt(2, this
+										.getMachineId(params[0]));
 								eventDetailStmt.setInt(3, new Integer(
 										jobDetails[0]));
 								eventDetailStmt.setInt(4, new Integer(
@@ -355,7 +376,7 @@ public class Importer extends SwingWorker<Void, Void> {
 		// prepare machine insertion query
 		final PreparedStatement stmt = Importer.sql.getConnection()
 				.prepareStatement(
-						"INSERT INTO machines (" + "id_machines, " + "cpus, "
+						"INSERT INTO machines (" + "name, " + "cpus, "
 								+ "speed, " + "platform, " + "os, " + "ram, "
 								+ "hdd) VALUES (?, ?, ?, ?, ?, ?, ?);");
 		while (!isEOF) {
@@ -378,7 +399,7 @@ public class Importer extends SwingWorker<Void, Void> {
 				final String machineId = fields[0];
 				stmt.setString(1, machineId); // machine name
 				stmt.setInt(2, new Integer(fields[1])); // number of machine
-														// CPUs
+				// CPUs
 				stmt.setInt(3, new Integer(fields[2])); // machine speed
 				stmt.setString(4, fields[3]); // machine platform
 				stmt.setString(5, fields[4]); // machine os
