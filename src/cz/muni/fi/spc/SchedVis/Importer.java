@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis.model;
+package cz.muni.fi.spc.SchedVis;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.swing.SwingWorker;
+
+import cz.muni.fi.spc.SchedVis.model.SQL;
 
 /**
  * A tool to import data from specific files into the SQLite database used by
@@ -52,6 +54,62 @@ public class Importer extends SwingWorker<Void, Void> {
 		this.name = name;
 	}
 
+	/**
+	 * Create the database schema used by the application.
+	 * 
+	 * @throws SQLException
+	 *             Thrown when any of the schema tables cannot be created.
+	 */
+	private void createSchema() throws SQLException {
+		// create machine groups' table
+		try {
+			final Statement stmt = Importer.sql.getConnection()
+					.createStatement();
+			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS machine_groups ("
+					+ "id_machine_groups INTEGER PRIMARY KEY AUTOINCREMENT, "
+					+ "name TEXT UNIQUE);");
+		} catch (final SQLException e) {
+			throw new SQLException("Error creating machines table.", e);
+		}
+		// create machines table
+		try {
+			final Statement stmt = Importer.sql.getConnection()
+					.createStatement();
+			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS machines ("
+					+ "id_machines TEXT PRIMARY KEY, "
+					+ "id_machine_groups INTEGER, " + "cpus INTEGER, "
+					+ "speed INTEGER, " + "platform TEXT, " + "os TEXT, "
+					+ "ram INTEGER, " + "hdd INTEGER);");
+		} catch (final SQLException e) {
+			throw new SQLException("Error creating machines table.", e);
+		}
+		// create event types table
+		try {
+			final Statement stmt = Importer.sql.getConnection()
+					.createStatement();
+			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS event_types ("
+					+ "id_event_types INTEGER PRIMARY KEY, " + "name TEXT);");
+		} catch (final SQLException e) {
+			throw new SQLException("Error creating event types' table.", e);
+		}
+		// create events' table
+		try {
+			final Statement stmt = Importer.sql.getConnection()
+					.createStatement();
+			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS events ("
+					+ "id_events INTEGER PRIMARY KEY AUTOINCREMENT, "
+					+ "parent_id_events INTEGER, " + "id_event_types INTEGER, "
+					+ "id_machines TEXT, " + "id_machines_target TEXT, "
+					+ "id_jobs INTEGER, " + "clock INTEGER, "
+					+ "need_cpus INTEGER, " + "need_platform TEXT, "
+					+ "need_ram INTEGER, " + "need_hdd INTEGER, "
+					+ "cpus_assigned TEXT, " + "expect_start INTEGER, "
+					+ "expect_end INTEGER, " + "deadline INTEGER);");
+		} catch (final SQLException e) {
+			throw new SQLException("Error creating events' table.", e);
+		}
+	}
+
 	@Override
 	public Void doInBackground() {
 		try {
@@ -62,8 +120,9 @@ public class Importer extends SwingWorker<Void, Void> {
 		if (!this.machinesFile.canRead() || !this.dataFile.canRead()) {
 			return null;
 		}
-		this.updateProgressBar(true, 0);
+		this.updateProgress(true, 0);
 		try {
+			this.createSchema();
 			this.parseMachines(new BufferedReader(new FileReader(
 					this.machinesFile)));
 			this
@@ -85,31 +144,20 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * 
 	 * @param reader
 	 * @throws ParseException
-	 * @throws IOException
 	 * @throws SQLException
+	 *             Thrown when any of the rows failed to insert.
 	 * @todo Implement transactions.
 	 * @todo Implement foreign keys somehow. (No support in SQLite.)
 	 * @todo Somehow make jobs a table of its own.
 	 * @todo Somehow make assigned-CPUs a table if its own.
-	 * @fixme Once data set format is sane, implement parsing of CPUs and
-	 *        architectures.
 	 */
 	private void parseDataSet(final BufferedReader reader)
 			throws ParseException, IOException, SQLException {
-		// create event types table
-		try {
-			final Statement stmt = Importer.sql.getConnection()
-					.createStatement();
-			stmt
-					.executeUpdate("CREATE TABLE IF NOT EXISTS event_types (id_event_types INTEGER PRIMARY KEY, name TEXT);");
-		} catch (final SQLException e) {
-			throw new SQLException("Error creating event types' table.", e);
-		}
-		// fill it
-		final PreparedStatement eventTypeInsStmt = Importer.sql
-				.getConnection()
+		// fill event types table
+		final PreparedStatement eventTypeInsStmt = Importer.sql.getConnection()
 				.prepareStatement(
-						"INSERT INTO event_types (id_event_types, name) VALUES (?, ?);");
+						"INSERT INTO event_types (" + "id_event_types, "
+								+ "name) VALUES (?, ?);");
 		final AbstractMap<String, Integer> eventTypes = new HashMap<String, Integer>();
 		eventTypes.put("job-arrival", Importer.EVENT_JOB_ARRIVAL);
 		eventTypes.put("job-execution-start",
@@ -139,45 +187,46 @@ public class Importer extends SwingWorker<Void, Void> {
 				throw new SQLException("Error inserting event " + key + ".", e);
 			}
 		}
-		// create events' table
-		try {
-			final Statement stmt = Importer.sql.getConnection()
-					.createStatement();
-			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS events ("
-					+ "id_events INTEGER PRIMARY KEY AUTOINCREMENT, "
-					+ "parent_id_events INTEGER, " + "id_event_types INTEGER, "
-					+ "id_machines TEXT, " + "id_machines_target TEXT, "
-					+ "id_jobs INTEGER, " + "clock INTEGER, "
-					+ "need_cpus INTEGER, " + "need_platform TEXT, "
-					+ "need_ram INTEGER, " + "need_hdd INTEGER, "
-					+ "cpus_assigned TEXT, " + "expect_start INTEGER, "
-					+ "expect_end INTEGER, " + "deadline INTEGER);");
-		} catch (final SQLException e) {
-			throw new SQLException("Error creating events' table.", e);
-		}
 		// prepare some statements
-		final PreparedStatement eventStmt = Importer.sql
-				.getConnection()
+		final PreparedStatement eventStmt = Importer.sql.getConnection()
 				.prepareStatement(
-						"INSERT INTO events (id_event_types, clock, id_jobs, id_machines, id_machines_target) VALUES (?, ?, ?, ?, ?)");
+						"INSERT INTO events (" + "id_event_types, " + "clock, "
+								+ "id_jobs, " + "id_machines, "
+								+ "id_machines_target) VALUES (?, ?, ?, ?, ?)");
 		final PreparedStatement eventDetailStmt = Importer.sql
 				.getConnection()
 				.prepareStatement(
-						"INSERT INTO events (parent_id_events, id_machines, id_jobs, need_cpus, cpus_assigned, need_platform, need_ram, need_hdd, expect_start, expect_end, deadline) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+						"INSERT INTO events ("
+								+ "parent_id_events, "
+								+ "id_machines, "
+								+ "id_jobs, "
+								+ "need_cpus, "
+								+ "cpus_assigned, "
+								+ "need_platform, "
+								+ "need_ram, "
+								+ "need_hdd, "
+								+ "expect_start, "
+								+ "expect_end, "
+								+ "deadline) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		// parse data set and fill the events' table
 		boolean isEOF = false;
-		Integer charCount = 0;
+		Integer charNo = 0;
 		Integer eventId = 0;
 		while (!isEOF) {
 			// read and parse
-			final String line = reader.readLine();
+			String line = null;
+			try {
+				line = reader.readLine();
+			} catch (final IOException e) {
+				throw new ParseException("Failed to read input file.", charNo);
+			}
 			if (line == null) {
 				isEOF = true;
 			} else {
 				final String[] parts = line.split("\t");
 				if (!eventTypes.containsKey(parts[0])) { // verify event
 					throw new ParseException("Unknown event received: "
-							+ parts[0], charCount);
+							+ parts[0], charNo);
 				}
 				final Integer clock = new Integer(parts[1]);
 				String affectedMachineId = "";
@@ -211,7 +260,7 @@ public class Importer extends SwingWorker<Void, Void> {
 				default:
 					throw new ParseException(
 							"Unknown parameter count for an event: "
-									+ parts.length, charCount);
+									+ parts.length, charNo);
 				}
 				eventStmt.clearParameters();
 				eventStmt.setInt(1, eventTypes.get(parts[0]));
@@ -233,7 +282,7 @@ public class Importer extends SwingWorker<Void, Void> {
 						if (!machineLine.startsWith("<")
 								|| !machineLine.endsWith(">")) {
 							throw new ParseException(
-									"Bad line with parameters.", charCount);
+									"Bad line with parameters.", charNo);
 						}
 						machineLine = machineLine.substring(1, machineLine
 								.length() - 1);
@@ -243,7 +292,7 @@ public class Importer extends SwingWorker<Void, Void> {
 						} else if (params.length < 1) {
 							throw new ParseException(
 									"Bad line with parameters: " + machineLine,
-									charCount);
+									charNo);
 						} else {
 							for (Integer job = 1; job < params.length; job++) {
 								final String jobDetails[] = params[job]
@@ -275,8 +324,8 @@ public class Importer extends SwingWorker<Void, Void> {
 						}
 					}
 				}
-				charCount += line.length(); // take the line as parsed
-				this.updateProgressBar(false, charCount);
+				charNo += line.length(); // take the line as parsed
+				this.updateProgress(false, charNo);
 			}
 		}
 	}
@@ -293,55 +342,30 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * 
 	 * @param reader
 	 * @throws ParseException
-	 * @throws IOException
+	 * @throws SQLException
+	 *             If any of the rows failed to insert.
 	 * @todo Implement transactions.
 	 * @todo Implement foreign keys somehow. (No support in SQLite.)
 	 */
 	private void parseMachines(final BufferedReader reader)
-			throws ParseException, IOException, SQLException {
+			throws ParseException, SQLException {
 		boolean isEOF = false;
 		Integer lineNo = 0;
 		Integer charNo = 0;
-		// create machine groups' table
-		try {
-			final Statement stmt = Importer.sql.getConnection()
-					.createStatement();
-			stmt
-					.executeUpdate("CREATE TABLE IF NOT EXISTS machine_groups (id_machine_groups INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE);");
-		} catch (final SQLException e) {
-			throw new SQLException("Error creating machines table.", e);
-		}
-		// create machines table
-		try {
-			final Statement stmt = Importer.sql.getConnection()
-					.createStatement();
-			stmt
-					.executeUpdate("CREATE TABLE IF NOT EXISTS machines (id_machines TEXT PRIMARY KEY, id_machine_groups INTEGER, speed INTEGER, platform TEXT, os TEXT, ram INTEGER, hdd INTEGER);");
-		} catch (final SQLException e) {
-			throw new SQLException("Error creating machines table.", e);
-		}
-		// create CPUs table
-		try {
-			final Statement stmt = Importer.sql.getConnection()
-					.createStatement();
-			stmt
-					.executeUpdate("CREATE TABLE IF NOT EXISTS machine_cpus (id_machines TEXT, id_cpus INTEGER, PRIMARY KEY (id_machines, id_cpus));");
-		} catch (final SQLException e) {
-			throw new SQLException("Error creating table for machine CPUs.", e);
-		}
 		// prepare machine insertion query
-		final PreparedStatement machineInsStmt = Importer.sql
-				.getConnection()
+		final PreparedStatement stmt = Importer.sql.getConnection()
 				.prepareStatement(
-						"INSERT INTO machines (id_machines, speed, platform, os, ram, hdd) VALUES (?, ?, ?, ?, ?, ?);");
-		// prepare machine CPU insertion query
-		final PreparedStatement machineCpuInsStmt = Importer.sql
-				.getConnection()
-				.prepareStatement(
-						"INSERT INTO machine_cpus (id_machines, id_cpus) VALUES (?, ?);");
+						"INSERT INTO machines (" + "id_machines, " + "cpus, "
+								+ "speed, " + "platform, " + "os, " + "ram, "
+								+ "hdd) VALUES (?, ?, ?, ?, ?, ?, ?);");
 		while (!isEOF) {
 			lineNo++;
-			final String line = reader.readLine();
+			String line = null;
+			try {
+				line = reader.readLine();
+			} catch (final IOException e) {
+				throw new ParseException("Failed to read input file.", charNo);
+			}
 			if (line == null) {
 				isEOF = true;
 			} else {
@@ -352,42 +376,28 @@ public class Importer extends SwingWorker<Void, Void> {
 				}
 				// insert machine line into SQL
 				final String machineId = fields[0];
-				machineInsStmt.setString(1, machineId); // machine name
-				machineInsStmt.setInt(2, new Integer(fields[2])); // machine
-				// speed
-				machineInsStmt.setString(3, fields[3]); // machine platform
-				machineInsStmt.setString(4, fields[4]); // machine os
-				machineInsStmt.setInt(5, new Integer(fields[5])); // machine
-				// RAM
-				machineInsStmt.setInt(6, new Integer(fields[6])); // machine
-				// HDD
-				// insert machine CPUs
+				stmt.setString(1, machineId); // machine name
+				stmt.setInt(2, new Integer(fields[1])); // number of machine
+														// CPUs
+				stmt.setInt(3, new Integer(fields[2])); // machine speed
+				stmt.setString(4, fields[3]); // machine platform
+				stmt.setString(5, fields[4]); // machine os
+				stmt.setInt(6, new Integer(fields[5])); // machine RAM
+				stmt.setInt(7, new Integer(fields[6])); // machine HDD
 				try {
-					machineInsStmt.execute();
+					stmt.execute();
 				} catch (final SQLException e) {
 					throw new SQLException(
 							"Error inserting a machine. Probably a duplicate machine name.",
 							e);
 				}
-				for (Integer cpuId = 1; cpuId <= new Integer(fields[1]); cpuId++) {
-					machineCpuInsStmt.setString(1, machineId);
-					machineCpuInsStmt.setInt(2, cpuId);
-					try {
-						machineCpuInsStmt.execute();
-					} catch (final SQLException e) {
-						throw new SQLException("Error inserting machine #"
-								+ machineId + "'s CPU #" + cpuId
-								+ ". Probably already exists.", e);
-					}
-				}
 				charNo += line.length();
-				this.updateProgressBar(true, charNo);
+				this.updateProgress(true, charNo);
 			}
 		}
 	}
 
-	private void updateProgressBar(boolean parsingMachines,
-			final Integer charCount) {
+	private void updateProgress(boolean parsingMachines, final Integer charCount) {
 		final Double totalLength = new Double(this.machinesFile.length()
 				+ this.dataFile.length());
 		Double readLength = new Double(charCount);

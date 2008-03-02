@@ -16,7 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.WindowConstants;
 
-import cz.muni.fi.spc.SchedVis.model.Importer;
+import cz.muni.fi.spc.SchedVis.Importer;
 
 /**
  * A class defining a dialog to report progress on importing data sources.
