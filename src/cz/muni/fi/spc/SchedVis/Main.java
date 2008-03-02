@@ -34,7 +34,9 @@ public final class Main {
 	}
 
 	public static void update() {
-		Main.frame.update();
+		if (Main.frame != null) {
+			Main.frame.update();
+		}
 	}
 
 }
