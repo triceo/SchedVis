@@ -35,16 +35,19 @@ public class MachinesListModel extends DefaultListModel {
 	}
 
 	public void update() {
-		ResultSet rs;
+		ResultSet rs = null;
 		if (this.groupId == null) {
 			rs = Machine.getAllUngrouped();
-		} else {
+		} else if (this.groupId != -1){
 			rs = Machine.getAllInGroup(this.groupId);
 		}
+		this.removeAllElements();
 		try {
-			this.removeAllElements();
+			if (rs == null) {
+				return;
+			}
 			while (rs.next()) {
-				this.addElement(rs.getObject("id_machines"));
+				this.addElement(rs.getObject("name"));
 			}
 		} catch (final SQLException e) {
 			// do nothing

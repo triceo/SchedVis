@@ -13,13 +13,13 @@ import java.sql.SQLException;
  */
 public class Machine extends Entity {
 
-	public static boolean addToGroup(final String machineId,
+	public static boolean addToGroup(final Integer machineId,
 			final Integer groupId) {
 		try {
 			final PreparedStatement stmt = Entity
 					.getStatement("UPDATE machines SET id_machine_groups = ? WHERE id_machines = ?;");
 			stmt.setInt(1, groupId);
-			stmt.setString(2, machineId);
+			stmt.setInt(2, machineId);
 			if (stmt.executeUpdate() > 0) {
 				return true;
 			} else {
@@ -33,7 +33,7 @@ public class Machine extends Entity {
 	public static ResultSet getAllInGroup(final Integer groupId) {
 		try {
 			final PreparedStatement stmt = Entity
-					.getStatement("SELECT * FROM machines WHERE id_machine_groups = ? ORDER BY id_machines ASC;");
+					.getStatement("SELECT * FROM machines WHERE id_machine_groups = ? ORDER BY name ASC;");
 			stmt.setInt(1, groupId);
 			return stmt.executeQuery();
 		} catch (final SQLException e) {
@@ -44,9 +44,10 @@ public class Machine extends Entity {
 	public static ResultSet getAllUngrouped() {
 		try {
 			final PreparedStatement stmt = Entity
-					.getStatement("SELECT * FROM machines WHERE id_machine_groups IS NULL ORDER BY id_machines ASC;");
+					.getStatement("SELECT * FROM machines WHERE id_machine_groups IS NULL ORDER BY name ASC;");
 			return stmt.executeQuery();
 		} catch (final SQLException e) {
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -67,11 +68,11 @@ public class Machine extends Entity {
 		}
 	}
 
-	public static boolean removeFromGroup(final String machineId) {
+	public static boolean removeFromGroup(final Integer machineId) {
 		try {
 			final PreparedStatement stmt = Entity
 					.getStatement("UPDATE machines SET id_machine_groups = NULL WHERE id_machines = ?;");
-			stmt.setString(1, machineId);
+			stmt.setInt(1, machineId);
 			if (stmt.executeUpdate() > 0) {
 				return true;
 			} else {

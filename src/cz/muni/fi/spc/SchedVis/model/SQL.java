@@ -61,17 +61,21 @@ public class SQL {
 	 * @todo find more specific exception(s) to throw
 	 */
 	protected SQL(final String name, boolean newDatabase) throws Exception {
-		// initialize SQLite
-		final File file = new File(name + ".sqlite");
-		if (newDatabase && file.exists()) {
-			throw new Exception("Database already exists.");
-		} else if (!newDatabase && !file.exists()) {
-			throw new Exception("Database does not exist yet!");
-		}
 		try {
 			Class.forName("SQLite.JDBCDriver").newInstance();
-			SQL.conn = DriverManager.getConnection("jdbc:sqlite:/" + name
-					+ ".sqlite");
+			if (name == null) {
+				SQL.conn = DriverManager.getConnection("jdbc:sqlite:/:memory:");
+			} else {
+				// initialize SQLite
+				final File file = new File(name + ".sqlite");
+				if (newDatabase && file.exists()) {
+					throw new Exception("Database already exists.");
+				} else if (!newDatabase && !file.exists()) {
+					throw new Exception("Database does not exist yet!");
+				}
+				SQL.conn = DriverManager.getConnection("jdbc:sqlite:/" + name
+						+ ".sqlite");
+			}
 			final java.lang.reflect.Method m = SQL.conn.getClass().getMethod(
 					"getSQLiteDatabase", (Class<?>[]) null);
 			SQL.db = (SQLite.Database) m.invoke(SQL.conn, (Object[]) null);

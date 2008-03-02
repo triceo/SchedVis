@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.ParseException;
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -63,53 +64,43 @@ public class Importer extends SwingWorker<Void, Void> {
 	 *             Thrown when any of the schema tables cannot be created.
 	 */
 	private void createSchema() throws SQLException {
+		final Statement stmt = Importer.sql.getConnection().createStatement();
 		// create machine groups' table
 		try {
-			Importer.sql
-					.getConnection()
-					.createStatement()
-					.executeUpdate(
-							"CREATE TABLE IF NOT EXISTS machine_groups ("
-									+ "id_machine_groups INTEGER PRIMARY KEY AUTOINCREMENT, "
-									+ "name TEXT UNIQUE);");
+			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS machine_groups ("
+					+ "id_machine_groups INTEGER PRIMARY KEY AUTOINCREMENT, "
+					+ "name TEXT UNIQUE);");
 		} catch (final SQLException e) {
 			throw new SQLException("Error creating machine groups' table.", e);
 		}
 		// create machines table
 		try {
-			Importer.sql.getConnection().createStatement().executeUpdate(
-					"CREATE TABLE IF NOT EXISTS machines ("
-							+ "id_machines INTEGER PRIMARY KEY AUTOINCREMENT, "
-							+ "name TEXT UNIQUE"
-							+ "id_machine_groups INTEGER, " + "cpus INTEGER, "
-							+ "speed INTEGER, " + "platform TEXT, "
-							+ "os TEXT, " + "ram INTEGER, " + "hdd INTEGER);");
+			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS machines ("
+					+ "id_machines INTEGER PRIMARY KEY AUTOINCREMENT, "
+					+ "name TEXT UNIQUE, " + "id_machine_groups INTEGER, "
+					+ "cpus INTEGER, " + "speed INTEGER, " + "platform TEXT, "
+					+ "os TEXT, " + "ram INTEGER, " + "hdd INTEGER);");
 		} catch (final SQLException e) {
 			throw new SQLException("Error creating machines table.", e);
 		}
 		// create event types table
 		try {
-			Importer.sql.getConnection().createStatement().executeUpdate(
-					"CREATE TABLE IF NOT EXISTS event_types ("
-							+ "id_event_types INTEGER PRIMARY KEY, "
-							+ "name TEXT);");
+			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS event_types ("
+					+ "id_event_types INTEGER PRIMARY KEY, " + "name TEXT);");
 		} catch (final SQLException e) {
 			throw new SQLException("Error creating event types' table.", e);
 		}
 		// create events' table
 		try {
-			Importer.sql.getConnection().createStatement().executeUpdate(
-					"CREATE TABLE IF NOT EXISTS events ("
-							+ "id_events INTEGER PRIMARY KEY AUTOINCREMENT, "
-							+ "parent_id_events INTEGER, "
-							+ "id_event_types INTEGER, "
-							+ "id_machines INTEGER, "
-							+ "id_machines_target INTEGER, "
-							+ "id_jobs INTEGER, " + "clock INTEGER, "
-							+ "need_cpus INTEGER, " + "need_platform TEXT, "
-							+ "need_ram INTEGER, " + "need_hdd INTEGER, "
-							+ "cpus_assigned TEXT, " + "expect_start INTEGER, "
-							+ "expect_end INTEGER, " + "deadline INTEGER);");
+			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS events ("
+					+ "id_events INTEGER PRIMARY KEY AUTOINCREMENT, "
+					+ "parent_id_events INTEGER, " + "id_event_types INTEGER, "
+					+ "id_machines INTEGER, " + "id_machines_target INTEGER, "
+					+ "id_jobs INTEGER, " + "clock INTEGER, "
+					+ "need_cpus INTEGER, " + "need_platform TEXT, "
+					+ "need_ram INTEGER, " + "need_hdd INTEGER, "
+					+ "cpus_assigned TEXT, " + "expect_start INTEGER, "
+					+ "expect_end INTEGER, " + "deadline INTEGER);");
 		} catch (final SQLException e) {
 			throw new SQLException("Error creating events' table.", e);
 		}
@@ -128,10 +119,14 @@ public class Importer extends SwingWorker<Void, Void> {
 		this.updateProgress(true, 0);
 		try {
 			this.createSchema();
+			sql.getConnection().setAutoCommit(false);
 			this.parseMachines(new BufferedReader(new FileReader(
 					this.machinesFile)));
-			this.parseDataSet(new BufferedReader(new FileReader(
-					this.dataFile)));
+			sql.getConnection().commit();
+			this
+					.parseDataSet(new BufferedReader(new FileReader(
+							this.dataFile)));
+			sql.getConnection().commit();
 		} catch (final Exception e) {
 			return null;
 		}
