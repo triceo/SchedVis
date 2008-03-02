@@ -17,13 +17,16 @@ import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 
+import cz.muni.fi.spc.SchedVis.ui.common.JBorderedPanel;
+import cz.muni.fi.spc.SchedVis.ui.dialogs.Import;
+
 /**
- * JMainFrame class for SchedVis' user interface.
+ * MainFrame class for SchedVis' user interface.
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class JMainFrame extends JFrame {
+public class MainFrame extends JFrame {
 
 	/**
 	 * 
@@ -35,18 +38,18 @@ public class JMainFrame extends JFrame {
 	 * Create the GUI and show it. For thread safety, this method should be
 	 * invoked from the event-dispatching thread.
 	 */
-	public JMainFrame() {
+	public MainFrame() {
 		// Create and set up the window.
 		this.setTitle("SchedVis");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// display a dialog
-		final ImportDialog dialog = new ImportDialog(this, true);
+		final Import dialog = new Import(this, true);
 		dialog.setVisible(true);
 		dialog.setVisible(false);
 
 		// Create and set up the content pane.
-		this.setJMenuBar(new JMainMenu(this));
+		this.setJMenuBar(new MainMenu(this));
 		final Container pane = this.createContentPane();
 		this.setContentPane(pane);
 
@@ -61,7 +64,7 @@ public class JMainFrame extends JFrame {
 		// get the tree
 		schedulePanel.add(this.createSchedulePane(), BorderLayout.CENTER);
 		// get slider
-		final JPanel sPanel = new Timeline().get();
+		final JPanel sPanel = new SliderPanel();
 		// add it
 		schedulePanel.add(sPanel, BorderLayout.PAGE_END);
 		schedulePanel.setMinimumSize(sPanel.getPreferredSize());
@@ -78,8 +81,8 @@ public class JMainFrame extends JFrame {
 		settingsPanel.setLayout(new BoxLayout(settingsPanel,
 				BoxLayout.PAGE_AXIS));
 		// get panel with group picker
-		JMainFrame.groupsPanel = new GroupsPanel("Show following groups:");
-		settingsPanel.add(JMainFrame.groupsPanel);
+		MainFrame.groupsPanel = new GroupsPanel("Show following groups:");
+		settingsPanel.add(MainFrame.groupsPanel);
 		// get timescale panel
 		final JPanel timePanel = new JBorderedPanel("Each step takes [s]:");
 		timePanel.setLayout(new BoxLayout(timePanel, BoxLayout.PAGE_AXIS));
@@ -116,7 +119,7 @@ public class JMainFrame extends JFrame {
 	}
 
 	public void update() {
-		JMainFrame.groupsPanel.update();
+		MainFrame.groupsPanel.update();
 		this.pack();
 		this.repaint();
 	}

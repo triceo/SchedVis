@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis.ui;
+package cz.muni.fi.spc.SchedVis.ui.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
@@ -24,7 +24,7 @@ import cz.muni.fi.spc.SchedVis.model.Importer;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class ImportProgressDialog extends JDialog implements
+public class ImportProgress extends JDialog implements
 		PropertyChangeListener {
 
 	/**
@@ -37,7 +37,7 @@ public class ImportProgressDialog extends JDialog implements
 	/**
 	 * 
 	 */
-	public ImportProgressDialog(final JDialog owner, final File file1,
+	public ImportProgress(final JDialog owner, final File file1,
 			final File file2, final String name) {
 		super(owner, true);
 		// start the importing task

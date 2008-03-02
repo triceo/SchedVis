@@ -5,7 +5,7 @@ package cz.muni.fi.spc.SchedVis;
 
 import javax.swing.JFrame;
 
-import cz.muni.fi.spc.SchedVis.ui.JMainFrame;
+import cz.muni.fi.spc.SchedVis.ui.MainFrame;
 
 /**
  * The main class for the SchedVis project.
@@ -14,10 +14,10 @@ import cz.muni.fi.spc.SchedVis.ui.JMainFrame;
  */
 public final class Main {
 	
-	private static JMainFrame frame;
+	private static MainFrame frame;
 
 	/**
-	 * JMainFrame method for the whole project.
+	 * MainFrame method for the whole project.
 	 * 
 	 * @param args
 	 */
@@ -27,7 +27,7 @@ public final class Main {
 		// creating and showing this application's GUI.
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				frame = new JMainFrame();
+				frame = new MainFrame();
 				frame.setVisible(true);
 			}
 		});

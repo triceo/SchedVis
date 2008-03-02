@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis.ui;
+package cz.muni.fi.spc.SchedVis.ui.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dialog;
@@ -26,8 +26,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import cz.muni.fi.spc.SchedVis.DataFileFilter;
 import cz.muni.fi.spc.SchedVis.Main;
 import cz.muni.fi.spc.SchedVis.model.SQL;
+import cz.muni.fi.spc.SchedVis.ui.common.JBorderedPanel;
+import cz.muni.fi.spc.SchedVis.ui.common.JFilePicker;
+import cz.muni.fi.spc.SchedVis.ui.common.JLabeledField;
 
 /**
  * Creates the dialog to choose where to get schedule data from.
@@ -35,7 +39,7 @@ import cz.muni.fi.spc.SchedVis.model.SQL;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class ImportDialog extends JDialog implements ActionListener,
+public class Import extends JDialog implements ActionListener,
 		WindowListener {
 
 	private static String ACTION_NEW_BUTTON_CLICKED = "NewButton clicked.";
@@ -53,7 +57,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 	/**
 	 * 
 	 */
-	public ImportDialog() {
+	public Import() {
 		super();
 		this.specialize();
 	}
@@ -61,7 +65,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 	/**
 	 * @param owner
 	 */
-	public ImportDialog(final Dialog owner) {
+	public Import(final Dialog owner) {
 		super(owner);
 		this.specialize();
 	}
@@ -70,7 +74,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 	 * @param owner
 	 * @param modal
 	 */
-	public ImportDialog(final Dialog owner, final boolean modal) {
+	public Import(final Dialog owner, final boolean modal) {
 		super(owner, modal);
 		this.specialize();
 	}
@@ -79,7 +83,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 	 * @param owner
 	 * @param title
 	 */
-	public ImportDialog(final Dialog owner, final String title) {
+	public Import(final Dialog owner, final String title) {
 		super(owner, title);
 		this.specialize();
 	}
@@ -89,7 +93,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 	 * @param title
 	 * @param modal
 	 */
-	public ImportDialog(final Dialog owner, final String title,
+	public Import(final Dialog owner, final String title,
 			final boolean modal) {
 		super(owner, title, modal);
 		this.specialize();
@@ -101,7 +105,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 	 * @param modal
 	 * @param gc
 	 */
-	public ImportDialog(final Dialog owner, final String title,
+	public Import(final Dialog owner, final String title,
 			final boolean modal, final GraphicsConfiguration gc) {
 		super(owner, title, modal, gc);
 		this.specialize();
@@ -110,7 +114,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 	/**
 	 * @param owner
 	 */
-	public ImportDialog(final Frame owner) {
+	public Import(final Frame owner) {
 		super(owner);
 		this.specialize();
 	}
@@ -119,7 +123,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 	 * @param owner
 	 * @param modal
 	 */
-	public ImportDialog(final Frame owner, final boolean modal) {
+	public Import(final Frame owner, final boolean modal) {
 		super(owner, modal);
 		this.specialize();
 	}
@@ -128,7 +132,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 	 * @param owner
 	 * @param title
 	 */
-	public ImportDialog(final Frame owner, final String title) {
+	public Import(final Frame owner, final String title) {
 		super(owner, title);
 		this.specialize();
 	}
@@ -138,7 +142,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 	 * @param title
 	 * @param modal
 	 */
-	public ImportDialog(final Frame owner, final String title,
+	public Import(final Frame owner, final String title,
 			final boolean modal) {
 		super(owner, title, modal);
 		this.specialize();
@@ -150,7 +154,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 	 * @param modal
 	 * @param gc
 	 */
-	public ImportDialog(final Frame owner, final String title,
+	public Import(final Frame owner, final String title,
 			final boolean modal, final GraphicsConfiguration gc) {
 		super(owner, title, modal, gc);
 		this.specialize();
@@ -159,7 +163,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 	/**
 	 * @param owner
 	 */
-	public ImportDialog(final Window owner) {
+	public Import(final Window owner) {
 		super(owner);
 		this.specialize();
 	}
@@ -168,7 +172,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 	 * @param owner
 	 * @param modalityType
 	 */
-	public ImportDialog(final Window owner, final ModalityType modalityType) {
+	public Import(final Window owner, final ModalityType modalityType) {
 		super(owner, modalityType);
 		this.specialize();
 	}
@@ -177,7 +181,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 	 * @param owner
 	 * @param title
 	 */
-	public ImportDialog(final Window owner, final String title) {
+	public Import(final Window owner, final String title) {
 		super(owner, title);
 		this.specialize();
 	}
@@ -187,7 +191,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 	 * @param title
 	 * @param modalityType
 	 */
-	public ImportDialog(final Window owner, final String title,
+	public Import(final Window owner, final String title,
 			final ModalityType modalityType) {
 		super(owner, title, modalityType);
 		this.specialize();
@@ -199,7 +203,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 	 * @param modalityType
 	 * @param gc
 	 */
-	public ImportDialog(final Window owner, final String title,
+	public Import(final Window owner, final String title,
 			final ModalityType modalityType, final GraphicsConfiguration gc) {
 		super(owner, title, modalityType, gc);
 		this.specialize();
@@ -208,17 +212,17 @@ public class ImportDialog extends JDialog implements ActionListener,
 	public void actionPerformed(final ActionEvent e) {
 		final String command = e.getActionCommand();
 		// handle picker widgets
-		if (command.equals(ImportDialog.ACTION_NEW_BUTTON_CLICKED)) {
+		if (command.equals(Import.ACTION_NEW_BUTTON_CLICKED)) {
 			this.filePickers[0].setEnabled(true);
 			this.filePickers[1].setEnabled(true);
 			this.fileName.setEnabled(true);
 			this.filePickers[2].setEnabled(false);
-		} else if (command.equals(ImportDialog.ACTION_OLD_BUTTON_CLICKED)) {
+		} else if (command.equals(Import.ACTION_OLD_BUTTON_CLICKED)) {
 			this.filePickers[0].setEnabled(false);
 			this.filePickers[1].setEnabled(false);
 			this.fileName.setEnabled(false);
 			this.filePickers[2].setEnabled(true);
-		} else if (command.equals(ImportDialog.ACTION_SUBMIT_BUTTON_CLICKED)) {
+		} else if (command.equals(Import.ACTION_SUBMIT_BUTTON_CLICKED)) {
 			final Enumeration<AbstractButton> elems = this.bg.getElements();
 			if (this.bg.isSelected(elems.nextElement().getModel())) {
 				// first radio selected
@@ -228,7 +232,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 				final File file1 = new File(filename1);
 				final File file2 = new File(filename2);
 				if (file1.exists() && file2.exists() && (name.length() > 0)) {
-					new ImportProgressDialog(this, file1, file2, name);
+					new ImportProgress(this, file1, file2, name);
 					Main.update();
 				} else {
 					JOptionPane
@@ -284,11 +288,11 @@ public class ImportDialog extends JDialog implements ActionListener,
 		pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
 		this.add(pane, BorderLayout.CENTER);
 		// setup file filters
-		final JFileFilter sqlFilter = new JFileFilter();
+		final DataFileFilter sqlFilter = new DataFileFilter();
 		sqlFilter.setDescription("SchedVis dataset (*.sqlite)");
 		sqlFilter.addType("sqlite");
 		// gather filePickers
-		final JFileFilter dtaFilter = new JFileFilter();
+		final DataFileFilter dtaFilter = new DataFileFilter();
 		dtaFilter.setDescription("SchedVis source files (*.txt)");
 		dtaFilter.addType("txt");
 		this.filePickers[0] = new JFilePicker("Source for machine data:",
@@ -302,7 +306,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 		final JRadioButton buttonNew = new JRadioButton();
 		buttonNew.setText("Create a new data set:");
 		buttonNew.addActionListener(this);
-		buttonNew.setActionCommand(ImportDialog.ACTION_NEW_BUTTON_CLICKED);
+		buttonNew.setActionCommand(Import.ACTION_NEW_BUTTON_CLICKED);
 		rbPane1.add(buttonNew);
 		pane.add(rbPane1);
 		pane.add(this.filePickers[0]);
@@ -320,7 +324,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 		final JRadioButton buttonOld = new JRadioButton();
 		buttonOld.addActionListener(this);
 		buttonOld.setText("Use existing data set:");
-		buttonOld.setActionCommand(ImportDialog.ACTION_OLD_BUTTON_CLICKED);
+		buttonOld.setActionCommand(Import.ACTION_OLD_BUTTON_CLICKED);
 		rbPane2.add(buttonOld);
 		pane.add(rbPane2);
 		pane.add(this.filePickers[2]);
@@ -333,7 +337,7 @@ public class ImportDialog extends JDialog implements ActionListener,
 		submitPane.setLayout(new FlowLayout(FlowLayout.CENTER));
 		this.submitButton = new JButton("Continue >>");
 		this.submitButton
-				.setActionCommand(ImportDialog.ACTION_SUBMIT_BUTTON_CLICKED);
+				.setActionCommand(Import.ACTION_SUBMIT_BUTTON_CLICKED);
 		this.submitButton.addActionListener(this);
 		submitPane.add(this.submitButton);
 		pane.add(submitPane);

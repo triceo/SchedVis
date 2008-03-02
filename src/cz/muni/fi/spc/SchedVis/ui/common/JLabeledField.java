@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis.ui;
+package cz.muni.fi.spc.SchedVis.ui.common;
 
 import java.awt.FlowLayout;
 import java.awt.LayoutManager;

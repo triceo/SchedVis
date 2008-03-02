@@ -15,6 +15,7 @@ import java.util.HashSet;
 import javax.swing.JCheckBox;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Group;
+import cz.muni.fi.spc.SchedVis.ui.common.JBorderedPanel;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>

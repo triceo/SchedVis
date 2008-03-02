@@ -21,18 +21,20 @@ import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class Timeline implements ChangeListener {
+public class SliderPanel extends JPanel implements ChangeListener {
 
-	private JPanel sliderPane = null;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6091479520934383104L;
 	private TimelineSliderModel tlsm = null;
 	private final JLabel sliderLabel;
 
 	/**
 	 * 
 	 */
-	public Timeline() {
-		this.sliderPane = new JPanel();
-		this.sliderPane.setLayout(new BorderLayout());
+	public SliderPanel() {
+		this.setLayout(new BorderLayout());
 		// left-side buttons
 		final JPanel innerPane = new JPanel();
 		innerPane.setLayout(new FlowLayout());
@@ -40,11 +42,11 @@ public class Timeline implements ChangeListener {
 		innerPane.add(new JButton("<<"));
 		innerPane.add(new JButton("<"));
 		// middle slider
-		this.sliderPane.add(innerPane, BorderLayout.LINE_START);
-		final JTimelineSlider slider = new JTimelineSlider();
+		this.add(innerPane, BorderLayout.LINE_START);
+		final TimelineSlider slider = new TimelineSlider();
 		this.tlsm = new TimelineSliderModel(this);
 		slider.setModel(this.tlsm);
-		this.sliderPane.add(slider, BorderLayout.CENTER);
+		this.add(slider, BorderLayout.CENTER);
 		// right-side buttons
 		final JPanel innerPane2 = new JPanel();
 		this.sliderLabel = new JLabel(this.getSliderDescription(slider
@@ -54,11 +56,7 @@ public class Timeline implements ChangeListener {
 		innerPane2.add(new JButton(">"));
 		innerPane2.add(new JButton(">>"));
 		innerPane2.add(new JButton(">|"));
-		this.sliderPane.add(innerPane2, BorderLayout.LINE_END);
-	}
-
-	public JPanel get() {
-		return this.sliderPane;
+		this.add(innerPane2, BorderLayout.LINE_END);
 	}
 
 	private String getSliderDescription(final Integer value,

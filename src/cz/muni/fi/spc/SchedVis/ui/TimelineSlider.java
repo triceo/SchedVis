@@ -10,7 +10,7 @@ import javax.swing.JSlider;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class JTimelineSlider extends JSlider {
+public class TimelineSlider extends JSlider {
 
 	/**
 	 * 
@@ -20,14 +20,14 @@ public class JTimelineSlider extends JSlider {
 	/**
 	 * 
 	 */
-	public JTimelineSlider() {
+	public TimelineSlider() {
 		this.specialize();
 	}
 
 	/**
 	 * @param arg0
 	 */
-	public JTimelineSlider(final BoundedRangeModel arg0) {
+	public TimelineSlider(final BoundedRangeModel arg0) {
 		super(arg0);
 		this.specialize();
 	}
@@ -35,7 +35,7 @@ public class JTimelineSlider extends JSlider {
 	/**
 	 * @param arg0
 	 */
-	public JTimelineSlider(final int arg0) {
+	public TimelineSlider(final int arg0) {
 		super(arg0);
 		this.specialize();
 	}
@@ -44,7 +44,7 @@ public class JTimelineSlider extends JSlider {
 	 * @param arg0
 	 * @param arg1
 	 */
-	public JTimelineSlider(final int arg0, final int arg1) {
+	public TimelineSlider(final int arg0, final int arg1) {
 		super(arg0, arg1);
 		this.specialize();
 	}
@@ -54,7 +54,7 @@ public class JTimelineSlider extends JSlider {
 	 * @param arg1
 	 * @param arg2
 	 */
-	public JTimelineSlider(final int arg0, final int arg1, final int arg2) {
+	public TimelineSlider(final int arg0, final int arg1, final int arg2) {
 		super(arg0, arg1, arg2);
 		this.specialize();
 	}
@@ -65,7 +65,7 @@ public class JTimelineSlider extends JSlider {
 	 * @param arg2
 	 * @param arg3
 	 */
-	public JTimelineSlider(final int arg0, final int arg1, final int arg2,
+	public TimelineSlider(final int arg0, final int arg1, final int arg2,
 			final int arg3) {
 		super(arg0, arg1, arg2, arg3);
 		this.specialize();

@@ -1,4 +1,4 @@
-package cz.muni.fi.spc.SchedVis.ui;
+package cz.muni.fi.spc.SchedVis.ui.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dialog;
@@ -29,6 +29,7 @@ import cz.muni.fi.spc.SchedVis.model.entities.Group;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.models.GroupsListModel;
 import cz.muni.fi.spc.SchedVis.model.models.MachinesListModel;
+import cz.muni.fi.spc.SchedVis.ui.GroupedMachinesList;
 
 /**
  * Creates the dialog to create and/or update machine groups.
@@ -36,7 +37,7 @@ import cz.muni.fi.spc.SchedVis.model.models.MachinesListModel;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class GroupsDialog extends JDialog implements ActionListener,
+public class Groups extends JDialog implements ActionListener,
 		ListDataListener, ListSelectionListener {
 
 	/**
@@ -63,7 +64,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 	/**
 	 * 
 	 */
-	public GroupsDialog() {
+	public Groups() {
 		super();
 		this.specialize();
 	}
@@ -71,7 +72,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 	/**
 	 * @param owner
 	 */
-	public GroupsDialog(final Dialog owner) {
+	public Groups(final Dialog owner) {
 		super(owner);
 		this.specialize();
 	}
@@ -80,7 +81,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 	 * @param owner
 	 * @param modal
 	 */
-	public GroupsDialog(final Dialog owner, final boolean modal) {
+	public Groups(final Dialog owner, final boolean modal) {
 		super(owner, modal);
 		this.specialize();
 	}
@@ -89,7 +90,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 	 * @param owner
 	 * @param title
 	 */
-	public GroupsDialog(final Dialog owner, final String title) {
+	public Groups(final Dialog owner, final String title) {
 		super(owner, title);
 		this.specialize();
 	}
@@ -99,7 +100,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 	 * @param title
 	 * @param modal
 	 */
-	public GroupsDialog(final Dialog owner, final String title,
+	public Groups(final Dialog owner, final String title,
 			final boolean modal) {
 		super(owner, title, modal);
 		this.specialize();
@@ -111,7 +112,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 	 * @param modal
 	 * @param gc
 	 */
-	public GroupsDialog(final Dialog owner, final String title,
+	public Groups(final Dialog owner, final String title,
 			final boolean modal, final GraphicsConfiguration gc) {
 		super(owner, title, modal, gc);
 		this.specialize();
@@ -120,7 +121,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 	/**
 	 * @param owner
 	 */
-	public GroupsDialog(final Frame owner) {
+	public Groups(final Frame owner) {
 		super(owner);
 		this.specialize();
 	}
@@ -129,7 +130,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 	 * @param owner
 	 * @param modal
 	 */
-	public GroupsDialog(final Frame owner, final boolean modal) {
+	public Groups(final Frame owner, final boolean modal) {
 		super(owner, modal);
 		this.specialize();
 	}
@@ -138,7 +139,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 	 * @param owner
 	 * @param title
 	 */
-	public GroupsDialog(final Frame owner, final String title) {
+	public Groups(final Frame owner, final String title) {
 		super(owner, title);
 		this.specialize();
 	}
@@ -148,7 +149,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 	 * @param title
 	 * @param modal
 	 */
-	public GroupsDialog(final Frame owner, final String title,
+	public Groups(final Frame owner, final String title,
 			final boolean modal) {
 		super(owner, title, modal);
 		this.specialize();
@@ -160,7 +161,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 	 * @param modal
 	 * @param gc
 	 */
-	public GroupsDialog(final Frame owner, final String title,
+	public Groups(final Frame owner, final String title,
 			final boolean modal, final GraphicsConfiguration gc) {
 		super(owner, title, modal, gc);
 		this.specialize();
@@ -169,7 +170,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 	/**
 	 * @param owner
 	 */
-	public GroupsDialog(final Window owner) {
+	public Groups(final Window owner) {
 		super(owner);
 		this.specialize();
 	}
@@ -178,7 +179,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 	 * @param owner
 	 * @param modalityType
 	 */
-	public GroupsDialog(final Window owner, final ModalityType modalityType) {
+	public Groups(final Window owner, final ModalityType modalityType) {
 		super(owner, modalityType);
 		this.specialize();
 	}
@@ -187,7 +188,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 	 * @param owner
 	 * @param title
 	 */
-	public GroupsDialog(final Window owner, final String title) {
+	public Groups(final Window owner, final String title) {
 		super(owner, title);
 		this.specialize();
 	}
@@ -197,7 +198,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 	 * @param title
 	 * @param modalityType
 	 */
-	public GroupsDialog(final Window owner, final String title,
+	public Groups(final Window owner, final String title,
 			final ModalityType modalityType) {
 		super(owner, title, modalityType);
 		this.specialize();
@@ -209,7 +210,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 	 * @param modalityType
 	 * @param gc
 	 */
-	public GroupsDialog(final Window owner, final String title,
+	public Groups(final Window owner, final String title,
 			final ModalityType modalityType, final GraphicsConfiguration gc) {
 		super(owner, title, modalityType, gc);
 		this.specialize();

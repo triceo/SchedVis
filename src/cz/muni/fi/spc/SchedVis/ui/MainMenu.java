@@ -12,11 +12,14 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import cz.muni.fi.spc.SchedVis.ui.dialogs.Groups;
+import cz.muni.fi.spc.SchedVis.ui.dialogs.Import;
+
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class JMainMenu extends JMenuBar implements ActionListener {
+public class MainMenu extends JMenuBar implements ActionListener {
 
 	/**
 	 * 
@@ -32,7 +35,7 @@ public class JMainMenu extends JMenuBar implements ActionListener {
 	/**
 	 * Class constructor. Creates the whole menu thing.
 	 */
-	public JMainMenu(final JFrame frame) {
+	public MainMenu(final JFrame frame) {
 		// Create the menu bar.
 		this.frame = frame;
 		JMenu menu = null;
@@ -49,7 +52,7 @@ public class JMainMenu extends JMenuBar implements ActionListener {
 		menuItem = new JMenuItem("New data source", KeyEvent.VK_N);
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Process new batch of data.");
-		menuItem.setActionCommand(JMainMenu.ACTION_NEW);
+		menuItem.setActionCommand(MainMenu.ACTION_NEW);
 		menuItem.addActionListener(this);
 		menu.add(menuItem);
 
@@ -58,7 +61,7 @@ public class JMainMenu extends JMenuBar implements ActionListener {
 		menuItem = new JMenuItem("Quit", KeyEvent.VK_Q);
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Terminates the simulation and exits the application.");
-		menuItem.setActionCommand(JMainMenu.ACTION_QUIT);
+		menuItem.setActionCommand(MainMenu.ACTION_QUIT);
 		menuItem.addActionListener(this);
 		menu.add(menuItem);
 
@@ -72,7 +75,7 @@ public class JMainMenu extends JMenuBar implements ActionListener {
 		menuItem = new JMenuItem("Manage groups...", KeyEvent.VK_G);
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Opens a dialog used to manage machine groups.");
-		menuItem.setActionCommand(JMainMenu.ACTION_MANAGE_GROUPS);
+		menuItem.setActionCommand(MainMenu.ACTION_MANAGE_GROUPS);
 		menuItem.addActionListener(this);
 		menu.add(menuItem);
 
@@ -98,13 +101,13 @@ public class JMainMenu extends JMenuBar implements ActionListener {
 
 	public void actionPerformed(final ActionEvent event) {
 		final String command = event.getActionCommand();
-		if (command.equals(JMainMenu.ACTION_QUIT)) {
+		if (command.equals(MainMenu.ACTION_QUIT)) {
 			this.quit();
-		} else if (command.equals(JMainMenu.ACTION_NEW)) {
-			final ImportDialog dialog = new ImportDialog(this.frame, true);
+		} else if (command.equals(MainMenu.ACTION_NEW)) {
+			final Import dialog = new Import(this.frame, true);
 			dialog.setVisible(true);
-		} else if (command.equals(JMainMenu.ACTION_MANAGE_GROUPS)) {
-			final GroupsDialog dialog = new GroupsDialog(this.frame, true);
+		} else if (command.equals(MainMenu.ACTION_MANAGE_GROUPS)) {
+			final Groups dialog = new Groups(this.frame, true);
 			dialog.setVisible(true);
 		}
 	}

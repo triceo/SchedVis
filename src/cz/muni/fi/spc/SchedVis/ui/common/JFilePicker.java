@@ -1,13 +1,15 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis.ui;
+package cz.muni.fi.spc.SchedVis.ui.common;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+
+import cz.muni.fi.spc.SchedVis.DataFileFilter;
 
 /**
  * Implements a panel with a file-picking widget.
@@ -23,14 +25,14 @@ public class JFilePicker extends JLabeledField implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 2937947660051686598L;
-	private JFileFilter filter;
+	private DataFileFilter filter;
 	private JButton btn;
 
 	/**
 	 * @param arg0
 	 */
 	public JFilePicker(final boolean arg0, final String label,
-			final JFileFilter filter) {
+			final DataFileFilter filter) {
 		super(label, arg0);
 		this.specialize(filter);
 	}
@@ -38,7 +40,7 @@ public class JFilePicker extends JLabeledField implements ActionListener {
 	/**
 	 * 
 	 */
-	public JFilePicker(final String label, final JFileFilter filter) {
+	public JFilePicker(final String label, final DataFileFilter filter) {
 		super(label);
 		this.specialize(filter);
 	}
@@ -61,7 +63,7 @@ public class JFilePicker extends JLabeledField implements ActionListener {
 		this.btn.setEnabled(enabled);
 	}
 
-	private void specialize(final JFileFilter filter) {
+	private void specialize(final DataFileFilter filter) {
 		this.filter = filter;
 		this.btn = new JButton("Open a File...");
 		this.btn.addActionListener(this);

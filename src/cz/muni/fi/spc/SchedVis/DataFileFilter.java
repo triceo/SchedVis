@@ -1,4 +1,4 @@
-package cz.muni.fi.spc.SchedVis.ui;
+package cz.muni.fi.spc.SchedVis;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import javax.swing.filechooser.FileFilter;
  * the JDK demo called ExampleFileFilter, which has been announced to be
  * supported in a future Swing release.
  */
-public class JFileFilter extends FileFilter {
+public class DataFileFilter extends FileFilter {
 	protected String description;
 
 	protected List<String> exts = new ArrayList<String>();
