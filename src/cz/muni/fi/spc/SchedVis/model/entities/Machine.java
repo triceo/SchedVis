@@ -51,6 +51,22 @@ public class Machine extends Entity {
 		}
 	}
 
+	public static Integer getIdWithName(final String name) {
+		try {
+			final PreparedStatement stmt = Entity
+					.getStatement("SELECT id_machines FROM machines WHERE name = ?");
+			stmt.setString(1, name);
+			final ResultSet rs = stmt.executeQuery();
+			if (rs.first()) {
+				return rs.getInt(1);
+			} else {
+				return Entity.INVALID_KEY_VALUE;
+			}
+		} catch (final SQLException e) {
+			return Entity.INVALID_KEY_VALUE;
+		}
+	}
+
 	public static boolean removeFromGroup(final String machineId) {
 		try {
 			final PreparedStatement stmt = Entity
