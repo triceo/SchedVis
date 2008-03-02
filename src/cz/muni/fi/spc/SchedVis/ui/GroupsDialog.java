@@ -24,6 +24,7 @@ import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import cz.muni.fi.spc.SchedVis.Main;
 import cz.muni.fi.spc.SchedVis.model.entities.Group;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.models.GroupsListModel;
@@ -271,7 +272,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 		} else if (command.equals(this.COMMAND__CLOSE_DIALOG)) {
 			this.setVisible(false);
 		}
-		MainWindow.update();
+		Main.update();
 	}
 
 	public void contentsChanged(final ListDataEvent e) {

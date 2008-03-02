@@ -18,58 +18,40 @@ import javax.swing.JSplitPane;
 import javax.swing.JTree;
 
 /**
- * MainWindow class for SchedVis' user interface.
+ * JMainFrame class for SchedVis' user interface.
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class MainWindow {
+public class JMainFrame extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6652856626507094021L;
 	private static GroupsPanel groupsPanel;
-
-	private static JFrame frame;
-
-	public static void main(final String[] args) {
-		// Schedule a job for the event-dispatching thread:
-		// creating and showing this application's GUI.
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				final MainWindow ui = new MainWindow();
-				ui.createAndShowGUI();
-			}
-		});
-	}
-
-	public static void update() {
-		MainWindow.groupsPanel.update();
-		MainWindow.frame.pack();
-		MainWindow.frame.repaint();
-	}
-
-	String newline = "\n";
 
 	/**
 	 * Create the GUI and show it. For thread safety, this method should be
 	 * invoked from the event-dispatching thread.
 	 */
-	private void createAndShowGUI() {
+	public JMainFrame() {
 		// Create and set up the window.
-		MainWindow.frame = new JFrame("SchedVis");
-		MainWindow.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setTitle("SchedVis");
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// display a dialog
-		final ImportDialog dialog = new ImportDialog(MainWindow.frame, true);
+		final ImportDialog dialog = new ImportDialog(this, true);
 		dialog.setVisible(true);
 		dialog.setVisible(false);
 
 		// Create and set up the content pane.
-		MainWindow.frame.setJMenuBar(new JMainMenu(MainWindow.frame));
+		this.setJMenuBar(new JMainMenu(this));
 		final Container pane = this.createContentPane();
-		MainWindow.frame.setContentPane(pane);
+		this.setContentPane(pane);
 
 		// Display the window.
-		MainWindow.frame.setMinimumSize(pane.getPreferredSize());
-		MainWindow.frame.setVisible(true);
+		this.setMinimumSize(pane.getPreferredSize());
 	}
 
 	public Container createContentPane() {
@@ -96,8 +78,8 @@ public class MainWindow {
 		settingsPanel.setLayout(new BoxLayout(settingsPanel,
 				BoxLayout.PAGE_AXIS));
 		// get panel with group picker
-		MainWindow.groupsPanel = new GroupsPanel("Show following groups:");
-		settingsPanel.add(MainWindow.groupsPanel);
+		JMainFrame.groupsPanel = new GroupsPanel("Show following groups:");
+		settingsPanel.add(JMainFrame.groupsPanel);
 		// get timescale panel
 		final JPanel timePanel = new JBorderedPanel("Each step takes [s]:");
 		timePanel.setLayout(new BoxLayout(timePanel, BoxLayout.PAGE_AXIS));
@@ -133,11 +115,10 @@ public class MainWindow {
 		return layoutPane;
 	}
 
-	// Returns just the class name -- no package info.
-	protected String getClassName(final Object o) {
-		final String classString = o.getClass().getName();
-		final int dotIndex = classString.lastIndexOf(".");
-		return classString.substring(dotIndex + 1);
+	public void update() {
+		JMainFrame.groupsPanel.update();
+		this.pack();
+		this.repaint();
 	}
 
 }
