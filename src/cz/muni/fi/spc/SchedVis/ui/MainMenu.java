@@ -5,8 +5,6 @@ package cz.muni.fi.spc.SchedVis.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JFrame;
@@ -18,7 +16,7 @@ import javax.swing.JMenuItem;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class MainMenu implements UIElement, ActionListener, ItemListener {
+public class MainMenu implements ActionListener {
 
 	private static String ACTION_QUIT = "quit";
 	private static String ACTION_NEW = "new";
@@ -107,12 +105,8 @@ public class MainMenu implements UIElement, ActionListener, ItemListener {
 		}
 	}
 
-	@Override
 	public JMenuBar get() {
 		return this.menuBar;
-	}
-
-	public void itemStateChanged(final ItemEvent e) {
 	}
 
 	protected void quit() {

@@ -21,7 +21,7 @@ import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class Timeline implements UIElement, ChangeListener {
+public class Timeline implements ChangeListener {
 
 	private JPanel sliderPane = null;
 	private TimelineSliderModel tlsm = null;
@@ -57,7 +57,6 @@ public class Timeline implements UIElement, ChangeListener {
 		this.sliderPane.add(innerPane2, BorderLayout.LINE_END);
 	}
 
-	@Override
 	public JPanel get() {
 		return this.sliderPane;
 	}
