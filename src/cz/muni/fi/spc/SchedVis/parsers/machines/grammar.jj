@@ -6,12 +6,12 @@ options {
   JDK_VERSION = "1.6";
 }
 PARSER_BEGIN(MachinesParser)
-package cz.muni.fi.spc.SchedVis.parsers;
+package cz.muni.fi.spc.SchedVis.parsers.machines;
 
 import java.util.Vector;
 import java.util.List;
 
-public class MachinesParser extends Parser {
+public class MachinesParser extends cz.muni.fi.spc.SchedVis.parsers.Parser {
   public static void main(String args[]) throws ParseException {
       try {
         new MachinesParser(System.in);

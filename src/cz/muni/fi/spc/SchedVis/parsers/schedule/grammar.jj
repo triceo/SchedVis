@@ -6,12 +6,12 @@ options {
   JDK_VERSION = "1.6";
 }
 PARSER_BEGIN(ScheduleParser)
-package cz.muni.fi.spc.SchedVis.parsers;
+package cz.muni.fi.spc.SchedVis.parsers.schedule;
 
 import java.util.Vector;
 import java.util.List;
 
-public class ScheduleParser extends Parser {
+public class ScheduleParser extends cz.muni.fi.spc.SchedVis.parsers.Parser {
   public static void main(String args[]) throws ParseException {
       try {
         new ScheduleParser(System.in);

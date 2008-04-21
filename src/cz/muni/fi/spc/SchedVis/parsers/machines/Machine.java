@@ -1,7 +1,9 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis.parsers;
+package cz.muni.fi.spc.SchedVis.parsers.machines;
+
+import cz.muni.fi.spc.SchedVis.parsers.machines.Token;
 
 /**
  * Holds information about a machine loaded from the data set. Written into by

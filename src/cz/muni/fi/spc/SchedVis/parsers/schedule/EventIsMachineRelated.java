@@ -1,4 +1,4 @@
-package cz.muni.fi.spc.SchedVis.parsers;
+package cz.muni.fi.spc.SchedVis.parsers.schedule;
 
 public interface EventIsMachineRelated {
 

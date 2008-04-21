@@ -1,4 +1,6 @@
-package cz.muni.fi.spc.SchedVis.parsers;
+package cz.muni.fi.spc.SchedVis.parsers.schedule;
+
+import cz.muni.fi.spc.SchedVis.parsers.schedule.Token;
 
 /**
  * Class representing a data holder for job data inside schedule. Gets filled

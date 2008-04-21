@@ -20,15 +20,15 @@ import javax.swing.SwingWorker;
 
 import cz.muni.fi.spc.SchedVis.model.SQL;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
-import cz.muni.fi.spc.SchedVis.parsers.EventHasData;
-import cz.muni.fi.spc.SchedVis.parsers.EventIsJobRelated;
-import cz.muni.fi.spc.SchedVis.parsers.EventIsMachineRelated;
-import cz.muni.fi.spc.SchedVis.parsers.MachinesParser;
-import cz.muni.fi.spc.SchedVis.parsers.ScheduleEvent;
-import cz.muni.fi.spc.SchedVis.parsers.ScheduleEventMove;
-import cz.muni.fi.spc.SchedVis.parsers.ScheduleJobData;
-import cz.muni.fi.spc.SchedVis.parsers.ScheduleMachineData;
-import cz.muni.fi.spc.SchedVis.parsers.ScheduleParser;
+import cz.muni.fi.spc.SchedVis.parsers.machines.MachinesParser;
+import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleParser;
+import cz.muni.fi.spc.SchedVis.parsers.schedule.EventHasData;
+import cz.muni.fi.spc.SchedVis.parsers.schedule.EventIsJobRelated;
+import cz.muni.fi.spc.SchedVis.parsers.schedule.EventIsMachineRelated;
+import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleEvent;
+import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleEventMove;
+import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleJobData;
+import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleMachineData;
 
 /**
  * A tool to import data from specific files into the SQLite database used by
@@ -160,7 +160,7 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * @todo Somehow make assigned-CPUs a table if its own.
 	 */
 	private void parseDataSet(final BufferedReader reader) throws IOException,
-			SQLException, cz.muni.fi.spc.SchedVis.parsers.ParseException {
+			SQLException, cz.muni.fi.spc.SchedVis.parsers.schedule.ParseException {
 		this.setProgress(0);
 		final PreparedStatement eventTypeInsStmt = Importer.sql.getConnection()
 				.prepareStatement(
@@ -282,7 +282,7 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * @todo Implement foreign keys somehow. (No support in SQLite.)
 	 */
 	private void parseMachines(final BufferedReader reader)
-			throws cz.muni.fi.spc.SchedVis.parsers.ParseException, SQLException {
+			throws cz.muni.fi.spc.SchedVis.parsers.machines.ParseException, SQLException {
 		// prepare machine insertion query
 		final PreparedStatement stmt = Importer.sql.getConnection()
 				.prepareStatement(
@@ -290,11 +290,11 @@ public class Importer extends SwingWorker<Void, Void> {
 								+ "speed, " + "platform, " + "os, " + "ram, "
 								+ "hdd) VALUES (?, ?, ?, ?, ?, ?, ?);");
 		new MachinesParser(reader);
-		final List<cz.muni.fi.spc.SchedVis.parsers.Machine> machines = MachinesParser
+		final List<cz.muni.fi.spc.SchedVis.parsers.machines.Machine> machines = MachinesParser
 				.read();
 		final Integer totalMachines = machines.size();
 		Integer machineId = 0;
-		for (final cz.muni.fi.spc.SchedVis.parsers.Machine machine : machines) {
+		for (final cz.muni.fi.spc.SchedVis.parsers.machines.Machine machine : machines) {
 			machineId++;
 			stmt.setString(1, machine.getName());
 			stmt.setInt(2, machine.getCPUCount());
