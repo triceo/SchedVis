@@ -8,15 +8,17 @@ options {
 PARSER_BEGIN(ScheduleParser)
 package cz.muni.fi.spc.SchedVis.parsers;
 
+import java.util.Vector;
+import java.util.List;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
-public class ScheduleParser {
+public class ScheduleParser extends Parser {
   public static void main(String args[]) throws ParseException {
       try {
-        ScheduleParser parser = new ScheduleParser(System.in);
-        ScheduleParser.read();
-        System.out.println("Success!");
+        new ScheduleParser(System.in);
+        List<ScheduleEvent> events = ScheduleParser.read();
+        System.out.println("Successfully read " + events.size() + " events!");
       } catch (Exception e) {
         System.out.println("NOK.");
         System.out.println(e.getMessage());
@@ -33,63 +35,141 @@ TOKEN :
     < CONSTANT: "-1" | ( <DIGIT> )+ >  /* A numeric constant. */
 |   < CONSTANT_LIST: ( <CONSTANT> ( "," <CONSTANT> )+ ) >  /* A numeric constant. */
 |   < #DIGIT: ["0" - "9"] >     /* A single number. */
-|   < STRING: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9"] )* > /* An allowed string. */
+|   < STRING: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","_","0"-"9"] )* > /* An allowed string. */
 |   < WHITESPACE: ([" ", "\t"])+ > /* An allowed whitespace. */
 }
 
-void read() : {}
+TOKEN :
 {
-  event_data() "\n" read()
-  |<EOF>
-}
-void event_data() : {}
-{
-  machine_event()
-  | move_event()
-  | IO_event()
+	< MOVE_EVENT_FLAG: "machine-failure-move-good"|"machine-failure-move-bad"|"good-move"|"bad-move">
+    |< MACHINE_EVENT_FLAG: "machine-failure" | "machine-restart">
+    |< IO_EVENT_FLAG: "job-arrival" | "job-execution-start" | "job-cancel" | "job-completion">
 }
 
-void machine_event() : {}
+List<ScheduleEvent> read() : {
+	List<ScheduleEvent> events = new Vector<ScheduleEvent>();
+}
 {
-	machine_event_flag() <WHITESPACE> <CONSTANT> <WHITESPACE> <STRING> 	
+  (events=event_data(events))+
+  ("\n")*
+  <EOF>
+  {return events;}
 }
 
-void machine_event_flag() : {}
+List<ScheduleEvent> event_data(List<ScheduleEvent> events) : {}
 {
-	("machine-failure" | "machine-restart")
+  events=machine_event(events) (<WHITESPACE>)* "\n" {return events;}
+  | events=move_event(events) (<WHITESPACE>)* "\n" {return events;}
+  | events=IO_event(events) (<WHITESPACE>)* "\n" {return events;}
 }
 
-void move_event() : {}
+List<ScheduleEvent> machine_event(List<ScheduleEvent> list) : {
+    Token event;
+    Token clock;
+    Token machine;
+}
 {
-    move_event_flag() <WHITESPACE> <CONSTANT> <WHITESPACE> <CONSTANT> <WHITESPACE> <STRING> <WHITESPACE> <STRING> schedule_data()
+	event=<MACHINE_EVENT_FLAG> <WHITESPACE> 
+	clock=<CONSTANT> <WHITESPACE>
+	machine=<STRING>
+	{
+        list.add(new ScheduleEventMachine(event, clock, machine));
+        return list;
+    } 	
 }
 
-void move_event_flag() : {}
+List<ScheduleEvent> move_event(List<ScheduleEvent> list) : {
+	Token event;
+	Token clock;
+	Token job;
+	Token origMachine;
+	Token newMachine;
+	List<ScheduleMachineData> data;
+}   
 {
-    ("machine-failure-move-good" | "machine-failure-move-bad" | "good-move" | "bad-move")
+    event=<MOVE_EVENT_FLAG> <WHITESPACE> 
+    clock=<CONSTANT> <WHITESPACE> 
+    job=<CONSTANT> <WHITESPACE> 
+    origMachine=<STRING> <WHITESPACE>
+    newMachine=<STRING> 
+    data=schedule_data()
+    {
+        list.add(new ScheduleEventMove(event, clock, job, origMachine, newMachine, data));
+        return list;
+    }
 }
 
-void IO_event() : {}
+List<ScheduleEvent> IO_event(List<ScheduleEvent> list) : {
+    Token event;
+    Token clock;
+    Token job;
+    List<ScheduleMachineData> data;
+}
 {
-    IO_event_flag() <WHITESPACE> <CONSTANT> <WHITESPACE> <CONSTANT> schedule_data()  
+    event=<IO_EVENT_FLAG> <WHITESPACE> 
+    clock=<CONSTANT> <WHITESPACE> 
+    job=<CONSTANT> 
+    data=schedule_data()
+    {
+    	list.add(new ScheduleEventIO(event, clock, job, data));
+        return list;
+    } 
 }
 
-void IO_event_flag() : {}
+List<ScheduleMachineData> schedule_data() : {
+	List<ScheduleMachineData> data = new Vector<ScheduleMachineData>();
+}
 {
-    ("job-arrival" | "job-execution-start" | "job-cancel" | "job-completion")
+	(<WHITESPACE> data=machine_data(data))+
+	{return data;}
 }
 
-void schedule_data() : {}
+List<ScheduleMachineData> machine_data(List<ScheduleMachineData> list) : {
+	List<ScheduleJobData> data = new Vector<ScheduleJobData>();
+	Token machineId;
+}
 {
-	(<WHITESPACE> machine_data())+
+	"<" machineId=<STRING> ("|" data=job_data(data))* ">"
+	{
+		list.add(new ScheduleMachineData(machineId, data));
+		return list;
+	}
 }
 
-void machine_data() : {}
-{
-	"<" <STRING> ("|" job_data())* ">"
+List<ScheduleJobData> job_data(List<ScheduleJobData> list) : {
+	Token job;
+	Token numCPUs;
+	Token assignedCPUs;
+	Token arch;
+	Token memory;
+	Token space;
+	Token start;
+    Token end;
+    Token deadline;
+    ScheduleJobData data = new ScheduleJobData();
 }
-
-void job_data() : {}
 {
-	<CONSTANT> ";" <CONSTANT> ";" (<CONSTANT_LIST> | <CONSTANT>) ";" <STRING> ";" <CONSTANT> ";" <CONSTANT> ";"  <CONSTANT> ";" <CONSTANT> ";" <CONSTANT> (";")*
+	job=<CONSTANT> ";" 
+	numCPUs=<CONSTANT> ";" 
+	(assignedCPUs=<CONSTANT_LIST> | assignedCPUs=<CONSTANT>) ";" 
+	arch=<STRING> ";" 
+	memory=<CONSTANT> ";" 
+    space=<CONSTANT> ";" 
+	start=<CONSTANT> ";"
+	end=<CONSTANT> ";" 
+	deadline=<CONSTANT>
+	(";")*
+	{
+		data.setId(job);
+		data.setNeedsCPUs(numCPUs);
+		data.assignCPUs(assignedCPUs);
+		data.setArch(arch);
+		data.setNeedsMemory(memory);
+		data.setNeedsSpace(space);
+		data.setStarts(start);
+		data.setEnds(end);
+		data.setDeadline(deadline);
+		list.add(data);
+		return list;
+	}
 }
