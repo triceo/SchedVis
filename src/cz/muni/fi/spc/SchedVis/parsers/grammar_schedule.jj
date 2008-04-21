@@ -1,0 +1,95 @@
+/**
+ * JavaCC file
+ */
+ 
+options {
+  JDK_VERSION = "1.6";
+}
+PARSER_BEGIN(ScheduleParser)
+package cz.muni.fi.spc.SchedVis.parsers;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+
+public class ScheduleParser {
+  public static void main(String args[]) throws ParseException {
+      try {
+        ScheduleParser parser = new ScheduleParser(System.in);
+        ScheduleParser.read();
+        System.out.println("Success!");
+      } catch (Exception e) {
+        System.out.println("NOK.");
+        System.out.println(e.getMessage());
+      } catch (Error e) {
+        System.out.println("Oops.");
+        System.out.println(e.getMessage());
+      }
+  }
+}
+PARSER_END(ScheduleParser)
+
+TOKEN :
+{
+    < CONSTANT: "-1" | ( <DIGIT> )+ >  /* A numeric constant. */
+|   < CONSTANT_LIST: ( <CONSTANT> ( "," <CONSTANT> )+ ) >  /* A numeric constant. */
+|   < #DIGIT: ["0" - "9"] >     /* A single number. */
+|   < STRING: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9"] )* > /* An allowed string. */
+|   < WHITESPACE: ([" ", "\t"])+ > /* An allowed whitespace. */
+}
+
+void read() : {}
+{
+  event_data() "\n" read()
+  |<EOF>
+}
+void event_data() : {}
+{
+  machine_event()
+  | move_event()
+  | IO_event()
+}
+
+void machine_event() : {}
+{
+	machine_event_flag() <WHITESPACE> <CONSTANT> <WHITESPACE> <STRING> 	
+}
+
+void machine_event_flag() : {}
+{
+	("machine-failure" | "machine-restart")
+}
+
+void move_event() : {}
+{
+    move_event_flag() <WHITESPACE> <CONSTANT> <WHITESPACE> <CONSTANT> <WHITESPACE> <STRING> <WHITESPACE> <STRING> schedule_data()
+}
+
+void move_event_flag() : {}
+{
+    ("machine-failure-move-good" | "machine-failure-move-bad" | "good-move" | "bad-move")
+}
+
+void IO_event() : {}
+{
+    IO_event_flag() <WHITESPACE> <CONSTANT> <WHITESPACE> <CONSTANT> schedule_data()  
+}
+
+void IO_event_flag() : {}
+{
+    ("job-arrival" | "job-execution-start" | "job-cancel" | "job-completion")
+}
+
+void schedule_data() : {}
+{
+	(<WHITESPACE> machine_data())+
+}
+
+void machine_data() : {}
+{
+	"<" <STRING> ("|" job_data())* ">"
+}
+
+void job_data() : {}
+{
+	<CONSTANT> ";" <CONSTANT> ";" (<CONSTANT_LIST> | <CONSTANT>) ";" <STRING> ";" <CONSTANT> ";" <CONSTANT> ";"  <CONSTANT> ";" <CONSTANT> ";" <CONSTANT> (";")*
+}
