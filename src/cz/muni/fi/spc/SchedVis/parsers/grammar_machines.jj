@@ -1,0 +1,71 @@
+/**
+ * JavaCC file
+ */
+ 
+options {
+  JDK_VERSION = "1.6";
+}
+PARSER_BEGIN(MachinesParser)
+package cz.muni.fi.spc.SchedVis.parsers;
+
+import java.util.Vector;
+import java.util.List;
+
+public class MachinesParser extends Parser {
+  public static void main(String args[]) throws ParseException {
+      try {
+        new MachinesParser(System.in);
+        List<Machine> machines = MachinesParser.read();
+        System.out.println("Successfully read " + machines.size() + " machines!");
+      } catch (Exception e) {
+        System.out.println("NOK.");
+        System.out.println(e.getMessage());
+      } catch (Error e) {
+        System.out.println("Oops.");
+        System.out.println(e.getMessage());
+      }
+  }
+}
+PARSER_END(MachinesParser)
+
+TOKEN :
+{
+    < CONSTANT: "-1" | ( <DIGIT> )+ >  /* A numeric constant. */
+|   < #DIGIT: ["0" - "9"] >     /* A single number. */
+|   < STRING: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","_"," ","0"-"9"] )* > /* An allowed string. */
+}
+
+List<Machine> read() :
+{
+	List<Machine> machines = new Vector<Machine>();
+}
+{
+    (machines=machine_data(machines))+
+    ("\n")*
+    <EOF>
+    {return machines;}	
+}
+
+List<Machine> machine_data(List<Machine> machines) : 
+{
+	Token name;
+	Token numCPUs;
+	Token speed;
+	Token arch;
+	Token os;
+	Token mem;
+	Token space;
+}
+{
+	name=<STRING> ";" 
+	numCPUs=<CONSTANT> ";" 
+	speed=<CONSTANT> ";" 
+	arch=<STRING> ";" 
+	os=<STRING> ";" 
+	mem=<CONSTANT> ";" 
+	space=<CONSTANT> "\n"  
+	{
+		machines.add(new Machine(name, numCPUs, speed, arch, os, mem, space));
+		return machines;
+	} 
+}

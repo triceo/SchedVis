@@ -47,6 +47,7 @@ public class MainFrame extends JFrame {
 		final Import dialog = new Import(this, true);
 		dialog.setVisible(true);
 		dialog.setVisible(false);
+		dialog.dispose();
 
 		// Create and set up the content pane.
 		this.setJMenuBar(new MainMenu(this));

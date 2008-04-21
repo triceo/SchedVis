@@ -1,6 +1,5 @@
 package cz.muni.fi.spc.SchedVis.parsers;
 
-
 /**
  * Class representing a data holder for job data inside schedule. Gets filled
  * from the parser, gets read in the Importer.

@@ -23,6 +23,7 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.parsers.EventHasData;
 import cz.muni.fi.spc.SchedVis.parsers.EventIsJobRelated;
 import cz.muni.fi.spc.SchedVis.parsers.EventIsMachineRelated;
+import cz.muni.fi.spc.SchedVis.parsers.MachinesParser;
 import cz.muni.fi.spc.SchedVis.parsers.ScheduleEvent;
 import cz.muni.fi.spc.SchedVis.parsers.ScheduleEventMove;
 import cz.muni.fi.spc.SchedVis.parsers.ScheduleJobData;
@@ -281,53 +282,29 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * @todo Implement foreign keys somehow. (No support in SQLite.)
 	 */
 	private void parseMachines(final BufferedReader reader)
-			throws ParseException, SQLException {
-		boolean isEOF = false;
-		Integer lineNo = 0;
-		Integer charNo = 0;
+			throws cz.muni.fi.spc.SchedVis.parsers.ParseException, SQLException {
 		// prepare machine insertion query
 		final PreparedStatement stmt = Importer.sql.getConnection()
 				.prepareStatement(
 						"INSERT INTO machines (" + "name, " + "cpus, "
 								+ "speed, " + "platform, " + "os, " + "ram, "
 								+ "hdd) VALUES (?, ?, ?, ?, ?, ?, ?);");
-		while (!isEOF) {
-			lineNo++;
-			String line = null;
-			try {
-				line = reader.readLine();
-			} catch (final IOException e) {
-				throw new ParseException("Failed to read input file.", charNo);
-			}
-			if (line == null) {
-				isEOF = true;
-			} else {
-				final String[] fields = line.split(";");
-				if (fields.length != 7) {
-					throw new ParseException(
-							"Reached a malformatted machine line.", charNo);
-				}
-				// insert machine line into SQL
-				final String machineId = fields[0];
-				stmt.setString(1, machineId); // machine name
-				stmt.setInt(2, new Integer(fields[1])); // number of machine
-				// CPUs
-				stmt.setInt(3, new Integer(fields[2])); // machine speed
-				stmt.setString(4, fields[3]); // machine platform
-				stmt.setString(5, fields[4]); // machine os
-				stmt.setInt(6, new Integer(fields[5])); // machine RAM
-				stmt.setInt(7, new Integer(fields[6])); // machine HDD
-				try {
-					stmt.execute();
-				} catch (final SQLException e) {
-					throw new SQLException(
-							"Error inserting a machine. Probably a duplicate machine name.",
-							e);
-				}
-				charNo += line.length();
-				this.setProgress(new Double((charNo * 100)
-						/ this.machinesFile.length()).intValue());
-			}
+		new MachinesParser(reader);
+		final List<cz.muni.fi.spc.SchedVis.parsers.Machine> machines = MachinesParser
+				.read();
+		final Integer totalMachines = machines.size();
+		Integer machineId = 0;
+		for (final cz.muni.fi.spc.SchedVis.parsers.Machine machine : machines) {
+			machineId++;
+			stmt.setString(1, machine.getName());
+			stmt.setInt(2, machine.getCPUCount());
+			stmt.setInt(3, machine.getSpeed());
+			stmt.setString(4, machine.getArchitecture());
+			stmt.setString(5, machine.getOperatingSystem());
+			stmt.setInt(6, machine.getMemory());
+			stmt.setInt(7, machine.getSpace());
+			stmt.execute();
+			this.setProgress((machineId / totalMachines) * 100);
 		}
 	}
 
