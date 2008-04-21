@@ -1,7 +1,5 @@
 package cz.muni.fi.spc.SchedVis.parsers;
 
-import java.util.List;
-import java.util.Vector;
 
 /**
  * Class representing a data holder for job data inside schedule. Gets filled
@@ -19,16 +17,26 @@ public class ScheduleJobData {
 	private Integer endClock;
 	private Integer deadline;
 	private String architecture;
-	private final List<Integer> assignedCPUs = new Vector<Integer>();
+	private String assignedCPUs;
 
 	public void assignCPUs(final Token assignedCPUs) {
-		for (String CPU: assignedCPUs.toString().split(",")) {
-			this.assignedCPUs.add(new Integer(CPU));
-		}
+		this.assignedCPUs = assignedCPUs.toString();
 	}
-	
-	public List<Integer> getAssignedCPUs() {
+
+	public Integer ends() {
+		return this.endClock;
+	}
+
+	public String getArch() {
+		return this.architecture;
+	}
+
+	public String getAssignedCPUs() {
 		return this.assignedCPUs;
+	}
+
+	public Integer getDeadline() {
+		return this.deadline;
 	}
 
 	public Integer getId() {
@@ -39,6 +47,26 @@ public class ScheduleJobData {
 		return this.neededCPUs;
 	}
 
+	public Integer getNeededMemory() {
+		return this.neededMemory;
+	}
+
+	public Integer getNeededSpace() {
+		return this.neededSpace;
+	}
+
+	public void setArch(final Token arch) {
+		this.architecture = arch.toString();
+	}
+
+	public void setDeadline(final Token clock) {
+		this.deadline = new Integer(clock.toString());
+	}
+
+	public void setEnds(final Token clock) {
+		this.endClock = new Integer(clock.toString());
+	}
+
 	public void setId(final Token jobId) {
 		this.id = new Integer(jobId.toString());
 	}
@@ -46,52 +74,20 @@ public class ScheduleJobData {
 	public void setNeedsCPUs(final Token neededCPUs) {
 		this.neededCPUs = new Integer(neededCPUs.toString());
 	}
-	
+
 	public void setNeedsMemory(final Token memory) {
 		this.neededMemory = new Integer(memory.toString());
-	}
-	
-	public Integer getNeededMemory() {
-		return this.neededMemory;
 	}
 
 	public void setNeedsSpace(final Token space) {
 		this.neededSpace = new Integer(space.toString());
 	}
-	
-	public Integer getNeededSpace() {
-		return this.neededSpace;
-	}
 
 	public void setStarts(final Token clock) {
 		this.startClock = new Integer(clock.toString());
 	}
-	
+
 	public Integer starts() {
 		return this.startClock;
-	}
-
-	public void setEnds(final Token clock) {
-		this.endClock = new Integer(clock.toString());
-	}
-
-	public Integer ends() {
-		return this.endClock;
-	}
-
-	public void setDeadline(final Token clock) {
-		this.deadline = new Integer(clock.toString());
-	}
-	
-	public Integer getDeadline() {
-		return this.deadline;
-	}
-	
-	public void setArch(final Token arch) {
-		this.architecture = arch.toString();
-	}
-	
-	public String getArch() {
-		return this.architecture;
 	}
 }

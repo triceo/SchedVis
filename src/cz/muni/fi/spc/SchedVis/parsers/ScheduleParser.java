@@ -3,8 +3,6 @@ package cz.muni.fi.spc.SchedVis.parsers;
 
 import java.util.Vector;
 import java.util.List;
-import java.io.BufferedReader;
-import java.io.FileReader;
 
 public class ScheduleParser extends Parser implements ScheduleParserConstants {
   public static void main(String args[]) throws ParseException {

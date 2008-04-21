@@ -7,25 +7,27 @@ import java.util.List;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
- *
+ * 
  */
-public class ScheduleEventIO extends ScheduleEvent {
-	
-	private Integer jobId;
-	private List<ScheduleMachineData> data;
-	
-	public ScheduleEventIO(Token event, Token clock, Token jobId, List<ScheduleMachineData> data) {
+public class ScheduleEventIO extends ScheduleEvent implements EventHasData,
+		EventIsJobRelated {
+
+	private final Integer jobId;
+	private final List<ScheduleMachineData> data;
+
+	public ScheduleEventIO(final Token event, final Token clock,
+			final Token jobId, final List<ScheduleMachineData> data) {
 		super(event, clock);
 		this.jobId = new Integer(jobId.toString());
 		this.data = data;
 	}
-	
-	public Integer getJob() {
-		return this.jobId;
-	}
-	
+
 	public List<ScheduleMachineData> getData() {
 		return this.data;
+	}
+
+	public Integer getJob() {
+		return this.jobId;
 	}
 
 }

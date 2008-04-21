@@ -8,22 +8,22 @@ package cz.muni.fi.spc.SchedVis.parsers;
  * importer.
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
- *
+ * 
  */
 public class ScheduleEvent {
-	
-	private String event;
-	private Integer clock;
-	
-	public ScheduleEvent(Token event, Token clock) {
+
+	private final String event;
+	private final Integer clock;
+
+	public ScheduleEvent(final Token event, final Token clock) {
 		this.event = event.toString();
 		this.clock = new Integer(clock.toString());
 	}
-	
+
 	public Integer getClock() {
 		return this.clock;
 	}
-	
+
 	public String getName() {
 		return this.event;
 	}

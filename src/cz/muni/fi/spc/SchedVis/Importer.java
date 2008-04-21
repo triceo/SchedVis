@@ -14,11 +14,20 @@ import java.text.ParseException;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.SwingWorker;
 
 import cz.muni.fi.spc.SchedVis.model.SQL;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
+import cz.muni.fi.spc.SchedVis.parsers.EventHasData;
+import cz.muni.fi.spc.SchedVis.parsers.EventIsJobRelated;
+import cz.muni.fi.spc.SchedVis.parsers.EventIsMachineRelated;
+import cz.muni.fi.spc.SchedVis.parsers.ScheduleEvent;
+import cz.muni.fi.spc.SchedVis.parsers.ScheduleEventMove;
+import cz.muni.fi.spc.SchedVis.parsers.ScheduleJobData;
+import cz.muni.fi.spc.SchedVis.parsers.ScheduleMachineData;
+import cz.muni.fi.spc.SchedVis.parsers.ScheduleParser;
 
 /**
  * A tool to import data from specific files into the SQLite database used by
@@ -116,31 +125,21 @@ public class Importer extends SwingWorker<Void, Void> {
 		if (!this.machinesFile.canRead() || !this.dataFile.canRead()) {
 			return null;
 		}
-		this.updateProgress(true, 0);
 		try {
 			this.createSchema();
-			sql.getConnection().setAutoCommit(false);
+			Importer.sql.getConnection().setAutoCommit(false);
 			this.parseMachines(new BufferedReader(new FileReader(
 					this.machinesFile)));
-			sql.getConnection().commit();
+			Importer.sql.getConnection().commit();
 			this
 					.parseDataSet(new BufferedReader(new FileReader(
 							this.dataFile)));
-			sql.getConnection().commit();
+			Importer.sql.getConnection().commit();
 		} catch (final Exception e) {
 			return null;
 		}
 		this.result = true;
 		return null;
-	}
-
-	private Integer getMachineId(final String name) {
-		if (this.machineIds.containsKey(name)) {
-			return this.machineIds.get(name);
-		} else {
-			this.machineIds.put(name, Machine.getIdWithName(name));
-			return this.getMachineId(name);
-		}
 	}
 
 	public boolean isSuccess() {
@@ -159,9 +158,9 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * @todo Somehow make jobs a table of its own.
 	 * @todo Somehow make assigned-CPUs a table if its own.
 	 */
-	private void parseDataSet(final BufferedReader reader)
-			throws ParseException, IOException, SQLException {
-		// fill event types table
+	private void parseDataSet(final BufferedReader reader) throws IOException,
+			SQLException, cz.muni.fi.spc.SchedVis.parsers.ParseException {
+		this.setProgress(0);
 		final PreparedStatement eventTypeInsStmt = Importer.sql.getConnection()
 				.prepareStatement(
 						"INSERT INTO event_types (" + "id_event_types, "
@@ -217,132 +216,50 @@ public class Importer extends SwingWorker<Void, Void> {
 								+ "expect_end, "
 								+ "deadline) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		// parse data set and fill the events' table
-		boolean isEOF = false;
-		Integer charNo = 0;
+		new ScheduleParser(reader);
+		final List<ScheduleEvent> events = ScheduleParser.read();
+		final Integer totalEvents = events.size();
 		Integer eventId = 0;
-		while (!isEOF) {
-			// read and parse
-			String line = null;
-			try {
-				line = reader.readLine();
-			} catch (final IOException e) {
-				throw new ParseException("Failed to read input file.", charNo);
+		for (final ScheduleEvent event : events) {
+			eventId++;
+			eventStmt.setInt(1, eventTypes.get(event.getName())); // evt. type
+			eventStmt.setInt(2, event.getClock()); // clock
+			if (event instanceof EventIsJobRelated) {
+				eventStmt.setInt(3, ((EventIsJobRelated) event).getJob());
 			}
-			if (line == null) {
-				isEOF = true;
-			} else {
-				final String[] parts = line.split("\t");
-				if (!eventTypes.containsKey(parts[0])) { // verify event
-					throw new ParseException("Unknown event received: "
-							+ parts[0], charNo);
+			if (event instanceof EventIsMachineRelated) {
+				eventStmt.setString(4, ((EventIsMachineRelated) event)
+						.getMachine());
+				if (event instanceof ScheduleEventMove) {
+					eventStmt.setString(5, ((ScheduleEventMove) event)
+							.getTargetMachine());
 				}
-				final Integer clock = new Integer(parts[1]);
-				Integer affectedMachineId = Integer.MIN_VALUE;
-				Integer targetMachineId = Integer.MIN_VALUE;
-				Integer jobId = null;
-				String[] parseData = null;
-				switch (parts.length) { // verify event-specific parameters
-				case 3: // simple machine-(failure|restart) events
-					affectedMachineId = this.getMachineId(parts[2]);
-					break;
-				case 7: // (.*)move-job events
-					jobId = new Integer(parts[2]);
-					affectedMachineId = this.getMachineId(parts[3]);
-					targetMachineId = this.getMachineId(parts[4]);
-					parseData = new String[2];
-					parseData[0] = parts[5];
-					parseData[1] = parts[6];
-					break;
-				case 4: // other known events
-					if (eventTypes.get(parts[0]).equals(
-							Importer.EVENT_JOB_EXECUTION_START)) {
-						final String strippedLine = parts[3].substring(1,
-								parts[3].length() - 1);
-						final String[] strParts = strippedLine.split("\\|");
-						affectedMachineId = this.getMachineId(strParts[0]);
-					}
-					parseData = new String[1];
-					parseData[0] = parts[3];
-					jobId = new Integer(parts[2]);
-					break;
-				default:
-					throw new ParseException(
-							"Unknown parameter count for an event: "
-									+ parts.length, charNo);
-				}
-				eventStmt.clearParameters();
-				eventStmt.setInt(1, eventTypes.get(parts[0]));
-				eventStmt.setInt(2, clock);
-				if (parseData != null) {
-					eventStmt.setInt(3, jobId);
-				}
-				if (affectedMachineId == -1) {
-					throw new ParseException("Unknown affected machine: "
-							+ affectedMachineId, charNo);
-				} else if (targetMachineId == -1) {
-					throw new ParseException("Unknown target machine: "
-							+ targetMachineId, charNo);
-				}
-				if (affectedMachineId > Integer.MIN_VALUE) {
-					eventStmt.setInt(4, affectedMachineId);
-				}
-				if (targetMachineId > Integer.MIN_VALUE) {
-					eventStmt.setInt(5, targetMachineId);
-				}
-				eventStmt.execute();
-				eventId++;
-				final Integer parentEventId = eventId;
-				if (parseData != null) { // parse the parameters
-					for (String machineLine : parseData) {
-						if (!machineLine.startsWith("<")
-								|| !machineLine.endsWith(">")) {
-							throw new ParseException(
-									"Bad line with parameters.", charNo);
-						}
-						machineLine = machineLine.substring(1, machineLine
-								.length() - 1);
-						final String[] params = machineLine.split("\\|");
-						if (params.length == 1) {
-							// params contain only ID of a machine; do nothing
-						} else if (params.length < 1) {
-							throw new ParseException(
-									"Bad line with parameters: " + machineLine,
-									charNo);
-						} else {
-							for (Integer job = 1; job < params.length; job++) {
-								final String jobDetails[] = params[job]
-										.split(";");
-								eventDetailStmt.clearParameters();
-								eventDetailStmt.setInt(1, parentEventId);
-								eventDetailStmt.setInt(2, this
-										.getMachineId(params[0]));
-								eventDetailStmt.setInt(3, new Integer(
-										jobDetails[0]));
-								eventDetailStmt.setInt(4, new Integer(
-										jobDetails[1]));
-								eventDetailStmt.setString(5, jobDetails[2]);
-								eventDetailStmt.setString(6, jobDetails[3]);
-								eventDetailStmt.setInt(7, new Integer(
-										jobDetails[4]));
-								eventDetailStmt.setInt(8, new Integer(
-										jobDetails[5]));
-								eventDetailStmt.setInt(9, new Integer(
-										jobDetails[6]));
-								eventDetailStmt.setInt(10, new Integer(
-										jobDetails[7]));
-								if (!jobDetails[8].equals("-1")) { // deadline
-									eventDetailStmt.setInt(11, new Integer(
-											jobDetails[8]));
-								}
-								eventDetailStmt.execute();
-								eventId++;
-							}
-						}
+			}
+			eventStmt.execute();
+			eventStmt.clearParameters();
+			if (event instanceof EventHasData) {
+				final List<ScheduleMachineData> data = ((EventHasData) event)
+						.getData();
+				final Integer parentEvent = eventId;
+				for (final ScheduleMachineData machine : data) {
+					eventDetailStmt.setInt(1, parentEvent);
+					eventDetailStmt.setInt(2, Machine.getIdWithName(machine
+							.getMachineId()));
+					for (final ScheduleJobData job : machine.getJobs()) {
+						eventDetailStmt.setInt(3, job.getNeededCPUs());
+						eventDetailStmt.setString(4, new String(job
+								.getAssignedCPUs()));
+						eventDetailStmt.setString(5, job.getArch());
+						eventDetailStmt.setInt(6, job.getNeededMemory());
+						eventDetailStmt.setInt(7, job.getNeededSpace());
+						eventDetailStmt.setInt(8, job.starts());
+						eventDetailStmt.setInt(9, job.ends());
+						eventDetailStmt.setInt(10, job.getDeadline());
+						eventDetailStmt.execute();
 					}
 				}
-				charNo += line.length(); // take the line as parsed
-				this.updateProgress(false, charNo);
 			}
+			this.setProgress((eventId / totalEvents) * 100);
 		}
 	}
 
@@ -408,20 +325,10 @@ public class Importer extends SwingWorker<Void, Void> {
 							e);
 				}
 				charNo += line.length();
-				this.updateProgress(true, charNo);
+				this.setProgress(new Double((charNo * 100)
+						/ this.machinesFile.length()).intValue());
 			}
 		}
-	}
-
-	private void updateProgress(boolean parsingMachines, final Integer charCount) {
-		final Double totalLength = new Double(this.machinesFile.length()
-				+ this.dataFile.length());
-		Double readLength = new Double(charCount);
-		if (!parsingMachines) {
-			readLength += this.machinesFile.length();
-		}
-		this.setProgress(new Double((readLength * 100) / totalLength)
-				.intValue());
 	}
 
 }
