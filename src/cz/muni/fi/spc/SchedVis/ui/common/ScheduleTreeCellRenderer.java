@@ -32,21 +32,8 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 	public Component getTreeCellRendererComponent(final JTree tree,
 			final Object value, final boolean sel, final boolean expanded,
 			final boolean leaf, final int row, final boolean hasFocus) {
-		String text = "JPanel: ";
-		if (sel) {
-			text += "selected;";
-		}
-		if (expanded) {
-			text += "expanded;";
-		}
-		if (hasFocus) {
-			text += "has focus;";
-		}
-		if (leaf) {
-			text += "is a leaf;";
-		}
 		final JPanel panel = new JPanel();
-		panel.add(new JLabel(text));
+		panel.add(new JLabel(value.toString()));
 		return panel;
 	}
 

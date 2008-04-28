@@ -5,6 +5,8 @@ package cz.muni.fi.spc.SchedVis.ui;
 
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.AbstractMap;
@@ -15,13 +17,14 @@ import java.util.HashSet;
 import javax.swing.JCheckBox;
 
 import cz.muni.fi.spc.SchedVis.model.entities.GroupEntity;
+import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 import cz.muni.fi.spc.SchedVis.ui.common.JBorderedPanel;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class GroupsPanel extends JBorderedPanel {
+public class GroupsPanel extends JBorderedPanel implements ActionListener {
 
 	/**
 	 * 
@@ -89,8 +92,7 @@ public class GroupsPanel extends JBorderedPanel {
 			final ResultSet rs = GroupEntity.getAllGroups();
 			this.boxes.clear();
 			while (rs.next()) {
-				this.boxes.put(rs.getInt("id_machine_groups"), new JCheckBox(rs
-						.getString("name")));
+				this.boxes.put(rs.getInt("id_machine_groups"), new JCheckBox(rs.getString("name")));
 			}
 			this.boxes.put(-1, new JCheckBox("Ungrouped"));
 		} catch (final SQLException e) {
@@ -105,7 +107,15 @@ public class GroupsPanel extends JBorderedPanel {
 				box.setSelected(true);
 			}
 			// add it to the screen
+			box.addActionListener(this);
 			this.add(box);
+		}
+		ScheduleTreeModel.getInstance().regroup(this.getSelectedGroups());
+	}
+	
+	public void actionPerformed(ActionEvent e) {
+		if (this.boxes.containsValue(e.getSource())) {
+			ScheduleTreeModel.getInstance().regroup(this.getSelectedGroups());
 		}
 	}
 

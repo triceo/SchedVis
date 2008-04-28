@@ -7,15 +7,19 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.swing.JTree;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
+
+import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
 public class JScheduleTree extends JTree {
-
+	
 	/**
 	 * 
 	 */
@@ -80,6 +84,8 @@ public class JScheduleTree extends JTree {
 	private void specialize() {
 		this.setCellRenderer(new ScheduleTreeCellRenderer());
 		this.setEditable(false);
+		this.setRootVisible(false);
+		this.setModel(ScheduleTreeModel.getInstance());
 	}
 
 }
