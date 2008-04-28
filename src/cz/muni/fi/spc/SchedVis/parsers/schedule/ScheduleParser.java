@@ -23,7 +23,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
     label_1:
     while (true) {
       events = event_data(events);
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      switch (jj_nt.kind) {
       case MOVE_EVENT_FLAG:
       case MACHINE_EVENT_FLAG:
       case IO_EVENT_FLAG:
@@ -36,7 +36,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
     }
     label_2:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      switch (jj_nt.kind) {
       case 9:
         ;
         break;
@@ -52,12 +52,12 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
   }
 
   final public ScheduleEventsList event_data(ScheduleEventsList events) throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    switch (jj_nt.kind) {
     case MACHINE_EVENT_FLAG:
       events = machine_event(events);
       label_3:
       while (true) {
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        switch (jj_nt.kind) {
         case WHITESPACE:
           ;
           break;
@@ -74,7 +74,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
       events = move_event(events);
       label_4:
       while (true) {
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        switch (jj_nt.kind) {
         case WHITESPACE:
           ;
           break;
@@ -91,7 +91,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
       events = IO_event(events);
       label_5:
       while (true) {
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        switch (jj_nt.kind) {
         case WHITESPACE:
           ;
           break;
@@ -170,7 +170,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
     while (true) {
       jj_consume_token(WHITESPACE);
       data = machine_data(data);
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      switch (jj_nt.kind) {
       case WHITESPACE:
         ;
         break;
@@ -190,7 +190,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
     machineId = jj_consume_token(STRING);
     label_7:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      switch (jj_nt.kind) {
       case 11:
         ;
         break;
@@ -222,7 +222,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
     jj_consume_token(13);
     numCPUs = jj_consume_token(CONSTANT);
     jj_consume_token(13);
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    switch (jj_nt.kind) {
     case CONSTANT_LIST:
       assignedCPUs = jj_consume_token(CONSTANT_LIST);
       break;
@@ -248,7 +248,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
     deadline = jj_consume_token(CONSTANT);
     label_8:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      switch (jj_nt.kind) {
       case 13:
         ;
         break;
@@ -275,7 +275,6 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
   public ScheduleParserTokenManager token_source;
   SimpleCharStream jj_input_stream;
   public Token token, jj_nt;
-  private int jj_ntk;
   private int jj_gen;
   final private int[] jj_la1 = new int[10];
   static private int[] jj_la1_0;
@@ -293,7 +292,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
     try { jj_input_stream = new SimpleCharStream(stream, encoding, 1, 1); } catch(java.io.UnsupportedEncodingException e) { throw new RuntimeException(e); }
     token_source = new ScheduleParserTokenManager(jj_input_stream);
     token = new Token();
-    jj_ntk = -1;
+    token.next = jj_nt = token_source.getNextToken();
     jj_gen = 0;
     for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
@@ -305,7 +304,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
     try { jj_input_stream.ReInit(stream, encoding, 1, 1); } catch(java.io.UnsupportedEncodingException e) { throw new RuntimeException(e); }
     token_source.ReInit(jj_input_stream);
     token = new Token();
-    jj_ntk = -1;
+    token.next = jj_nt = token_source.getNextToken();
     jj_gen = 0;
     for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
@@ -314,7 +313,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
     jj_input_stream = new SimpleCharStream(stream, 1, 1);
     token_source = new ScheduleParserTokenManager(jj_input_stream);
     token = new Token();
-    jj_ntk = -1;
+    token.next = jj_nt = token_source.getNextToken();
     jj_gen = 0;
     for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
@@ -323,7 +322,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
     jj_input_stream.ReInit(stream, 1, 1);
     token_source.ReInit(jj_input_stream);
     token = new Token();
-    jj_ntk = -1;
+    token.next = jj_nt = token_source.getNextToken();
     jj_gen = 0;
     for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
@@ -331,7 +330,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
   public ScheduleParser(ScheduleParserTokenManager tm) {
     token_source = tm;
     token = new Token();
-    jj_ntk = -1;
+    token.next = jj_nt = token_source.getNextToken();
     jj_gen = 0;
     for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
@@ -339,29 +338,28 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
   public void ReInit(ScheduleParserTokenManager tm) {
     token_source = tm;
     token = new Token();
-    jj_ntk = -1;
+    token.next = jj_nt = token_source.getNextToken();
     jj_gen = 0;
     for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
 
   final private Token jj_consume_token(int kind) throws ParseException {
-    Token oldToken;
-    if ((oldToken = token).next != null) token = token.next;
-    else token = token.next = token_source.getNextToken();
-    jj_ntk = -1;
+    Token oldToken = token;
+    if ((token = jj_nt).next != null) jj_nt = jj_nt.next;
+    else jj_nt = jj_nt.next = token_source.getNextToken();
     if (token.kind == kind) {
       jj_gen++;
       return token;
     }
+    jj_nt = token;
     token = oldToken;
     jj_kind = kind;
     throw generateParseException();
   }
 
   final public Token getNextToken() {
-    if (token.next != null) token = token.next;
-    else token = token.next = token_source.getNextToken();
-    jj_ntk = -1;
+    if ((token = jj_nt).next != null) jj_nt = jj_nt.next;
+    else jj_nt = jj_nt.next = token_source.getNextToken();
     jj_gen++;
     return token;
   }
@@ -373,13 +371,6 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
       else t = t.next = token_source.getNextToken();
     }
     return t;
-  }
-
-  final private int jj_ntk() {
-    if ((jj_nt=token.next) == null)
-      return (jj_ntk = (token.next=token_source.getNextToken()).kind);
-    else
-      return (jj_ntk = jj_nt.kind);
   }
 
   private java.util.Vector jj_expentries = new java.util.Vector();

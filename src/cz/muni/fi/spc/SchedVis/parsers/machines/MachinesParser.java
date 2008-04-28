@@ -23,7 +23,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
     label_1:
     while (true) {
       machines = machine_data(machines);
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      switch (jj_nt.kind) {
       case STRING:
         ;
         break;
@@ -34,7 +34,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
     }
     label_2:
     while (true) {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      switch (jj_nt.kind) {
       case 4:
         ;
         break;
@@ -79,7 +79,6 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
   public MachinesParserTokenManager token_source;
   SimpleCharStream jj_input_stream;
   public Token token, jj_nt;
-  private int jj_ntk;
   private int jj_gen;
   final private int[] jj_la1 = new int[2];
   static private int[] jj_la1_0;
@@ -97,7 +96,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
     try { jj_input_stream = new SimpleCharStream(stream, encoding, 1, 1); } catch(java.io.UnsupportedEncodingException e) { throw new RuntimeException(e); }
     token_source = new MachinesParserTokenManager(jj_input_stream);
     token = new Token();
-    jj_ntk = -1;
+    token.next = jj_nt = token_source.getNextToken();
     jj_gen = 0;
     for (int i = 0; i < 2; i++) jj_la1[i] = -1;
   }
@@ -109,7 +108,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
     try { jj_input_stream.ReInit(stream, encoding, 1, 1); } catch(java.io.UnsupportedEncodingException e) { throw new RuntimeException(e); }
     token_source.ReInit(jj_input_stream);
     token = new Token();
-    jj_ntk = -1;
+    token.next = jj_nt = token_source.getNextToken();
     jj_gen = 0;
     for (int i = 0; i < 2; i++) jj_la1[i] = -1;
   }
@@ -118,7 +117,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
     jj_input_stream = new SimpleCharStream(stream, 1, 1);
     token_source = new MachinesParserTokenManager(jj_input_stream);
     token = new Token();
-    jj_ntk = -1;
+    token.next = jj_nt = token_source.getNextToken();
     jj_gen = 0;
     for (int i = 0; i < 2; i++) jj_la1[i] = -1;
   }
@@ -127,7 +126,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
     jj_input_stream.ReInit(stream, 1, 1);
     token_source.ReInit(jj_input_stream);
     token = new Token();
-    jj_ntk = -1;
+    token.next = jj_nt = token_source.getNextToken();
     jj_gen = 0;
     for (int i = 0; i < 2; i++) jj_la1[i] = -1;
   }
@@ -135,7 +134,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
   public MachinesParser(MachinesParserTokenManager tm) {
     token_source = tm;
     token = new Token();
-    jj_ntk = -1;
+    token.next = jj_nt = token_source.getNextToken();
     jj_gen = 0;
     for (int i = 0; i < 2; i++) jj_la1[i] = -1;
   }
@@ -143,29 +142,28 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
   public void ReInit(MachinesParserTokenManager tm) {
     token_source = tm;
     token = new Token();
-    jj_ntk = -1;
+    token.next = jj_nt = token_source.getNextToken();
     jj_gen = 0;
     for (int i = 0; i < 2; i++) jj_la1[i] = -1;
   }
 
   final private Token jj_consume_token(int kind) throws ParseException {
-    Token oldToken;
-    if ((oldToken = token).next != null) token = token.next;
-    else token = token.next = token_source.getNextToken();
-    jj_ntk = -1;
+    Token oldToken = token;
+    if ((token = jj_nt).next != null) jj_nt = jj_nt.next;
+    else jj_nt = jj_nt.next = token_source.getNextToken();
     if (token.kind == kind) {
       jj_gen++;
       return token;
     }
+    jj_nt = token;
     token = oldToken;
     jj_kind = kind;
     throw generateParseException();
   }
 
   final public Token getNextToken() {
-    if (token.next != null) token = token.next;
-    else token = token.next = token_source.getNextToken();
-    jj_ntk = -1;
+    if ((token = jj_nt).next != null) jj_nt = jj_nt.next;
+    else jj_nt = jj_nt.next = token_source.getNextToken();
     jj_gen++;
     return token;
   }
@@ -177,13 +175,6 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
       else t = t.next = token_source.getNextToken();
     }
     return t;
-  }
-
-  final private int jj_ntk() {
-    if ((jj_nt=token.next) == null)
-      return (jj_ntk = (token.next=token_source.getNextToken()).kind);
-    else
-      return (jj_ntk = jj_nt.kind);
   }
 
   private java.util.Vector jj_expentries = new java.util.Vector();
