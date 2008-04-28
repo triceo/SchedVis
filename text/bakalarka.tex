@@ -1,0 +1,112 @@
+\documentclass[draft]{fithesis}
+\usepackage[utf8]{inputenc}
+\usepackage[czech]{babel}
+\usepackage[pdftex,
+	plainpages=false,
+	pdfpagelabels,
+	pdfauthor={Lukas Petrovicky},
+	pdftitle={Vizualizace tvorby a optimalizace rozvrhu},
+	a4paper,
+	hypertexnames,
+	unicode=true,
+	colorlinks=true,
+	linkcolor=black,
+	urlcolor=black]{hyperref}
+\thesistitle{Vizualizace tvorby a optimalizace rozvrhu}
+\thesissubtitle{Bakalářská práce}
+\thesisstudent{Lukáš Petrovický}
+\thesiswoman{false}
+\thesisfaculty{fi}
+\thesisyear{podzim 2008}
+\thesisadvisor{Mgr. Dalibor Klusáček}
+
+\begin{document}
+\FrontMatter
+\ThesisTitlePage
+
+\begin{ThesisDeclaration}
+\DeclarationText
+\AdvisorName
+\end{ThesisDeclaration}
+
+\begin{ThesisThanks}
+Zde bude uvedeno poděkování ... 
+\end{ThesisThanks}
+
+\begin{ThesisAbstract}
+Here goes abstract...
+\end{ThesisAbstract}
+
+\begin{ThesisKeyWords}
+Here go keywords...
+\end{ThesisKeyWords}
+
+\MainMatter
+\tableofcontents
+\chapter*{Úvod}
+Text ...
+\chapter*{Přílohy}
+
+\section*{Příloha A: Gramatiky datových sad}
+
+\subsection*{Gramatika pro popis dostupných strojů}
+
+$G = (N, \Sigma, P, S)$, kde $P = (\\
+	S 					\: \rightarrow \: 	machineData										\: | \:		machineData \, \downarrow \, S \\
+	machineData			\: \rightarrow \:	machineId \textbf{;} numCPUs \textbf{;} speed \textbf{;} arch \textbf{;} OS \textbf{;} mem \textbf{;} space\\
+	machineId			\: \rightarrow \: 	str\\
+	numCPUs				\: \rightarrow \: 	number\\
+	speed				\: \rightarrow \: 	number\\
+	arch				\: \rightarrow \: 	str\\
+	OS				\: \rightarrow \: 	str\\
+	mem					\: \rightarrow \: 	number\\
+	space				\: \rightarrow \: 	number\\
+	number				\: \rightarrow \:	\textbf{O} \:|\: \textbf{1} \:|\: \textbf{2} \:|\: \textbf{3} \:|\: \textbf{4} \:|\: \textbf{5} \:|\: \textbf{6} \:|\: \textbf{7} \:|\: \textbf{8} \:|\: \textbf{9} \:|\: number\\
+	str					\: \rightarrow \:	\textbf{a} \cdots \textbf{Z} \:|\: str\,number \:|\: str\,number\,str \:|\: str\,\_\,str \:|\: str\,str)$,\\
+$N = (S\,, machineData\,, machineId\,, numCPUs\,, speed\,, arch\,, OS\,, mem\,, \\ space\,, number\,, str)$,\\
+$\Sigma = N \:\cup\: (; \,, \downarrow \,, \_\,, 0 \cdots 9\,, a \cdots Z).\\$
+
+\subsection*{Gramatika pro popis událostí na strojích}
+$G = (N, \Sigma, P, S)$, kde $P = (\\
+	S 					\: \rightarrow \: 	eventData										\: | \:		eventData\,\downarrow\,S\\
+	eventData 			\: \rightarrow \:   machineEvent 									\: | \:		mvEvent				\: | \: 	IOEvent\\
+	machineEvent 		\: \rightarrow \: 	machineEventFlag \sqcup clock \sqcup machineId\\
+	machineEventFlag 	\: \rightarrow \: 	\textbf{machine-failure} 						\: | \: 	\textbf{machine-restart}\\
+	clock			 	\: \rightarrow \: 	number\\
+	machineId			\: \rightarrow \: 	str\\
+	mvEvent 			\: \rightarrow \: 	mvFlag \sqcup clock \sqcup job \sqcup origMachine \sqcup newMachine \sqcup schedule\\
+	mvFlag 				\: \rightarrow \: 	\textbf{machine-failure-move-}\,mvState 		\: | \: 	\textbf{move-}\,mvState\\
+	mvState				\: \rightarrow \:	\textbf{good}									\: | \:		\textbf{bad}\\
+	job				 	\: \rightarrow \: 	number\\
+	origMachine		 	\: \rightarrow \: 	machineId\\
+	newMachine		 	\: \rightarrow \: 	machineId\\
+	schedule			\: \rightarrow \:	machineData										\: | \:		machineData \sqcup schedule\\
+	machineData			\: \rightarrow \:	\langle machineId \rangle						\: | \:		\langle machineId|jobsData \rangle\\
+	jobsData			\: \rightarrow \:	jobDesc											\: | \: 	jobDesc|jobsData\\
+	jobDesc				\: \rightarrow \:   job \textbf{;} numCPUs \textbf{;} assignCPUs \textbf{;} arch \textbf{;} mem \textbf{;} space \textbf{;} start \textbf{;} end \textbf{;} deadline\\
+	numCPUs				\: \rightarrow \: 	number\\
+	assignCPUs			\: \rightarrow \: 	numberSet\\
+	numberSet			\: \rightarrow \: 	number 											\: | \:		number\textbf{,}numberSet\\
+	arch				\: \rightarrow \: 	str\\
+	mem					\: \rightarrow \: 	number\\
+	space				\: \rightarrow \: 	number\\
+	start				\: \rightarrow \: 	clock\\
+	end					\: \rightarrow \: 	clock\\
+	deadline			\: \rightarrow \: 	clock\\
+	IOEvent 			\: \rightarrow \: 	IOEventFlag \sqcup clock \sqcup jobId \sqcup schedule\\
+	IOEventFlag 		\: \rightarrow \: 	\textbf{job-}\,IOSubFlag\\
+	IOSubFlag			\: \rightarrow \:	\textbf{arrival}								\: | \:		\textbf{cancel}		\: | \:		\textbf{execution-start}		\: | \:		\textbf{completion}\\
+	number				\: \rightarrow \:	\textbf{O} \:|\: \textbf{1} \:|\: \textbf{2} \:|\: \textbf{3} \:|\: \textbf{4} \:|\: \textbf{5} \:|\: \textbf{6} \:|\: \textbf{7} \:|\: \textbf{8} \:|\: \textbf{9} \:|\: number\\
+	str					\: \rightarrow \:	\textbf{a} \cdots \textbf{Z} \:|\: str\,number \:|\: str\,number\,str \:|\: str\,\_\,str \:|\: str\,str)$,\\
+$N = (S\,, eventData\,, machineEvent\,, machineEventFlag\,, clock\,, machineId\,, \\ mvEvent\,, mvFlag\,, mvState\,, job\,, origMachine\,, newMachine\,, schedule\,, \\ machineData\,, jobsData\,, jobDesc\,, numCPUs\,, assignCPUs\,, numberSet\,, \\ arch\,, mem\,, space\,, start\,, end\,, deadline\,, IOEvent\,, IOEventFlag\,, \\ IOSubFlag\,, number\,, str)$,\\
+$\Sigma = N \:\cup\: (\downarrow\,, \sqcup\,, ,\,, ; \,, \_\,, \langle\,, \rangle\,, 0 \cdots 9\,, a \cdots Z\,, machine-failure\,, \\machine-restart\,, machine-failure-move-\,, move-\,, good\,, bad\,, job-\,, \\arrival\,, cancel\,, execution-start\,, completion).$
+
+
+% Následují další kapitoly a podkapitoly, popřípadě závěr, dodatky, 
+% seznam literatury či použitých obrázků nebo tabulek.
+
+\bibliographystyle{plain}  % bibliografický styl 
+\bibliography{mujbisoubor} % soubor s citovanými
+                           % položkami bibliografie 
+
+\end{document}
