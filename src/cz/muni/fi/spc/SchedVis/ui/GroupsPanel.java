@@ -70,6 +70,12 @@ public class GroupsPanel extends JBorderedPanel implements ActionListener {
 		this.specialize();
 	}
 
+	public void actionPerformed(final ActionEvent e) {
+		if (this.boxes.containsValue(e.getSource())) {
+			ScheduleTreeModel.getInstance().regroup(this.getSelectedGroups());
+		}
+	}
+
 	public AbstractSet<Integer> getSelectedGroups() {
 		final AbstractSet<Integer> selectedBoxes = new HashSet<Integer>();
 		for (final Integer groupId : this.boxes.keySet()) {
@@ -92,7 +98,8 @@ public class GroupsPanel extends JBorderedPanel implements ActionListener {
 			final ResultSet rs = GroupEntity.getAllGroups();
 			this.boxes.clear();
 			while (rs.next()) {
-				this.boxes.put(rs.getInt("id_machine_groups"), new JCheckBox(rs.getString("name")));
+				this.boxes.put(rs.getInt("id_machine_groups"), new JCheckBox(rs
+						.getString("name")));
 			}
 			this.boxes.put(-1, new JCheckBox("Ungrouped"));
 		} catch (final SQLException e) {
@@ -111,12 +118,6 @@ public class GroupsPanel extends JBorderedPanel implements ActionListener {
 			this.add(box);
 		}
 		ScheduleTreeModel.getInstance().regroup(this.getSelectedGroups());
-	}
-	
-	public void actionPerformed(ActionEvent e) {
-		if (this.boxes.containsValue(e.getSource())) {
-			ScheduleTreeModel.getInstance().regroup(this.getSelectedGroups());
-		}
 	}
 
 }

@@ -94,7 +94,7 @@ public class ScheduleTreeModel extends DefaultTreeModel {
 	 * 
 	 * @param visibleGroups
 	 */
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings( { "unchecked" })
 	public void regroup(final AbstractSet<Integer> visibleGroups) {
 		final DefaultMutableTreeNode root = ScheduleTreeModel.getTree();
 		if (!visibleGroups.isEmpty()) {

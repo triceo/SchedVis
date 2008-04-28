@@ -6,7 +6,7 @@ package cz.muni.fi.spc.SchedVis.parsers.schedule;
 import java.util.Vector;
 
 /**
- * A placeholder so that we don't need to write Vector<ScheduleMachineData> all 
+ * A placeholder so that we don't need to write Vector<ScheduleMachineData> all
  * the time.
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>

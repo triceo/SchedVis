@@ -7,8 +7,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.swing.JTree;
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 
@@ -19,7 +17,7 @@ import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
  * 
  */
 public class JScheduleTree extends JTree {
-	
+
 	/**
 	 * 
 	 */

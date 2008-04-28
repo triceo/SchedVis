@@ -3,7 +3,6 @@
  */
 package cz.muni.fi.spc.SchedVis.parsers.schedule;
 
-
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 

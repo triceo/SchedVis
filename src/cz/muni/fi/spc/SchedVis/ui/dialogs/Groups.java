@@ -258,8 +258,8 @@ public class Groups extends JDialog implements ActionListener,
 				final Integer groupId = GroupEntity
 						.getIdWithName((String) this.availableGroupsList
 								.getSelectedItem());
-				MachineEntity.addToGroup(MachineEntity.getIdWithName((String) machineName),
-						groupId);
+				MachineEntity.addToGroup(MachineEntity
+						.getIdWithName((String) machineName), groupId);
 				this.availableMachinesList.update();
 				this.groupedMachinesList.update();
 			}

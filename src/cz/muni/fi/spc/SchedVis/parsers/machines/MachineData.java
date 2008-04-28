@@ -3,7 +3,6 @@
  */
 package cz.muni.fi.spc.SchedVis.parsers.machines;
 
-
 /**
  * Holds information about a machine loaded from the data set. Written into by
  * parsers, read by importer.
@@ -21,8 +20,9 @@ public class MachineData {
 	private final Integer memory;
 	private final Integer space;
 
-	public MachineData(final Token name, final Token numCPUs, final Token speed,
-			final Token arch, final Token os, final Token mem, final Token space) {
+	public MachineData(final Token name, final Token numCPUs,
+			final Token speed, final Token arch, final Token os,
+			final Token mem, final Token space) {
 		this.name = name.toString();
 		this.numCPUs = new Integer(numCPUs.toString());
 		this.speed = new Integer(speed.toString());
