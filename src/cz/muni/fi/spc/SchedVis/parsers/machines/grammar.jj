@@ -8,14 +8,13 @@ options {
 PARSER_BEGIN(MachinesParser)
 package cz.muni.fi.spc.SchedVis.parsers.machines;
 
-import java.util.Vector;
-import java.util.List;
+import cz.muni.fi.spc.SchedVis.parsers.Parser;
 
-public class MachinesParser extends cz.muni.fi.spc.SchedVis.parsers.Parser {
+public class MachinesParser extends Parser {
   public static void main(String args[]) throws ParseException {
       try {
         MachinesParser parser = new MachinesParser(System.in);
-        List<Machine> machines = parser.read();
+        MachinesList machines = parser.read();
         System.out.println("Successfully read " + machines.size() + " machines!");
       } catch (Exception e) {
         System.out.println("NOK.");
@@ -35,9 +34,9 @@ TOKEN :
 |   < STRING: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","_"," ","0"-"9"] )* > /* An allowed string. */
 }
 
-List<Machine> read() :
+MachinesList read() :
 {
-	List<Machine> machines = new Vector<Machine>();
+	MachinesList machines = new MachinesList();
 }
 {
     (machines=machine_data(machines))+
@@ -46,7 +45,7 @@ List<Machine> read() :
     {return machines;}	
 }
 
-List<Machine> machine_data(List<Machine> machines) : 
+MachinesList machine_data(MachinesList machines) : 
 {
 	Token name;
 	Token numCPUs;
@@ -65,7 +64,7 @@ List<Machine> machine_data(List<Machine> machines) :
 	mem=<CONSTANT> ";" 
 	space=<CONSTANT> "\n"  
 	{
-		machines.add(new Machine(name, numCPUs, speed, arch, os, mem, space));
+		machines.add(new MachineData(name, numCPUs, speed, arch, os, mem, space));
 		return machines;
 	} 
 }

@@ -11,7 +11,7 @@ package cz.muni.fi.spc.SchedVis.parsers.machines;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class Machine {
+public class MachineData {
 
 	private final String name;
 	private final Integer numCPUs;
@@ -21,7 +21,7 @@ public class Machine {
 	private final Integer memory;
 	private final Integer space;
 
-	public Machine(final Token name, final Token numCPUs, final Token speed,
+	public MachineData(final Token name, final Token numCPUs, final Token speed,
 			final Token arch, final Token os, final Token mem, final Token space) {
 		this.name = name.toString();
 		this.numCPUs = new Integer(numCPUs.toString());

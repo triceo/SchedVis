@@ -11,18 +11,16 @@ import java.sql.SQLException;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class Group extends Entity {
+public class MachineEntity extends Entity {
 
-	public static boolean delete(final Integer id) {
+	public static boolean addToGroup(final Integer machineId,
+			final Integer groupId) {
 		try {
 			final PreparedStatement stmt = Entity
-					.getStatement("UPDATE machines SET id_machine_groups = NULL WHERE id_machine_groups = ?");
-			stmt.setInt(1, id);
-			stmt.execute();
-			final PreparedStatement stmt2 = Entity
-					.getStatement("DELETE FROM machine_groups WHERE id_machine_groups = ?;");
-			stmt2.setInt(1, id);
-			if (stmt2.executeUpdate() > 0) {
+					.getStatement("UPDATE machines SET id_machine_groups = ? WHERE id_machines = ?;");
+			stmt.setInt(1, groupId);
+			stmt.setInt(2, machineId);
+			if (stmt.executeUpdate() > 0) {
 				return true;
 			} else {
 				return false;
@@ -32,12 +30,24 @@ public class Group extends Entity {
 		}
 	}
 
-	public static ResultSet getAllGroups() {
+	public static ResultSet getAllInGroup(final Integer groupId) {
 		try {
 			final PreparedStatement stmt = Entity
-					.getStatement("SELECT * FROM machine_groups ORDER BY name ASC;");
+					.getStatement("SELECT * FROM machines WHERE id_machine_groups = ? ORDER BY name ASC;");
+			stmt.setInt(1, groupId);
 			return stmt.executeQuery();
 		} catch (final SQLException e) {
+			return null;
+		}
+	}
+
+	public static ResultSet getAllUngrouped() {
+		try {
+			final PreparedStatement stmt = Entity
+					.getStatement("SELECT * FROM machines WHERE id_machine_groups IS NULL ORDER BY name ASC;");
+			return stmt.executeQuery();
+		} catch (final SQLException e) {
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -45,7 +55,7 @@ public class Group extends Entity {
 	public static Integer getIdWithName(final String name) {
 		try {
 			final PreparedStatement stmt = Entity
-					.getStatement("SELECT id_machine_groups FROM machine_groups WHERE name = ?");
+					.getStatement("SELECT id_machines FROM machines WHERE name = ?");
 			stmt.setString(1, name);
 			final ResultSet rs = stmt.executeQuery();
 			if (rs.first()) {
@@ -58,11 +68,11 @@ public class Group extends Entity {
 		}
 	}
 
-	public static boolean insert(final String name) {
+	public static boolean removeFromGroup(final Integer machineId) {
 		try {
 			final PreparedStatement stmt = Entity
-					.getStatement("INSERT INTO machine_groups (name) VALUES (?);");
-			stmt.setString(1, name);
+					.getStatement("UPDATE machines SET id_machine_groups = NULL WHERE id_machines = ?;");
+			stmt.setInt(1, machineId);
 			if (stmt.executeUpdate() > 0) {
 				return true;
 			} else {
@@ -76,7 +86,7 @@ public class Group extends Entity {
 	/**
 	 * 
 	 */
-	public Group() {
+	public MachineEntity() {
 		super();
 	}
 

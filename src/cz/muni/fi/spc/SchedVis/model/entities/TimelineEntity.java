@@ -13,7 +13,7 @@ import java.util.TreeSet;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class Timeline extends Entity {
+public class TimelineEntity extends Entity {
 
 	public static SortedSet<Number> getAllClocks() {
 		try {
@@ -67,7 +67,7 @@ public class Timeline extends Entity {
 	/**
 	 * 
 	 */
-	public Timeline() {
+	public TimelineEntity() {
 		// TODO Auto-generated constructor stub
 	}
 

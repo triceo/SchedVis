@@ -8,14 +8,13 @@ options {
 PARSER_BEGIN(ScheduleParser)
 package cz.muni.fi.spc.SchedVis.parsers.schedule;
 
-import java.util.Vector;
-import java.util.List;
+import cz.muni.fi.spc.SchedVis.parsers.Parser;
 
-public class ScheduleParser extends cz.muni.fi.spc.SchedVis.parsers.Parser {
+public class ScheduleParser extends Parser {
   public static void main(String args[]) throws ParseException {
       try {
         ScheduleParser parser = new ScheduleParser(System.in);
-        List<ScheduleEvent> events = parser.read();
+        ScheduleEventsList events = parser.read();
         System.out.println("Successfully read " + events.size() + " events!");
       } catch (Exception e) {
         System.out.println("NOK.");
@@ -44,8 +43,8 @@ TOKEN :
     |< IO_EVENT_FLAG: "job-arrival" | "job-execution-start" | "job-cancel" | "job-completion">
 }
 
-List<ScheduleEvent> read() : {
-	List<ScheduleEvent> events = new Vector<ScheduleEvent>();
+ScheduleEventsList read() : {
+	ScheduleEventsList events = new ScheduleEventsList();
 }
 {
   (events=event_data(events))+
@@ -54,14 +53,14 @@ List<ScheduleEvent> read() : {
   {return events;}
 }
 
-List<ScheduleEvent> event_data(List<ScheduleEvent> events) : {}
+ScheduleEventsList event_data(ScheduleEventsList events) : {}
 {
   events=machine_event(events) (<WHITESPACE>)* "\n" {return events;}
   | events=move_event(events) (<WHITESPACE>)* "\n" {return events;}
   | events=IO_event(events) (<WHITESPACE>)* "\n" {return events;}
 }
 
-List<ScheduleEvent> machine_event(List<ScheduleEvent> list) : {
+ScheduleEventsList machine_event(ScheduleEventsList list) : {
     Token event;
     Token clock;
     Token machine;
@@ -76,13 +75,13 @@ List<ScheduleEvent> machine_event(List<ScheduleEvent> list) : {
     } 	
 }
 
-List<ScheduleEvent> move_event(List<ScheduleEvent> list) : {
+ScheduleEventsList move_event(ScheduleEventsList list) : {
 	Token event;
 	Token clock;
 	Token job;
 	Token origMachine;
 	Token newMachine;
-	List<ScheduleMachineData> data;
+	ScheduleMachineDataList data;
 }   
 {
     event=<MOVE_EVENT_FLAG> <WHITESPACE> 
@@ -97,11 +96,11 @@ List<ScheduleEvent> move_event(List<ScheduleEvent> list) : {
     }
 }
 
-List<ScheduleEvent> IO_event(List<ScheduleEvent> list) : {
+ScheduleEventsList IO_event(ScheduleEventsList list) : {
     Token event;
     Token clock;
     Token job;
-    List<ScheduleMachineData> data;
+    ScheduleMachineDataList data;
 }
 {
     event=<IO_EVENT_FLAG> <WHITESPACE> 
@@ -114,16 +113,16 @@ List<ScheduleEvent> IO_event(List<ScheduleEvent> list) : {
     } 
 }
 
-List<ScheduleMachineData> schedule_data() : {
-	List<ScheduleMachineData> data = new Vector<ScheduleMachineData>();
+ScheduleMachineDataList schedule_data() : {
+	ScheduleMachineDataList data = new ScheduleMachineDataList();
 }
 {
 	(<WHITESPACE> data=machine_data(data))+
 	{return data;}
 }
 
-List<ScheduleMachineData> machine_data(List<ScheduleMachineData> list) : {
-	List<ScheduleJobData> data = new Vector<ScheduleJobData>();
+ScheduleMachineDataList machine_data(ScheduleMachineDataList list) : {
+	ScheduleJobDataList data = new ScheduleJobDataList();
 	Token machineId;
 }
 {
@@ -134,7 +133,7 @@ List<ScheduleMachineData> machine_data(List<ScheduleMachineData> list) : {
 	}
 }
 
-List<ScheduleJobData> job_data(List<ScheduleJobData> list) : {
+ScheduleJobDataList job_data(ScheduleJobDataList list) : {
 	Token job;
 	Token numCPUs;
 	Token assignedCPUs;

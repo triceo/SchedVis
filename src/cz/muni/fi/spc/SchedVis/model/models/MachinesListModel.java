@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import javax.swing.DefaultListModel;
 import javax.swing.event.ListDataListener;
 
-import cz.muni.fi.spc.SchedVis.model.entities.Machine;
+import cz.muni.fi.spc.SchedVis.model.entities.MachineEntity;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -37,9 +37,9 @@ public class MachinesListModel extends DefaultListModel {
 	public void update() {
 		ResultSet rs = null;
 		if (this.groupId == null) {
-			rs = Machine.getAllUngrouped();
+			rs = MachineEntity.getAllUngrouped();
 		} else if (this.groupId != -1) {
-			rs = Machine.getAllInGroup(this.groupId);
+			rs = MachineEntity.getAllInGroup(this.groupId);
 		}
 		this.removeAllElements();
 		try {

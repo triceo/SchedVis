@@ -14,7 +14,7 @@ import java.util.HashSet;
 
 import javax.swing.JCheckBox;
 
-import cz.muni.fi.spc.SchedVis.model.entities.Group;
+import cz.muni.fi.spc.SchedVis.model.entities.GroupEntity;
 import cz.muni.fi.spc.SchedVis.ui.common.JBorderedPanel;
 
 /**
@@ -86,7 +86,7 @@ public class GroupsPanel extends JBorderedPanel {
 		final AbstractSet<Integer> selectedGroups = this.getSelectedGroups();
 		// assemble new groups
 		try {
-			final ResultSet rs = Group.getAllGroups();
+			final ResultSet rs = GroupEntity.getAllGroups();
 			this.boxes.clear();
 			while (rs.next()) {
 				this.boxes.put(rs.getInt("id_machine_groups"), new JCheckBox(rs

@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.event.ListDataListener;
 
-import cz.muni.fi.spc.SchedVis.model.entities.Group;
+import cz.muni.fi.spc.SchedVis.model.entities.GroupEntity;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -31,7 +31,7 @@ public class GroupsListModel extends DefaultComboBoxModel {
 	}
 
 	public void update() {
-		final ResultSet rs = Group.getAllGroups();
+		final ResultSet rs = GroupEntity.getAllGroups();
 		try {
 			this.removeAllElements();
 			while (rs.next()) {

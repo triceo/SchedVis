@@ -19,7 +19,8 @@ import java.util.List;
 import javax.swing.SwingWorker;
 
 import cz.muni.fi.spc.SchedVis.model.SQL;
-import cz.muni.fi.spc.SchedVis.model.entities.Machine;
+import cz.muni.fi.spc.SchedVis.model.entities.MachineEntity;
+import cz.muni.fi.spc.SchedVis.parsers.machines.MachineData;
 import cz.muni.fi.spc.SchedVis.parsers.machines.MachinesParser;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.EventHasData;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.EventIsJobRelated;
@@ -245,8 +246,8 @@ public class Importer extends SwingWorker<Void, Void> {
 				final Integer parentEvent = eventId;
 				for (final ScheduleMachineData machine : data) {
 					eventDetailStmt.setInt(1, parentEvent);
-					eventDetailStmt.setInt(2, Machine.getIdWithName(machine
-							.getMachineId()));
+					eventDetailStmt.setInt(2, MachineEntity
+							.getIdWithName(machine.getMachineId()));
 					for (final ScheduleJobData job : machine.getJobs()) {
 						eventDetailStmt.setInt(3, job.getNeededCPUs());
 						eventDetailStmt.setString(4, new String(job
@@ -292,11 +293,10 @@ public class Importer extends SwingWorker<Void, Void> {
 								+ "speed, " + "platform, " + "os, " + "ram, "
 								+ "hdd) VALUES (?, ?, ?, ?, ?, ?, ?);");
 		final MachinesParser parser = new MachinesParser(reader);
-		final List<cz.muni.fi.spc.SchedVis.parsers.machines.Machine> machines = parser
-				.read();
+		final List<MachineData> machines = parser.read();
 		final Integer totalMachines = machines.size();
 		Integer machineId = 0;
-		for (final cz.muni.fi.spc.SchedVis.parsers.machines.Machine machine : machines) {
+		for (final MachineData machine : machines) {
 			machineId++;
 			stmt.setString(1, machine.getName());
 			stmt.setInt(2, machine.getCPUCount());
