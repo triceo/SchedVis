@@ -3,7 +3,8 @@
  */
 package cz.muni.fi.spc.SchedVis;
 
-import javax.swing.JFrame;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import cz.muni.fi.spc.SchedVis.ui.MainFrame;
 
@@ -22,7 +23,23 @@ public final class Main {
 	 * @param args
 	 */
 	public static void main(final String[] args) {
-		JFrame.setDefaultLookAndFeelDecorated(true);
+		try {
+		    // Set System L&F
+	        UIManager.setLookAndFeel(
+	            UIManager.getSystemLookAndFeelClassName());
+	    } 
+	    catch (UnsupportedLookAndFeelException e) {
+	       // handle exception
+	    }
+	    catch (ClassNotFoundException e) {
+	       // handle exception
+	    }
+	    catch (InstantiationException e) {
+	       // handle exception
+	    }
+	    catch (IllegalAccessException e) {
+	       // handle exception
+	    }
 		// Schedule a job for the event-dispatching thread:
 		// creating and showing this application's GUI.
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {

@@ -340,8 +340,7 @@ public class Import extends JDialog implements ActionListener, WindowListener {
 		// some dialog settings
 		this.setLocationRelativeTo(this.getParent());
 		this.setTitle("Pick data source");
-		this.setMinimumSize(new Dimension(560, 295));
-		this.setResizable(false);
+		this.setMinimumSize(new Dimension(570, 330));
 		this.addWindowListener(this);
 		// set default choice
 		buttonNew.setSelected(true);
