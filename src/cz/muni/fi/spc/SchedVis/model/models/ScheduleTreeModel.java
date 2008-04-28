@@ -97,7 +97,6 @@ public class ScheduleTreeModel extends DefaultTreeModel {
 	@SuppressWarnings({ "unchecked" })
 	public void regroup(final AbstractSet<Integer> visibleGroups) {
 		final DefaultMutableTreeNode root = ScheduleTreeModel.getTree();
-		System.out.println(root.getChildCount());
 		if (!visibleGroups.isEmpty()) {
 			final boolean allowUngrouped = visibleGroups.contains(-1);
 			Enumeration<DefaultMutableTreeNode> e = root.children();
