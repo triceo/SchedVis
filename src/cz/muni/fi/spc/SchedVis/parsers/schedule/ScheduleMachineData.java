@@ -5,8 +5,6 @@ package cz.muni.fi.spc.SchedVis.parsers.schedule;
 
 import java.util.List;
 
-import cz.muni.fi.spc.SchedVis.parsers.schedule.Token;
-
 /**
  * This holds information about jobs related to a given machine in one event.
  * Filled by parser, read by importer.

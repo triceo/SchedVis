@@ -21,7 +21,6 @@ import javax.swing.SwingWorker;
 import cz.muni.fi.spc.SchedVis.model.SQL;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.parsers.machines.MachinesParser;
-import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleParser;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.EventHasData;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.EventIsJobRelated;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.EventIsMachineRelated;
@@ -29,6 +28,7 @@ import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleEvent;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleEventMove;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleJobData;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleMachineData;
+import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleParser;
 
 /**
  * A tool to import data from specific files into the SQLite database used by
@@ -71,7 +71,7 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * Create the database schema used by the application.
 	 * 
 	 * @throws SQLException
-	 *             Thrown when any of the schema tables cannot be created.
+	 * 		Thrown when any of the schema tables cannot be created.
 	 */
 	private void createSchema() throws SQLException {
 		final Statement stmt = Importer.sql.getConnection().createStatement();
@@ -153,14 +153,15 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * @param reader
 	 * @throws ParseException
 	 * @throws SQLException
-	 *             Thrown when any of the rows failed to insert.
+	 * 		Thrown when any of the rows failed to insert.
 	 * @todo Implement transactions.
 	 * @todo Implement foreign keys somehow. (No support in SQLite.)
 	 * @todo Somehow make jobs a table of its own.
 	 * @todo Somehow make assigned-CPUs a table if its own.
 	 */
 	private void parseDataSet(final BufferedReader reader) throws IOException,
-			SQLException, cz.muni.fi.spc.SchedVis.parsers.schedule.ParseException {
+			SQLException,
+			cz.muni.fi.spc.SchedVis.parsers.schedule.ParseException {
 		this.setProgress(0);
 		final PreparedStatement eventTypeInsStmt = Importer.sql.getConnection()
 				.prepareStatement(
@@ -217,8 +218,8 @@ public class Importer extends SwingWorker<Void, Void> {
 								+ "expect_end, "
 								+ "deadline) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		// parse data set and fill the events' table
-		new ScheduleParser(reader);
-		final List<ScheduleEvent> events = ScheduleParser.read();
+		final ScheduleParser parser = new ScheduleParser(reader);
+		final List<ScheduleEvent> events = parser.read();
 		final Integer totalEvents = events.size();
 		Integer eventId = 0;
 		for (final ScheduleEvent event : events) {
@@ -277,20 +278,21 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * @param reader
 	 * @throws ParseException
 	 * @throws SQLException
-	 *             If any of the rows failed to insert.
+	 * 		If any of the rows failed to insert.
 	 * @todo Implement transactions.
 	 * @todo Implement foreign keys somehow. (No support in SQLite.)
 	 */
 	private void parseMachines(final BufferedReader reader)
-			throws cz.muni.fi.spc.SchedVis.parsers.machines.ParseException, SQLException {
+			throws cz.muni.fi.spc.SchedVis.parsers.machines.ParseException,
+			SQLException {
 		// prepare machine insertion query
 		final PreparedStatement stmt = Importer.sql.getConnection()
 				.prepareStatement(
 						"INSERT INTO machines (" + "name, " + "cpus, "
 								+ "speed, " + "platform, " + "os, " + "ram, "
 								+ "hdd) VALUES (?, ?, ?, ?, ?, ?, ?);");
-		new MachinesParser(reader);
-		final List<cz.muni.fi.spc.SchedVis.parsers.machines.Machine> machines = MachinesParser
+		final MachinesParser parser = new MachinesParser(reader);
+		final List<cz.muni.fi.spc.SchedVis.parsers.machines.Machine> machines = parser
 				.read();
 		final Integer totalMachines = machines.size();
 		Integer machineId = 0;

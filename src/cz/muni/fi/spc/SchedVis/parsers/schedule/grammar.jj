@@ -14,8 +14,8 @@ import java.util.List;
 public class ScheduleParser extends cz.muni.fi.spc.SchedVis.parsers.Parser {
   public static void main(String args[]) throws ParseException {
       try {
-        new ScheduleParser(System.in);
-        List<ScheduleEvent> events = ScheduleParser.read();
+        ScheduleParser parser = new ScheduleParser(System.in);
+        List<ScheduleEvent> events = parser.read();
         System.out.println("Successfully read " + events.size() + " events!");
       } catch (Exception e) {
         System.out.println("NOK.");

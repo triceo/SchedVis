@@ -5,8 +5,6 @@ package cz.muni.fi.spc.SchedVis.parsers.schedule;
 
 import java.util.List;
 
-import cz.muni.fi.spc.SchedVis.parsers.schedule.Token;
-
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 

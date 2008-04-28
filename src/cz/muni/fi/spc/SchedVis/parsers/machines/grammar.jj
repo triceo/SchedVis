@@ -14,8 +14,8 @@ import java.util.List;
 public class MachinesParser extends cz.muni.fi.spc.SchedVis.parsers.Parser {
   public static void main(String args[]) throws ParseException {
       try {
-        new MachinesParser(System.in);
-        List<Machine> machines = MachinesParser.read();
+        MachinesParser parser = new MachinesParser(System.in);
+        List<Machine> machines = parser.read();
         System.out.println("Successfully read " + machines.size() + " machines!");
       } catch (Exception e) {
         System.out.println("NOK.");
