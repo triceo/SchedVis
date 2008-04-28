@@ -24,22 +24,17 @@ public final class Main {
 	 */
 	public static void main(final String[] args) {
 		try {
-		    // Set System L&F
-	        UIManager.setLookAndFeel(
-	            UIManager.getSystemLookAndFeelClassName());
-	    } 
-	    catch (UnsupportedLookAndFeelException e) {
-	       // handle exception
-	    }
-	    catch (ClassNotFoundException e) {
-	       // handle exception
-	    }
-	    catch (InstantiationException e) {
-	       // handle exception
-	    }
-	    catch (IllegalAccessException e) {
-	       // handle exception
-	    }
+			// Set System L&F
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (final UnsupportedLookAndFeelException e) {
+			// handle exception
+		} catch (final ClassNotFoundException e) {
+			// handle exception
+		} catch (final InstantiationException e) {
+			// handle exception
+		} catch (final IllegalAccessException e) {
+			// handle exception
+		}
 		// Schedule a job for the event-dispatching thread:
 		// creating and showing this application's GUI.
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {

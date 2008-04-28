@@ -37,7 +37,7 @@ public class SQL {
 	 * Get instance of this class.
 	 * 
 	 * @param name
-	 *            Name of the model to load.
+	 * 		Name of the model to load.
 	 * @return The model.
 	 * @throws java.lang.Exception
 	 */
@@ -55,12 +55,13 @@ public class SQL {
 	 * Singleton constructor.
 	 * 
 	 * @param name
-	 *            Name of the database to load model from.
+	 * 		Name of the database to load model from.
 	 * @throws java.lang.Exception
 	 * @todo implement some schema-validating tool
 	 * @todo find more specific exception(s) to throw
 	 */
-	protected SQL(final String name, boolean newDatabase) throws Exception {
+	protected SQL(final String name, final boolean newDatabase)
+			throws Exception {
 		try {
 			Class.forName("SQLite.JDBCDriver").newInstance();
 			if (name == null) {

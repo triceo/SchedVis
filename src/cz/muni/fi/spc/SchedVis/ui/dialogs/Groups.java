@@ -258,14 +258,16 @@ public class Groups extends JDialog implements ActionListener,
 				final Integer groupId = Group
 						.getIdWithName((String) this.availableGroupsList
 								.getSelectedItem());
-				Machine.addToGroup(Machine.getIdWithName((String) machineName), groupId);
+				Machine.addToGroup(Machine.getIdWithName((String) machineName),
+						groupId);
 				this.availableMachinesList.update();
 				this.groupedMachinesList.update();
 			}
 		} else if (command.equals(this.COMMAND__REMOVE_MACHINE_FROM_GROUP)) {
 			for (final Object machineName : this.groupedMachinesList
 					.getSelectedValues()) {
-				Machine.removeFromGroup(Machine.getIdWithName((String)machineName));
+				Machine.removeFromGroup(Machine
+						.getIdWithName((String) machineName));
 				this.availableMachinesList.update();
 				this.groupedMachinesList.update();
 			}

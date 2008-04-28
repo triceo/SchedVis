@@ -38,7 +38,7 @@ public class MachinesListModel extends DefaultListModel {
 		ResultSet rs = null;
 		if (this.groupId == null) {
 			rs = Machine.getAllUngrouped();
-		} else if (this.groupId != -1){
+		} else if (this.groupId != -1) {
 			rs = Machine.getAllInGroup(this.groupId);
 		}
 		this.removeAllElements();
