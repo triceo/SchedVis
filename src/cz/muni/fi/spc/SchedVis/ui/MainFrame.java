@@ -15,9 +15,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
-import javax.swing.JTree;
 
 import cz.muni.fi.spc.SchedVis.ui.common.JBorderedPanel;
+import cz.muni.fi.spc.SchedVis.ui.common.JScheduleTree;
 import cz.muni.fi.spc.SchedVis.ui.dialogs.Import;
 
 /**
@@ -64,11 +64,6 @@ public class MainFrame extends JFrame {
 		schedulePanel.setLayout(new BorderLayout());
 		// get the tree
 		schedulePanel.add(this.createSchedulePane(), BorderLayout.CENTER);
-		// get slider
-		final JPanel sPanel = new SliderPanel();
-		// add it
-		schedulePanel.add(sPanel, BorderLayout.PAGE_END);
-		schedulePanel.setMinimumSize(sPanel.getPreferredSize());
 
 		// get left panel
 		final JPanel leftPanel = new JPanel();
@@ -104,18 +99,23 @@ public class MainFrame extends JFrame {
 	}
 
 	private Container createSchedulePane() {
+		final JPanel layoutPane = new JPanel();
+		layoutPane.setLayout(new BoxLayout(layoutPane, BoxLayout.PAGE_AXIS));
+		// get slider
+		final JPanel sPanel = new SliderPanel();
 		// get scrolling pane with a tree
-		final JScrollPane pane = new JScrollPane(new JTree());
+		final JScrollPane pane = new JScrollPane(new JScheduleTree());
 		pane.setWheelScrollingEnabled(true);
 		// get regular pane for a machine detail
 		final JPanel pane2 = new JPanel();
 		// get a layout
-		final JPanel layoutPane = new JPanel();
-		layoutPane.setLayout(new BoxLayout(layoutPane, BoxLayout.PAGE_AXIS));
 		layoutPane.add(pane);
 		layoutPane.add(pane2);
 		// adjust widths
 		pane2.add(new JLabel("Here goes future machine detail."));
+		// add slider
+		layoutPane.add(sPanel, BorderLayout.PAGE_END);
+		layoutPane.setMinimumSize(sPanel.getPreferredSize());
 		return layoutPane;
 	}
 
