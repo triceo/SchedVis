@@ -16,6 +16,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 
+import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 import cz.muni.fi.spc.SchedVis.ui.common.JBorderedPanel;
 import cz.muni.fi.spc.SchedVis.ui.common.JScheduleTree;
 import cz.muni.fi.spc.SchedVis.ui.dialogs.Import;
@@ -104,7 +105,7 @@ public class MainFrame extends JFrame {
 		// get slider
 		final JPanel sPanel = new SliderPanel();
 		// get scrolling pane with a tree
-		final JScrollPane pane = new JScrollPane(new JScheduleTree());
+		final JScrollPane pane = new JScrollPane(new JScheduleTree(ScheduleTreeModel.getInstance()));
 		pane.setWheelScrollingEnabled(true);
 		// get regular pane for a machine detail
 		final JPanel pane2 = new JPanel();
