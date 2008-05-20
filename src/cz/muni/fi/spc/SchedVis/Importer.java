@@ -18,6 +18,7 @@ import java.util.List;
 
 import javax.swing.SwingWorker;
 
+import cz.muni.fi.spc.SchedVis.model.EntitySet;
 import cz.muni.fi.spc.SchedVis.model.SQL;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineEntity;
 import cz.muni.fi.spc.SchedVis.parsers.machines.MachineData;
@@ -119,6 +120,7 @@ public class Importer extends SwingWorker<Void, Void> {
 
 	@Override
 	public Void doInBackground() {
+		EntitySet.clearCache();
 		try {
 			Importer.sql = SQL.getInstance(this.name, true);
 		} catch (final Exception e) {
