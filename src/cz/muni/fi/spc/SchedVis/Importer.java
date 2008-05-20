@@ -5,8 +5,10 @@ package cz.muni.fi.spc.SchedVis;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -57,16 +59,40 @@ public class Importer extends SwingWorker<Void, Void> {
 	AbstractMap<String, Integer> machineIds = new HashMap<String, Integer>();
 
 	private final File machinesFile;
+	private Integer machinesLineCount;
 	private final File dataFile;
+	private Integer dataLineCount;
 	private final String name;
+
+	
+	private Integer parsedLines = 0;
+	private Integer totalLines = 0;
 
 	private boolean result = false;
 
 	public Importer(final File machinesFile, final File dataFile,
 			final String name) {
 		this.machinesFile = machinesFile;
+		this.machinesLineCount = this.countLines(machinesFile);
 		this.dataFile = dataFile;
+		this.dataLineCount = this.countLines(dataFile);
 		this.name = name;
+	}
+
+	private Integer countLines(final File file) {
+		try {
+			final LineNumberReader reader = new LineNumberReader(
+					new FileReader(file));
+			Integer count = 0;
+			while (reader.readLine() != null) {
+				count++;
+			}
+			return count;
+		} catch (final FileNotFoundException e) {
+			return 0;
+		} catch (final IOException e) {
+			return 0;
+		}
 	}
 
 	/**
@@ -150,6 +176,19 @@ public class Importer extends SwingWorker<Void, Void> {
 		return this.result;
 	}
 
+	public void nextLineParsed() {
+		this.parsedLines++;
+		final Double progress = (new Double(this.parsedLines * 100))
+				/ (new Double(this.totalLines + 1));
+		if (progress > 100) {
+			this.setProgress(100);
+		} else if (progress < 0) {
+			this.setProgress(0);
+		} else {
+			this.setProgress(progress.intValue());
+		}
+	}
+
 	/**
 	 * Parse the data set and insert its data into database.
 	 * 
@@ -157,7 +196,6 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * @throws ParseException
 	 * @throws SQLException
 	 * 		Thrown when any of the rows failed to insert.
-	 * @todo Implement transactions.
 	 * @todo Implement foreign keys somehow. (No support in SQLite.)
 	 * @todo Somehow make jobs a table of its own.
 	 * @todo Somehow make assigned-CPUs a table if its own.
@@ -220,9 +258,13 @@ public class Importer extends SwingWorker<Void, Void> {
 								+ "expect_start, "
 								+ "expect_end, "
 								+ "deadline) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-		// parse data set and fill the events' table
+		// parse data set
+		this.parsedLines = 0;
+		this.totalLines = this.dataLineCount;
 		final ScheduleParser parser = new ScheduleParser(reader);
+		parser.setImporter(this);
 		final List<ScheduleEvent> events = parser.read();
+		// fill the event's table
 		final Integer totalEvents = events.size();
 		Integer eventId = 0;
 		for (final ScheduleEvent event : events) {
@@ -264,7 +306,8 @@ public class Importer extends SwingWorker<Void, Void> {
 					}
 				}
 			}
-			this.setProgress((eventId / totalEvents) * 100);
+			Double progress = (new Double(eventId * 100)) / (new Double(totalEvents));
+			this.setProgress(progress.intValue());
 		}
 	}
 
@@ -282,7 +325,6 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * @throws ParseException
 	 * @throws SQLException
 	 * 		If any of the rows failed to insert.
-	 * @todo Implement transactions.
 	 * @todo Implement foreign keys somehow. (No support in SQLite.)
 	 */
 	private void parseMachines(final BufferedReader reader)
@@ -294,8 +336,13 @@ public class Importer extends SwingWorker<Void, Void> {
 						"INSERT INTO machines (" + "name, " + "cpus, "
 								+ "speed, " + "platform, " + "os, " + "ram, "
 								+ "hdd) VALUES (?, ?, ?, ?, ?, ?, ?);");
+		// ready the parser
+		this.parsedLines = 0;
+		this.totalLines = this.machinesLineCount;
 		final MachinesParser parser = new MachinesParser(reader);
+		parser.setImporter(this);
 		final List<MachineData> machines = parser.read();
+		// fill the machines' table
 		final Integer totalMachines = machines.size();
 		Integer machineId = 0;
 		for (final MachineData machine : machines) {
@@ -308,7 +355,8 @@ public class Importer extends SwingWorker<Void, Void> {
 			stmt.setInt(6, machine.getMemory());
 			stmt.setInt(7, machine.getSpace());
 			stmt.execute();
-			this.setProgress((machineId / totalMachines) * 100);
+			Double progress = (new Double(machineId * 100)) / (new Double(totalMachines));
+			this.setProgress(progress.intValue());
 		}
 	}
 

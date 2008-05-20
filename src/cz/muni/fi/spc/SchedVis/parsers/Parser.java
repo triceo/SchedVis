@@ -3,6 +3,8 @@
  */
 package cz.muni.fi.spc.SchedVis.parsers;
 
+import cz.muni.fi.spc.SchedVis.Importer;
+
 /**
  * Base class for SchedVis auto-generated parsers, which should provide some
  * basic common methods.
@@ -11,5 +13,15 @@ package cz.muni.fi.spc.SchedVis.parsers;
  * @todo Implement reporting progress of parsing.
  */
 public class Parser {
+
+	private Importer importer;
+
+	public void setImporter(final Importer importer) {
+		this.importer = importer;
+	}
+	
+	public Importer getImporter() {
+		return this.importer;
+	}
 
 }

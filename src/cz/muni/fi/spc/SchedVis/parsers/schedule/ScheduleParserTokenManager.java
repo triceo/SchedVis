@@ -2,7 +2,7 @@
 package cz.muni.fi.spc.SchedVis.parsers.schedule;
 import cz.muni.fi.spc.SchedVis.parsers.Parser;
 
-public class ScheduleParserTokenManager implements ScheduleParserConstants
+public @SuppressWarnings("all") class ScheduleParserTokenManager implements ScheduleParserConstants
 {
   public  java.io.PrintStream debugStream = System.out;
   public  void setDebugStream(java.io.PrintStream ds) { debugStream = ds; }

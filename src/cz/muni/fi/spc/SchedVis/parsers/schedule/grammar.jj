@@ -53,11 +53,13 @@ ScheduleEventsList read() : {
   {return events;}
 }
 
-ScheduleEventsList event_data(ScheduleEventsList events) : {}
+ScheduleEventsList event_data(ScheduleEventsList events) : {
+  if (this.getImporter() != null) this.getImporter().nextLineParsed();
+}
 {
-  events=machine_event(events) (<WHITESPACE>)* "\n" {return events;}
+  (events=machine_event(events) (<WHITESPACE>)* "\n" {return events;}
   | events=move_event(events) (<WHITESPACE>)* "\n" {return events;}
-  | events=IO_event(events) (<WHITESPACE>)* "\n" {return events;}
+  | events=IO_event(events) (<WHITESPACE>)* "\n" {return events;}) 
 }
 
 ScheduleEventsList machine_event(ScheduleEventsList list) : {

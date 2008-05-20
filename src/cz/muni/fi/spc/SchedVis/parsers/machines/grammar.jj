@@ -24,6 +24,7 @@ public class MachinesParser extends Parser {
         System.out.println(e.getMessage());
       }
   }
+  
 }
 PARSER_END(MachinesParser)
 
@@ -65,6 +66,7 @@ MachinesList machine_data(MachinesList machines) :
 	space=<CONSTANT> "\n"  
 	{
 		machines.add(new MachineData(name, numCPUs, speed, arch, os, mem, space));
+        if (this.getImporter() != null) this.getImporter().nextLineParsed();
 		return machines;
 	} 
 }

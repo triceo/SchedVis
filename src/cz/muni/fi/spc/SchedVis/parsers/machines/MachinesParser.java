@@ -3,7 +3,7 @@ package cz.muni.fi.spc.SchedVis.parsers.machines;
 
 import cz.muni.fi.spc.SchedVis.parsers.Parser;
 
-public class MachinesParser extends Parser implements MachinesParserConstants {
+public @SuppressWarnings("all") class MachinesParser extends Parser implements MachinesParserConstants {
   public static void main(String args[]) throws ParseException {
       try {
         MachinesParser parser = new MachinesParser(System.in);
@@ -66,6 +66,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
     space = jj_consume_token(CONSTANT);
     jj_consume_token(4);
                 machines.add(new MachineData(name, numCPUs, speed, arch, os, mem, space));
+        if (this.getImporter() != null) this.getImporter().nextLineParsed();
                 {if (true) return machines;}
     throw new Error("Missing return statement in function");
   }

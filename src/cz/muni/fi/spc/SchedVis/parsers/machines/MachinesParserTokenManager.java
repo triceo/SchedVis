@@ -2,7 +2,7 @@
 package cz.muni.fi.spc.SchedVis.parsers.machines;
 import cz.muni.fi.spc.SchedVis.parsers.Parser;
 
-public class MachinesParserTokenManager implements MachinesParserConstants
+public @SuppressWarnings("all") class MachinesParserTokenManager implements MachinesParserConstants
 {
   public  java.io.PrintStream debugStream = System.out;
   public  void setDebugStream(java.io.PrintStream ds) { debugStream = ds; }

@@ -3,7 +3,7 @@ package cz.muni.fi.spc.SchedVis.parsers.schedule;
 
 import cz.muni.fi.spc.SchedVis.parsers.Parser;
 
-public class ScheduleParser extends Parser implements ScheduleParserConstants {
+public @SuppressWarnings("all") class ScheduleParser extends Parser implements ScheduleParserConstants {
   public static void main(String args[]) throws ParseException {
       try {
         ScheduleParser parser = new ScheduleParser(System.in);
@@ -44,6 +44,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
   }
 
   final public ScheduleEventsList event_data(ScheduleEventsList events) throws ParseException {
+  if (this.getImporter() != null) this.getImporter().nextLineParsed();
     if (jj_2_6(2)) {
       events = machine_event(events);
       label_3:
@@ -56,7 +57,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
         jj_consume_token(WHITESPACE);
       }
       jj_consume_token(9);
-                                                     {if (true) return events;}
+                                                      {if (true) return events;}
     } else if (jj_2_7(2)) {
       events = move_event(events);
       label_4:
@@ -328,23 +329,12 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
     finally { jj_save(12, xla); }
   }
 
-  final private boolean jj_3R_11() {
-    if (jj_scan_token(MOVE_EVENT_FLAG)) return true;
-    if (jj_scan_token(WHITESPACE)) return true;
-    return false;
-  }
-
   final private boolean jj_3R_13() {
     if (jj_scan_token(10)) return true;
     return false;
   }
 
   final private boolean jj_3_4() {
-    if (jj_scan_token(WHITESPACE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_3() {
     if (jj_scan_token(WHITESPACE)) return true;
     return false;
   }
@@ -433,6 +423,17 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 
   final private boolean jj_3_12() {
     if (jj_scan_token(CONSTANT)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_3() {
+    if (jj_scan_token(WHITESPACE)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_11() {
+    if (jj_scan_token(MOVE_EVENT_FLAG)) return true;
+    if (jj_scan_token(WHITESPACE)) return true;
     return false;
   }
 

@@ -48,7 +48,7 @@ public class ImportProgress extends JDialog implements PropertyChangeListener {
 		this.setLocationRelativeTo(owner);
 		this.setModal(true);
 		this.setTitle("Importing selected source files...");
-		this.setMinimumSize(new Dimension(350, 60));
+		this.setMinimumSize(new Dimension(400, 80));
 		this.setResizable(false);
 		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.pb = new JProgressBar();
@@ -56,9 +56,6 @@ public class ImportProgress extends JDialog implements PropertyChangeListener {
 		this.pb.setMaximum(100);
 		this.pb.setStringPainted(true);
 		this.pb.setEnabled(true);
-		this.add(new JLabel("This may take a while. Please, be patient."),
-				BorderLayout.PAGE_END);
-		this.add(new JLabel("Progress: "), BorderLayout.LINE_START);
 		this.add(this.pb);
 		this.setVisible(true);
 	}
