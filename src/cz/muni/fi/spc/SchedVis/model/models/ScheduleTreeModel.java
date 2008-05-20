@@ -3,8 +3,6 @@
  */
 package cz.muni.fi.spc.SchedVis.model.models;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.AbstractSet;
 import java.util.Enumeration;
 
@@ -12,6 +10,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
+import cz.muni.fi.spc.SchedVis.model.EntitySet;
 import cz.muni.fi.spc.SchedVis.model.entities.GroupEntity;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineEntity;
 
@@ -38,29 +37,28 @@ public class ScheduleTreeModel extends DefaultTreeModel {
 	}
 
 	private static DefaultMutableTreeNode getTree() {
-		final ResultSet rs = GroupEntity.getAllGroups();
+		final EntitySet<GroupEntity> set = GroupEntity.getAllGroups();
 		final DefaultMutableTreeNode root = new DefaultMutableTreeNode();
-		try {
-			while (rs.next()) {
-				final DefaultMutableTreeNode node = new DefaultMutableTreeNode(
-						rs.getString(2));
-				final ResultSet rs2 = MachineEntity.getAllInGroup(rs.getInt(1));
-				while (rs2.next()) {
-					node.add(new DefaultMutableTreeNode(rs2.getString(2)));
-				}
-				root.add(node);
+		for (final GroupEntity item : set) {
+			final DefaultMutableTreeNode node = new DefaultMutableTreeNode(item
+					.getFieldAsString("name"));
+			final EntitySet<MachineEntity> set2 = MachineEntity
+					.getAllInGroup(item.getId());
+			for (final MachineEntity item2 : set2) {
+				node.add(new DefaultMutableTreeNode(item2
+						.getFieldAsString("name")));
 			}
-			final ResultSet rs3 = MachineEntity.getAllUngrouped();
-			final DefaultMutableTreeNode ungroupedNode = new DefaultMutableTreeNode(
-					ScheduleTreeModel.ID_UNGROUPED);
-			while (rs3.next()) {
-				ungroupedNode.add(new DefaultMutableTreeNode(rs3.getString(2)));
-			}
-			if (ungroupedNode.getChildCount() > 0) {
-				root.add(ungroupedNode);
-			}
-		} catch (final SQLException e) {
-			// intentionally blank
+			root.add(node);
+		}
+		final EntitySet<MachineEntity> set3 = MachineEntity.getAllUngrouped();
+		final DefaultMutableTreeNode ungroupedNode = new DefaultMutableTreeNode(
+				ScheduleTreeModel.ID_UNGROUPED);
+		for (final MachineEntity item : set3) {
+			ungroupedNode.add(new DefaultMutableTreeNode(item
+					.getFieldAsString("name")));
+		}
+		if (ungroupedNode.getChildCount() > 0) {
+			root.add(ungroupedNode);
 		}
 		return root;
 	}

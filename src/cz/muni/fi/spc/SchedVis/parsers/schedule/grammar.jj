@@ -3,7 +3,7 @@
  */
  
 options {
-  JDK_VERSION = "1.6";
+  JDK_VERSION = "1.5";
 }
 PARSER_BEGIN(ScheduleParser)
 package cz.muni.fi.spc.SchedVis.parsers.schedule;

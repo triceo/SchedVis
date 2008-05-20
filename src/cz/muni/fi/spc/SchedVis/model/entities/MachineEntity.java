@@ -7,6 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import cz.muni.fi.spc.SchedVis.model.Entity;
+import cz.muni.fi.spc.SchedVis.model.EntitySet;
+
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
@@ -30,24 +33,25 @@ public class MachineEntity extends Entity {
 		}
 	}
 
-	public static ResultSet getAllInGroup(final Integer groupId) {
+	public static EntitySet<MachineEntity> getAllInGroup(final Integer groupId) {
 		try {
 			final PreparedStatement stmt = Entity
 					.getStatement("SELECT * FROM machines WHERE id_machine_groups = ? ORDER BY name ASC;");
 			stmt.setInt(1, groupId);
-			return stmt.executeQuery();
+			return new EntitySet<MachineEntity>(stmt.executeQuery(),
+					new MachineEntity());
 		} catch (final SQLException e) {
 			return null;
 		}
 	}
 
-	public static ResultSet getAllUngrouped() {
+	public static EntitySet<MachineEntity> getAllUngrouped() {
 		try {
 			final PreparedStatement stmt = Entity
 					.getStatement("SELECT * FROM machines WHERE id_machine_groups IS NULL ORDER BY name ASC;");
-			return stmt.executeQuery();
+			return new EntitySet<MachineEntity>(stmt.executeQuery(),
+					new MachineEntity());
 		} catch (final SQLException e) {
-			e.printStackTrace();
 			return null;
 		}
 	}
@@ -87,7 +91,7 @@ public class MachineEntity extends Entity {
 	 * 
 	 */
 	public MachineEntity() {
-		super();
+		super("machines", "id_machines");
 	}
 
 }

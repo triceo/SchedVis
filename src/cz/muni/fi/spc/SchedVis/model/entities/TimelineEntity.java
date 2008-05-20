@@ -9,6 +9,8 @@ import java.sql.SQLException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import cz.muni.fi.spc.SchedVis.model.Entity;
+
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
@@ -68,7 +70,7 @@ public class TimelineEntity extends Entity {
 	 * 
 	 */
 	public TimelineEntity() {
-		// TODO Auto-generated constructor stub
+		super("events", "id_events");
 	}
 
 }

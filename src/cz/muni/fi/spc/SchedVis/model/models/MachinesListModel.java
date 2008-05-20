@@ -3,12 +3,10 @@
  */
 package cz.muni.fi.spc.SchedVis.model.models;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import javax.swing.DefaultListModel;
 import javax.swing.event.ListDataListener;
 
+import cz.muni.fi.spc.SchedVis.model.EntitySet;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineEntity;
 
 /**
@@ -35,22 +33,16 @@ public class MachinesListModel extends DefaultListModel {
 	}
 
 	public void update() {
-		ResultSet rs = null;
+		EntitySet<MachineEntity> set = null;
 		if (this.groupId == null) {
-			rs = MachineEntity.getAllUngrouped();
+			set = MachineEntity.getAllUngrouped();
 		} else if (this.groupId != -1) {
-			rs = MachineEntity.getAllInGroup(this.groupId);
+			set = MachineEntity.getAllInGroup(this.groupId);
 		}
 		this.removeAllElements();
-		try {
-			if (rs == null) {
-				return;
-			}
-			while (rs.next()) {
-				this.addElement(rs.getObject("name"));
-			}
-		} catch (final SQLException e) {
-			// do nothing
+		if (set == null) return;
+		for (final MachineEntity item : set) {
+			this.addElement(item.getFieldAsString("name"));
 		}
 	}
 

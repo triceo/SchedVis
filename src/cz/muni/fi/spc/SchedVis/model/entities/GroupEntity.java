@@ -7,6 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import cz.muni.fi.spc.SchedVis.model.Entity;
+import cz.muni.fi.spc.SchedVis.model.EntitySet;
+
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
@@ -32,11 +35,12 @@ public class GroupEntity extends Entity {
 		}
 	}
 
-	public static ResultSet getAllGroups() {
+	public static EntitySet<GroupEntity> getAllGroups() {
 		try {
 			final PreparedStatement stmt = Entity
 					.getStatement("SELECT * FROM machine_groups ORDER BY name ASC;");
-			return stmt.executeQuery();
+			return new EntitySet<GroupEntity>(stmt.executeQuery(),
+					new GroupEntity());
 		} catch (final SQLException e) {
 			return null;
 		}
@@ -77,7 +81,7 @@ public class GroupEntity extends Entity {
 	 * 
 	 */
 	public GroupEntity() {
-		super();
+		super("machine_groups", "id_machine_groups");
 	}
 
 }

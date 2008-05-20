@@ -7,8 +7,6 @@ import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.HashMap;
@@ -16,6 +14,7 @@ import java.util.HashSet;
 
 import javax.swing.JCheckBox;
 
+import cz.muni.fi.spc.SchedVis.model.EntitySet;
 import cz.muni.fi.spc.SchedVis.model.entities.GroupEntity;
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 import cz.muni.fi.spc.SchedVis.ui.common.JBorderedPanel;
@@ -94,17 +93,13 @@ public class GroupsPanel extends JBorderedPanel implements ActionListener {
 	public void update() {
 		final AbstractSet<Integer> selectedGroups = this.getSelectedGroups();
 		// assemble new groups
-		try {
-			final ResultSet rs = GroupEntity.getAllGroups();
-			this.boxes.clear();
-			while (rs.next()) {
-				this.boxes.put(rs.getInt("id_machine_groups"), new JCheckBox(rs
-						.getString("name")));
-			}
-			this.boxes.put(-1, new JCheckBox("Ungrouped"));
-		} catch (final SQLException e) {
-			// do nothing
+		final EntitySet<GroupEntity> set = GroupEntity.getAllGroups();
+		this.boxes.clear();
+		for (final GroupEntity item : set) {
+			this.boxes.put(item.getId(), new JCheckBox(item
+					.getFieldAsString("name")));
 		}
+		this.boxes.put(-1, new JCheckBox("Ungrouped"));
 		// update the widget with new groups
 		this.removeAll();
 		for (final Integer groupId : this.boxes.keySet()) {
