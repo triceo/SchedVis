@@ -40,7 +40,9 @@ public class MachinesListModel extends DefaultListModel {
 			set = MachineEntity.getAllInGroup(this.groupId);
 		}
 		this.removeAllElements();
-		if (set == null) return;
+		if (set == null) {
+			return;
+		}
 		for (final MachineEntity item : set) {
 			this.addElement(item.getFieldAsString("name"));
 		}
