@@ -6,7 +6,7 @@ package cz.muni.fi.spc.SchedVis.parsers.schedule;
  * contain only ASCII characters (without unicode processing).
  */
 
-public class SimpleCharStream
+public @SuppressWarnings("all") class SimpleCharStream
 {
   public static final boolean staticFlag = false;
   int bufsize;

@@ -5,7 +5,7 @@ package cz.muni.fi.spc.SchedVis.parsers.machines;
  * Describes the input token stream.
  */
 
-public class Token {
+public @SuppressWarnings("all") class Token {
 
   /**
    * An integer that describes the kind of this token.  This numbering

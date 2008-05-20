@@ -10,7 +10,7 @@ package cz.muni.fi.spc.SchedVis.parsers.machines;
  * You can modify this class to customize your error reporting
  * mechanisms so long as you retain the public fields.
  */
-public class ParseException extends Exception {
+public @SuppressWarnings("all") class ParseException extends Exception {
 
   /**
    * This constructor is used by the method "generateParseException"
