@@ -16,12 +16,12 @@ public class Parser {
 
 	private Importer importer;
 
-	public void setImporter(final Importer importer) {
-		this.importer = importer;
-	}
-	
 	public Importer getImporter() {
 		return this.importer;
+	}
+
+	public void setImporter(final Importer importer) {
+		this.importer = importer;
 	}
 
 }

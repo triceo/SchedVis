@@ -105,7 +105,8 @@ public class MainFrame extends JFrame {
 		// get slider
 		final JPanel sPanel = new SliderPanel();
 		// get scrolling pane with a tree
-		final JScrollPane pane = new JScrollPane(new JScheduleTree(ScheduleTreeModel.getInstance()));
+		final JScrollPane pane = new JScrollPane(new JScheduleTree(
+				ScheduleTreeModel.getInstance()));
 		pane.setWheelScrollingEnabled(true);
 		// get regular pane for a machine detail
 		final JPanel pane2 = new JPanel();

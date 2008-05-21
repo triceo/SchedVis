@@ -267,7 +267,7 @@ public class Import extends JDialog implements ActionListener, WindowListener {
 	 * Process already existing data set.
 	 * 
 	 * @param inputFile
-	 * 		Data set file to process.
+	 *            Data set file to process.
 	 */
 	private boolean processSource(final File inputFile) {
 		final String[] parts = inputFile.getName().split("\\.");

@@ -24,7 +24,7 @@ public class JBorderedPanel extends JPanel {
 	/**
 	 * @param isDoubleBuffered
 	 * @param title
-	 * 		A new title for the JPanel's border.
+	 *            A new title for the JPanel's border.
 	 */
 	public JBorderedPanel(final boolean isDoubleBuffered, final String title) {
 		super(isDoubleBuffered);
@@ -35,7 +35,7 @@ public class JBorderedPanel extends JPanel {
 	 * @param layout
 	 * @param isDoubleBuffered
 	 * @param title
-	 * 		A new title for the JPanel's border.
+	 *            A new title for the JPanel's border.
 	 */
 	public JBorderedPanel(final LayoutManager layout,
 			final boolean isDoubleBuffered, final String title) {
@@ -46,7 +46,7 @@ public class JBorderedPanel extends JPanel {
 	/**
 	 * @param layout
 	 * @param title
-	 * 		A new title for the JPanel's border.
+	 *            A new title for the JPanel's border.
 	 */
 	public JBorderedPanel(final LayoutManager layout, final String title) {
 		super(layout);
@@ -56,7 +56,7 @@ public class JBorderedPanel extends JPanel {
 	/**
 	 * 
 	 * @param title
-	 * 		A new title for the JPanel's border.
+	 *            A new title for the JPanel's border.
 	 */
 	public JBorderedPanel(final String title) {
 		this.addTitle(title);
@@ -66,7 +66,7 @@ public class JBorderedPanel extends JPanel {
 	 * Perform the addition of JPanel's border and title.
 	 * 
 	 * @param title
-	 * 		A new title for the JPanel's border.
+	 *            A new title for the JPanel's border.
 	 */
 	private void addTitle(final String title) {
 		this.setBorder(BorderFactory.createCompoundBorder(BorderFactory

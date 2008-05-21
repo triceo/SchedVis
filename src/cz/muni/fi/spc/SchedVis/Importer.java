@@ -59,12 +59,11 @@ public class Importer extends SwingWorker<Void, Void> {
 	AbstractMap<String, Integer> machineIds = new HashMap<String, Integer>();
 
 	private final File machinesFile;
-	private Integer machinesLineCount;
+	private final Integer machinesLineCount;
 	private final File dataFile;
-	private Integer dataLineCount;
+	private final Integer dataLineCount;
 	private final String name;
 
-	
 	private Integer parsedLines = 0;
 	private Integer totalLines = 0;
 
@@ -99,7 +98,7 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * Create the database schema used by the application.
 	 * 
 	 * @throws SQLException
-	 * 		Thrown when any of the schema tables cannot be created.
+	 *             Thrown when any of the schema tables cannot be created.
 	 */
 	private void createSchema() throws SQLException {
 		final Statement stmt = Importer.sql.getConnection().createStatement();
@@ -195,7 +194,7 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * @param reader
 	 * @throws ParseException
 	 * @throws SQLException
-	 * 		Thrown when any of the rows failed to insert.
+	 *             Thrown when any of the rows failed to insert.
 	 * @todo Implement foreign keys somehow. (No support in SQLite.)
 	 * @todo Somehow make jobs a table of its own.
 	 * @todo Somehow make assigned-CPUs a table if its own.
@@ -306,7 +305,8 @@ public class Importer extends SwingWorker<Void, Void> {
 					}
 				}
 			}
-			Double progress = (new Double(eventId * 100)) / (new Double(totalEvents));
+			final Double progress = (new Double(eventId * 100))
+					/ (new Double(totalEvents));
 			this.setProgress(progress.intValue());
 		}
 	}
@@ -324,7 +324,7 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * @param reader
 	 * @throws ParseException
 	 * @throws SQLException
-	 * 		If any of the rows failed to insert.
+	 *             If any of the rows failed to insert.
 	 * @todo Implement foreign keys somehow. (No support in SQLite.)
 	 */
 	private void parseMachines(final BufferedReader reader)
@@ -355,7 +355,8 @@ public class Importer extends SwingWorker<Void, Void> {
 			stmt.setInt(6, machine.getMemory());
 			stmt.setInt(7, machine.getSpace());
 			stmt.execute();
-			Double progress = (new Double(machineId * 100)) / (new Double(totalMachines));
+			final Double progress = (new Double(machineId * 100))
+					/ (new Double(totalMachines));
 			this.setProgress(progress.intValue());
 		}
 	}

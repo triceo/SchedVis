@@ -3,7 +3,6 @@
  */
 package cz.muni.fi.spc.SchedVis.ui.dialogs;
 
-import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
@@ -11,7 +10,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.WindowConstants;

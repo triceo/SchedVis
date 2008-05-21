@@ -101,7 +101,7 @@ public class ScheduleTreeModel extends DefaultTreeModel {
 						.getUserObject().equals(ScheduleTreeModel.ID_UNGROUPED))
 						: false;
 				final boolean isInSet = isUngrouped ? false : visibleGroups
-						.contains(((GroupEntity)node.getUserObject()).getId());
+						.contains(((GroupEntity) node.getUserObject()).getId());
 				if (!(isInSet || isUngrouped)) {
 					this.removeNodeFromParent(node);
 					e = root.children();

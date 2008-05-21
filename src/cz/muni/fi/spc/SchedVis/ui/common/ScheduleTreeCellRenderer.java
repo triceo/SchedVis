@@ -50,25 +50,27 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 		pane.add(new JLabel("Ungrouped machines"));
 		return pane;
 	}
-	
-	private Object getUserObject(DefaultMutableTreeNode node) {
-		return node.getUserObject();
-	}
 
 	@Override
 	public Component getTreeCellRendererComponent(final JTree tree,
 			final Object value, final boolean sel, final boolean expanded,
 			final boolean leaf, final int row, final boolean hasFocus) {
-		Object userObject = this.getUserObject((DefaultMutableTreeNode)value);
+		final Object userObject = this
+				.getUserObject((DefaultMutableTreeNode) value);
 		if (userObject instanceof MachineEntity) { // is a machine
-			return this.getMachine((MachineEntity)userObject);
+			return this.getMachine((MachineEntity) userObject);
 		} else if (userObject instanceof GroupEntity) { // is a group
-			return this.getGroup((GroupEntity)userObject, expanded);
-		} else if (ScheduleTreeModel.ID_UNGROUPED.equals(userObject)) { // "ungrouped" group
+			return this.getGroup((GroupEntity) userObject, expanded);
+		} else if (ScheduleTreeModel.ID_UNGROUPED.equals(userObject)) { // "ungrouped"
+																		// group
 			return this.getNoGroup(expanded);
 		} else {
 			return new JPanel();
 		}
+	}
+
+	private Object getUserObject(final DefaultMutableTreeNode node) {
+		return node.getUserObject();
 	}
 
 }
