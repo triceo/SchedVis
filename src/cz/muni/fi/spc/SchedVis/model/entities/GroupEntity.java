@@ -4,7 +4,6 @@
 package cz.muni.fi.spc.SchedVis.model.entities;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import cz.muni.fi.spc.SchedVis.model.Entity;
@@ -49,16 +48,34 @@ public class GroupEntity extends Entity {
 	public static Integer getIdWithName(final String name) {
 		try {
 			final PreparedStatement stmt = Entity
-					.getStatement("SELECT id_machine_groups FROM machine_groups WHERE name = ?");
+					.getStatement("SELECT * FROM machine_groups WHERE name = ?");
 			stmt.setString(1, name);
-			final ResultSet rs = stmt.executeQuery();
-			if (rs.first()) {
-				return rs.getInt(1);
+			final EntitySet<GroupEntity> set = new EntitySet<GroupEntity>(stmt
+					.executeQuery(), new GroupEntity());
+			if (set.hasNext()) {
+				return set.next().getFieldAsInt("id_machine_groups");
 			} else {
 				return Entity.INVALID_KEY_VALUE;
 			}
 		} catch (final SQLException e) {
 			return Entity.INVALID_KEY_VALUE;
+		}
+	}
+
+	public static String getNameWithId(final Integer id) {
+		try {
+			final PreparedStatement stmt = Entity
+					.getStatement("SELECT * FROM machine_groups WHERE id_machine_groups = ?");
+			stmt.setInt(1, id);
+			final EntitySet<GroupEntity> set = new EntitySet<GroupEntity>(stmt
+					.executeQuery(), new GroupEntity());
+			if (set.hasNext()) {
+				return set.next().getFieldAsString("name");
+			} else {
+				return "";
+			}
+		} catch (final SQLException e) {
+			return "";
 		}
 	}
 

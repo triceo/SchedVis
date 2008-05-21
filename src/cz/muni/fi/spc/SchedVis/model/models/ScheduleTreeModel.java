@@ -26,7 +26,7 @@ public class ScheduleTreeModel extends DefaultTreeModel {
 	private static final long serialVersionUID = -5555189641185105899L;
 	private static ScheduleTreeModel model;
 
-	private static final String ID_UNGROUPED = "Ungrouped machines";
+	private static final Integer ID_UNGROUPED = -1;
 
 	public static ScheduleTreeModel getInstance() {
 		if (ScheduleTreeModel.model == null) {
@@ -41,12 +41,11 @@ public class ScheduleTreeModel extends DefaultTreeModel {
 		final DefaultMutableTreeNode root = new DefaultMutableTreeNode();
 		for (final GroupEntity item : set) {
 			final DefaultMutableTreeNode node = new DefaultMutableTreeNode(item
-					.getFieldAsString("name"));
+					.getId());
 			final EntitySet<MachineEntity> set2 = MachineEntity
 					.getAllInGroup(item.getId());
 			for (final MachineEntity item2 : set2) {
-				node.add(new DefaultMutableTreeNode(item2
-						.getFieldAsString("name")));
+				node.add(new DefaultMutableTreeNode(item2.getId()));
 			}
 			root.add(node);
 		}
@@ -54,8 +53,7 @@ public class ScheduleTreeModel extends DefaultTreeModel {
 		final DefaultMutableTreeNode ungroupedNode = new DefaultMutableTreeNode(
 				ScheduleTreeModel.ID_UNGROUPED);
 		for (final MachineEntity item : set3) {
-			ungroupedNode.add(new DefaultMutableTreeNode(item
-					.getFieldAsString("name")));
+			ungroupedNode.add(new DefaultMutableTreeNode(item.getId()));
 		}
 		if (ungroupedNode.getChildCount() > 0) {
 			root.add(ungroupedNode);

@@ -72,6 +72,23 @@ public class MachineEntity extends Entity {
 		}
 	}
 
+	public static String getNameWithId(final Integer id) {
+		try {
+			final PreparedStatement stmt = Entity
+					.getStatement("SELECT * FROM machines WHERE id_machines = ?");
+			stmt.setInt(1, id);
+			final EntitySet<MachineEntity> set = new EntitySet<MachineEntity>(
+					stmt.executeQuery(), new MachineEntity());
+			if (set.hasNext()) {
+				return set.next().getFieldAsString("name");
+			} else {
+				return "";
+			}
+		} catch (final SQLException e) {
+			return "";
+		}
+	}
+
 	public static boolean removeFromGroup(final Integer machineId) {
 		try {
 			final PreparedStatement stmt = Entity
