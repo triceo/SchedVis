@@ -6,7 +6,7 @@ package cz.muni.fi.spc.SchedVis.model.models;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.event.ChangeListener;
 
-import cz.muni.fi.spc.SchedVis.model.entities.TimelineEntity;
+import cz.muni.fi.spc.SchedVis.model.entities.Event;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -23,8 +23,8 @@ public class TimelineSliderModel extends DefaultBoundedRangeModel {
 	 * 
 	 */
 	public TimelineSliderModel(final ChangeListener listener) {
-		this.setMinimum(TimelineEntity.getMinClock().intValue());
-		this.setMaximum(TimelineEntity.getMaxClock().intValue());
+		this.setMinimum(Event.getFirst().getId());
+		this.setMaximum(Event.getLast().getId());
 		this.setValue(this.getMinimum());
 		this.addChangeListener(listener);
 	}

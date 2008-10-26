@@ -11,8 +11,8 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import cz.muni.fi.spc.SchedVis.model.entities.GroupEntity;
-import cz.muni.fi.spc.SchedVis.model.entities.MachineEntity;
+import cz.muni.fi.spc.SchedVis.model.entities.Machine;
+import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 
 /**
@@ -33,15 +33,15 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 		// TODO Auto-generated constructor stub
 	}
 
-	public JPanel getGroup(final GroupEntity item, final boolean showDetailed) {
+	public JPanel getGroup(final MachineGroup item, final boolean showDetailed) {
 		final JPanel pane = new JPanel();
-		pane.add(new JLabel(item.getFieldAsString("name")));
+		pane.add(new JLabel(item.getName()));
 		return pane;
 	}
 
-	public JPanel getMachine(final MachineEntity item) {
+	public JPanel getMachine(final Machine item) {
 		final JPanel pane = new JPanel();
-		pane.add(new JLabel(item.getFieldAsString("name")));
+		pane.add(new JLabel(item.getName()));
 		return pane;
 	}
 
@@ -57,12 +57,12 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 			final boolean leaf, final int row, final boolean hasFocus) {
 		final Object userObject = this
 				.getUserObject((DefaultMutableTreeNode) value);
-		if (userObject instanceof MachineEntity) { // is a machine
-			return this.getMachine((MachineEntity) userObject);
-		} else if (userObject instanceof GroupEntity) { // is a group
-			return this.getGroup((GroupEntity) userObject, expanded);
+		if (userObject instanceof Machine) { // is a machine
+			return this.getMachine((Machine) userObject);
+		} else if (userObject instanceof MachineGroup) { // is a group
+			return this.getGroup((MachineGroup) userObject, expanded);
 		} else if (ScheduleTreeModel.ID_UNGROUPED.equals(userObject)) { // "ungrouped"
-																		// group
+			// group
 			return this.getNoGroup(expanded);
 		} else {
 			return new JPanel();

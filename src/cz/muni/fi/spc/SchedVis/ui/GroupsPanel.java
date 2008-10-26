@@ -14,8 +14,7 @@ import java.util.HashSet;
 
 import javax.swing.JCheckBox;
 
-import cz.muni.fi.spc.SchedVis.model.EntitySet;
-import cz.muni.fi.spc.SchedVis.model.entities.GroupEntity;
+import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 import cz.muni.fi.spc.SchedVis.ui.common.JBorderedPanel;
 
@@ -93,11 +92,9 @@ public class GroupsPanel extends JBorderedPanel implements ActionListener {
 	public void update() {
 		final AbstractSet<Integer> selectedGroups = this.getSelectedGroups();
 		// assemble new groups
-		final EntitySet<GroupEntity> set = GroupEntity.getAllGroups();
 		this.boxes.clear();
-		for (final GroupEntity item : set) {
-			this.boxes.put(item.getId(), new JCheckBox(item
-					.getFieldAsString("name")));
+		for (final MachineGroup item : MachineGroup.getAll()) {
+			this.boxes.put(item.getId(), new JCheckBox(item.getName()));
 		}
 		this.boxes.put(-1, new JCheckBox("Ungrouped"));
 		// update the widget with new groups

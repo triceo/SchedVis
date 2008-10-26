@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
 
 /**
@@ -68,6 +69,7 @@ public class SliderPanel extends JPanel implements ChangeListener {
 		if (e.getSource().equals(this.tlsm)) {
 			final TimelineSliderModel tlsm = (TimelineSliderModel) e
 					.getSource();
+			tlsm.setValue(Event.getPrevious(tlsm.getValue()).getId());
 			this.sliderLabel.setText(this.getSliderDescription(tlsm.getValue(),
 					tlsm.getMaximum()));
 		}

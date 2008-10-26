@@ -6,8 +6,7 @@ package cz.muni.fi.spc.SchedVis.model.models;
 import javax.swing.DefaultListModel;
 import javax.swing.event.ListDataListener;
 
-import cz.muni.fi.spc.SchedVis.model.EntitySet;
-import cz.muni.fi.spc.SchedVis.model.entities.MachineEntity;
+import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -33,18 +32,9 @@ public class MachinesListModel extends DefaultListModel {
 	}
 
 	public void update() {
-		EntitySet<MachineEntity> set = null;
-		if (this.groupId == null) {
-			set = MachineEntity.getAllUngrouped();
-		} else if (this.groupId != -1) {
-			set = MachineEntity.getAllInGroup(this.groupId);
-		}
 		this.removeAllElements();
-		if (set == null) {
-			return;
-		}
-		for (final MachineEntity item : set) {
-			this.addElement(item.getFieldAsString("name"));
+		for (final Machine item : Machine.getAll(this.groupId)) {
+			this.addElement(item.getName());
 		}
 	}
 

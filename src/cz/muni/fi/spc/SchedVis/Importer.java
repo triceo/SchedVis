@@ -9,20 +9,22 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.ParseException;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.SwingWorker;
 
-import cz.muni.fi.spc.SchedVis.model.EntitySet;
-import cz.muni.fi.spc.SchedVis.model.SQL;
-import cz.muni.fi.spc.SchedVis.model.entities.MachineEntity;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+import cz.muni.fi.spc.SchedVis.model.Database;
+import cz.muni.fi.spc.SchedVis.model.entities.Event;
+import cz.muni.fi.spc.SchedVis.model.entities.EventType;
+import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.parsers.machines.MachineData;
 import cz.muni.fi.spc.SchedVis.parsers.machines.MachinesParser;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.EventHasData;
@@ -43,7 +45,7 @@ import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleParser;
  */
 public class Importer extends SwingWorker<Void, Void> {
 
-	private static SQL sql;
+	private static Session sql;
 
 	private static Integer EVENT_JOB_ARRIVAL = 1;
 	private static Integer EVENT_JOB_EXECUTION_START = 2;
@@ -68,6 +70,8 @@ public class Importer extends SwingWorker<Void, Void> {
 	private Integer totalLines = 0;
 
 	private boolean result = false;
+
+	private final Map<String, Machine> machines = new HashMap<String, Machine>();
 
 	public Importer(final File machinesFile, final File dataFile,
 			final String name) {
@@ -94,81 +98,44 @@ public class Importer extends SwingWorker<Void, Void> {
 		}
 	}
 
-	/**
-	 * Create the database schema used by the application.
-	 * 
-	 * @throws SQLException
-	 *             Thrown when any of the schema tables cannot be created.
-	 */
-	private void createSchema() throws SQLException {
-		final Statement stmt = Importer.sql.getConnection().createStatement();
-		// create machine groups' table
-		try {
-			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS machine_groups ("
-					+ "id_machine_groups INTEGER PRIMARY KEY AUTOINCREMENT, "
-					+ "name TEXT UNIQUE);");
-		} catch (final SQLException e) {
-			throw new SQLException("Error creating machine groups' table.", e);
-		}
-		// create machines table
-		try {
-			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS machines ("
-					+ "id_machines INTEGER PRIMARY KEY AUTOINCREMENT, "
-					+ "name TEXT UNIQUE, " + "id_machine_groups INTEGER, "
-					+ "cpus INTEGER, " + "speed INTEGER, " + "platform TEXT, "
-					+ "os TEXT, " + "ram INTEGER, " + "hdd INTEGER);");
-		} catch (final SQLException e) {
-			throw new SQLException("Error creating machines table.", e);
-		}
-		// create event types table
-		try {
-			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS event_types ("
-					+ "id_event_types INTEGER PRIMARY KEY, " + "name TEXT);");
-		} catch (final SQLException e) {
-			throw new SQLException("Error creating event types' table.", e);
-		}
-		// create events' table
-		try {
-			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS events ("
-					+ "id_events INTEGER PRIMARY KEY AUTOINCREMENT, "
-					+ "parent_id_events INTEGER, " + "id_event_types INTEGER, "
-					+ "id_machines INTEGER, " + "id_machines_target INTEGER, "
-					+ "id_jobs INTEGER, " + "clock INTEGER, "
-					+ "need_cpus INTEGER, " + "need_platform TEXT, "
-					+ "need_ram INTEGER, " + "need_hdd INTEGER, "
-					+ "cpus_assigned TEXT, " + "expect_start INTEGER, "
-					+ "expect_end INTEGER, " + "deadline INTEGER);");
-		} catch (final SQLException e) {
-			throw new SQLException("Error creating events' table.", e);
-		}
-	}
-
 	@Override
 	public Void doInBackground() {
-		EntitySet.clearCache();
 		try {
-			Importer.sql = SQL.getInstance(this.name, true);
+			Database.getInstance().use(this.name);
+			Importer.sql = Database.getInstance().getSession();
 		} catch (final Exception e) {
+			e.printStackTrace();
 			return null;
 		}
 		if (!this.machinesFile.canRead() || !this.dataFile.canRead()) {
 			return null;
 		}
 		try {
-			this.createSchema();
-			Importer.sql.getConnection().setAutoCommit(false);
+			// this.createSchema();
 			this.parseMachines(new BufferedReader(new FileReader(
 					this.machinesFile)));
-			Importer.sql.getConnection().commit();
 			this
 					.parseDataSet(new BufferedReader(new FileReader(
 							this.dataFile)));
-			Importer.sql.getConnection().commit();
 		} catch (final Exception e) {
+			e.printStackTrace();
 			return null;
 		}
 		this.result = true;
 		return null;
+	}
+
+	/**
+	 * @todo Remove this once second-level caching works fine.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	private Machine getMachine(final String name) {
+		if (!this.machines.containsKey(name)) {
+			this.machines.put(name, Machine.getWithName(name));
+		}
+		return this.machines.get(name);
 	}
 
 	public boolean isSuccess() {
@@ -193,20 +160,12 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * 
 	 * @param reader
 	 * @throws ParseException
-	 * @throws SQLException
-	 *             Thrown when any of the rows failed to insert.
-	 * @todo Implement foreign keys somehow. (No support in SQLite.)
 	 * @todo Somehow make jobs a table of its own.
 	 * @todo Somehow make assigned-CPUs a table if its own.
 	 */
-	private void parseDataSet(final BufferedReader reader) throws IOException,
-			SQLException,
-			cz.muni.fi.spc.SchedVis.parsers.schedule.ParseException {
+	private void parseDataSet(final BufferedReader reader)
+			throws cz.muni.fi.spc.SchedVis.parsers.schedule.ParseException {
 		this.setProgress(0);
-		final PreparedStatement eventTypeInsStmt = Importer.sql.getConnection()
-				.prepareStatement(
-						"INSERT INTO event_types (" + "id_event_types, "
-								+ "name) VALUES (?, ?);");
 		final AbstractMap<String, Integer> eventTypes = new HashMap<String, Integer>();
 		eventTypes.put("job-arrival", Importer.EVENT_JOB_ARRIVAL);
 		eventTypes.put("job-execution-start",
@@ -226,37 +185,15 @@ public class Importer extends SwingWorker<Void, Void> {
 				Importer.EVENT_MACHINE_RESTART_JOB_MOVE_BAD);
 		final Iterator<String> eventTypeIterator = eventTypes.keySet()
 				.iterator();
+		Transaction t = Importer.sql.beginTransaction();
 		while (eventTypeIterator.hasNext()) {
+			final EventType et = new EventType();
 			final String key = eventTypeIterator.next();
-			eventTypeInsStmt.setInt(1, eventTypes.get(key));
-			eventTypeInsStmt.setString(2, key);
-			try {
-				eventTypeInsStmt.execute();
-			} catch (final SQLException e) {
-				throw new SQLException("Error inserting event " + key + ".", e);
-			}
+			et.setId(eventTypes.get(key));
+			et.setName(key);
+			Importer.sql.persist(et);
 		}
-		// prepare some statements
-		final PreparedStatement eventStmt = Importer.sql.getConnection()
-				.prepareStatement(
-						"INSERT INTO events (" + "id_event_types, " + "clock, "
-								+ "id_jobs, " + "id_machines, "
-								+ "id_machines_target) VALUES (?, ?, ?, ?, ?)");
-		final PreparedStatement eventDetailStmt = Importer.sql
-				.getConnection()
-				.prepareStatement(
-						"INSERT INTO events ("
-								+ "parent_id_events, "
-								+ "id_machines, "
-								+ "id_jobs, "
-								+ "need_cpus, "
-								+ "cpus_assigned, "
-								+ "need_platform, "
-								+ "need_ram, "
-								+ "need_hdd, "
-								+ "expect_start, "
-								+ "expect_end, "
-								+ "deadline) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		t.commit();
 		// parse data set
 		this.parsedLines = 0;
 		this.totalLines = this.dataLineCount;
@@ -265,50 +202,58 @@ public class Importer extends SwingWorker<Void, Void> {
 		final List<ScheduleEvent> events = parser.read();
 		// fill the event's table
 		final Integer totalEvents = events.size();
+		Integer lineId = 0;
 		Integer eventId = 0;
+		t = Importer.sql.beginTransaction();
 		for (final ScheduleEvent event : events) {
+			lineId++;
 			eventId++;
-			eventStmt.setInt(1, eventTypes.get(event.getName())); // evt. type
-			eventStmt.setInt(2, event.getClock()); // clock
+			final Event evt = new Event();
+			evt.setType((EventType) Importer.sql.get(EventType.class,
+					eventTypes.get(event.getName())));
+			evt.setClock(event.getClock());
 			if (event instanceof EventIsJobRelated) {
-				eventStmt.setInt(3, ((EventIsJobRelated) event).getJob());
+				evt.setJob(((EventIsJobRelated) event).getJob());
 			}
 			if (event instanceof EventIsMachineRelated) {
-				eventStmt.setString(4, ((EventIsMachineRelated) event)
-						.getMachine());
+				evt.setSourceMachine(this
+						.getMachine(((EventIsMachineRelated) event)
+								.getMachine()));
 				if (event instanceof ScheduleEventMove) {
-					eventStmt.setString(5, ((ScheduleEventMove) event)
-							.getTargetMachine());
+					evt.setTargetMachine(this
+							.getMachine(((ScheduleEventMove) event)
+									.getTargetMachine()));
 				}
 			}
-			eventStmt.execute();
-			eventStmt.clearParameters();
+			Importer.sql.persist(evt);
 			if (event instanceof EventHasData) {
 				final List<ScheduleMachineData> data = ((EventHasData) event)
 						.getData();
-				final Integer parentEvent = eventId;
 				for (final ScheduleMachineData machine : data) {
-					eventDetailStmt.setInt(1, parentEvent);
-					eventDetailStmt.setInt(2, MachineEntity
-							.getIdWithName(machine.getMachineId()));
+					eventId++;
 					for (final ScheduleJobData job : machine.getJobs()) {
-						eventDetailStmt.setInt(3, job.getNeededCPUs());
-						eventDetailStmt.setString(4, new String(job
-								.getAssignedCPUs()));
-						eventDetailStmt.setString(5, job.getArch());
-						eventDetailStmt.setInt(6, job.getNeededMemory());
-						eventDetailStmt.setInt(7, job.getNeededSpace());
-						eventDetailStmt.setInt(8, job.starts());
-						eventDetailStmt.setInt(9, job.ends());
-						eventDetailStmt.setInt(10, job.getDeadline());
-						eventDetailStmt.execute();
+						final Event evt2 = new Event();
+						evt2.setSourceMachine(this.getMachine(machine
+								.getMachineId()));
+						evt2.setNeededCPUs(job.getNeededCPUs());
+						evt2.setAssignedCPUs(job.getAssignedCPUs());
+						evt2.setNeededPlatform(job.getArch());
+						evt2.setNeededRAM(job.getNeededMemory());
+						evt2.setNeededHDD(job.getNeededSpace());
+						evt2.setDeadline(job.getDeadline());
+						evt2.setExpectedStart(job.starts());
+						evt2.setExpectedEnd(job.ends());
+						evt2.setParent(evt);
+						Importer.sql.persist(evt2);
 					}
 				}
 			}
-			final Double progress = (new Double(eventId * 100))
+			// update progress
+			final Double progress = (new Double(lineId * 100))
 					/ (new Double(totalEvents));
 			this.setProgress(progress.intValue());
 		}
+		t.commit();
 	}
 
 	/**
@@ -323,19 +268,9 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * 
 	 * @param reader
 	 * @throws ParseException
-	 * @throws SQLException
-	 *             If any of the rows failed to insert.
-	 * @todo Implement foreign keys somehow. (No support in SQLite.)
 	 */
 	private void parseMachines(final BufferedReader reader)
-			throws cz.muni.fi.spc.SchedVis.parsers.machines.ParseException,
-			SQLException {
-		// prepare machine insertion query
-		final PreparedStatement stmt = Importer.sql.getConnection()
-				.prepareStatement(
-						"INSERT INTO machines (" + "name, " + "cpus, "
-								+ "speed, " + "platform, " + "os, " + "ram, "
-								+ "hdd) VALUES (?, ?, ?, ?, ?, ?, ?);");
+			throws cz.muni.fi.spc.SchedVis.parsers.machines.ParseException {
 		// ready the parser
 		this.parsedLines = 0;
 		this.totalLines = this.machinesLineCount;
@@ -345,20 +280,25 @@ public class Importer extends SwingWorker<Void, Void> {
 		// fill the machines' table
 		final Integer totalMachines = machines.size();
 		Integer machineId = 0;
+		final Transaction t = Importer.sql.beginTransaction();
 		for (final MachineData machine : machines) {
 			machineId++;
-			stmt.setString(1, machine.getName());
-			stmt.setInt(2, machine.getCPUCount());
-			stmt.setInt(3, machine.getSpeed());
-			stmt.setString(4, machine.getArchitecture());
-			stmt.setString(5, machine.getOperatingSystem());
-			stmt.setInt(6, machine.getMemory());
-			stmt.setInt(7, machine.getSpace());
-			stmt.execute();
+			// persist data
+			final Machine mcn = new Machine();
+			mcn.setName(machine.getName());
+			mcn.setCPUs(machine.getCPUCount());
+			mcn.setSpeed(machine.getSpeed());
+			mcn.setOS(machine.getOperatingSystem());
+			mcn.setPlatform(machine.getArchitecture());
+			mcn.setHDD(machine.getSpace());
+			mcn.setRAM(machine.getMemory());
+			Importer.sql.persist(mcn);
+			// update progress
 			final Double progress = (new Double(machineId * 100))
 					/ (new Double(totalMachines));
 			this.setProgress(progress.intValue());
 		}
+		t.commit();
 	}
 
 }

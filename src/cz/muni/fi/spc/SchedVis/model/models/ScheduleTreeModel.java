@@ -10,9 +10,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
-import cz.muni.fi.spc.SchedVis.model.EntitySet;
-import cz.muni.fi.spc.SchedVis.model.entities.GroupEntity;
-import cz.muni.fi.spc.SchedVis.model.entities.MachineEntity;
+import cz.muni.fi.spc.SchedVis.model.BaseEntity;
+import cz.muni.fi.spc.SchedVis.model.entities.Machine;
+import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -37,21 +37,17 @@ public class ScheduleTreeModel extends DefaultTreeModel {
 	}
 
 	private static DefaultMutableTreeNode getTree() {
-		final EntitySet<GroupEntity> set = GroupEntity.getAllGroups();
 		final DefaultMutableTreeNode root = new DefaultMutableTreeNode();
-		for (final GroupEntity item : set) {
+		for (final MachineGroup item : MachineGroup.getAll()) {
 			final DefaultMutableTreeNode node = new DefaultMutableTreeNode(item);
-			final EntitySet<MachineEntity> set2 = MachineEntity
-					.getAllInGroup(item.getId());
-			for (final MachineEntity item2 : set2) {
+			for (final Machine item2 : Machine.getAll(item.getId())) {
 				node.add(new DefaultMutableTreeNode(item2));
 			}
 			root.add(node);
 		}
-		final EntitySet<MachineEntity> set3 = MachineEntity.getAllUngrouped();
 		final DefaultMutableTreeNode ungroupedNode = new DefaultMutableTreeNode(
 				ScheduleTreeModel.ID_UNGROUPED);
-		for (final MachineEntity item : set3) {
+		for (final Machine item : Machine.getAll(null)) {
 			ungroupedNode.add(new DefaultMutableTreeNode(item));
 		}
 		if (ungroupedNode.getChildCount() > 0) {
@@ -93,16 +89,22 @@ public class ScheduleTreeModel extends DefaultTreeModel {
 	public void regroup(final AbstractSet<Integer> visibleGroups) {
 		final DefaultMutableTreeNode root = ScheduleTreeModel.getTree();
 		if (!visibleGroups.isEmpty()) {
-			final boolean allowUngrouped = visibleGroups.contains(-1);
 			Enumeration<DefaultMutableTreeNode> e = root.children();
 			while (e.hasMoreElements()) {
 				final DefaultMutableTreeNode node = e.nextElement();
-				final boolean isUngrouped = allowUngrouped ? (node
-						.getUserObject().equals(ScheduleTreeModel.ID_UNGROUPED))
-						: false;
-				final boolean isInSet = isUngrouped ? false : visibleGroups
-						.contains(((GroupEntity) node.getUserObject()).getId());
-				if (!(isInSet || isUngrouped)) {
+				boolean isInSet = false;
+				if (node.getUserObject() instanceof BaseEntity) {
+					if (visibleGroups.contains(((MachineGroup) node
+							.getUserObject()).getId())) {
+						isInSet = true;
+					}
+				} else {
+					if (visibleGroups.contains(new Integer(
+							ScheduleTreeModel.ID_UNGROUPED))) {
+						isInSet = true;
+					}
+				}
+				if (!isInSet) {
 					this.removeNodeFromParent(node);
 					e = root.children();
 				}

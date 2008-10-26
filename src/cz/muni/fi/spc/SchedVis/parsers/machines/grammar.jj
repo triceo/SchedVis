@@ -3,7 +3,7 @@
  */
  
 options {
-  JDK_VERSION = "1.5";
+  JDK_VERSION = "1.6";
 }
 PARSER_BEGIN(MachinesParser)
 package cz.muni.fi.spc.SchedVis.parsers.machines;
@@ -48,6 +48,7 @@ MachinesList read() :
 
 MachinesList machine_data(MachinesList machines) : 
 {
+    if (this.getImporter() != null) this.getImporter().nextLineParsed();
 	Token name;
 	Token numCPUs;
 	Token speed;

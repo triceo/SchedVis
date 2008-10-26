@@ -28,7 +28,7 @@ import javax.swing.JRadioButton;
 
 import cz.muni.fi.spc.SchedVis.DataFileFilter;
 import cz.muni.fi.spc.SchedVis.Main;
-import cz.muni.fi.spc.SchedVis.model.SQL;
+import cz.muni.fi.spc.SchedVis.model.Database;
 import cz.muni.fi.spc.SchedVis.ui.common.JBorderedPanel;
 import cz.muni.fi.spc.SchedVis.ui.common.JFilePicker;
 import cz.muni.fi.spc.SchedVis.ui.common.JLabeledField;
@@ -272,8 +272,9 @@ public class Import extends JDialog implements ActionListener, WindowListener {
 	private boolean processSource(final File inputFile) {
 		final String[] parts = inputFile.getName().split("\\.");
 		try {
-			SQL.getInstance(parts[0], false);
+			Database.getInstance().use(parts[0]);
 		} catch (final Exception e) {
+			e.printStackTrace();
 			return false;
 		}
 		return true;

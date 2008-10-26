@@ -25,8 +25,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import cz.muni.fi.spc.SchedVis.Main;
-import cz.muni.fi.spc.SchedVis.model.entities.GroupEntity;
-import cz.muni.fi.spc.SchedVis.model.entities.MachineEntity;
+import cz.muni.fi.spc.SchedVis.model.Database;
+import cz.muni.fi.spc.SchedVis.model.entities.Machine;
+import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 import cz.muni.fi.spc.SchedVis.model.models.GroupsListModel;
 import cz.muni.fi.spc.SchedVis.model.models.MachinesListModel;
 import cz.muni.fi.spc.SchedVis.ui.GroupedMachinesList;
@@ -221,21 +222,32 @@ public class Groups extends JDialog implements ActionListener,
 			if (text.length() == 0) {
 				JOptionPane.showMessageDialog(this,
 						"Please provide a name for the group.");
-			} else if (GroupEntity.insert(this.newGroupName.getText())) {
-				final GroupsListModel model = (GroupsListModel) this.availableGroupsList
-						.getModel();
-				model.update();
-				this.availableGroupsList.setSelectedItem(text);
-				this.newGroupName.setText("");
 			} else {
-				JOptionPane.showMessageDialog(this,
-						"Cannot create a group. Probably already exists.");
+				if (MachineGroup.getWithName(this.newGroupName.getText()) == null) {
+					final MachineGroup entity = new MachineGroup();
+					entity.setName(this.newGroupName.getText());
+					Database.getInstance().getSession().persist(entity);
+					Database.getInstance().getSession().flush();
+					final GroupsListModel model = (GroupsListModel) this.availableGroupsList
+							.getModel();
+					model.update();
+					this.availableGroupsList.setSelectedItem(text);
+					this.newGroupName.setText("");
+				} else {
+					JOptionPane.showMessageDialog(this,
+							"Cannot create a group. Probably already exists.");
+				}
 			}
 		} else if (command.equals(this.COMMAND__DELETE_GROUP)) {
-			final Integer id = GroupEntity
-					.getIdWithName((String) this.availableGroupsList
+			final MachineGroup machine = MachineGroup
+					.getWithName((String) this.availableGroupsList
 							.getSelectedItem());
-			if (GroupEntity.delete(id)) {
+			for (final Machine m : Machine.getAll(machine.getId())) {
+				m.setGroup(null);
+			}
+			Database.getInstance().getSession().delete(machine);
+			Database.getInstance().getSession().flush();
+			if (!Database.getInstance().getSession().contains(machine)) {
 				final GroupsListModel model = (GroupsListModel) this.availableGroupsList
 						.getModel();
 				model.update();
@@ -255,22 +267,23 @@ public class Groups extends JDialog implements ActionListener,
 		} else if (command.equals(this.COMMAND__ADD_MACHINE_TO_GROUP)) {
 			for (final Object machineName : this.availableMachinesList
 					.getSelectedValues()) {
-				final Integer groupId = GroupEntity
-						.getIdWithName((String) this.availableGroupsList
-								.getSelectedItem());
-				MachineEntity.addToGroup(MachineEntity
-						.getIdWithName((String) machineName), groupId);
-				this.availableMachinesList.update();
-				this.groupedMachinesList.update();
+				final MachineGroup ge = MachineGroup
+						.getWithName(((String) this.availableGroupsList
+								.getSelectedItem()));
+				Machine.getWithName((String) machineName).setGroup(ge);
+				Database.getInstance().getSession().flush();
 			}
+			this.availableMachinesList.update();
+			this.groupedMachinesList.update();
 		} else if (command.equals(this.COMMAND__REMOVE_MACHINE_FROM_GROUP)) {
 			for (final Object machineName : this.groupedMachinesList
 					.getSelectedValues()) {
-				MachineEntity.removeFromGroup(MachineEntity
-						.getIdWithName((String) machineName));
-				this.availableMachinesList.update();
-				this.groupedMachinesList.update();
+				final Machine me = Machine.getWithName((String) machineName);
+				me.setGroup(null);
+				Database.getInstance().getSession().flush();
 			}
+			this.availableMachinesList.update();
+			this.groupedMachinesList.update();
 		} else if (command.equals(this.COMMAND__CLOSE_DIALOG)) {
 			this.setVisible(false);
 		}
@@ -281,19 +294,19 @@ public class Groups extends JDialog implements ActionListener,
 		final Object source = e.getSource();
 		if (source.equals(this.availableGroupsList.getModel())) {
 			// caught group selection
-			if ((this.availableGroupsList.getSelectedIndex() == -1)) {
+			if ((this.availableGroupsList.getSelectedIndex() < 1)) {
 				this.deleteGroupButton.setEnabled(false);
 				this.groupedMachinesList.setEnabled(false);
 				this.availableMachinesList.setEnabled(false);
 			} else {
 				final String name = (String) this.availableGroupsList
 						.getSelectedItem();
-				final Integer groupId = GroupEntity.getIdWithName(name);
+				final MachineGroup ge = MachineGroup.getWithName(name);
 				this.deleteGroupButton.setEnabled(true);
 				this.groupedMachinesList.setEnabled(true);
 				this.availableMachinesList.setEnabled(true);
-				this.groupedMachinesList.setModel(new MachinesListModel(
-						groupId, this));
+				this.groupedMachinesList.setModel(new MachinesListModel(ge
+						.getId(), this));
 			}
 		}
 	}
@@ -315,7 +328,7 @@ public class Groups extends JDialog implements ActionListener,
 		final JPanel topLeftPane = new JPanel();
 		this.availableGroupsList = new JComboBox();
 		this.availableGroupsList.setModel(new GroupsListModel(this));
-		final JLabel label = new JLabel("GroupEntity to modify:");
+		final JLabel label = new JLabel("MachineGroup to modify:");
 		label.setLabelFor(this.availableGroupsList);
 		topLeftPane.add(label);
 		topLeftPane.add(this.availableGroupsList);
@@ -343,7 +356,7 @@ public class Groups extends JDialog implements ActionListener,
 		grpMachinesPane.setLayout(new BoxLayout(grpMachinesPane,
 				BoxLayout.PAGE_AXIS));
 		grpMachinesPane.add(new JLabel("Machines in the chosen group:"));
-		this.groupedMachinesList = new GroupedMachinesList(-1, this);
+		this.groupedMachinesList = new GroupedMachinesList(null, this);
 		this.groupedMachinesList.setEnabled(false);
 		grpMachinesPane.add(new JScrollPane(this.groupedMachinesList));
 		middlePane.add(grpMachinesPane);
