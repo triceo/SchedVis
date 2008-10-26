@@ -2,16 +2,36 @@
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-  <appender name="file" class="org.apache.log4j.FileAppender"> 
+  <appender name="infoFile" class="org.apache.log4j.FileAppender"> 
     <param name="File" value="schedvis.log"/> 
+    <param name="Append" value="false"/> 
+    <param name="Threshold" value="INFO"/> 
+    <layout class="org.apache.log4j.PatternLayout"> 
+      <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> 
+    </layout> 
+  </appender> 
+
+  <appender name="debugFile" class="org.apache.log4j.FileAppender"> 
+    <param name="File" value="schedvis.debug"/> 
+    <param name="Append" value="false"/> 
+    <param name="Threshold" value="DEBUG"/> 
+    <layout class="org.apache.log4j.PatternLayout"> 
+      <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> 
+    </layout> 
+  </appender> 
+
+  <appender name="console" class="org.apache.log4j.ConsoleAppender"> 
+    <param name="Threshold" value="WARN"/> 
     <layout class="org.apache.log4j.PatternLayout"> 
       <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/> 
     </layout> 
   </appender> 
 
   <root> 
-    <priority value ="INFO" /> 
-    <appender-ref ref="file" /> 
+    <priority value ="DEBUG" /> 
+    <appender-ref ref="console" /> 
+    <appender-ref ref="infoFile" /> 
+    <appender-ref ref="debugFile" /> 
   </root>
   
 </log4j:configuration>
