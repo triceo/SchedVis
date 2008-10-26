@@ -19,14 +19,14 @@ import cz.muni.fi.spc.SchedVis.DataFileFilter;
  */
 public class JFilePicker extends JLabeledField implements ActionListener {
 
-	private static String ACTION_BUTTON_CLICKED = "Button clicked";
+	private static String			ACTION_BUTTON_CLICKED	= "Button clicked";
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 2937947660051686598L;
-	private DataFileFilter filter;
-	private JButton btn;
+	private static final long	serialVersionUID			= 2937947660051686598L;
+	private DataFileFilter		filter;
+	private JButton						btn;
 
 	/**
 	 * @param arg0

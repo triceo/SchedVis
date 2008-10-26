@@ -44,23 +44,23 @@ public class Groups extends JDialog implements ActionListener,
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -1070355363275232038L;
+	private static final long		serialVersionUID										= -1070355363275232038L;
 
-	private JTextField newGroupName;
-	private JButton newGroupButton;
-	private JButton deleteGroupButton;
-	private JButton addMachineButton;
-	private JButton removeMachineButton;
-	private JButton closeButton;
-	private JComboBox availableGroupsList;
-	private GroupedMachinesList availableMachinesList;
-	private GroupedMachinesList groupedMachinesList;
+	private JTextField					newGroupName;
+	private JButton							newGroupButton;
+	private JButton							deleteGroupButton;
+	private JButton							addMachineButton;
+	private JButton							removeMachineButton;
+	private JButton							closeButton;
+	private JComboBox						availableGroupsList;
+	private GroupedMachinesList	availableMachinesList;
+	private GroupedMachinesList	groupedMachinesList;
 
-	private final String COMMAND__CLOSE_DIALOG = "closeDialog";
-	private final String COMMAND__CREATE_NEW_GROUP = "createNewGroup";
-	private final String COMMAND__DELETE_GROUP = "deleteGroup";
-	private final String COMMAND__ADD_MACHINE_TO_GROUP = "addToGroup";
-	private final String COMMAND__REMOVE_MACHINE_FROM_GROUP = "removeFromGroup";
+	private final String				COMMAND__CLOSE_DIALOG								= "closeDialog";
+	private final String				COMMAND__CREATE_NEW_GROUP						= "createNewGroup";
+	private final String				COMMAND__DELETE_GROUP								= "deleteGroup";
+	private final String				COMMAND__ADD_MACHINE_TO_GROUP				= "addToGroup";
+	private final String				COMMAND__REMOVE_MACHINE_FROM_GROUP	= "removeFromGroup";
 
 	/**
 	 * 
@@ -240,8 +240,7 @@ public class Groups extends JDialog implements ActionListener,
 			}
 		} else if (command.equals(this.COMMAND__DELETE_GROUP)) {
 			final MachineGroup machine = MachineGroup
-					.getWithName((String) this.availableGroupsList
-							.getSelectedItem());
+					.getWithName((String) this.availableGroupsList.getSelectedItem());
 			for (final Machine m : Machine.getAll(machine.getId())) {
 				m.setGroup(null);
 			}
@@ -254,8 +253,7 @@ public class Groups extends JDialog implements ActionListener,
 				this.availableMachinesList.update();
 				if (model.getSize() == 0) {
 					this.deleteGroupButton.setEnabled(false);
-					this.groupedMachinesList.setModel(new MachinesListModel(-1,
-							this));
+					this.groupedMachinesList.setModel(new MachinesListModel(-1, this));
 					this.groupedMachinesList.setEnabled(false);
 					this.availableMachinesList.setEnabled(false);
 					this.addMachineButton.setEnabled(false);
@@ -268,8 +266,7 @@ public class Groups extends JDialog implements ActionListener,
 			for (final Object machineName : this.availableMachinesList
 					.getSelectedValues()) {
 				final MachineGroup ge = MachineGroup
-						.getWithName(((String) this.availableGroupsList
-								.getSelectedItem()));
+						.getWithName(((String) this.availableGroupsList.getSelectedItem()));
 				Machine.getWithName((String) machineName).setGroup(ge);
 				Database.getInstance().getSession().flush();
 			}
@@ -299,14 +296,13 @@ public class Groups extends JDialog implements ActionListener,
 				this.groupedMachinesList.setEnabled(false);
 				this.availableMachinesList.setEnabled(false);
 			} else {
-				final String name = (String) this.availableGroupsList
-						.getSelectedItem();
+				final String name = (String) this.availableGroupsList.getSelectedItem();
 				final MachineGroup ge = MachineGroup.getWithName(name);
 				this.deleteGroupButton.setEnabled(true);
 				this.groupedMachinesList.setEnabled(true);
 				this.availableMachinesList.setEnabled(true);
-				this.groupedMachinesList.setModel(new MachinesListModel(ge
-						.getId(), this));
+				this.groupedMachinesList.setModel(new MachinesListModel(ge.getId(),
+						this));
 			}
 		}
 	}
@@ -365,8 +361,7 @@ public class Groups extends JDialog implements ActionListener,
 		final JPanel buttonsPane = new JPanel(); // panel with controls
 		buttonsPane.setLayout(new BoxLayout(buttonsPane, BoxLayout.PAGE_AXIS));
 		this.addMachineButton = new JButton("<<");
-		this.addMachineButton
-				.setActionCommand(this.COMMAND__ADD_MACHINE_TO_GROUP);
+		this.addMachineButton.setActionCommand(this.COMMAND__ADD_MACHINE_TO_GROUP);
 		this.addMachineButton.setEnabled(false);
 		this.addMachineButton.addActionListener(this);
 		this.removeMachineButton = new JButton(">>");

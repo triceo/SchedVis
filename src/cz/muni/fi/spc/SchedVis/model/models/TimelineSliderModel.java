@@ -17,7 +17,7 @@ public class TimelineSliderModel extends DefaultBoundedRangeModel {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -8706999823450177356L;
+	private static final long	serialVersionUID	= -8706999823450177356L;
 
 	/**
 	 * 

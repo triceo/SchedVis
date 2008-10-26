@@ -15,7 +15,7 @@ import cz.muni.fi.spc.SchedVis.ui.MainFrame;
  */
 public final class Main {
 
-	private static MainFrame frame;
+	private static MainFrame	frame;
 
 	/**
 	 * MainFrame method for the whole project.

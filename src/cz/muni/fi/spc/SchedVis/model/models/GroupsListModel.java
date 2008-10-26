@@ -17,7 +17,7 @@ public class GroupsListModel extends DefaultComboBoxModel {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -3334519146045362529L;
+	private static final long	serialVersionUID	= -3334519146045362529L;
 
 	/**
 	 * 

@@ -17,9 +17,9 @@ public class MachinesListModel extends DefaultListModel {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 7269134473621539118L;
+	private static final long	serialVersionUID	= 7269134473621539118L;
 
-	private final Integer groupId;
+	private final Integer			groupId;
 
 	/**
 	 * 

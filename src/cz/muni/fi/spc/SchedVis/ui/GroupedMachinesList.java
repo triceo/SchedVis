@@ -17,7 +17,7 @@ public class GroupedMachinesList extends JList {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 157627105166533902L;
+	private static final long	serialVersionUID	= 157627105166533902L;
 
 	/**
 	 * 

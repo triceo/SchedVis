@@ -15,7 +15,7 @@ public class TimelineSlider extends JSlider {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -8327074009782836875L;
+	private static final long	serialVersionUID	= -8327074009782836875L;
 
 	/**
 	 * 

@@ -23,10 +23,10 @@ public class ScheduleTreeModel extends DefaultTreeModel {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -5555189641185105899L;
-	private static ScheduleTreeModel model;
+	private static final long					serialVersionUID	= -5555189641185105899L;
+	private static ScheduleTreeModel	model;
 
-	public static final Integer ID_UNGROUPED = -1;
+	public static final Integer				ID_UNGROUPED			= -1;
 
 	public static ScheduleTreeModel getInstance() {
 		if (ScheduleTreeModel.model == null) {
@@ -94,13 +94,13 @@ public class ScheduleTreeModel extends DefaultTreeModel {
 				final DefaultMutableTreeNode node = e.nextElement();
 				boolean isInSet = false;
 				if (node.getUserObject() instanceof BaseEntity) {
-					if (visibleGroups.contains(((MachineGroup) node
-							.getUserObject()).getId())) {
+					if (visibleGroups.contains(((MachineGroup) node.getUserObject())
+							.getId())) {
 						isInSet = true;
 					}
 				} else {
-					if (visibleGroups.contains(new Integer(
-							ScheduleTreeModel.ID_UNGROUPED))) {
+					if (visibleGroups
+							.contains(new Integer(ScheduleTreeModel.ID_UNGROUPED))) {
 						isInSet = true;
 					}
 				}

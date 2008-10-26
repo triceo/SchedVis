@@ -13,9 +13,9 @@ import javax.swing.filechooser.FileFilter;
  * supported in a future Swing release.
  */
 public class DataFileFilter extends FileFilter {
-	protected String description;
+	protected String				description;
 
-	protected List<String> exts = new ArrayList<String>();
+	protected List<String>	exts	= new ArrayList<String>();
 
 	/** Return true if the given file is accepted by this filter. */
 	@Override

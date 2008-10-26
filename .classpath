@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.6.0_10">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="SchedVis/lib/i386"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/ext/sqlite.jar"/>
 	<classpathentry kind="lib" path="lib/ext/dom4j.jar"/>
 	<classpathentry kind="lib" path="lib/ext/ejb3-persistence.jar"/>
@@ -19,5 +14,6 @@
 	<classpathentry kind="lib" path="lib/ext/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="lib/ext/commons-collections.jar"/>
 	<classpathentry kind="lib" path="lib/ext/hibernate-validator.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.6.0_10"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

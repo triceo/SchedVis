@@ -52,16 +52,16 @@ public class Machine extends BaseEntity {
 		return (Machine) crit.uniqueResult();
 	}
 
-	private String os;
-	private Integer id;
-	private Integer cpus;
-	private Integer hdd;
-	private String name;
-	private String platform;
-	private Integer ram;
-	private Integer speed;
+	private String				os;
+	private Integer				id;
+	private Integer				cpus;
+	private Integer				hdd;
+	private String				name;
+	private String				platform;
+	private Integer				ram;
+	private Integer				speed;
 
-	private MachineGroup group;
+	private MachineGroup	group;
 
 	public Integer getCPUs() {
 		return this.cpus;

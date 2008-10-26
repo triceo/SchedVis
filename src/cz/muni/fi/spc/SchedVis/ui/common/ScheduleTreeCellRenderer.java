@@ -24,7 +24,7 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -5148385915562957149L;
+	private static final long	serialVersionUID	= -5148385915562957149L;
 
 	/**
 	 * 

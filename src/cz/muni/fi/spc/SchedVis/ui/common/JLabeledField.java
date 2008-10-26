@@ -19,9 +19,9 @@ public class JLabeledField extends JPanel {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 3462092531792287337L;
-	private JTextField value;
-	private JLabel lbl;
+	private static final long	serialVersionUID	= 3462092531792287337L;
+	private JTextField				value;
+	private JLabel						lbl;
 
 	/**
 	 * 

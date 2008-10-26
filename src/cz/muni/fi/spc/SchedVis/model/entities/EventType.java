@@ -12,8 +12,8 @@ import cz.muni.fi.spc.SchedVis.model.BaseEntity;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class EventType extends BaseEntity {
 
-	private String name;
-	private Integer id;
+	private String	name;
+	private Integer	id;
 
 	@Id
 	public Integer getId() {

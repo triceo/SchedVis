@@ -14,8 +14,8 @@ import java.util.List;
  */
 public class ScheduleMachineData {
 
-	private final String machineId;
-	private final List<ScheduleJobData> jobs;
+	private final String								machineId;
+	private final List<ScheduleJobData>	jobs;
 
 	public ScheduleMachineData(final Token machineId,
 			final List<ScheduleJobData> data) {

@@ -27,9 +27,9 @@ public class SliderPanel extends JPanel implements ChangeListener {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 6091479520934383104L;
-	private TimelineSliderModel tlsm = null;
-	private final JLabel sliderLabel;
+	private static final long		serialVersionUID	= 6091479520934383104L;
+	private TimelineSliderModel	tlsm							= null;
+	private final JLabel				sliderLabel;
 
 	/**
 	 * 
@@ -50,8 +50,8 @@ public class SliderPanel extends JPanel implements ChangeListener {
 		this.add(slider, BorderLayout.CENTER);
 		// right-side buttons
 		final JPanel innerPane2 = new JPanel();
-		this.sliderLabel = new JLabel(this.getSliderDescription(slider
-				.getValue(), slider.getMaximum()));
+		this.sliderLabel = new JLabel(this.getSliderDescription(slider.getValue(),
+				slider.getMaximum()));
 		innerPane2.add(this.sliderLabel, BorderLayout.LINE_END);
 		innerPane2.setLayout(new FlowLayout());
 		innerPane2.add(new JButton(">"));
@@ -60,18 +60,16 @@ public class SliderPanel extends JPanel implements ChangeListener {
 		this.add(innerPane2, BorderLayout.LINE_END);
 	}
 
-	private String getSliderDescription(final Integer value,
-			final Integer maximum) {
+	private String getSliderDescription(final Integer value, final Integer maximum) {
 		return value + "/" + maximum;
 	}
 
 	public void stateChanged(final ChangeEvent e) {
 		if (e.getSource().equals(this.tlsm)) {
-			final TimelineSliderModel tlsm = (TimelineSliderModel) e
-					.getSource();
+			final TimelineSliderModel tlsm = (TimelineSliderModel) e.getSource();
 			tlsm.setValue(Event.getPrevious(tlsm.getValue()).getId());
-			this.sliderLabel.setText(this.getSliderDescription(tlsm.getValue(),
-					tlsm.getMaximum()));
+			this.sliderLabel.setText(this.getSliderDescription(tlsm.getValue(), tlsm
+					.getMaximum()));
 		}
 	}
 

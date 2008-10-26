@@ -46,11 +46,11 @@ public class MachineGroup extends BaseEntity {
 		return (MachineGroup) crit.uniqueResult();
 	}
 
-	private Integer id;
+	private Integer				id;
 
-	private String name;
+	private String				name;
 
-	private Set<Machine> machines;
+	private Set<Machine>	machines;
 
 	public void addMachine(final Machine me) {
 		this.machines.add(me);

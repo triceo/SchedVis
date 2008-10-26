@@ -27,9 +27,9 @@ public class ImportProgress extends JDialog implements PropertyChangeListener {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -4859709045315254964L;
-	private final Importer task;
-	private final JProgressBar pb;
+	private static final long		serialVersionUID	= -4859709045315254964L;
+	private final Importer			task;
+	private final JProgressBar	pb;
 
 	/**
 	 * 

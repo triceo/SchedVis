@@ -32,8 +32,8 @@ public class MainFrame extends JFrame {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 6652856626507094021L;
-	private static GroupsPanel groupsPanel;
+	private static final long		serialVersionUID	= 6652856626507094021L;
+	private static GroupsPanel	groupsPanel;
 
 	/**
 	 * Create the GUI and show it. For thread safety, this method should be
@@ -75,8 +75,7 @@ public class MainFrame extends JFrame {
 
 		// left settings sub-panel
 		final JPanel settingsPanel = new JBorderedPanel("Settings");
-		settingsPanel.setLayout(new BoxLayout(settingsPanel,
-				BoxLayout.PAGE_AXIS));
+		settingsPanel.setLayout(new BoxLayout(settingsPanel, BoxLayout.PAGE_AXIS));
 		// get panel with group picker
 		MainFrame.groupsPanel = new GroupsPanel("Show following groups:");
 		settingsPanel.add(MainFrame.groupsPanel);
@@ -93,8 +92,8 @@ public class MainFrame extends JFrame {
 		leftPanel.add(settingsPanel);
 
 		// Create a split pane with the two scroll panes in it.
-		final JSplitPane splitPane = new JSplitPane(
-				JSplitPane.HORIZONTAL_SPLIT, leftPanel, schedulePanel);
+		final JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+				leftPanel, schedulePanel);
 		splitPane.setOneTouchExpandable(true);
 		return splitPane;
 	}

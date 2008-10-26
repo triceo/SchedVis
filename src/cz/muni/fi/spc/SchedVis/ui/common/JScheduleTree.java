@@ -21,7 +21,7 @@ public class JScheduleTree extends JTree {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -5619978578879924763L;
+	private static final long	serialVersionUID	= -5619978578879924763L;
 
 	/**
 	 * 

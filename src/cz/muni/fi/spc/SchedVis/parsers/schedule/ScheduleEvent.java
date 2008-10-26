@@ -12,8 +12,8 @@ package cz.muni.fi.spc.SchedVis.parsers.schedule;
  */
 public class ScheduleEvent {
 
-	private final String event;
-	private final Integer clock;
+	private final String	event;
+	private final Integer	clock;
 
 	public ScheduleEvent(final Token event, final Token clock) {
 		this.event = event.toString();

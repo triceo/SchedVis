@@ -27,9 +27,9 @@ public class GroupsPanel extends JBorderedPanel implements ActionListener {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8820656296600471333L;
+	private static final long											serialVersionUID	= 8820656296600471333L;
 
-	private final AbstractMap<Integer, JCheckBox> boxes = new HashMap<Integer, JCheckBox>();
+	private final AbstractMap<Integer, JCheckBox>	boxes							= new HashMap<Integer, JCheckBox>();
 
 	/**
 	 * @param isDoubleBuffered

@@ -55,24 +55,24 @@ public class Event extends BaseEntity {
 		return (Event) crit.uniqueResult();
 	}
 
-	private Integer id;
-	private EventType eventType;
-	private Machine srcMachine;
-	private Machine dstMachine;
-	private Integer clock;
-	private Integer deadline;
-	private Integer expectedEnd;
-	private Integer expectedStart;
-	private Integer job;
-	private Integer neededCPUs;
-	private Integer neededHDD;
-	private Integer neededRAM;
-	private String neededPlatform;
-	private Event parent;
+	private Integer			id;
+	private EventType		eventType;
+	private Machine			srcMachine;
+	private Machine			dstMachine;
+	private Integer			clock;
+	private Integer			deadline;
+	private Integer			expectedEnd;
+	private Integer			expectedStart;
+	private Integer			job;
+	private Integer			neededCPUs;
+	private Integer			neededHDD;
+	private Integer			neededRAM;
+	private String			neededPlatform;
+	private Event				parent;
 
-	private String assignedCPUs;
+	private String			assignedCPUs;
 
-	private Set<Event> events = new HashSet<Event>();
+	private Set<Event>	events	= new HashSet<Event>();
 
 	public void addChild(final Event e) {
 		this.events.add(e);

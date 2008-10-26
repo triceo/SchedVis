@@ -41,17 +41,17 @@ import cz.muni.fi.spc.SchedVis.ui.common.JLabeledField;
  */
 public class Import extends JDialog implements ActionListener, WindowListener {
 
-	private static String ACTION_NEW_BUTTON_CLICKED = "NewButton clicked.";
-	private static String ACTION_OLD_BUTTON_CLICKED = "OldButton clicked.";
-	private static String ACTION_SUBMIT_BUTTON_CLICKED = "SubmitButton clicked.";
+	private static String				ACTION_NEW_BUTTON_CLICKED			= "NewButton clicked.";
+	private static String				ACTION_OLD_BUTTON_CLICKED			= "OldButton clicked.";
+	private static String				ACTION_SUBMIT_BUTTON_CLICKED	= "SubmitButton clicked.";
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -23334905986074228L;
-	private final JFilePicker[] filePickers = new JFilePicker[3];
-	private JLabeledField fileName;
-	private JButton submitButton;
-	private ButtonGroup bg;
+	private static final long		serialVersionUID							= -23334905986074228L;
+	private final JFilePicker[]	filePickers										= new JFilePicker[3];
+	private JLabeledField				fileName;
+	private JButton							submitButton;
+	private ButtonGroup					bg;
 
 	/**
 	 * 
@@ -232,9 +232,8 @@ public class Import extends JDialog implements ActionListener, WindowListener {
 					new ImportProgress(this, file1, file2, name);
 					Main.update();
 				} else {
-					JOptionPane
-							.showMessageDialog(this,
-									"Please pick valid source files and a correct name.");
+					JOptionPane.showMessageDialog(this,
+							"Please pick valid source files and a correct name.");
 				}
 			} else if (this.bg.isSelected(elems.nextElement().getModel())) {
 				// second radio selected
@@ -267,7 +266,7 @@ public class Import extends JDialog implements ActionListener, WindowListener {
 	 * Process already existing data set.
 	 * 
 	 * @param inputFile
-	 *            Data set file to process.
+	 *          Data set file to process.
 	 */
 	private boolean processSource(final File inputFile) {
 		final String[] parts = inputFile.getName().split("\\.");
@@ -293,8 +292,7 @@ public class Import extends JDialog implements ActionListener, WindowListener {
 		final DataFileFilter dtaFilter = new DataFileFilter();
 		dtaFilter.setDescription("SchedVis source files (*.txt)");
 		dtaFilter.addType("txt");
-		this.filePickers[0] = new JFilePicker("Source for machine data:",
-				dtaFilter);
+		this.filePickers[0] = new JFilePicker("Source for machine data:", dtaFilter);
 		this.filePickers[1] = new JFilePicker("Source for schedule data:",
 				dtaFilter);
 		this.filePickers[2] = new JFilePicker("Existing database:", sqlFilter);

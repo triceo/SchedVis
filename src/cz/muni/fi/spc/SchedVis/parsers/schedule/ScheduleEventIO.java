@@ -12,8 +12,8 @@ import java.util.List;
 public class ScheduleEventIO extends ScheduleEvent implements EventHasData,
 		EventIsJobRelated {
 
-	private final Integer jobId;
-	private final List<ScheduleMachineData> data;
+	private final Integer										jobId;
+	private final List<ScheduleMachineData>	data;
 
 	public ScheduleEventIO(final Token event, final Token clock,
 			final Token jobId, final List<ScheduleMachineData> data) {

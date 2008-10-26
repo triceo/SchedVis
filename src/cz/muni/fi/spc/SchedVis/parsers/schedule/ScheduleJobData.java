@@ -8,15 +8,15 @@ package cz.muni.fi.spc.SchedVis.parsers.schedule;
  */
 public class ScheduleJobData {
 
-	private Integer id;
-	private Integer neededCPUs;
-	private Integer neededMemory;
-	private Integer neededSpace;
-	private Integer startClock;
-	private Integer endClock;
-	private Integer deadline;
-	private String architecture;
-	private String assignedCPUs;
+	private Integer	id;
+	private Integer	neededCPUs;
+	private Integer	neededMemory;
+	private Integer	neededSpace;
+	private Integer	startClock;
+	private Integer	endClock;
+	private Integer	deadline;
+	private String	architecture;
+	private String	assignedCPUs;
 
 	public void assignCPUs(final Token assignedCPUs) {
 		this.assignedCPUs = assignedCPUs.toString();

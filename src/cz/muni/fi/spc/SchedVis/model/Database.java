@@ -1,5 +1,5 @@
 /**
- * Provides Hibernate integration for SchedVis. 
+ * Provides Hibernate integration for SchedVis.
  */
 package cz.muni.fi.spc.SchedVis.model;
 
@@ -20,7 +20,7 @@ import org.hibernate.cfg.AnnotationConfiguration;
  */
 public class Database {
 
-	private static Database instance = null;
+	private static Database	instance	= null;
 
 	public static Database getInstance() {
 		if (Database.instance == null) {
@@ -29,10 +29,10 @@ public class Database {
 		return Database.instance;
 	}
 
-	private final Map<String, SessionFactory> factories = new HashMap<String, SessionFactory>();
-	private SessionFactory currentSessFact = null;
+	private final Map<String, SessionFactory>	factories				= new HashMap<String, SessionFactory>();
+	private SessionFactory										currentSessFact	= null;
 
-	private Session currentSession = null;
+	private Session														currentSession	= null;
 
 	private Database() {
 

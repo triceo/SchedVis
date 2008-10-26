@@ -10,7 +10,7 @@ package cz.muni.fi.spc.SchedVis.parsers.schedule;
 public class ScheduleEventMachine extends ScheduleEvent implements
 		EventIsMachineRelated {
 
-	private final String machineId;
+	private final String	machineId;
 
 	public ScheduleEventMachine(final Token event, final Token clock,
 			final Token machineId) {

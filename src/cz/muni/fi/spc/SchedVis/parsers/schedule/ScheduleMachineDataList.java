@@ -17,6 +17,6 @@ public class ScheduleMachineDataList extends Vector<ScheduleMachineData> {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -80930778924453757L;
+	private static final long	serialVersionUID	= -80930778924453757L;
 
 }

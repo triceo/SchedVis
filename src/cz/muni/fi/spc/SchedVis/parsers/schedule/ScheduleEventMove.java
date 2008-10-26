@@ -12,10 +12,10 @@ import java.util.List;
 public class ScheduleEventMove extends ScheduleEvent implements EventHasData,
 		EventIsJobRelated, EventIsMachineRelated {
 
-	private final Integer jobId;
-	private final String srcMachine;
-	private final String dstMachine;
-	private final List<ScheduleMachineData> data;
+	private final Integer										jobId;
+	private final String										srcMachine;
+	private final String										dstMachine;
+	private final List<ScheduleMachineData>	data;
 
 	public ScheduleEventMove(final Token event, final Token clock,
 			final Token jobId, final Token srcMachine, final Token dstMachine,

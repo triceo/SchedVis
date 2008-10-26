@@ -37,8 +37,8 @@ public class SQLiteDialect extends Dialect {
 		this.registerColumnType(Types.CLOB, "clob");
 		this.registerColumnType(Types.BOOLEAN, "integer");
 
-		this.registerFunction("concat", new VarArgsSQLFunction(
-				Hibernate.STRING, "", "||", ""));
+		this.registerFunction("concat", new VarArgsSQLFunction(Hibernate.STRING,
+				"", "||", ""));
 		this.registerFunction("mod", new SQLFunctionTemplate(Hibernate.INTEGER,
 				"?1 % ?2"));
 		this.registerFunction("substr", new StandardSQLFunction("substr",
@@ -53,8 +53,8 @@ public class SQLiteDialect extends Dialect {
 	}
 
 	/*
-	 * public boolean supportsInsertSelectIdentity() { return true; // As
-	 * specify in NHibernate dialect }
+	 * public boolean supportsInsertSelectIdentity() { return true; // As specify
+	 * in NHibernate dialect }
 	 */
 
 	@Override
