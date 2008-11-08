@@ -25,27 +25,24 @@ import org.hibernate.Session;
  */
 public class Database {
 
-	private static Database	instance	= null;
+	private static final Map<String, EntityManager>	ems	= new HashMap<String, EntityManager>();
+
+	private static EntityManagerFactory							factory;
+
+	private static EntityManager										currentEM;
 
 	public static EntityManager getEntityManager() {
-		return Database.getInstance().currentEM;
-	}
-
-	protected static Database getInstance() {
-		if (Database.instance == null) {
-			Database.instance = new Database();
-		}
-		return Database.instance;
+		return Database.currentEM;
 	}
 
 	public static Session getSession() {
-		return (Session) Database.getInstance().currentEM.getDelegate();
+		return (Session) Database.getEntityManager().getDelegate();
 	}
 
 	public static void persist(final BaseEntity e) {
-		List<BaseEntity> list = new Vector<BaseEntity>();
+		final List<BaseEntity> list = new Vector<BaseEntity>();
 		list.add(e);
-		persist(list);
+		Database.persist(list);
 	}
 
 	public static void persist(final Collection<? extends BaseEntity> c) {
@@ -57,13 +54,15 @@ public class Database {
 		for (final BaseEntity e : c) {
 			Database.getEntityManager().persist(e);
 		}
-		if (endTransaction) Database.getEntityManager().getTransaction().commit();
+		if (endTransaction) {
+			Database.getEntityManager().getTransaction().commit();
+		}
 	}
 
 	public static void remove(final BaseEntity e) {
-		List<BaseEntity> list = new Vector<BaseEntity>();
+		final List<BaseEntity> list = new Vector<BaseEntity>();
 		list.add(e);
-		remove(list);
+		Database.remove(list);
 	}
 
 	public static void remove(final Collection<BaseEntity> c) {
@@ -75,26 +74,22 @@ public class Database {
 		for (final BaseEntity e : c) {
 			Database.getEntityManager().remove(e);
 		}
-		if (endTransaction) Database.getEntityManager().getTransaction().commit();
+		if (endTransaction) {
+			Database.getEntityManager().getTransaction().commit();
+		}
 	}
 
 	public static boolean use(final String name) {
-		final Database db = Database.getInstance();
-		if (!db.ems.containsKey(name)) {
+		if (!Database.ems.containsKey(name)) {
 			final Map<String, String> map = new HashMap<String, String>();
 			map.put("hibernate.connection.url", "jdbc:sqlite:/" + name + ".sqlite");
-			db.factory = Persistence.createEntityManagerFactory("SchedVis", map);
-			db.ems.put(name, db.factory.createEntityManager());
+			Database.factory = Persistence
+					.createEntityManagerFactory("SchedVis", map);
+			Database.ems.put(name, Database.factory.createEntityManager());
 		}
-		db.currentEM = db.ems.get(name);
+		Database.currentEM = Database.ems.get(name);
 		return true;
 	}
-
-	private final Map<String, EntityManager>	ems	= new HashMap<String, EntityManager>();
-
-	private EntityManagerFactory							factory;
-
-	private EntityManager											currentEM;
 
 	private Database() {
 
@@ -102,7 +97,7 @@ public class Database {
 
 	@Override
 	public void finalize() {
-		for (final EntityManager em : this.ems.values()) {
+		for (final EntityManager em : Database.ems.values()) {
 			em.close();
 		}
 	}
