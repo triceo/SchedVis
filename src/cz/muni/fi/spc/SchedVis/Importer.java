@@ -99,18 +99,15 @@ public class Importer extends SwingWorker<Void, Void> {
 		try {
 			Database.use(this.name);
 		} catch (final Exception e) {
-			e.printStackTrace();
 			return null;
 		}
 		if (!this.machinesFile.canRead() || !this.dataFile.canRead()) {
 			return null;
 		}
 		try {
-			// this.createSchema();
 			this.parseMachines(new BufferedReader(new FileReader(this.machinesFile)));
 			this.parseDataSet(new BufferedReader(new FileReader(this.dataFile)));
 		} catch (final Exception e) {
-			e.printStackTrace();
 			return null;
 		}
 		this.result = true;
