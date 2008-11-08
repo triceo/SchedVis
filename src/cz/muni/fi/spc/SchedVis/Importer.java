@@ -15,12 +15,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.swing.SwingWorker;
 
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-
+import cz.muni.fi.spc.SchedVis.model.BaseEntity;
 import cz.muni.fi.spc.SchedVis.model.Database;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.EventType;
@@ -44,8 +43,6 @@ import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleParser;
  * 
  */
 public class Importer extends SwingWorker<Void, Void> {
-
-	private static Session							sql;
 
 	private static Integer							EVENT_JOB_ARRIVAL										= 1;
 	private static Integer							EVENT_JOB_EXECUTION_START						= 2;
@@ -100,8 +97,7 @@ public class Importer extends SwingWorker<Void, Void> {
 	@Override
 	public Void doInBackground() {
 		try {
-			Database.getInstance().use(this.name);
-			Importer.sql = Database.getInstance().getSession();
+			Database.use(this.name);
 		} catch (final Exception e) {
 			e.printStackTrace();
 			return null;
@@ -179,15 +175,15 @@ public class Importer extends SwingWorker<Void, Void> {
 		eventTypes.put("machine-restart-move-bad",
 				Importer.EVENT_MACHINE_RESTART_JOB_MOVE_BAD);
 		final Iterator<String> eventTypeIterator = eventTypes.keySet().iterator();
-		Transaction t = Importer.sql.beginTransaction();
+		final List<EventType> etl = new Vector<EventType>();
 		while (eventTypeIterator.hasNext()) {
 			final EventType et = new EventType();
 			final String key = eventTypeIterator.next();
 			et.setId(eventTypes.get(key));
 			et.setName(key);
-			Importer.sql.persist(et);
+			etl.add(et);
 		}
-		t.commit();
+		Database.persist(etl);
 		// parse data set
 		this.parsedLines = 0;
 		this.totalLines = this.dataLineCount;
@@ -198,13 +194,13 @@ public class Importer extends SwingWorker<Void, Void> {
 		final Integer totalEvents = events.size();
 		Integer lineId = 0;
 		Integer eventId = 0;
-		t = Importer.sql.beginTransaction();
+		final List<BaseEntity> bel = new Vector<BaseEntity>();
 		for (final ScheduleEvent event : events) {
 			lineId++;
 			eventId++;
 			final Event evt = new Event();
-			evt.setType((EventType) Importer.sql.get(EventType.class, eventTypes
-					.get(event.getName())));
+			evt.setType(Database.getEntityManager().find(EventType.class,
+					eventTypes.get(event.getName())));
 			evt.setClock(event.getClock());
 			if (event instanceof EventIsJobRelated) {
 				evt.setJob(((EventIsJobRelated) event).getJob());
@@ -217,7 +213,7 @@ public class Importer extends SwingWorker<Void, Void> {
 							.getTargetMachine()));
 				}
 			}
-			Importer.sql.persist(evt);
+			bel.add(evt);
 			if (event instanceof EventHasData) {
 				final List<ScheduleMachineData> data = ((EventHasData) event).getData();
 				for (final ScheduleMachineData machine : data) {
@@ -234,7 +230,7 @@ public class Importer extends SwingWorker<Void, Void> {
 						evt2.setExpectedStart(job.starts());
 						evt2.setExpectedEnd(job.ends());
 						evt2.setParent(evt);
-						Importer.sql.persist(evt2);
+						bel.add(evt2);
 					}
 				}
 			}
@@ -243,7 +239,7 @@ public class Importer extends SwingWorker<Void, Void> {
 					/ (new Double(totalEvents));
 			this.setProgress(progress.intValue());
 		}
-		t.commit();
+		Database.persist(bel);
 	}
 
 	/**
@@ -269,7 +265,7 @@ public class Importer extends SwingWorker<Void, Void> {
 		// fill the machines' table
 		final Integer totalMachines = machines.size();
 		Integer machineId = 0;
-		final Transaction t = Importer.sql.beginTransaction();
+		final List<Machine> machinesList = new Vector<Machine>();
 		for (final MachineData machine : machines) {
 			machineId++;
 			// persist data
@@ -281,13 +277,13 @@ public class Importer extends SwingWorker<Void, Void> {
 			mcn.setPlatform(machine.getArchitecture());
 			mcn.setHDD(machine.getSpace());
 			mcn.setRAM(machine.getMemory());
-			Importer.sql.persist(mcn);
+			machinesList.add(mcn);
 			// update progress
 			final Double progress = (new Double(machineId * 100))
 					/ (new Double(totalMachines));
 			this.setProgress(progress.intValue());
 		}
-		t.commit();
+		Database.persist(machinesList);
 	}
 
 }

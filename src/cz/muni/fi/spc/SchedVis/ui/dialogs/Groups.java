@@ -217,6 +217,7 @@ public class Groups extends JDialog implements ActionListener,
 
 	public void actionPerformed(final ActionEvent e) {
 		final String command = e.getActionCommand();
+		Database.getEntityManager().getTransaction().begin();
 		if (command.equals(this.COMMAND__CREATE_NEW_GROUP)) {
 			final String text = this.newGroupName.getText().trim();
 			if (text.length() == 0) {
@@ -226,8 +227,7 @@ public class Groups extends JDialog implements ActionListener,
 				if (MachineGroup.getWithName(this.newGroupName.getText()) == null) {
 					final MachineGroup entity = new MachineGroup();
 					entity.setName(this.newGroupName.getText());
-					Database.getInstance().getSession().persist(entity);
-					Database.getInstance().getSession().flush();
+					Database.persist(entity);
 					final GroupsListModel model = (GroupsListModel) this.availableGroupsList
 							.getModel();
 					model.update();
@@ -239,14 +239,13 @@ public class Groups extends JDialog implements ActionListener,
 				}
 			}
 		} else if (command.equals(this.COMMAND__DELETE_GROUP)) {
-			final MachineGroup machine = MachineGroup
+			final MachineGroup mg = MachineGroup
 					.getWithName((String) this.availableGroupsList.getSelectedItem());
-			for (final Machine m : Machine.getAll(machine.getId())) {
+			for (final Machine m : Machine.getAll(mg.getId())) {
 				m.setGroup(null);
 			}
-			Database.getInstance().getSession().delete(machine);
-			Database.getInstance().getSession().flush();
-			if (!Database.getInstance().getSession().contains(machine)) {
+			Database.remove(mg);
+			if (!Database.getEntityManager().contains(mg)) {
 				final GroupsListModel model = (GroupsListModel) this.availableGroupsList
 						.getModel();
 				model.update();
@@ -268,7 +267,6 @@ public class Groups extends JDialog implements ActionListener,
 				final MachineGroup ge = MachineGroup
 						.getWithName(((String) this.availableGroupsList.getSelectedItem()));
 				Machine.getWithName((String) machineName).setGroup(ge);
-				Database.getInstance().getSession().flush();
 			}
 			this.availableMachinesList.update();
 			this.groupedMachinesList.update();
@@ -277,13 +275,13 @@ public class Groups extends JDialog implements ActionListener,
 					.getSelectedValues()) {
 				final Machine me = Machine.getWithName((String) machineName);
 				me.setGroup(null);
-				Database.getInstance().getSession().flush();
 			}
 			this.availableMachinesList.update();
 			this.groupedMachinesList.update();
 		} else if (command.equals(this.COMMAND__CLOSE_DIALOG)) {
 			this.setVisible(false);
 		}
+		Database.getEntityManager().getTransaction().commit();
 		Main.update();
 	}
 

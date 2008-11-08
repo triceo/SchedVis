@@ -271,7 +271,7 @@ public class Import extends JDialog implements ActionListener, WindowListener {
 	private boolean processSource(final File inputFile) {
 		final String[] parts = inputFile.getName().split("\\.");
 		try {
-			Database.getInstance().use(parts[0]);
+			Database.use(parts[0]);
 		} catch (final Exception e) {
 			e.printStackTrace();
 			return false;

@@ -17,8 +17,8 @@ public abstract class BaseEntity implements Cloneable {
 
 	protected static Criteria getCriteria(final Class<?> clazz,
 			final boolean cacheable) {
-		final Criteria crit = Database.getInstance().getSession().createCriteria(
-				clazz);
+		Database.getInstance();
+		final Criteria crit = Database.getSession().createCriteria(clazz);
 		crit.setCacheMode(CacheMode.NORMAL);
 		crit.setCacheable(cacheable);
 		return crit;
