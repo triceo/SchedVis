@@ -3,8 +3,14 @@
  */
 package cz.muni.fi.spc.SchedVis;
 
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
+import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.ui.MainFrame;
 
@@ -23,6 +29,16 @@ public final class Main {
 	 * @param args
 	 */
 	public static void main(final String[] args) {
+		try {
+			System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream("schedvis.out"))));
+		} catch (Exception e) {
+			Logger.getLogger(Main.class).warn("Cannot redirect standard output. Messages may get lost.");
+		}
+		try {
+			System.setErr(new PrintStream(new BufferedOutputStream(new FileOutputStream("schedvis.err"))));
+		} catch (Exception e) {
+			Logger.getLogger(Main.class).warn("Cannot redirect error output. Messages may get lost.");
+		}
 		try {
 			// Set System L&F
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
