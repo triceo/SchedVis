@@ -5,7 +5,9 @@ package cz.muni.fi.spc.SchedVis.model;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -41,31 +43,39 @@ public class Database {
 	}
 
 	public static void persist(final BaseEntity e) {
-		Database.getEntityManager().getTransaction().begin();
-		Database.getEntityManager().persist(e);
-		Database.getEntityManager().getTransaction().commit();
+		List<BaseEntity> list = new Vector<BaseEntity>();
+		list.add(e);
+		persist(list);
 	}
 
 	public static void persist(final Collection<? extends BaseEntity> c) {
-		Database.getEntityManager().getTransaction().begin();
+		boolean endTransaction = false;
+		if (!Database.getEntityManager().getTransaction().isActive()) {
+			Database.getEntityManager().getTransaction().begin();
+			endTransaction = true;
+		}
 		for (final BaseEntity e : c) {
 			Database.getEntityManager().persist(e);
 		}
-		Database.getEntityManager().getTransaction().commit();
+		if (endTransaction) Database.getEntityManager().getTransaction().commit();
 	}
 
 	public static void remove(final BaseEntity e) {
-		Database.getEntityManager().getTransaction().begin();
-		Database.getEntityManager().remove(e);
-		Database.getEntityManager().getTransaction().commit();
+		List<BaseEntity> list = new Vector<BaseEntity>();
+		list.add(e);
+		remove(list);
 	}
 
 	public static void remove(final Collection<BaseEntity> c) {
-		Database.getEntityManager().getTransaction().begin();
+		boolean endTransaction = false;
+		if (!Database.getEntityManager().getTransaction().isActive()) {
+			Database.getEntityManager().getTransaction().begin();
+			endTransaction = true;
+		}
 		for (final BaseEntity e : c) {
 			Database.getEntityManager().remove(e);
 		}
-		Database.getEntityManager().getTransaction().commit();
+		if (endTransaction) Database.getEntityManager().getTransaction().commit();
 	}
 
 	public static boolean use(final String name) {
