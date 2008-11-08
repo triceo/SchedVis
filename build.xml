@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="SchedVis" default="build" basedir=".">
+<project name="SchedVis" default="run" basedir=".">
   <property name="dir.bin" value="./bin" />
 	<property name="dir.build" value="./build" />
   <property name="dir.src" value="./src" />
-	<property name="dir.lib" value="/home/triceo/Work/school/SchedVis/lib" />
-  <path id="classpath">
-    <pathelement location="${java.class.path}"/>
-  	<fileset dir="${dir.lib}">
-  	  <include name="**/*.jar"/>
-  	</fileset>
-  	<pathelement location="${dir.src}" />
+	<property name="dir.lib" value="./lib" />
+  <path id="dir.lib.native" path="${dir.lib}/i386" />
+  <path id="classpath.base">
+    <fileset dir="${dir.lib}">
+      <include name="**/*.jar"/>
+    </fileset>
+  </path>
+  <path id="classpath.build">
+  	<path refid="classpath.base" />
+    <pathelement location="${dir.src}" />
+  </path>
+  <path id="classpath.runtime">
+    <path refid="classpath.base" />
+    <fileset dir="${dir.bin}">
+      <include name="*.jar"/>
+    </fileset>
   </path>
 	
 	<target name="makejar" description="Create a jar for the SchedVis project">
@@ -26,20 +35,18 @@
 	</target>
 	<target name="compile" description="Compile the classes.">
 	  <mkdir dir="${dir.build}" />
-		<javac srcdir="${dir.src}" destdir="${dir.build}" classpathref="classpath" source="1.5" nowarn="true" includeJavaRuntime="true" />
+		<javac debug="true" srcdir="${dir.src}" destdir="${dir.build}" classpathref="classpath.build" source="1.5" nowarn="true" includeJavaRuntime="true" />
 	</target>
-	<target name="build" description="Build the SchedVis project">
-    <antcall target="clean"></antcall>  
-    <antcall target="compile"></antcall>  
-		<antcall target="makejar"></antcall>
-	</target>
+	<target name="build" description="Build the SchedVis project" depends="clean,compile,makejar" />
 	<target name="clean" description="Restore the distribution to its default state.">
-		<delete dir="${dir.bin}" verbose="true" />
-    <delete dir="${dir.build}" verbose="true" />
+		<delete dir="${dir.bin}" />
+    <delete dir="${dir.build}" />
   </target>
 	<target name="run" description="Run the program.">
-		<java dir="./" jar="${dir.bin}/SchedVis.jar" classpathref="classpath" newenvironment="true">
-			<sysproperty key="SQLite.library.path" value="${dir.lib}/i386"/>
+		<echo>${toString:classpath.runtime}</echo>
+		<java dir="./" classname="cz.muni.fi.spc.SchedVis.Main" classpathref="classpath.runtime" newenvironment="true" fork="true" spawn="true">
+			<sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
 		</java>
   </target>
+  <target name="bottom-up" description="Build it and run." depends="build,run" />
 </project>
