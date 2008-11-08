@@ -25,7 +25,7 @@ import cz.muni.fi.spc.SchedVis.model.BaseEntity;
  * 
  */
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Machine extends BaseEntity {
 
 	@SuppressWarnings("unchecked")
