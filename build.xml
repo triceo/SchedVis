@@ -6,6 +6,8 @@
 	<property name="dir.lib" value="./lib" />
   <property name="dir.doc" value="./doc" />
 	<property name="java.target.version" value="1.5" />
+  <property name="java.package.name" value="SchedVis" />
+  <property name="java.main.class" value="cz.muni.fi.spc.SchedVis.Main" />
   <path id="dir.lib.native" path="${dir.lib}/i386" />
   <path id="classpath.base">
     <fileset dir="${dir.lib}">
@@ -29,9 +31,9 @@
     <copy todir="${dir.build}/META-INF">
     	<fileset dir="${dir.src}/META-INF" />
     </copy>
-	  <jar jarfile="${dir.bin}/SchedVis.jar" basedir="${dir.build}">
+	  <jar jarfile="${dir.bin}/${java.package.name}.jar" basedir="${dir.build}">
 	  	<manifest>
-	  		<attribute name="Main-Class" value="cz.muni.fi.spc.SchedVis.Main" />  	  
+	  		<attribute name="Main-Class" value="${java.main.class}" />  	  
 	  	</manifest>
 	  </jar>
 	</target>
@@ -44,15 +46,15 @@
 	  <mkdir dir="${dir.build}" />
 		<javac srcdir="${dir.src}" destdir="${dir.build}" classpathref="classpath.build" source="${java.target.version}" includeJavaRuntime="true" />
 	</target>
-	<target name="build" description="Build the SchedVis project" depends="clean,compile,makejar,makedoc" />
+	<target name="build" description="Build the SchedVis project" depends="compile,makejar,makedoc" />
 	<target name="clean" description="Restore the distribution to its default state.">
 		<delete dir="${dir.bin}" />
     <delete dir="${dir.build}" />
   </target>
 	<target name="run" description="Run the program.">
-		<java dir="./" classname="cz.muni.fi.spc.SchedVis.Main" classpathref="classpath.runtime" newenvironment="true" fork="true" spawn="true">
+		<java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" spawn="true">
 			<sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
 		</java>
   </target>
-  <target name="bottom-up" description="Build it and run." depends="build,run" />
+  <target name="bottom-up" description="Build it and run." depends="clean,build,run" />
 </project>
