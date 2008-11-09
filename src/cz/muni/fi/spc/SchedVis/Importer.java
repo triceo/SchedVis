@@ -235,6 +235,10 @@ public class Importer extends SwingWorker<Void, Void> {
 			final Double progress = (new Double(lineId * 100))
 					/ (new Double(totalEvents));
 			this.setProgress(progress.intValue());
+			if (bel.size() > 2000) { // persist some items
+				Database.persist(bel);
+				bel.clear();
+			}
 		}
 		Database.persist(bel);
 	}

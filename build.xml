@@ -43,7 +43,6 @@
     <delete dir="${dir.build}" />
   </target>
 	<target name="run" description="Run the program.">
-		<echo>${toString:classpath.runtime}</echo>
 		<java dir="./" classname="cz.muni.fi.spc.SchedVis.Main" classpathref="classpath.runtime" newenvironment="true" fork="true" spawn="true">
 			<sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
 		</java>
