@@ -17,7 +17,6 @@
 	<classpathentry kind="lib" path="lib/ext/slf4j-log4j12.jar"/>
 	<classpathentry kind="lib" path="lib/ext/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="lib/ext/commons-collections.jar"/>
-	<classpathentry kind="lib" path="lib/ext/hibernate-validator.jar"/>
 	<classpathentry kind="lib" path="lib/ext/hibernate-entitymanager.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
