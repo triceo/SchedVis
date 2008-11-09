@@ -33,11 +33,16 @@
 	  	</manifest>
 	  </jar>
 	</target>
+	<target name="makedoc" description="Generate source code documentation.">
+		<javadoc source="1.5" classpathref="classpath.build" sourcepath="src" destdir="doc/api" author="true" use="true" windowtitle="SchedVis API">
+		    <tag name="todo" scope="all" description="To do:"/>
+	  </javadoc>
+	</target>
 	<target name="compile" description="Compile the classes.">
 	  <mkdir dir="${dir.build}" />
 		<javac debug="true" srcdir="${dir.src}" destdir="${dir.build}" classpathref="classpath.build" source="1.5" nowarn="true" includeJavaRuntime="true" />
 	</target>
-	<target name="build" description="Build the SchedVis project" depends="clean,compile,makejar" />
+	<target name="build" description="Build the SchedVis project" depends="clean,compile,makejar,makedoc" />
 	<target name="clean" description="Restore the distribution to its default state.">
 		<delete dir="${dir.bin}" />
     <delete dir="${dir.build}" />
