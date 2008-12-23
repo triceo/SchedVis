@@ -34,6 +34,7 @@ public class MainFrame extends JFrame {
 	 */
 	private static final long		serialVersionUID	= 6652856626507094021L;
 	private static GroupsPanel	groupsPanel;
+	private static JScheduleTree tree = new JScheduleTree(ScheduleTreeModel.getInstance());
 
 	/**
 	 * Create the GUI and show it. For thread safety, this method should be
@@ -104,8 +105,7 @@ public class MainFrame extends JFrame {
 		// get slider
 		final JPanel sPanel = new SliderPanel();
 		// get scrolling pane with a tree
-		final JScrollPane pane = new JScrollPane(new JScheduleTree(
-				ScheduleTreeModel.getInstance()));
+		final JScrollPane pane = new JScrollPane(MainFrame.tree);
 		pane.setWheelScrollingEnabled(true);
 		// get regular pane for a machine detail
 		final JPanel pane2 = new JPanel();
@@ -122,6 +122,7 @@ public class MainFrame extends JFrame {
 
 	public void update() {
 		MainFrame.groupsPanel.update();
+		MainFrame.tree.repaint();
 		this.pack();
 		this.repaint();
 	}

@@ -11,6 +11,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import cz.muni.fi.spc.SchedVis.RenderMachine;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
@@ -40,9 +41,9 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 	}
 
 	public JPanel getMachine(final Machine item) {
-		final JPanel pane = new JPanel();
-		pane.add(new JLabel(item.getName()));
-		return pane;
+		RenderMachine rm = new RenderMachine(item, null, new JPanel());
+		RenderMachine.getExecutor().execute(rm);
+		return rm.getTarget();
 	}
 
 	public JPanel getNoGroup(final boolean showDetailed) {
