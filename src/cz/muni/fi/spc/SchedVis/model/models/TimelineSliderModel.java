@@ -52,16 +52,4 @@ public class TimelineSliderModel extends DefaultBoundedRangeModel {
 	this.addChangeListener(listener);
     }
 
-    /**
-     * @param arg0
-     * @param arg1
-     * @param arg2
-     * @param arg3
-     */
-    public TimelineSliderModel(final int arg0, final int arg1, final int arg2,
-	    final int arg3) {
-	super(arg0, arg1, arg2, arg3);
-	// TODO Auto-generated constructor stub
-    }
-
 }

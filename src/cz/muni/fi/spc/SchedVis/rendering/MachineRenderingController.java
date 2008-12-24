@@ -3,12 +3,16 @@
  */
 package cz.muni.fi.spc.SchedVis.rendering;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.swing.JPanel;
+
+import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 
@@ -18,30 +22,32 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
  */
 public class MachineRenderingController {
 
-    private static Executor e = null;
+    private static ExecutorService e = null;
 
-    private static Map<Integer, Map<Machine, MachineRenderer>> renderers = new ConcurrentHashMap<Integer, Map<Machine, MachineRenderer>>();
+    private static Map<Integer, Map<Machine, Future<JPanel>>> renderers = new HashMap<Integer, Map<Machine, Future<JPanel>>>();
 
-    private static Executor getExecutor() {
+    private static ExecutorService getExecutor() {
 	if (MachineRenderingController.e == null) {
 	    MachineRenderingController.e = Executors.newCachedThreadPool();
 	}
 	return MachineRenderingController.e;
     }
 
-    public synchronized static MachineRenderer getRenderer(final Machine item,
+    public synchronized static Future<JPanel> getRenderer(final Machine item,
 	    final Integer clock) {
 	if (!MachineRenderingController.renderers.containsKey(clock)) {
+	    Logger.getLogger(MachineRenderingController.class).debug("Starting clock " + clock);
 	    MachineRenderingController.renderers.put(clock,
-		    new ConcurrentHashMap<Machine, MachineRenderer>());
+		    new HashMap<Machine, Future<JPanel>>());
 	}
-	final Map<Machine, MachineRenderer> rendererMap = MachineRenderingController.renderers
+	final Map<Machine, Future<JPanel>> rendererMap = MachineRenderingController.renderers
 	.get(clock);
 	if (!rendererMap.containsKey(item)) {
-	    final MachineRenderer rm = new MachineRenderer(item, clock,
+	    final Callable<JPanel> rm = new MachineRenderer(item, clock,
 		    new JPanel());
-	    MachineRenderingController.getExecutor().execute(rm);
-	    rendererMap.put(item, rm);
+	    final Future<JPanel> future = MachineRenderingController
+	    .getExecutor().submit(rm);
+	    rendererMap.put(item, future);
 	}
 	return rendererMap.get(item);
     }

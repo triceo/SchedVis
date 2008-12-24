@@ -4,6 +4,7 @@
 package cz.muni.fi.spc.SchedVis.ui.common;
 
 import java.awt.Component;
+import java.util.concurrent.Future;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -15,7 +16,6 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
-import cz.muni.fi.spc.SchedVis.rendering.MachineRenderer;
 import cz.muni.fi.spc.SchedVis.rendering.MachineRenderingController;
 
 /**
@@ -36,16 +36,18 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
     }
 
     private JPanel getMachine(final Machine item) {
-	final MachineRenderer mr = MachineRenderingController.getRenderer(item,
+	final Future<JPanel> f = MachineRenderingController.getRenderer(item,
 		TimelineSliderModel.getInstance().getValue());
+	while (!f.isDone()) {
+	    // do nothing
+	}
 	try {
-	    mr.join();
-	} catch (final InterruptedException e) {
+	    return f.get();
+	} catch (final Exception e) {
 	    final JPanel p = new JPanel();
-	    p.add(new JLabel("Interrupted!"));
+	    p.add(new JLabel("Wrong panel!"));
 	    return p;
 	}
-	return mr.getTarget();
     }
 
     private JPanel getNoGroup(final boolean showDetailed) {
