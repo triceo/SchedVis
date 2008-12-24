@@ -12,8 +12,6 @@ import java.util.concurrent.Future;
 
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
-
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 
 /**
@@ -38,8 +36,6 @@ public class GroupRenderingController {
 	    final MachineGroup item, final Integer clock,
 	    final Map<Integer, Map<MachineGroup, Future<JPanel>>> storage) {
 	if (!storage.containsKey(clock)) {
-	    Logger.getLogger(GroupRenderingController.class).debug(
-		    "Starting clock " + clock);
 	    storage.put(clock,
 		    new HashMap<MachineGroup, Future<JPanel>>());
 	}

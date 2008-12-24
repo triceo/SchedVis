@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis.ui.common;
+package cz.muni.fi.spc.SchedVis.ui;
 
 import java.awt.Component;
 import java.util.concurrent.Future;

@@ -12,8 +12,6 @@ import java.util.concurrent.Future;
 
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
-
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 
 /**
@@ -36,7 +34,6 @@ public class MachineRenderingController {
     public synchronized static Future<JPanel> getRenderer(final Machine item,
 	    final Integer clock) {
 	if (!MachineRenderingController.renderers.containsKey(clock)) {
-	    Logger.getLogger(MachineRenderingController.class).debug("Starting clock " + clock);
 	    MachineRenderingController.renderers.put(clock,
 		    new HashMap<Machine, Future<JPanel>>());
 	}

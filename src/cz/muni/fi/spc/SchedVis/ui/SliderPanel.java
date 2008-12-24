@@ -17,7 +17,6 @@ import javax.swing.event.ChangeListener;
 import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
-import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
 
 /**
@@ -119,7 +118,7 @@ ActionListener {
 		this.btnEnd.setEnabled(true);
 	    }
 	    if (!this.tlsm.getValueIsAdjusting()) {
-		ScheduleTreeModel.getInstance().reload();
+		ScheduleTree.getInstance().updateUI();
 	    }
 	}
     }
