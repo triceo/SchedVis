@@ -4,6 +4,6 @@ import java.util.List;
 
 public interface EventHasData {
 
-	public List<ScheduleMachineData> getData();
+    public List<ScheduleMachineData> getData();
 
 }

@@ -14,9 +14,9 @@ import java.util.Vector;
  */
 public class ScheduleJobDataList extends Vector<ScheduleJobData> {
 
-	/**
+    /**
 	 * 
 	 */
-	private static final long	serialVersionUID	= -80930778924453757L;
+    private static final long serialVersionUID = -80930778924453757L;
 
 }

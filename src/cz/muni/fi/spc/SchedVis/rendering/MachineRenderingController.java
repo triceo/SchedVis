@@ -16,7 +16,7 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 
 /**
  * @author triceo
- *
+ * 
  */
 public class MachineRenderingController {
 
@@ -38,12 +38,12 @@ public class MachineRenderingController {
 		    new HashMap<Machine, Future<JPanel>>());
 	}
 	final Map<Machine, Future<JPanel>> rendererMap = MachineRenderingController.renderers
-	.get(clock);
+		.get(clock);
 	if (!rendererMap.containsKey(item)) {
 	    final Callable<JPanel> rm = new MachineRenderer(item, clock,
 		    new JPanel());
 	    final Future<JPanel> future = MachineRenderingController
-	    .getExecutor().submit(rm);
+		    .getExecutor().submit(rm);
 	    rendererMap.put(item, future);
 	}
 	return rendererMap.get(item);

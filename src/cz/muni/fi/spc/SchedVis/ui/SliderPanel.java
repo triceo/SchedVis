@@ -27,7 +27,7 @@ import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
  * 
  */
 public class SliderPanel extends JPanel implements ChangeListener,
-ActionListener {
+	ActionListener {
 
     /**
      * 
@@ -99,7 +99,7 @@ ActionListener {
 	final Object src = e.getSource();
 	if (src.equals(this.tlsm)) {
 	    final Integer value = Event.getPrevious(this.tlsm.getValue())
-	    .getId();
+		    .getId();
 	    this.tlsm.setValue(value);
 	    if (value == this.tlsm.getMinimum()) {
 		this.btnPrev.setEnabled(false);

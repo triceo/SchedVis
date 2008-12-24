@@ -16,7 +16,7 @@ import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 
 /**
  * @author triceo
- *
+ * 
  */
 public class GroupRenderingController {
 
@@ -36,16 +36,15 @@ public class GroupRenderingController {
 	    final MachineGroup item, final Integer clock,
 	    final Map<Integer, Map<MachineGroup, Future<JPanel>>> storage) {
 	if (!storage.containsKey(clock)) {
-	    storage.put(clock,
-		    new HashMap<MachineGroup, Future<JPanel>>());
+	    storage.put(clock, new HashMap<MachineGroup, Future<JPanel>>());
 	}
 	final Map<MachineGroup, Future<JPanel>> rendererMap = storage
-	.get(clock);
+		.get(clock);
 	if (!rendererMap.containsKey(item)) {
 	    final Callable<JPanel> gr = new GroupRenderer(item, clock,
 		    new JPanel());
 	    final Future<JPanel> future = GroupRenderingController
-	    .getExecutor().submit(gr);
+		    .getExecutor().submit(gr);
 	    rendererMap.put(item, future);
 	}
 	return rendererMap.get(item);

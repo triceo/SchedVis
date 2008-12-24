@@ -14,9 +14,9 @@ import java.util.Vector;
  */
 public final class ScheduleEventsList extends Vector<ScheduleEvent> {
 
-	/**
+    /**
 	 * 
 	 */
-	private static final long	serialVersionUID	= 821547080427216327L;
+    private static final long serialVersionUID = 821547080427216327L;
 
 }

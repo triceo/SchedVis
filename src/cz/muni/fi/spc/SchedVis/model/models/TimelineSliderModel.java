@@ -24,10 +24,10 @@ public class TimelineSliderModel extends DefaultBoundedRangeModel {
     private static TimelineSliderModel model = null;
 
     public static TimelineSliderModel getInstance()
-    throws IllegalArgumentException {
+	    throws IllegalArgumentException {
 	if (TimelineSliderModel.model == null) {
 	    throw new IllegalArgumentException(
-	    "You need to set a listener first time you call this method!");
+		    "You need to set a listener first time you call this method!");
 	}
 	return TimelineSliderModel.getInstance(null);
     }
@@ -37,7 +37,7 @@ public class TimelineSliderModel extends DefaultBoundedRangeModel {
 	    TimelineSliderModel.model = new TimelineSliderModel(listener);
 	} else if (listener != null) {
 	    Logger.getLogger(TimelineSliderModel.class).warn(
-	    "Listener has already been set. This will have no effect.");
+		    "Listener has already been set. This will have no effect.");
 	}
 	return TimelineSliderModel.model;
     }
