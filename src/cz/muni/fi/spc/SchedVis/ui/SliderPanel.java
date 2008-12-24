@@ -17,6 +17,7 @@ import javax.swing.event.ChangeListener;
 import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
+import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
 
 /**
@@ -27,11 +28,11 @@ import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
  * 
  */
 public class SliderPanel extends JPanel implements ChangeListener,
-	ActionListener {
+ActionListener {
 
     /**
-	 * 
-	 */
+     * 
+     */
     private static final long serialVersionUID = 6091479520934383104L;
     private TimelineSliderModel tlsm = null;
     private final JButton btnStart = new JButton("|<");
@@ -41,8 +42,8 @@ public class SliderPanel extends JPanel implements ChangeListener,
     private static Date lastStep = new Date();
 
     /**
-	 * 
-	 */
+     * 
+     */
     public SliderPanel() {
 	this.setLayout(new BorderLayout());
 	// left-side buttons
@@ -55,7 +56,7 @@ public class SliderPanel extends JPanel implements ChangeListener,
 	// middle slider
 	this.add(innerPane, BorderLayout.LINE_START);
 	final TimelineSlider slider = new TimelineSlider();
-	this.tlsm = new TimelineSliderModel(this);
+	this.tlsm = TimelineSliderModel.getInstance(this);
 	slider.setModel(this.tlsm);
 	this.add(slider, BorderLayout.CENTER);
 	// right-side buttons
@@ -95,10 +96,11 @@ public class SliderPanel extends JPanel implements ChangeListener,
     }
 
     public void stateChanged(final ChangeEvent e) {
+	Logger.getLogger(SliderPanel.class).debug(e);
 	final Object src = e.getSource();
 	if (src.equals(this.tlsm)) {
 	    final Integer value = Event.getPrevious(this.tlsm.getValue())
-		    .getId();
+	    .getId();
 	    this.tlsm.setValue(value);
 	    if (value == this.tlsm.getMinimum()) {
 		this.btnPrev.setEnabled(false);
@@ -115,6 +117,9 @@ public class SliderPanel extends JPanel implements ChangeListener,
 		this.btnStart.setEnabled(true);
 		this.btnNext.setEnabled(true);
 		this.btnEnd.setEnabled(true);
+	    }
+	    if (!this.tlsm.getValueIsAdjusting()) {
+		ScheduleTreeModel.getInstance().reload();
 	    }
 	}
     }

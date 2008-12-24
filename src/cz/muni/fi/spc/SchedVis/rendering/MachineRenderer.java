@@ -1,10 +1,7 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+package cz.muni.fi.spc.SchedVis.rendering;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -15,25 +12,16 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public final class RenderMachine implements Runnable {
-
-    private static Executor e = null;
-
-    public static Executor getExecutor() {
-	if (RenderMachine.e == null) {
-	    RenderMachine.e = Executors.newCachedThreadPool();
-	}
-	return RenderMachine.e;
-    }
+public final class MachineRenderer extends Thread {
 
     private final Machine m;
     private final Integer clock;
     private final JPanel target;
 
     /**
-	 * 
-	 */
-    public RenderMachine(final Machine m, final Integer clock,
+     * 
+     */
+    public MachineRenderer(final Machine m, final Integer clock,
 	    final JPanel target) {
 	super();
 	this.m = m;
@@ -55,8 +43,7 @@ public final class RenderMachine implements Runnable {
 
     @Override
     public void run() {
-	this.target.add(new JLabel(this.m.getName()));
-	Main.update();
+	this.target.add(new JLabel(this.m.getName() + "@" + this.clock));
     }
 
 }

@@ -124,9 +124,6 @@ public class MainFrame extends JFrame {
 
     public void update() {
 	MainFrame.groupsPanel.update();
-	if (MainFrame.tree != null) {
-	    MainFrame.tree.repaint();
-	}
 	this.pack();
 	this.repaint();
     }
