@@ -16,6 +16,7 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
+import cz.muni.fi.spc.SchedVis.rendering.GroupRenderingController;
 import cz.muni.fi.spc.SchedVis.rendering.MachineRenderingController;
 
 /**
@@ -30,9 +31,24 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
     private static final long serialVersionUID = -5148385915562957149L;
 
     private JPanel getGroup(final MachineGroup item, final boolean showDetailed) {
-	final JPanel pane = new JPanel();
-	pane.add(new JLabel(item.getName()));
-	return pane;
+	Future<JPanel> f = null;
+	if (showDetailed) {
+	    f = GroupRenderingController.getRendererOpen(item,
+		    TimelineSliderModel.getInstance().getValue());
+	} else {
+	    f = GroupRenderingController.getRendererCollapsed(item,
+		    TimelineSliderModel.getInstance().getValue());
+	}
+	while (!f.isDone()) {
+	    // do nothing
+	}
+	try {
+	    return f.get();
+	} catch (final Exception e) {
+	    final JPanel p = new JPanel();
+	    p.add(new JLabel("Wrong panel!"));
+	    return p;
+	}
     }
 
     private JPanel getMachine(final Machine item) {
@@ -51,9 +67,7 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
     }
 
     private JPanel getNoGroup(final boolean showDetailed) {
-	final JPanel pane = new JPanel();
-	pane.add(new JLabel("Ungrouped machines"));
-	return pane;
+	return this.getGroup(null, showDetailed);
     }
 
     @Override
