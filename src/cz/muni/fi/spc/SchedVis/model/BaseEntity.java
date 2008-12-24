@@ -15,12 +15,12 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public abstract class BaseEntity implements Cloneable {
 
-	protected static Criteria getCriteria(final Class<?> clazz,
-			final boolean cacheable) {
-		final Criteria crit = Database.getSession().createCriteria(clazz);
-		crit.setCacheMode(CacheMode.NORMAL);
-		crit.setCacheable(cacheable);
-		return crit;
-	}
+    protected static Criteria getCriteria(final Class<?> clazz,
+	    final boolean cacheable) {
+	final Criteria crit = Database.getSession().createCriteria(clazz);
+	crit.setCacheMode(CacheMode.NORMAL);
+	crit.setCacheable(cacheable);
+	return crit;
+    }
 
 }

@@ -18,72 +18,72 @@ import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
  */
 public class JScheduleTree extends JTree {
 
-	/**
+    /**
 	 * 
 	 */
-	private static final long	serialVersionUID	= -5619978578879924763L;
+    private static final long serialVersionUID = -5619978578879924763L;
 
-	/**
+    /**
 	 * 
 	 */
-	public JScheduleTree() {
-		this.specialize();
-	}
+    public JScheduleTree() {
+	this.specialize();
+    }
 
-	/**
-	 * @param value
-	 */
-	public JScheduleTree(final Hashtable<?, ?> value) {
-		super(value);
-		this.specialize();
-	}
+    /**
+     * @param value
+     */
+    public JScheduleTree(final Hashtable<?, ?> value) {
+	super(value);
+	this.specialize();
+    }
 
-	/**
-	 * @param value
-	 */
-	public JScheduleTree(final Object[] value) {
-		super(value);
-		this.specialize();
-	}
+    /**
+     * @param value
+     */
+    public JScheduleTree(final Object[] value) {
+	super(value);
+	this.specialize();
+    }
 
-	/**
-	 * @param newModel
-	 */
-	public JScheduleTree(final TreeModel newModel) {
-		super(newModel);
-		this.specialize();
-	}
+    /**
+     * @param newModel
+     */
+    public JScheduleTree(final TreeModel newModel) {
+	super(newModel);
+	this.specialize();
+    }
 
-	/**
-	 * @param root
-	 */
-	public JScheduleTree(final TreeNode root) {
-		super(root);
-		this.specialize();
-	}
+    /**
+     * @param root
+     */
+    public JScheduleTree(final TreeNode root) {
+	super(root);
+	this.specialize();
+    }
 
-	/**
-	 * @param root
-	 * @param asksAllowsChildren
-	 */
-	public JScheduleTree(final TreeNode root, final boolean asksAllowsChildren) {
-		super(root, asksAllowsChildren);
-		this.specialize();
-	}
+    /**
+     * @param root
+     * @param asksAllowsChildren
+     */
+    public JScheduleTree(final TreeNode root, final boolean asksAllowsChildren) {
+	super(root, asksAllowsChildren);
+	this.specialize();
+    }
 
-	/**
-	 * @param value
-	 */
-	public JScheduleTree(final Vector<?> value) {
-		super(value);
-		this.specialize();
-	}
+    /**
+     * @param value
+     */
+    public JScheduleTree(final Vector<?> value) {
+	super(value);
+	this.specialize();
+    }
 
-	private void specialize() {
-		this.setCellRenderer(new ScheduleTreeCellRenderer());
-		this.setEditable(false);
-		this.setRootVisible(false);
-		this.setModel(ScheduleTreeModel.getInstance());
-	}
+    private void specialize() {
+	this.setCellRenderer(new ScheduleTreeCellRenderer());
+	this.setEditable(false);
+	this.setRootVisible(false);
+	this.setModel(ScheduleTreeModel.getInstance());
+    }
 
 }

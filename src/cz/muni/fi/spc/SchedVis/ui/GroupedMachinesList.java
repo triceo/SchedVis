@@ -14,23 +14,23 @@ import cz.muni.fi.spc.SchedVis.model.models.MachinesListModel;
  */
 public class GroupedMachinesList extends JList {
 
-	/**
+    /**
 	 * 
 	 */
-	private static final long	serialVersionUID	= 157627105166533902L;
+    private static final long serialVersionUID = 157627105166533902L;
 
-	/**
+    /**
 	 * 
 	 */
-	public GroupedMachinesList(final Integer groupId,
-			final ListSelectionListener owner) {
-		this.setModel(new MachinesListModel(groupId, null));
-		this.update();
-		this.addListSelectionListener(owner);
-	}
+    public GroupedMachinesList(final Integer groupId,
+	    final ListSelectionListener owner) {
+	this.setModel(new MachinesListModel(groupId, null));
+	this.update();
+	this.addListSelectionListener(owner);
+    }
 
-	public void update() {
-		final MachinesListModel model = (MachinesListModel) this.getModel();
-		model.update();
-	}
+    public void update() {
+	final MachinesListModel model = (MachinesListModel) this.getModel();
+	model.update();
+    }
 }

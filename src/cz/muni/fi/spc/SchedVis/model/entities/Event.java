@@ -30,192 +30,192 @@ import cz.muni.fi.spc.SchedVis.model.BaseEntity;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Event extends BaseEntity {
 
-	public static Event getFirst() {
-		final Criteria crit = BaseEntity.getCriteria(Event.class, true);
-		crit.addOrder(Property.forName("id").asc());
-		crit.add(Restrictions.isNull("parent"));
-		crit.setMaxResults(1);
-		return (Event) crit.uniqueResult();
-	}
+    public static Event getFirst() {
+	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
+	crit.addOrder(Property.forName("id").asc());
+	crit.add(Restrictions.isNull("parent"));
+	crit.setMaxResults(1);
+	return (Event) crit.uniqueResult();
+    }
 
-	public static Event getLast() {
-		final Criteria crit = BaseEntity.getCriteria(Event.class, true);
-		crit.addOrder(Property.forName("id").desc());
-		crit.add(Restrictions.isNull("parent"));
-		crit.setMaxResults(1);
-		return (Event) crit.uniqueResult();
-	}
+    public static Event getLast() {
+	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
+	crit.addOrder(Property.forName("id").desc());
+	crit.add(Restrictions.isNull("parent"));
+	crit.setMaxResults(1);
+	return (Event) crit.uniqueResult();
+    }
 
-	public static Event getPrevious(final Integer eventId) {
-		final Criteria crit = BaseEntity.getCriteria(Event.class, true);
-		crit.addOrder(Property.forName("id").desc());
-		crit.add(Restrictions.isNull("parent"));
-		crit.add(Restrictions.le("id", eventId));
-		crit.setMaxResults(1);
-		return (Event) crit.uniqueResult();
-	}
+    public static Event getPrevious(final Integer eventId) {
+	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
+	crit.addOrder(Property.forName("id").desc());
+	crit.add(Restrictions.isNull("parent"));
+	crit.add(Restrictions.le("id", eventId));
+	crit.setMaxResults(1);
+	return (Event) crit.uniqueResult();
+    }
 
-	private Integer			id;
-	private EventType		eventType;
-	private Machine			srcMachine;
-	private Machine			dstMachine;
-	private Integer			clock;
-	private Integer			deadline;
-	private Integer			expectedEnd;
-	private Integer			expectedStart;
-	private Integer			job;
-	private Integer			neededCPUs;
-	private Integer			neededHDD;
-	private Integer			neededRAM;
-	private String			neededPlatform;
-	private Event				parent;
+    private Integer id;
+    private EventType eventType;
+    private Machine srcMachine;
+    private Machine dstMachine;
+    private Integer clock;
+    private Integer deadline;
+    private Integer expectedEnd;
+    private Integer expectedStart;
+    private Integer job;
+    private Integer neededCPUs;
+    private Integer neededHDD;
+    private Integer neededRAM;
+    private String neededPlatform;
+    private Event parent;
 
-	private String			assignedCPUs;
+    private String assignedCPUs;
 
-	private Set<Event>	events	= new HashSet<Event>();
+    private Set<Event> events = new HashSet<Event>();
 
-	public void addChild(final Event e) {
-		this.events.add(e);
-	}
+    public void addChild(final Event e) {
+	this.events.add(e);
+    }
 
-	public String getAssignedCPUs() {
-		return this.assignedCPUs;
-	}
+    public String getAssignedCPUs() {
+	return this.assignedCPUs;
+    }
 
-	public Integer getClock() {
-		return this.clock;
-	}
+    public Integer getClock() {
+	return this.clock;
+    }
 
-	public Integer getDeadline() {
-		return this.deadline;
-	}
+    public Integer getDeadline() {
+	return this.deadline;
+    }
 
-	public Integer getExpectedEnd() {
-		return this.expectedEnd;
-	}
+    public Integer getExpectedEnd() {
+	return this.expectedEnd;
+    }
 
-	public Integer getExpectedStart() {
-		return this.expectedStart;
-	}
+    public Integer getExpectedStart() {
+	return this.expectedStart;
+    }
 
-	@OneToMany(mappedBy = "parent")
-	public Set<Event> getChildren() {
-		return this.events;
-	}
+    @OneToMany(mappedBy = "parent")
+    public Set<Event> getChildren() {
+	return this.events;
+    }
 
-	@Id
-	@GeneratedValue
-	public Integer getId() {
-		return this.id;
-	}
+    @Id
+    @GeneratedValue
+    public Integer getId() {
+	return this.id;
+    }
 
-	public Integer getJob() {
-		return this.job;
-	}
+    public Integer getJob() {
+	return this.job;
+    }
 
-	public Integer getNeededCPUs() {
-		return this.neededCPUs;
-	}
+    public Integer getNeededCPUs() {
+	return this.neededCPUs;
+    }
 
-	public Integer getNeededHDD() {
-		return this.neededHDD;
-	}
+    public Integer getNeededHDD() {
+	return this.neededHDD;
+    }
 
-	public String getNeededPlatform() {
-		return this.neededPlatform;
-	}
+    public String getNeededPlatform() {
+	return this.neededPlatform;
+    }
 
-	public Integer getNeededRAM() {
-		return this.neededRAM;
-	}
+    public Integer getNeededRAM() {
+	return this.neededRAM;
+    }
 
-	@ManyToOne
-	@JoinColumn(name = "parent_fk")
-	public Event getParent() {
-		return this.parent;
-	}
+    @ManyToOne
+    @JoinColumn(name = "parent_fk")
+    public Event getParent() {
+	return this.parent;
+    }
 
-	@OneToOne
-	public Machine getSourceMachine() {
-		return this.srcMachine;
-	}
+    @OneToOne
+    public Machine getSourceMachine() {
+	return this.srcMachine;
+    }
 
-	@OneToOne
-	public Machine getTargetMachine() {
-		return this.dstMachine;
-	}
+    @OneToOne
+    public Machine getTargetMachine() {
+	return this.dstMachine;
+    }
 
-	@ManyToOne
-	public EventType getType() {
-		return this.eventType;
-	}
+    @ManyToOne
+    public EventType getType() {
+	return this.eventType;
+    }
 
-	public void removeChild(final Event e) {
-		this.events.remove(e);
-	}
+    public void removeChild(final Event e) {
+	this.events.remove(e);
+    }
 
-	public void setAssignedCPUs(final String value) {
-		this.assignedCPUs = value;
-	}
+    public void setAssignedCPUs(final String value) {
+	this.assignedCPUs = value;
+    }
 
-	public void setClock(final Integer value) {
-		this.clock = value;
-	}
+    public void setClock(final Integer value) {
+	this.clock = value;
+    }
 
-	public void setDeadline(final Integer value) {
-		this.deadline = value;
-	}
+    public void setDeadline(final Integer value) {
+	this.deadline = value;
+    }
 
-	public void setExpectedEnd(final Integer value) {
-		this.expectedEnd = value;
-	}
+    public void setExpectedEnd(final Integer value) {
+	this.expectedEnd = value;
+    }
 
-	public void setExpectedStart(final Integer value) {
-		this.expectedStart = value;
-	}
+    public void setExpectedStart(final Integer value) {
+	this.expectedStart = value;
+    }
 
-	protected void setChildren(final Set<Event> events) {
-		this.events = events;
-	}
+    protected void setChildren(final Set<Event> events) {
+	this.events = events;
+    }
 
-	public void setId(final Integer id) {
-		this.id = id;
-	}
+    public void setId(final Integer id) {
+	this.id = id;
+    }
 
-	public void setJob(final Integer value) {
-		this.job = value;
-	}
+    public void setJob(final Integer value) {
+	this.job = value;
+    }
 
-	public void setNeededCPUs(final Integer value) {
-		this.neededCPUs = value;
-	}
+    public void setNeededCPUs(final Integer value) {
+	this.neededCPUs = value;
+    }
 
-	public void setNeededHDD(final Integer value) {
-		this.neededHDD = value;
-	}
+    public void setNeededHDD(final Integer value) {
+	this.neededHDD = value;
+    }
 
-	public void setNeededPlatform(final String value) {
-		this.neededPlatform = value;
-	}
+    public void setNeededPlatform(final String value) {
+	this.neededPlatform = value;
+    }
 
-	public void setNeededRAM(final Integer value) {
-		this.neededRAM = value;
-	}
+    public void setNeededRAM(final Integer value) {
+	this.neededRAM = value;
+    }
 
-	public void setParent(final Event parent) {
-		this.parent = parent;
-	}
+    public void setParent(final Event parent) {
+	this.parent = parent;
+    }
 
-	public void setSourceMachine(final Machine machine) {
-		this.srcMachine = machine;
-	}
+    public void setSourceMachine(final Machine machine) {
+	this.srcMachine = machine;
+    }
 
-	public void setTargetMachine(final Machine machine) {
-		this.dstMachine = machine;
-	}
+    public void setTargetMachine(final Machine machine) {
+	this.dstMachine = machine;
+    }
 
-	public void setType(final EventType type) {
-		this.eventType = type;
-	}
+    public void setType(final EventType type) {
+	this.eventType = type;
+    }
 
 }

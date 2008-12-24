@@ -28,115 +28,115 @@ import cz.muni.fi.spc.SchedVis.model.BaseEntity;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Machine extends BaseEntity {
 
-	@SuppressWarnings("unchecked")
-	public static List<Machine> getAll(final Integer groupId) {
-		final Criteria crit = BaseEntity.getCriteria(Machine.class, true);
-		if (groupId != null) {
-			crit.add(Restrictions.eq("group", MachineGroup.getWithId(groupId)));
-		} else {
-			crit.add(Restrictions.isNull("group"));
-		}
-		crit.addOrder(Order.asc("name"));
-		return crit.list();
+    @SuppressWarnings("unchecked")
+    public static List<Machine> getAll(final Integer groupId) {
+	final Criteria crit = BaseEntity.getCriteria(Machine.class, true);
+	if (groupId != null) {
+	    crit.add(Restrictions.eq("group", MachineGroup.getWithId(groupId)));
+	} else {
+	    crit.add(Restrictions.isNull("group"));
 	}
+	crit.addOrder(Order.asc("name"));
+	return crit.list();
+    }
 
-	public static Machine getWithId(final Integer id) {
-		final Criteria crit = BaseEntity.getCriteria(Machine.class, true);
-		crit.add(Restrictions.idEq(id));
-		return (Machine) crit.uniqueResult();
-	}
+    public static Machine getWithId(final Integer id) {
+	final Criteria crit = BaseEntity.getCriteria(Machine.class, true);
+	crit.add(Restrictions.idEq(id));
+	return (Machine) crit.uniqueResult();
+    }
 
-	public static Machine getWithName(final String name) {
-		final Criteria crit = BaseEntity.getCriteria(Machine.class, true);
-		crit.add(Restrictions.eq("name", name));
-		return (Machine) crit.uniqueResult();
-	}
+    public static Machine getWithName(final String name) {
+	final Criteria crit = BaseEntity.getCriteria(Machine.class, true);
+	crit.add(Restrictions.eq("name", name));
+	return (Machine) crit.uniqueResult();
+    }
 
-	private String				os;
-	private Integer				id;
-	private Integer				cpus;
-	private Integer				hdd;
-	private String				name;
-	private String				platform;
-	private Integer				ram;
-	private Integer				speed;
+    private String os;
+    private Integer id;
+    private Integer cpus;
+    private Integer hdd;
+    private String name;
+    private String platform;
+    private Integer ram;
+    private Integer speed;
 
-	private MachineGroup	group;
+    private MachineGroup group;
 
-	public Integer getCPUs() {
-		return this.cpus;
-	}
+    public Integer getCPUs() {
+	return this.cpus;
+    }
 
-	@ManyToOne
-	@JoinColumn(name = "group_fk")
-	public MachineGroup getGroup() {
-		return this.group;
-	}
+    @ManyToOne
+    @JoinColumn(name = "group_fk")
+    public MachineGroup getGroup() {
+	return this.group;
+    }
 
-	public Integer getHDD() {
-		return this.hdd;
-	}
+    public Integer getHDD() {
+	return this.hdd;
+    }
 
-	@Id
-	@GeneratedValue
-	public Integer getId() {
-		return this.id;
-	}
+    @Id
+    @GeneratedValue
+    public Integer getId() {
+	return this.id;
+    }
 
-	@Index(name = "NameIndex")
-	public String getName() {
-		return this.name;
-	}
+    @Index(name = "NameIndex")
+    public String getName() {
+	return this.name;
+    }
 
-	public String getOS() {
-		return this.os;
-	}
+    public String getOS() {
+	return this.os;
+    }
 
-	public String getPlatform() {
-		return this.platform;
-	}
+    public String getPlatform() {
+	return this.platform;
+    }
 
-	public Integer getRAM() {
-		return this.ram;
-	}
+    public Integer getRAM() {
+	return this.ram;
+    }
 
-	public Integer getSpeed() {
-		return this.speed;
-	}
+    public Integer getSpeed() {
+	return this.speed;
+    }
 
-	public void setCPUs(final Integer cpus) {
-		this.cpus = cpus;
-	}
+    public void setCPUs(final Integer cpus) {
+	this.cpus = cpus;
+    }
 
-	public void setGroup(final MachineGroup group) {
-		this.group = group;
-	}
+    public void setGroup(final MachineGroup group) {
+	this.group = group;
+    }
 
-	public void setHDD(final Integer hdd) {
-		this.hdd = hdd;
-	}
+    public void setHDD(final Integer hdd) {
+	this.hdd = hdd;
+    }
 
-	protected void setId(final Integer id) {
-		this.id = id;
-	}
+    protected void setId(final Integer id) {
+	this.id = id;
+    }
 
-	public void setName(final String name) {
-		this.name = name;
-	}
+    public void setName(final String name) {
+	this.name = name;
+    }
 
-	public void setOS(final String os) {
-		this.os = os;
-	}
+    public void setOS(final String os) {
+	this.os = os;
+    }
 
-	public void setPlatform(final String platform) {
-		this.platform = platform;
-	}
+    public void setPlatform(final String platform) {
+	this.platform = platform;
+    }
 
-	public void setRAM(final Integer ram) {
-		this.ram = ram;
-	}
+    public void setRAM(final Integer ram) {
+	this.ram = ram;
+    }
 
-	public void setSpeed(final Integer speed) {
-		this.speed = speed;
-	}
+    public void setSpeed(final Integer speed) {
+	this.speed = speed;
+    }
 }

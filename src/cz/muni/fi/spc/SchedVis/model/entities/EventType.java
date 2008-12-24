@@ -12,24 +12,24 @@ import cz.muni.fi.spc.SchedVis.model.BaseEntity;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class EventType extends BaseEntity {
 
-	private String	name;
-	private Integer	id;
+    private String name;
+    private Integer id;
 
-	@Id
-	public Integer getId() {
-		return this.id;
-	}
+    @Id
+    public Integer getId() {
+	return this.id;
+    }
 
-	public String getName() {
-		return this.name;
-	}
+    public String getName() {
+	return this.name;
+    }
 
-	public void setId(final Integer id) {
-		this.id = id;
-	}
+    public void setId(final Integer id) {
+	this.id = id;
+    }
 
-	public void setName(final String name) {
-		this.name = name;
-	}
+    public void setName(final String name) {
+	this.name = name;
+    }
 
 }

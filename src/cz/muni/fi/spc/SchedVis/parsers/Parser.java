@@ -14,14 +14,14 @@ import cz.muni.fi.spc.SchedVis.Importer;
  */
 public class Parser {
 
-	private Importer	importer;
+    private Importer importer;
 
-	public Importer getImporter() {
-		return this.importer;
-	}
+    public Importer getImporter() {
+	return this.importer;
+    }
 
-	public void setImporter(final Importer importer) {
-		this.importer = importer;
-	}
+    public void setImporter(final Importer importer) {
+	this.importer = importer;
+    }
 
 }

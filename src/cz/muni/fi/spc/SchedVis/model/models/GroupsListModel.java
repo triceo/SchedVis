@@ -14,25 +14,25 @@ import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
  */
 public class GroupsListModel extends DefaultComboBoxModel {
 
-	/**
+    /**
 	 * 
 	 */
-	private static final long	serialVersionUID	= -3334519146045362529L;
+    private static final long serialVersionUID = -3334519146045362529L;
 
-	/**
+    /**
 	 * 
 	 */
-	public GroupsListModel(final ListDataListener listener) {
-		this.update();
-		this.addListDataListener(listener);
-	}
+    public GroupsListModel(final ListDataListener listener) {
+	this.update();
+	this.addListDataListener(listener);
+    }
 
-	public void update() {
-		this.removeAllElements();
-		this.addElement("No group");
-		for (final MachineGroup item : MachineGroup.getAll()) {
-			this.addElement(item.getName());
-		}
+    public void update() {
+	this.removeAllElements();
+	this.addElement("No group");
+	for (final MachineGroup item : MachineGroup.getAll()) {
+	    this.addElement(item.getName());
 	}
+    }
 
 }

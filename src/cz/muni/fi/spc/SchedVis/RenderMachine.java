@@ -10,7 +10,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
-import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -18,45 +17,46 @@ import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
  */
 public final class RenderMachine implements Runnable {
 
-	private static Executor	e	= null;
+    private static Executor e = null;
 
-	public static Executor getExecutor() {
-		if (RenderMachine.e == null) {
-			RenderMachine.e = Executors.newCachedThreadPool();
-		}
-		return RenderMachine.e;
+    public static Executor getExecutor() {
+	if (RenderMachine.e == null) {
+	    RenderMachine.e = Executors.newCachedThreadPool();
 	}
+	return RenderMachine.e;
+    }
 
-	private final Machine	m;
-	private final Integer	clock;
-	private final JPanel target;
+    private final Machine m;
+    private final Integer clock;
+    private final JPanel target;
 
-	/**
+    /**
 	 * 
 	 */
-	public RenderMachine(final Machine m, final Integer clock, JPanel target) {
-		super();
-		this.m = m;
-		this.clock = clock;
-		this.target = target;
-	}
+    public RenderMachine(final Machine m, final Integer clock,
+	    final JPanel target) {
+	super();
+	this.m = m;
+	this.clock = clock;
+	this.target = target;
+    }
 
-	public Integer getClock() {
-		return this.clock;
-	}
+    public Integer getClock() {
+	return this.clock;
+    }
 
-	public Machine getMachine() {
-		return this.m;
-	}
-	
-	public JPanel getTarget() {
-		return this.target;
-	}
+    public Machine getMachine() {
+	return this.m;
+    }
 
-	@Override
-	public void run() {
-		target.add(new JLabel(this.m.getName()));
-		Main.update();
-	}
+    public JPanel getTarget() {
+	return this.target;
+    }
+
+    @Override
+    public void run() {
+	this.target.add(new JLabel(this.m.getName()));
+	Main.update();
+    }
 
 }
