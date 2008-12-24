@@ -24,7 +24,6 @@ import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import cz.muni.fi.spc.SchedVis.Main;
 import cz.muni.fi.spc.SchedVis.model.Database;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
@@ -285,7 +284,6 @@ public class Groups extends JDialog implements ActionListener,
 	    this.setVisible(false);
 	}
 	Database.getEntityManager().getTransaction().commit();
-	Main.update();
     }
 
     public void contentsChanged(final ListDataEvent e) {
