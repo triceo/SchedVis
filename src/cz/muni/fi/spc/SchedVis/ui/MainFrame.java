@@ -62,16 +62,25 @@ public class MainFrame extends JFrame {
 	// get right panel
 	final JPanel schedulePanel = new JPanel();
 	schedulePanel.setLayout(new BorderLayout());
-	// get the tree
-	schedulePanel.add(this.createSchedulePane(), BorderLayout.CENTER);
+	// get slider
+	final JPanel sPanel = new SliderPanel();
+	schedulePanel.add(sPanel, BorderLayout.PAGE_END);
+	schedulePanel.setMinimumSize(sPanel.getPreferredSize());
+	// get machine detail
+	final JPanel detailPane = new JPanel();
+	detailPane.add(new JLabel("Here goes future machine detail."));
+	schedulePanel.add(detailPane, BorderLayout.PAGE_START);
+	// get scrolling pane with a tree
+	MainFrame.tree = ScheduleTree.getInstance();
+	final JScrollPane pane = new JScrollPane(MainFrame.tree);
+	pane.setWheelScrollingEnabled(true);
+	schedulePanel.add(pane, BorderLayout.CENTER);
 
 	// get left panel
 	final JPanel leftPanel = new JPanel();
-
 	// left stats sub-panel
 	leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.PAGE_AXIS));
 	final JPanel statsPanel = new JBorderedPanel("Statistics");
-
 	// left settings sub-panel
 	final JPanel settingsPanel = new JBorderedPanel("Settings");
 	settingsPanel.setLayout(new BoxLayout(settingsPanel,
@@ -85,9 +94,7 @@ public class MainFrame extends JFrame {
 	timePanel.add(new JSlider());
 	timePanel.add(new JCheckBox("Break after every step."));
 	settingsPanel.add(timePanel);
-
 	settingsPanel.setMinimumSize(new Dimension(250, 0));
-
 	leftPanel.add(statsPanel);
 	leftPanel.add(settingsPanel);
 
@@ -96,28 +103,6 @@ public class MainFrame extends JFrame {
 		JSplitPane.HORIZONTAL_SPLIT, leftPanel, schedulePanel);
 	splitPane.setOneTouchExpandable(true);
 	return splitPane;
-    }
-
-    private Container createSchedulePane() {
-	final JPanel layoutPane = new JPanel();
-	layoutPane.setLayout(new BoxLayout(layoutPane, BoxLayout.PAGE_AXIS));
-	// get slider
-	final JPanel sPanel = new SliderPanel();
-	// get scrolling pane with a tree
-	MainFrame.tree = ScheduleTree.getInstance();
-	final JScrollPane pane = new JScrollPane(MainFrame.tree);
-	pane.setWheelScrollingEnabled(true);
-	// get regular pane for a machine detail
-	final JPanel pane2 = new JPanel();
-	// get a layout
-	layoutPane.add(pane);
-	layoutPane.add(pane2);
-	// adjust widths
-	pane2.add(new JLabel("Here goes future machine detail."));
-	// add slider
-	layoutPane.add(sPanel, BorderLayout.PAGE_END);
-	layoutPane.setMinimumSize(sPanel.getPreferredSize());
-	return layoutPane;
     }
 
     public void update() {

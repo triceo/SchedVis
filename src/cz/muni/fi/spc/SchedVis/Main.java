@@ -31,17 +31,17 @@ public final class Main {
     public static void main(final String[] args) {
 	try {
 	    System.setOut(new PrintStream(new BufferedOutputStream(
-		    new FileOutputStream("schedvis.out"))));
+		    new FileOutputStream("schedvis.out")), true));
 	} catch (final Exception e) {
-	    Logger.getLogger(Main.class).warn(
-		    "Cannot redirect standard output. Messages may get lost.");
+	    Logger.getLogger(Main.class).error(
+	    "Cannot redirect standard output to a file!");
 	}
 	try {
 	    System.setErr(new PrintStream(new BufferedOutputStream(
-		    new FileOutputStream("schedvis.err"))));
+		    new FileOutputStream("schedvis.err")), true));
 	} catch (final Exception e) {
-	    Logger.getLogger(Main.class).warn(
-		    "Cannot redirect error output. Messages may get lost.");
+	    Logger.getLogger(Main.class).error(
+	    "Cannot redirect error output to a file!");
 	}
 	try {
 	    // Set System L&F
