@@ -42,8 +42,7 @@ public class MachineRenderingController {
 	final Map<Machine, Future<JPanel>> rendererMap = MachineRenderingController.renderers
 	.get(clock);
 	if (!rendererMap.containsKey(item)) {
-	    final Callable<JPanel> rm = new MachineRenderer(item, clock,
-		    new JPanel());
+	    final Callable<JPanel> rm = new MachineRenderer(item, clock);
 	    final Future<JPanel> future = MachineRenderingController
 	    .getExecutor().submit(rm);
 	    rendererMap.put(item, future);

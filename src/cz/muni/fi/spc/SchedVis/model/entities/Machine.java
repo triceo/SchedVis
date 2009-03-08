@@ -4,6 +4,7 @@
 package cz.muni.fi.spc.SchedVis.model.entities;
 
 import java.util.List;
+import java.util.Vector;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,6 +17,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
@@ -40,6 +42,26 @@ public class Machine extends BaseEntity {
 	return crit.list();
     }
 
+    @SuppressWarnings("unchecked")
+    public static List<Event> getLatestSchedule(final Machine which,
+	    final Integer eventId) {
+	Criteria crit = BaseEntity.getCriteria(Event.class, true);
+	crit.add(Restrictions.eq("sourceMachine", which));
+	crit.add(Restrictions.le("clock", eventId));
+	crit.add(Restrictions.isNotNull("parent"));
+	crit.addOrder(Property.forName("id").desc());
+	crit.setMaxResults(1);
+	final Event evt = (Event) crit.uniqueResult();
+	if (evt == null) {
+	    return new Vector<Event>();
+	}
+	crit = BaseEntity.getCriteria(Event.class, true);
+	crit.add(Restrictions.eq("clock", evt.getClock()));
+	crit.add(Restrictions.eq("sourceMachine", which));
+	crit.add(Restrictions.isNotNull("parent"));
+	return crit.list();
+    }
+
     public static Machine getWithId(final Integer id) {
 	final Criteria crit = BaseEntity.getCriteria(Machine.class, true);
 	crit.add(Restrictions.idEq(id));
@@ -53,7 +75,6 @@ public class Machine extends BaseEntity {
     }
 
     private String os;
-
     private Integer id;
     private Integer cpus;
     private Integer hdd;
@@ -61,6 +82,7 @@ public class Machine extends BaseEntity {
     private String platform;
     private Integer ram;
     private Integer speed;
+
     private MachineGroup group;
 
     public Integer getCPUs() {
@@ -139,4 +161,5 @@ public class Machine extends BaseEntity {
     public void setSpeed(final Integer speed) {
 	this.speed = speed;
     }
+
 }
