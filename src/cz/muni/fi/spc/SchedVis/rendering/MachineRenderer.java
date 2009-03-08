@@ -34,21 +34,12 @@ public final class MachineRenderer implements Callable<JPanel> {
 
     private static final Double NUM_PIXELS_PER_TICK = 0.05;
     private static final Double LINE_WIDTH = Event.getMaxJobSpan()
-    * MachineRenderer.NUM_PIXELS_PER_TICK;
+	    * MachineRenderer.NUM_PIXELS_PER_TICK;
     private static final Integer MIN_JOB_LENGTH_PIXELS = 4;
 
-    private static final Color[] colors = {
-	Color.BLUE,
-	Color.DARK_GRAY,
-	Color.CYAN,
-	Color.GREEN,
-	Color.MAGENTA,
-	Color.LIGHT_GRAY,
-	Color.ORANGE,
-	Color.PINK,
-	Color.RED,
-	Color.GRAY,
-	Color.YELLOW };
+    private static final Color[] colors = { Color.BLUE, Color.DARK_GRAY,
+	    Color.CYAN, Color.GREEN, Color.MAGENTA, Color.LIGHT_GRAY,
+	    Color.ORANGE, Color.PINK, Color.RED, Color.GRAY, Color.YELLOW };
 
     /**
      * 
@@ -61,8 +52,7 @@ public final class MachineRenderer implements Callable<JPanel> {
 
     @Override
     public JPanel call() {
-	final BufferedImage img = new BufferedImage(
-		MachineRenderer.LINE_WIDTH
+	final BufferedImage img = new BufferedImage(MachineRenderer.LINE_WIDTH
 		.intValue(), this.m.getCPUs()
 		* MachineRenderer.NUM_PIXELS_PER_CPU,
 		BufferedImage.TYPE_INT_RGB);
@@ -83,7 +73,7 @@ public final class MachineRenderer implements Callable<JPanel> {
 	final Graphics2D g = (Graphics2D) img.getGraphics();
 	// render jobs in a schedule, one by one
 	Iterator<Color> it = this.getColorIterator();
-	for (final Event evt: Machine.getLatestSchedule(this.m, this.clock)) {
+	for (final Event evt : Machine.getLatestSchedule(this.m, this.clock)) {
 	    // assign color to the job
 	    if (!it.hasNext()) {
 		it = this.getColorIterator();
@@ -94,14 +84,9 @@ public final class MachineRenderer implements Callable<JPanel> {
 	    final Double jobLength = this.getJobLength(evt);
 	    // get assigned CPUs, set will ensure they are unique
 	    final Set<Integer> assignedCPUs = new HashSet<Integer>();
-	    if (evt.getAssignedCPUs() == null) {
-		System.out.println("Event:" + evt.getId());
-	    }
 	    for (final String num : evt.getAssignedCPUs().split(",")) {
 		assignedCPUs.add(new Integer(num));
 	    }
-	    System.out.println(this.m.getName() + " " + this.m.getCPUs() + " "
-		    + assignedCPUs);
 	    /*
 	     * now isolate all the contiguous blocks of CPUs in the job and
 	     * paint them.
@@ -122,12 +107,11 @@ public final class MachineRenderer implements Callable<JPanel> {
 		// now draw
 		final Double leftTopX = 0 + jobStartX;
 		final Integer leftTopY = currentCPU
-		* MachineRenderer.NUM_PIXELS_PER_CPU;
+			* MachineRenderer.NUM_PIXELS_PER_CPU;
 		g.setColor(Color.BLACK);
-		g.draw(new Rectangle(leftTopX.intValue(), leftTopY,
-			jobLength.intValue(),
-			new Integer(numCPUs
-				* MachineRenderer.NUM_PIXELS_PER_CPU)));
+		g.draw(new Rectangle(leftTopX.intValue(), leftTopY, jobLength
+			.intValue(), new Integer(numCPUs
+			* MachineRenderer.NUM_PIXELS_PER_CPU)));
 		g.setColor(currentColor);
 		g.fill(new Rectangle(leftTopX.intValue() + 1, leftTopY + 1,
 			jobLength.intValue() - 1, new Integer(numCPUs
@@ -146,8 +130,7 @@ public final class MachineRenderer implements Callable<JPanel> {
 
     private Double getJobLength(final Event evt) {
 	try {
-	    return Math.max((evt.getExpectedEnd() - evt
-		    .getExpectedStart())
+	    return Math.max((evt.getExpectedEnd() - evt.getExpectedStart())
 		    * MachineRenderer.NUM_PIXELS_PER_TICK,
 		    MachineRenderer.MIN_JOB_LENGTH_PIXELS);
 	} catch (final NullPointerException e) {
@@ -169,8 +152,6 @@ public final class MachineRenderer implements Callable<JPanel> {
      */
     private Double getStartingPosition(final Event evt) {
 	try {
-	    // return (evt.getExpectedStart() - this.clock) *
-	    // MachineRenderer.NUM_PIXELS_PER_TICK;
 	    return evt.getExpectedStart() * MachineRenderer.NUM_PIXELS_PER_TICK;
 	} catch (final NullPointerException e) {
 	    return 0.0;

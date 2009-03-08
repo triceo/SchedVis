@@ -51,12 +51,13 @@ public class Event extends BaseEntity {
     @SuppressWarnings("unchecked")
     public static Integer getMaxJobSpan() {
 	final List<Integer> l = Database
-	.getSession()
-	.createSQLQuery(
-	"SELECT sum(expectedEnd-expectedStart) AS s FROM Event GROUP BY parent_fk, sourceMachine_id ORDER BY s DESC LIMIT 1")
-	.list();
+		.getSession()
+		.createSQLQuery(
+			"SELECT sum(expectedEnd-expectedStart) AS s FROM Event GROUP BY parent_fk, sourceMachine_id ORDER BY s DESC LIMIT 1")
+		.list();
 	return l.get(0);
     }
+
     public static Event getPrevious(final Integer eventId) {
 	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
 	crit.addOrder(Property.forName("id").desc());
@@ -65,6 +66,7 @@ public class Event extends BaseEntity {
 	crit.setMaxResults(1);
 	return (Event) crit.uniqueResult();
     }
+
     private Integer id;
     private EventType eventType;
     private Machine srcMachine;

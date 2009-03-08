@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 
 /**
  * @author triceo
- *
+ * 
  */
 public class MachinePanel extends JPanel {
     /**
@@ -40,7 +40,7 @@ public class MachinePanel extends JPanel {
 
     @Override
     public void update(final Graphics g) {
-	if (this.ci!=null) {
+	if (this.ci != null) {
 	    g.drawImage(this.ci, 0, 0, null);
 	} else {
 	    super.update(g);
