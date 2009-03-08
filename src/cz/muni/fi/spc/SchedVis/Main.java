@@ -3,14 +3,8 @@
  */
 package cz.muni.fi.spc.SchedVis;
 
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-
-import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.ui.MainFrame;
 
@@ -29,20 +23,16 @@ public final class Main {
      * @param args
      */
     public static void main(final String[] args) {
-	try {
-	    System.setOut(new PrintStream(new BufferedOutputStream(
-		    new FileOutputStream("schedvis.out")), true));
-	} catch (final Exception e) {
-	    Logger.getLogger(Main.class).error(
-	    "Cannot redirect standard output to a file!");
-	}
-	try {
-	    System.setErr(new PrintStream(new BufferedOutputStream(
-		    new FileOutputStream("schedvis.err")), true));
-	} catch (final Exception e) {
-	    Logger.getLogger(Main.class).error(
-	    "Cannot redirect error output to a file!");
-	}
+	/*
+	 * try { System.setOut(new PrintStream(new BufferedOutputStream( new
+	 * FileOutputStream("schedvis.out")), true)); } catch (final Exception
+	 * e) { Logger.getLogger(Main.class).error(
+	 * "Cannot redirect standard output to a file!"); } try {
+	 * System.setErr(new PrintStream(new BufferedOutputStream( new
+	 * FileOutputStream("schedvis.err")), true)); } catch (final Exception
+	 * e) { Logger.getLogger(Main.class).error(
+	 * "Cannot redirect error output to a file!"); }
+	 */
 	try {
 	    // Set System L&F
 	    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
