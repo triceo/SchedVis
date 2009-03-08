@@ -29,17 +29,18 @@ public final class MachineRenderer implements Callable<JPanel> {
     private final Machine m;
 
     private final Integer clock;
+    private final Integer tickOffset;
 
     private static final Integer NUM_PIXELS_PER_CPU = 4;
 
     private static final Double NUM_PIXELS_PER_TICK = 0.05;
     private static final Double LINE_WIDTH = Event.getMaxJobSpan()
-	    * MachineRenderer.NUM_PIXELS_PER_TICK;
+    * MachineRenderer.NUM_PIXELS_PER_TICK;
     private static final Integer MIN_JOB_LENGTH_PIXELS = 4;
 
     private static final Color[] colors = { Color.BLUE, Color.DARK_GRAY,
-	    Color.CYAN, Color.GREEN, Color.MAGENTA, Color.LIGHT_GRAY,
-	    Color.ORANGE, Color.PINK, Color.RED, Color.GRAY, Color.YELLOW };
+	Color.CYAN, Color.GREEN, Color.MAGENTA, Color.LIGHT_GRAY,
+	Color.ORANGE, Color.PINK, Color.RED, Color.GRAY, Color.YELLOW };
 
     /**
      * 
@@ -48,6 +49,7 @@ public final class MachineRenderer implements Callable<JPanel> {
 	super();
 	this.m = m;
 	this.clock = clock;
+	this.tickOffset = Event.getMinExpectedStartTime(this.clock);
     }
 
     @Override
@@ -57,11 +59,11 @@ public final class MachineRenderer implements Callable<JPanel> {
 		* MachineRenderer.NUM_PIXELS_PER_CPU,
 		BufferedImage.TYPE_INT_RGB);
 	final Graphics2D g = (Graphics2D) img.getGraphics();
-	g.setColor(Color.BLACK);
-	g.draw(new Rectangle(0, 0, img.getWidth() - 1, img.getHeight() - 1));
 	g.setColor(Color.WHITE);
 	g.fill(new Rectangle(1, 1, img.getWidth() - 2, img.getHeight() - 2));
 	this.drawJobs(img);
+	g.setColor(Color.BLACK);
+	g.draw(new Rectangle(0, 0, img.getWidth() - 1, img.getHeight() - 1));
 	final MachinePanel pane = new MachinePanel();
 	pane.setToolTipText("Machine: " + this.m.getName() + ", time: "
 		+ this.getClass());
@@ -69,10 +71,17 @@ public final class MachineRenderer implements Callable<JPanel> {
 	return pane;
     }
 
+    /**
+     * 
+     * @param img
+     * @todo Produces unclear job boundaries, probably because of rounding.
+     */
     private void drawJobs(final Image img) {
 	final Graphics2D g = (Graphics2D) img.getGraphics();
 	// render jobs in a schedule, one by one
 	Iterator<Color> it = this.getColorIterator();
+	Double jobStartX = 0.0;
+	Double jobLength = 0.0;
 	for (final Event evt : Machine.getLatestSchedule(this.m, this.clock)) {
 	    // assign color to the job
 	    if (!it.hasNext()) {
@@ -80,8 +89,8 @@ public final class MachineRenderer implements Callable<JPanel> {
 	    }
 	    final Color currentColor = it.next();
 	    // get starting/ending coordinates
-	    final Double jobStartX = this.getStartingPosition(evt);
-	    final Double jobLength = this.getJobLength(evt);
+	    jobStartX = Math.ceil(this.getStartingPosition(evt));
+	    jobLength = Math.floor(this.getJobLength(evt));
 	    // get assigned CPUs, set will ensure they are unique
 	    final Set<Integer> assignedCPUs = new HashSet<Integer>();
 	    for (final String num : evt.getAssignedCPUs().split(",")) {
@@ -107,15 +116,15 @@ public final class MachineRenderer implements Callable<JPanel> {
 		// now draw
 		final Double leftTopX = 0 + jobStartX;
 		final Integer leftTopY = currentCPU
-			* MachineRenderer.NUM_PIXELS_PER_CPU;
-		g.setColor(Color.BLACK);
-		g.draw(new Rectangle(leftTopX.intValue(), leftTopY, jobLength
-			.intValue(), new Integer(numCPUs
-			* MachineRenderer.NUM_PIXELS_PER_CPU)));
+		* MachineRenderer.NUM_PIXELS_PER_CPU;
 		g.setColor(currentColor);
 		g.fill(new Rectangle(leftTopX.intValue() + 1, leftTopY + 1,
 			jobLength.intValue() - 1, new Integer(numCPUs
 				* MachineRenderer.NUM_PIXELS_PER_CPU) - 1));
+		g.setColor(Color.BLACK);
+		g.draw(new Rectangle(leftTopX.intValue(), leftTopY, jobLength
+			.intValue(), new Integer(numCPUs
+				* MachineRenderer.NUM_PIXELS_PER_CPU)));
 	    }
 	}
     }
@@ -152,7 +161,8 @@ public final class MachineRenderer implements Callable<JPanel> {
      */
     private Double getStartingPosition(final Event evt) {
 	try {
-	    return evt.getExpectedStart() * MachineRenderer.NUM_PIXELS_PER_TICK;
+	    return (evt.getExpectedStart() - this.tickOffset)
+	    * MachineRenderer.NUM_PIXELS_PER_TICK;
 	} catch (final NullPointerException e) {
 	    return 0.0;
 	}
