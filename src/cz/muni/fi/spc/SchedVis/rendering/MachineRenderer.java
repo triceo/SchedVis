@@ -35,12 +35,12 @@ public final class MachineRenderer implements Callable<JPanel> {
 
     private static final Double NUM_PIXELS_PER_TICK = 0.05;
     private static final Double LINE_WIDTH = Event.getMaxJobSpan()
-    * MachineRenderer.NUM_PIXELS_PER_TICK;
+	    * MachineRenderer.NUM_PIXELS_PER_TICK;
     private static final Integer MIN_JOB_LENGTH_PIXELS = 4;
 
     private static final Color[] colors = { Color.BLUE, Color.DARK_GRAY,
-	Color.CYAN, Color.GREEN, Color.MAGENTA, Color.LIGHT_GRAY,
-	Color.ORANGE, Color.PINK, Color.RED, Color.GRAY, Color.YELLOW };
+	    Color.CYAN, Color.GREEN, Color.MAGENTA, Color.LIGHT_GRAY,
+	    Color.ORANGE, Color.PINK, Color.RED, Color.GRAY, Color.YELLOW };
 
     /**
      * 
@@ -116,7 +116,7 @@ public final class MachineRenderer implements Callable<JPanel> {
 		// now draw
 		final Double leftTopX = 0 + jobStartX;
 		final Integer leftTopY = currentCPU
-		* MachineRenderer.NUM_PIXELS_PER_CPU;
+			* MachineRenderer.NUM_PIXELS_PER_CPU;
 		g.setColor(currentColor);
 		g.fill(new Rectangle(leftTopX.intValue() + 1, leftTopY + 1,
 			jobLength.intValue() - 1, new Integer(numCPUs
@@ -124,7 +124,7 @@ public final class MachineRenderer implements Callable<JPanel> {
 		g.setColor(Color.BLACK);
 		g.draw(new Rectangle(leftTopX.intValue(), leftTopY, jobLength
 			.intValue(), new Integer(numCPUs
-				* MachineRenderer.NUM_PIXELS_PER_CPU)));
+			* MachineRenderer.NUM_PIXELS_PER_CPU)));
 	    }
 	}
     }
@@ -162,7 +162,7 @@ public final class MachineRenderer implements Callable<JPanel> {
     private Double getStartingPosition(final Event evt) {
 	try {
 	    return (evt.getExpectedStart() - this.tickOffset)
-	    * MachineRenderer.NUM_PIXELS_PER_TICK;
+		    * MachineRenderer.NUM_PIXELS_PER_TICK;
 	} catch (final NullPointerException e) {
 	    return 0.0;
 	}

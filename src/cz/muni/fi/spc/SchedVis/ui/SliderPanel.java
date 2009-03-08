@@ -7,14 +7,11 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
@@ -38,7 +35,6 @@ public class SliderPanel extends JPanel implements ChangeListener,
     private final JButton btnEnd = new JButton(">|");
     private final JButton btnPrev = new JButton("<");
     private final JButton btnNext = new JButton(">");
-    private static Date lastStep = new Date();
 
     /**
      * 
@@ -80,16 +76,11 @@ public class SliderPanel extends JPanel implements ChangeListener,
 	} else if (src.equals(this.btnStart)) {
 	    this.tlsm.setValue(this.tlsm.getMinimum());
 	} else if (src.equals(this.btnNext) || src.equals(this.btnPrev)) {
-	    Logger.getLogger(SliderPanel.class).error(e);
-	    Integer step = 1;
 	    if (src.equals(this.btnPrev)) {
-		step = -(step);
-	    }
-	    final Date date = new Date(System.currentTimeMillis());
-	    if ((date.getTime() - SliderPanel.lastStep.getTime()) > 50) {
-		// next step
-		SliderPanel.lastStep = date;
-		this.tlsm.setValue(this.tlsm.getValue() + step);
+		this.tlsm.setValue(Event.getPrevious(this.tlsm.getValue())
+			.getId());
+	    } else {
+		this.tlsm.setValue(Event.getNext(this.tlsm.getValue()).getId());
 	    }
 	}
     }
@@ -99,7 +90,12 @@ public class SliderPanel extends JPanel implements ChangeListener,
 	if (src.equals(this.tlsm)) {
 	    final Integer value = Event.getPrevious(this.tlsm.getValue())
 		    .getId();
-	    this.tlsm.setValue(value);
+	    System.out.println("TLSM: " + this.tlsm.getValue());
+	    System.out.println("VALUE: " + value);
+	    System.out.println("NEXT: " + Event.getNext(value).getId());
+	    if (this.tlsm.getValue() != Event.getNext(value).getId()) {
+		this.tlsm.setValue(value);
+	    }
 	    if (value == this.tlsm.getMinimum()) {
 		this.btnPrev.setEnabled(false);
 		this.btnStart.setEnabled(false);
