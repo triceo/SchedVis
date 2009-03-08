@@ -20,13 +20,15 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
  */
 public class MachineRenderingController {
 
+    private static final Integer MAX_THREADS = 10;
+
     private static ExecutorService e = null;
 
     private static Map<Integer, Map<Machine, Future<JPanel>>> renderers = new HashMap<Integer, Map<Machine, Future<JPanel>>>();
 
     private static ExecutorService getExecutor() {
 	if (MachineRenderingController.e == null) {
-	    MachineRenderingController.e = Executors.newCachedThreadPool();
+	    MachineRenderingController.e = Executors.newFixedThreadPool(MachineRenderingController.MAX_THREADS);
 	}
 	return MachineRenderingController.e;
     }
@@ -38,12 +40,12 @@ public class MachineRenderingController {
 		    new HashMap<Machine, Future<JPanel>>());
 	}
 	final Map<Machine, Future<JPanel>> rendererMap = MachineRenderingController.renderers
-		.get(clock);
+	.get(clock);
 	if (!rendererMap.containsKey(item)) {
 	    final Callable<JPanel> rm = new MachineRenderer(item, clock,
 		    new JPanel());
 	    final Future<JPanel> future = MachineRenderingController
-		    .getExecutor().submit(rm);
+	    .getExecutor().submit(rm);
 	    rendererMap.put(item, future);
 	}
 	return rendererMap.get(item);

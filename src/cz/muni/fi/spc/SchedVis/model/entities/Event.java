@@ -4,7 +4,9 @@
 package cz.muni.fi.spc.SchedVis.model.entities;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -46,6 +48,25 @@ public class Event extends BaseEntity {
 	return (Event) crit.uniqueResult();
     }
 
+    @SuppressWarnings("unchecked")
+    public static List<Event> getLatestSchedule(final Machine which,
+	    final Integer eventId) {
+	Criteria crit = BaseEntity.getCriteria(Event.class, true);
+	crit.add(Restrictions.eq("sourceMachine", which));
+	crit.add(Restrictions.le("clock", eventId));
+	crit.add(Restrictions.isNotNull("parent"));
+	crit.addOrder(Property.forName("id").desc());
+	crit.setMaxResults(1);
+	final Event evt = (Event) crit.uniqueResult();
+	if (evt == null) {
+	    return new Vector<Event>();
+	}
+	crit = BaseEntity.getCriteria(Event.class, true);
+	crit.add(Restrictions.eq("clock", evt.getClock()));
+	crit.add(Restrictions.eq("sourceMachine", which));
+	return crit.list();
+    }
+
     public static Event getPrevious(final Integer eventId) {
 	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
 	crit.addOrder(Property.forName("id").desc());
@@ -54,7 +75,6 @@ public class Event extends BaseEntity {
 	crit.setMaxResults(1);
 	return (Event) crit.uniqueResult();
     }
-
     private Integer id;
     private EventType eventType;
     private Machine srcMachine;
@@ -68,6 +88,7 @@ public class Event extends BaseEntity {
     private Integer neededHDD;
     private Integer neededRAM;
     private String neededPlatform;
+
     private Event parent;
 
     private String assignedCPUs;

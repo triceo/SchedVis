@@ -20,6 +20,7 @@ import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
  */
 public class GroupRenderingController {
 
+    private static final Integer MAX_THREADS = 10;
     private static ExecutorService e = null;
 
     private static Map<Integer, Map<MachineGroup, Future<JPanel>>> rendererOpen = new HashMap<Integer, Map<MachineGroup, Future<JPanel>>>();
@@ -27,7 +28,8 @@ public class GroupRenderingController {
 
     private static ExecutorService getExecutor() {
 	if (GroupRenderingController.e == null) {
-	    GroupRenderingController.e = Executors.newCachedThreadPool();
+	    GroupRenderingController.e = Executors
+	    .newFixedThreadPool(GroupRenderingController.MAX_THREADS);
 	}
 	return GroupRenderingController.e;
     }
@@ -39,12 +41,12 @@ public class GroupRenderingController {
 	    storage.put(clock, new HashMap<MachineGroup, Future<JPanel>>());
 	}
 	final Map<MachineGroup, Future<JPanel>> rendererMap = storage
-		.get(clock);
+	.get(clock);
 	if (!rendererMap.containsKey(item)) {
 	    final Callable<JPanel> gr = new GroupRenderer(item, clock,
 		    new JPanel());
 	    final Future<JPanel> future = GroupRenderingController
-		    .getExecutor().submit(gr);
+	    .getExecutor().submit(gr);
 	    rendererMap.put(item, future);
 	}
 	return rendererMap.get(item);

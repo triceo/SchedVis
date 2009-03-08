@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 
 /**
@@ -34,6 +35,7 @@ public final class MachineRenderer implements Callable<JPanel> {
     @Override
     public JPanel call() {
 	this.target.add(new JLabel(this.m.getName() + "@" + this.clock));
+	Event.getLatestSchedule(this.m, this.clock);
 	return this.target;
     }
 

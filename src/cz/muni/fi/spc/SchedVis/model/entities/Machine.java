@@ -53,6 +53,7 @@ public class Machine extends BaseEntity {
     }
 
     private String os;
+
     private Integer id;
     private Integer cpus;
     private Integer hdd;
@@ -60,7 +61,6 @@ public class Machine extends BaseEntity {
     private String platform;
     private Integer ram;
     private Integer speed;
-
     private MachineGroup group;
 
     public Integer getCPUs() {
