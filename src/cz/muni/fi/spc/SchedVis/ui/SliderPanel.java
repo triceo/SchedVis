@@ -90,9 +90,6 @@ public class SliderPanel extends JPanel implements ChangeListener,
 	if (src.equals(this.tlsm)) {
 	    final Integer value = Event.getPrevious(this.tlsm.getValue())
 		    .getId();
-	    System.out.println("TLSM: " + this.tlsm.getValue());
-	    System.out.println("VALUE: " + value);
-	    System.out.println("NEXT: " + Event.getNext(value).getId());
 	    if (this.tlsm.getValue() != Event.getNext(value).getId()) {
 		this.tlsm.setValue(value);
 	    }
