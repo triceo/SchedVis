@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,7 +52,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 
     private static final Long instanceId = Math.round(Math.random() * 100000);
 
-    private final Integer clock;
+    private Integer clock;
 
     private static final Integer NUM_PIXELS_PER_CPU = 5;
 
@@ -61,8 +62,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     private static final Integer MIN_JOB_LENGTH_PIXELS = 4;
 
     private static final Color[] colors = { Color.BLUE, Color.CYAN,
-	    Color.GREEN, Color.GRAY, Color.MAGENTA, Color.ORANGE,
-	    Color.LIGHT_GRAY, Color.PINK, Color.RED, Color.YELLOW };
+	Color.GREEN, Color.GRAY, Color.MAGENTA, Color.ORANGE,
+	Color.LIGHT_GRAY, Color.PINK, Color.RED, Color.YELLOW };
 
     private static final Map<Integer, Color> jobColors = new HashMap<Integer, Color>();
     private static final Map<Machine, Map<Integer, File>> files = new HashMap<Machine, Map<Integer, File>>();
@@ -78,12 +79,23 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	return MachineRenderer.tickOffsets.get(clock);
     }
 
+    private final List<Event> events;
+
     /**
      * 
      */
     public MachineRenderer(final Machine m, final Integer clock) {
 	this.m = m;
-	this.clock = clock;
+	this.events = Machine.getLatestSchedule(this.m, clock);
+	// determine if we can't skip rendering by referring to something
+	// previously rendered
+	if (this.events.size() == 0) {
+	    // no jobs in the schedule means we can render the first frame
+	    this.clock = 1;
+	} else {
+	    // job in a schedule points to first frame with the same schedule
+	    this.clock = this.events.get(0).getClock();
+	}
     }
 
     private BufferedImage actuallyDraw() {
@@ -123,12 +135,12 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	    try {
 		f = File.createTempFile("schedvis" + MachineRenderer.instanceId
 			+ "-t" + this.clock + "m" + this.m.getId() + ".",
-			".gif");
+		".gif");
 	    } catch (IOException e) {
 		Logger.getLogger(MachineRenderer.class).warn(
 			"Won't cache machine " + this.m.getId() + " at "
-				+ this.clock
-				+ ". Failed to create a temp file.");
+			+ this.clock
+			+ ". Failed to create a temp file.");
 		dontWrite = true;
 	    }
 	    BufferedImage img = this.actuallyDraw();
@@ -139,8 +151,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		} catch (IOException e) {
 		    Logger.getLogger(MachineRenderer.class).warn(
 			    "Won't cache machine " + this.m.getId() + " at "
-				    + this.clock
-				    + ". Failed to write into a temp file.");
+			    + this.clock
+			    + ". Failed to write into a temp file.");
 		}
 	    }
 	    return img;
@@ -150,8 +162,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	    } catch (IOException e) {
 		Logger.getLogger(MachineRenderer.class).warn(
 			"Cannot read cache for machine " + this.m.getId()
-				+ " at " + this.clock
-				+ ". Failed to write into a temp file.");
+			+ " at " + this.clock
+			+ ". Failed to write into a temp file.");
 		return this.actuallyDraw();
 	    }
 	}
@@ -166,7 +178,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	final Graphics2D g = (Graphics2D) img.getGraphics();
 	this.fineTuneGraphics(g);
 	// render jobs in a schedule, one by one
-	for (final Event evt : Machine.getLatestSchedule(this.m, this.clock)) {
+	for (final Event evt : this.events) {
 	    // get assigned CPUs, set will ensure they are unique and sorted
 	    final Set<Integer> assignedCPUs = new HashSet<Integer>();
 	    for (final String num : evt.getAssignedCPUs().split(",")) {
@@ -223,7 +235,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     private Color getJobColor(final Integer jobId) {
 	if (!MachineRenderer.jobColors.containsKey(jobId)) {
 	    MachineRenderer.jobColors.put(jobId, MachineRenderer.colors[jobId
-		    % MachineRenderer.colors.length]);
+	                                                                % MachineRenderer.colors.length]);
 	}
 	return MachineRenderer.jobColors.get(jobId);
     }
