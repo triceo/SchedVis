@@ -55,7 +55,7 @@ import cz.muni.fi.spc.SchedVis.ui.GroupedMachinesList;
  * 
  */
 public class Groups extends JDialog implements ActionListener,
-ListDataListener, ListSelectionListener {
+	ListDataListener, ListSelectionListener {
 
     /**
      * 
@@ -238,33 +238,33 @@ ListDataListener, ListSelectionListener {
 	    final String text = this.newGroupName.getText().trim();
 	    if (text.length() == 0) {
 		JOptionPane.showMessageDialog(this,
-		"Please provide a name for the group.");
+			"Please provide a name for the group.");
 	    } else {
 		if (MachineGroup.getWithName(this.newGroupName.getText()) == null) {
 		    final MachineGroup entity = new MachineGroup();
 		    entity.setName(this.newGroupName.getText());
 		    Database.persist(entity);
 		    final GroupsListModel model = (GroupsListModel) this.availableGroupsList
-		    .getModel();
+			    .getModel();
 		    model.update();
 		    this.availableGroupsList.setSelectedItem(text);
 		    this.newGroupName.setText("");
 		} else {
 		    JOptionPane.showMessageDialog(this,
-		    "Cannot create a group. Probably already exists.");
+			    "Cannot create a group. Probably already exists.");
 		}
 	    }
 	} else if (command.equals(this.COMMAND__DELETE_GROUP)) {
 	    final MachineGroup mg = MachineGroup
-	    .getWithName((String) this.availableGroupsList
-		    .getSelectedItem());
+		    .getWithName((String) this.availableGroupsList
+			    .getSelectedItem());
 	    for (final Machine m : Machine.getAll(mg.getId())) {
 		m.setGroup(null);
 	    }
 	    Database.remove(mg);
 	    if (!Database.getEntityManager().contains(mg)) {
 		final GroupsListModel model = (GroupsListModel) this.availableGroupsList
-		.getModel();
+			.getModel();
 		model.update();
 		this.availableMachinesList.update();
 		if (model.getSize() == 0) {
@@ -283,8 +283,8 @@ ListDataListener, ListSelectionListener {
 	    for (final Object machineName : this.availableMachinesList
 		    .getSelectedValues()) {
 		final MachineGroup ge = MachineGroup
-		.getWithName(((String) this.availableGroupsList
-			.getSelectedItem()));
+			.getWithName(((String) this.availableGroupsList
+				.getSelectedItem()));
 		Machine.getWithName((String) machineName).setGroup(ge);
 	    }
 	    this.availableMachinesList.update();
@@ -313,7 +313,7 @@ ListDataListener, ListSelectionListener {
 		this.availableMachinesList.setEnabled(false);
 	    } else {
 		final String name = (String) this.availableGroupsList
-		.getSelectedItem();
+			.getSelectedItem();
 		final MachineGroup ge = MachineGroup.getWithName(name);
 		this.deleteGroupButton.setEnabled(true);
 		this.groupedMachinesList.setEnabled(true);
@@ -379,13 +379,13 @@ ListDataListener, ListSelectionListener {
 	buttonsPane.setLayout(new BoxLayout(buttonsPane, BoxLayout.PAGE_AXIS));
 	this.addMachineButton = new JButton("<<");
 	this.addMachineButton
-	.setActionCommand(this.COMMAND__ADD_MACHINE_TO_GROUP);
+		.setActionCommand(this.COMMAND__ADD_MACHINE_TO_GROUP);
 	this.addMachineButton.setEnabled(false);
 	this.addMachineButton.addActionListener(this);
 	this.removeMachineButton = new JButton(">>");
 	this.removeMachineButton.setEnabled(false);
 	this.removeMachineButton
-	.setActionCommand(this.COMMAND__REMOVE_MACHINE_FROM_GROUP);
+		.setActionCommand(this.COMMAND__REMOVE_MACHINE_FROM_GROUP);
 	this.removeMachineButton.addActionListener(this);
 	buttonsPane.add(this.addMachineButton);
 	buttonsPane.add(this.removeMachineButton);

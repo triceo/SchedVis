@@ -86,7 +86,7 @@ public class ImportProgress extends JDialog implements PropertyChangeListener {
 		    this.getOwner().setVisible(false);
 		} else {
 		    JOptionPane.showMessageDialog(this.getParent(),
-		    "Error during import.");
+			    "Error during import.");
 		}
 	    }
 	}

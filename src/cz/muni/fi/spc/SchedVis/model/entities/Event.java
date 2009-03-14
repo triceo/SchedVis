@@ -18,6 +18,7 @@
 /**
  */
 package cz.muni.fi.spc.SchedVis.model.entities;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,7 +39,6 @@ import org.hibernate.criterion.Restrictions;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
 import cz.muni.fi.spc.SchedVis.model.Database;
-
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -67,21 +67,21 @@ public class Event extends BaseEntity {
     @SuppressWarnings("unchecked")
     public static Integer getMaxJobSpan() {
 	final List<Integer> l = Database
-	.getSession()
-	.createSQLQuery(
-	"SELECT max(expectedEnd)-min(expectedStart) AS s FROM Event GROUP BY parent_fk, sourceMachine_id ORDER BY s DESC LIMIT 1")
-	.list();
+		.getSession()
+		.createSQLQuery(
+			"SELECT max(expectedEnd)-min(expectedStart) AS s FROM Event GROUP BY parent_fk, sourceMachine_id ORDER BY s DESC LIMIT 1")
+		.list();
 	return l.get(0);
     }
 
     @SuppressWarnings("unchecked")
     public static Integer getMinExpectedStartTime(final Integer clock) {
 	final List<Integer> l = Database
-	.getSession()
-	.createSQLQuery(
-		"SELECT max(expectedStart) AS s FROM Event WHERE clock <= "
-		+ clock.intValue()
-		+ " AND parent_fk IS NOT NULL GROUP BY sourceMachine_id ORDER BY s ASC LIMIT 1")
+		.getSession()
+		.createSQLQuery(
+			"SELECT max(expectedStart) AS s FROM Event WHERE clock <= "
+				+ clock.intValue()
+				+ " AND parent_fk IS NOT NULL GROUP BY sourceMachine_id ORDER BY s ASC LIMIT 1")
 		.list();
 	if (l.size() > 0) {
 	    return l.get(0);

@@ -250,8 +250,8 @@ public class Import extends JDialog implements ActionListener, WindowListener {
 		    Main.update();
 		} else {
 		    JOptionPane
-		    .showMessageDialog(this,
-			    "Please pick valid source files and a correct name.");
+			    .showMessageDialog(this,
+				    "Please pick valid source files and a correct name.");
 		}
 	    } else if (this.bg.isSelected(elems.nextElement().getModel())) {
 		// second radio selected
@@ -262,16 +262,16 @@ public class Import extends JDialog implements ActionListener, WindowListener {
 			this.display(false);
 		    } else {
 			JOptionPane.showMessageDialog(this,
-			"Error while opening data set file.");
+				"Error while opening data set file.");
 		    }
 		} else {
 		    JOptionPane.showMessageDialog(this,
-		    "Please pick a valid data set file.");
+			    "Please pick a valid data set file.");
 		}
 	    } else {
 		// error
 		JOptionPane.showMessageDialog(this,
-		"Please pick at least one data source.");
+			"Please pick at least one data source.");
 	    }
 	}
     }

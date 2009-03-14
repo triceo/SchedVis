@@ -40,7 +40,7 @@ public class SQLiteDialect extends Dialect {
 	this.registerFunction("concat", new VarArgsSQLFunction(
 		Hibernate.STRING, "", "||", ""));
 	this.registerFunction("mod", new SQLFunctionTemplate(Hibernate.INTEGER,
-	"?1 % ?2"));
+		"?1 % ?2"));
 	this.registerFunction("substr", new StandardSQLFunction("substr",
 		Hibernate.STRING));
 	this.registerFunction("substring", new StandardSQLFunction("substr",
@@ -79,13 +79,13 @@ public class SQLiteDialect extends Dialect {
 	    final String[] foreignKey, final String referencedTable,
 	    final String[] primaryKey, final boolean referencesPrimaryKey) {
 	throw new UnsupportedOperationException(
-	"No add foreign key syntax supported by SQLiteDialect");
+		"No add foreign key syntax supported by SQLiteDialect");
     }
 
     @Override
     public String getAddPrimaryKeyConstraintString(final String constraintName) {
 	throw new UnsupportedOperationException(
-	"No add primary key syntax supported by SQLiteDialect");
+		"No add primary key syntax supported by SQLiteDialect");
     }
 
     @Override
@@ -101,7 +101,7 @@ public class SQLiteDialect extends Dialect {
     @Override
     public String getDropForeignKeyString() {
 	throw new UnsupportedOperationException(
-	"No drop foreign key syntax supported by SQLiteDialect");
+		"No drop foreign key syntax supported by SQLiteDialect");
     }
 
     @Override

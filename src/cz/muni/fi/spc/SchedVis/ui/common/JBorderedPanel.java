@@ -88,7 +88,7 @@ public class JBorderedPanel extends JPanel {
     private void addTitle(final String title) {
 	this.setBorder(BorderFactory.createCompoundBorder(BorderFactory
 		.createTitledBorder(title), BorderFactory.createEmptyBorder(5,
-			5, 5, 5)));
+		5, 5, 5)));
     }
 
 }

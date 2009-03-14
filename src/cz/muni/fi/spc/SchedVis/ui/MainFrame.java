@@ -22,15 +22,12 @@ package cz.muni.fi.spc.SchedVis.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Dimension;
 
 import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 
 import cz.muni.fi.spc.SchedVis.ui.common.JBorderedPanel;
@@ -98,22 +95,10 @@ public class MainFrame extends JFrame {
 	// left stats sub-panel
 	leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.PAGE_AXIS));
 	final JPanel statsPanel = new JBorderedPanel("Statistics");
-	// left settings sub-panel
-	final JPanel settingsPanel = new JBorderedPanel("Settings");
-	settingsPanel.setLayout(new BoxLayout(settingsPanel,
-		BoxLayout.PAGE_AXIS));
 	// get panel with group picker
 	MainFrame.groupsPanel = new GroupsPanel("Show following groups:");
-	settingsPanel.add(MainFrame.groupsPanel);
-	// get timescale panel
-	final JPanel timePanel = new JBorderedPanel("Each step takes [s]:");
-	timePanel.setLayout(new BoxLayout(timePanel, BoxLayout.PAGE_AXIS));
-	timePanel.add(new JSlider());
-	timePanel.add(new JCheckBox("Break after every step."));
-	settingsPanel.add(timePanel);
-	settingsPanel.setMinimumSize(new Dimension(250, 0));
 	leftPanel.add(statsPanel);
-	leftPanel.add(settingsPanel);
+	leftPanel.add(MainFrame.groupsPanel);
 
 	// Create a split pane with the two scroll panes in it.
 	final JSplitPane splitPane = new JSplitPane(
