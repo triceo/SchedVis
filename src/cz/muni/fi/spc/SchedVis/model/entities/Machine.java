@@ -1,3 +1,20 @@
+/*
+    This file is part of SchedVis.
+
+    SchedVis is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    SchedVis is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with SchedVis.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
 /**
  * 
  */
@@ -77,22 +94,22 @@ public class Machine extends BaseEntity {
     public static boolean isActive(final Machine m, final Integer clock) {
 	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
 	crit
-		.add(Restrictions
-			.in(
-				"type",
-				new EventType[] {
-					EventType
-						.get(EventType.EVENT_MACHINE_FAILURE),
-					EventType
-						.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
-					EventType
-						.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
-					EventType
-						.get(EventType.EVENT_MACHINE_RESTART),
-					EventType
-						.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD),
-					EventType
-						.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) }));
+	.add(Restrictions
+		.in(
+			"type",
+			new EventType[] {
+				EventType
+				.get(EventType.EVENT_MACHINE_FAILURE),
+				EventType
+				.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
+				EventType
+				.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
+				EventType
+				.get(EventType.EVENT_MACHINE_RESTART),
+				EventType
+				.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD),
+				EventType
+				.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) }));
 	crit.add(Restrictions.eq("sourceMachine", m));
 	crit.add(Restrictions.lt("clock", clock));
 	crit.addOrder(Order.desc("clock"));

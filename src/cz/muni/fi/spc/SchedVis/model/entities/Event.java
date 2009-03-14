@@ -1,8 +1,23 @@
+/*
+    This file is part of SchedVis.
+
+    SchedVis is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    SchedVis is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with SchedVis.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
 /**
- * 
  */
 package cz.muni.fi.spc.SchedVis.model.entities;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +38,7 @@ import org.hibernate.criterion.Restrictions;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
 import cz.muni.fi.spc.SchedVis.model.Database;
+
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -51,21 +67,21 @@ public class Event extends BaseEntity {
     @SuppressWarnings("unchecked")
     public static Integer getMaxJobSpan() {
 	final List<Integer> l = Database
-		.getSession()
-		.createSQLQuery(
-			"SELECT max(expectedEnd)-min(expectedStart) AS s FROM Event GROUP BY parent_fk, sourceMachine_id ORDER BY s DESC LIMIT 1")
-		.list();
+	.getSession()
+	.createSQLQuery(
+	"SELECT max(expectedEnd)-min(expectedStart) AS s FROM Event GROUP BY parent_fk, sourceMachine_id ORDER BY s DESC LIMIT 1")
+	.list();
 	return l.get(0);
     }
 
     @SuppressWarnings("unchecked")
     public static Integer getMinExpectedStartTime(final Integer clock) {
 	final List<Integer> l = Database
-		.getSession()
-		.createSQLQuery(
-			"SELECT max(expectedStart) AS s FROM Event WHERE clock <= "
-				+ clock.intValue()
-				+ " AND parent_fk IS NOT NULL GROUP BY sourceMachine_id ORDER BY s ASC LIMIT 1")
+	.getSession()
+	.createSQLQuery(
+		"SELECT max(expectedStart) AS s FROM Event WHERE clock <= "
+		+ clock.intValue()
+		+ " AND parent_fk IS NOT NULL GROUP BY sourceMachine_id ORDER BY s ASC LIMIT 1")
 		.list();
 	if (l.size() > 0) {
 	    return l.get(0);

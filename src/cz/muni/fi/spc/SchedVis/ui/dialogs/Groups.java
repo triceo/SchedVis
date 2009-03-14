@@ -31,6 +31,23 @@ import cz.muni.fi.spc.SchedVis.model.models.GroupsListModel;
 import cz.muni.fi.spc.SchedVis.model.models.MachinesListModel;
 import cz.muni.fi.spc.SchedVis.ui.GroupedMachinesList;
 
+/*
+ This file is part of SchedVis.
+
+ SchedVis is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ SchedVis is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with SchedVis.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
 /**
  * Creates the dialog to create and/or update machine groups.
  * 
@@ -38,11 +55,11 @@ import cz.muni.fi.spc.SchedVis.ui.GroupedMachinesList;
  * 
  */
 public class Groups extends JDialog implements ActionListener,
-	ListDataListener, ListSelectionListener {
+ListDataListener, ListSelectionListener {
 
     /**
-	 * 
-	 */
+     * 
+     */
     private static final long serialVersionUID = -1070355363275232038L;
 
     private JTextField newGroupName;
@@ -62,8 +79,8 @@ public class Groups extends JDialog implements ActionListener,
     private final String COMMAND__REMOVE_MACHINE_FROM_GROUP = "removeFromGroup";
 
     /**
-	 * 
-	 */
+     * 
+     */
     public Groups() {
 	super();
 	this.specialize();
@@ -221,33 +238,33 @@ public class Groups extends JDialog implements ActionListener,
 	    final String text = this.newGroupName.getText().trim();
 	    if (text.length() == 0) {
 		JOptionPane.showMessageDialog(this,
-			"Please provide a name for the group.");
+		"Please provide a name for the group.");
 	    } else {
 		if (MachineGroup.getWithName(this.newGroupName.getText()) == null) {
 		    final MachineGroup entity = new MachineGroup();
 		    entity.setName(this.newGroupName.getText());
 		    Database.persist(entity);
 		    final GroupsListModel model = (GroupsListModel) this.availableGroupsList
-			    .getModel();
+		    .getModel();
 		    model.update();
 		    this.availableGroupsList.setSelectedItem(text);
 		    this.newGroupName.setText("");
 		} else {
 		    JOptionPane.showMessageDialog(this,
-			    "Cannot create a group. Probably already exists.");
+		    "Cannot create a group. Probably already exists.");
 		}
 	    }
 	} else if (command.equals(this.COMMAND__DELETE_GROUP)) {
 	    final MachineGroup mg = MachineGroup
-		    .getWithName((String) this.availableGroupsList
-			    .getSelectedItem());
+	    .getWithName((String) this.availableGroupsList
+		    .getSelectedItem());
 	    for (final Machine m : Machine.getAll(mg.getId())) {
 		m.setGroup(null);
 	    }
 	    Database.remove(mg);
 	    if (!Database.getEntityManager().contains(mg)) {
 		final GroupsListModel model = (GroupsListModel) this.availableGroupsList
-			.getModel();
+		.getModel();
 		model.update();
 		this.availableMachinesList.update();
 		if (model.getSize() == 0) {
@@ -266,8 +283,8 @@ public class Groups extends JDialog implements ActionListener,
 	    for (final Object machineName : this.availableMachinesList
 		    .getSelectedValues()) {
 		final MachineGroup ge = MachineGroup
-			.getWithName(((String) this.availableGroupsList
-				.getSelectedItem()));
+		.getWithName(((String) this.availableGroupsList
+			.getSelectedItem()));
 		Machine.getWithName((String) machineName).setGroup(ge);
 	    }
 	    this.availableMachinesList.update();
@@ -296,7 +313,7 @@ public class Groups extends JDialog implements ActionListener,
 		this.availableMachinesList.setEnabled(false);
 	    } else {
 		final String name = (String) this.availableGroupsList
-			.getSelectedItem();
+		.getSelectedItem();
 		final MachineGroup ge = MachineGroup.getWithName(name);
 		this.deleteGroupButton.setEnabled(true);
 		this.groupedMachinesList.setEnabled(true);
@@ -362,13 +379,13 @@ public class Groups extends JDialog implements ActionListener,
 	buttonsPane.setLayout(new BoxLayout(buttonsPane, BoxLayout.PAGE_AXIS));
 	this.addMachineButton = new JButton("<<");
 	this.addMachineButton
-		.setActionCommand(this.COMMAND__ADD_MACHINE_TO_GROUP);
+	.setActionCommand(this.COMMAND__ADD_MACHINE_TO_GROUP);
 	this.addMachineButton.setEnabled(false);
 	this.addMachineButton.addActionListener(this);
 	this.removeMachineButton = new JButton(">>");
 	this.removeMachineButton.setEnabled(false);
 	this.removeMachineButton
-		.setActionCommand(this.COMMAND__REMOVE_MACHINE_FROM_GROUP);
+	.setActionCommand(this.COMMAND__REMOVE_MACHINE_FROM_GROUP);
 	this.removeMachineButton.addActionListener(this);
 	buttonsPane.add(this.addMachineButton);
 	buttonsPane.add(this.removeMachineButton);

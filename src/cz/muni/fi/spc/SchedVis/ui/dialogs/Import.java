@@ -1,3 +1,20 @@
+/*
+    This file is part of SchedVis.
+
+    SchedVis is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    SchedVis is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with SchedVis.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
 /**
  * 
  */
@@ -45,8 +62,8 @@ public class Import extends JDialog implements ActionListener, WindowListener {
     private static String ACTION_OLD_BUTTON_CLICKED = "OldButton clicked.";
     private static String ACTION_SUBMIT_BUTTON_CLICKED = "SubmitButton clicked.";
     /**
-	 * 
-	 */
+     * 
+     */
     private static final long serialVersionUID = -23334905986074228L;
     private final JFilePicker[] filePickers = new JFilePicker[3];
     private JLabeledField fileName;
@@ -54,8 +71,8 @@ public class Import extends JDialog implements ActionListener, WindowListener {
     private ButtonGroup bg;
 
     /**
-	 * 
-	 */
+     * 
+     */
     public Import() {
 	super();
 	this.specialize();
@@ -233,8 +250,8 @@ public class Import extends JDialog implements ActionListener, WindowListener {
 		    Main.update();
 		} else {
 		    JOptionPane
-			    .showMessageDialog(this,
-				    "Please pick valid source files and a correct name.");
+		    .showMessageDialog(this,
+			    "Please pick valid source files and a correct name.");
 		}
 	    } else if (this.bg.isSelected(elems.nextElement().getModel())) {
 		// second radio selected
@@ -245,16 +262,16 @@ public class Import extends JDialog implements ActionListener, WindowListener {
 			this.display(false);
 		    } else {
 			JOptionPane.showMessageDialog(this,
-				"Error while opening data set file.");
+			"Error while opening data set file.");
 		    }
 		} else {
 		    JOptionPane.showMessageDialog(this,
-			    "Please pick a valid data set file.");
+		    "Please pick a valid data set file.");
 		}
 	    } else {
 		// error
 		JOptionPane.showMessageDialog(this,
-			"Please pick at least one data source.");
+		"Please pick at least one data source.");
 	    }
 	}
     }

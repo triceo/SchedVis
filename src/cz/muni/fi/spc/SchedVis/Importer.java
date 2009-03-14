@@ -1,3 +1,20 @@
+/*
+    This file is part of SchedVis.
+
+    SchedVis is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    SchedVis is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with SchedVis.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
 /**
  * 
  */
@@ -98,8 +115,8 @@ public class Importer extends SwingWorker<Void, Void> {
 	    this.parseMachines(new BufferedReader(new FileReader(
 		    this.machinesFile)));
 	    this
-		    .parseDataSet(new BufferedReader(new FileReader(
-			    this.dataFile)));
+	    .parseDataSet(new BufferedReader(new FileReader(
+		    this.dataFile)));
 	} catch (final Exception e) {
 	    return null;
 	}
@@ -127,7 +144,7 @@ public class Importer extends SwingWorker<Void, Void> {
     public void nextLineParsed() {
 	this.parsedLines++;
 	final Double progress = (new Double(this.parsedLines * 100))
-		/ (new Double(this.totalLines + 1));
+	/ (new Double(this.totalLines + 1));
 	if (progress > 100) {
 	    this.setProgress(100);
 	} else if (progress < 0) {
@@ -146,7 +163,7 @@ public class Importer extends SwingWorker<Void, Void> {
      * @todo Somehow make assigned-CPUs a table if its own.
      */
     private void parseDataSet(final BufferedReader reader)
-	    throws cz.muni.fi.spc.SchedVis.parsers.schedule.ParseException {
+    throws cz.muni.fi.spc.SchedVis.parsers.schedule.ParseException {
 	this.setProgress(0);
 	final AbstractMap<String, Integer> eventTypes = new HashMap<String, Integer>();
 	eventTypes.put("job-arrival", EventType.EVENT_JOB_ARRIVAL);
@@ -166,7 +183,7 @@ public class Importer extends SwingWorker<Void, Void> {
 	eventTypes.put("machine-restart-move-bad",
 		EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD);
 	final Iterator<String> eventTypeIterator = eventTypes.keySet()
-		.iterator();
+	.iterator();
 	final List<EventType> etl = new Vector<EventType>();
 	while (eventTypeIterator.hasNext()) {
 	    final EventType et = new EventType();
@@ -210,7 +227,7 @@ public class Importer extends SwingWorker<Void, Void> {
 	    bel.add(evt);
 	    if (event instanceof EventHasData) {
 		final List<ScheduleMachineData> data = ((EventHasData) event)
-			.getData();
+		.getData();
 		for (final ScheduleMachineData machine : data) {
 		    eventId++;
 		    for (final ScheduleJobData job : machine.getJobs()) {
@@ -234,7 +251,7 @@ public class Importer extends SwingWorker<Void, Void> {
 	    }
 	    // update progress
 	    final Double progress = (new Double(lineId * 100))
-		    / (new Double(totalEvents));
+	    / (new Double(totalEvents));
 	    this.setProgress(progress.intValue());
 	    if (bel.size() > 2000) { // persist some items
 		Database.persist(bel);
@@ -258,7 +275,7 @@ public class Importer extends SwingWorker<Void, Void> {
      * @throws ParseException
      */
     private void parseMachines(final BufferedReader reader)
-	    throws cz.muni.fi.spc.SchedVis.parsers.machines.ParseException {
+    throws cz.muni.fi.spc.SchedVis.parsers.machines.ParseException {
 	// ready the parser
 	this.parsedLines = 0;
 	this.totalLines = this.machinesLineCount;
@@ -283,7 +300,7 @@ public class Importer extends SwingWorker<Void, Void> {
 	    machinesList.add(mcn);
 	    // update progress
 	    final Double progress = (new Double(machineId * 100))
-		    / (new Double(totalMachines));
+	    / (new Double(totalMachines));
 	    this.setProgress(progress.intValue());
 	}
 	Database.persist(machinesList);

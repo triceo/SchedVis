@@ -1,3 +1,20 @@
+/*
+    This file is part of SchedVis.
+
+    SchedVis is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    SchedVis is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with SchedVis.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
 /**
  * 
  */
@@ -76,7 +93,7 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 	    final Object value, final boolean sel, final boolean expanded,
 	    final boolean leaf, final int row, final boolean hasFocus) {
 	final Object userObject = ((DefaultMutableTreeNode) value)
-		.getUserObject();
+	.getUserObject();
 	if (userObject instanceof Machine) { // is a machine
 	    return this.getMachine((Machine) userObject);
 	} else if (userObject instanceof MachineGroup) { // is a group
