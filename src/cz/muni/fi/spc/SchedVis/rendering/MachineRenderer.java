@@ -4,6 +4,7 @@
 package cz.muni.fi.spc.SchedVis.rendering;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
@@ -65,7 +66,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		* MachineRenderer.NUM_PIXELS_PER_CPU,
 		BufferedImage.TYPE_INT_RGB);
 	final Graphics2D g = (Graphics2D) img.getGraphics();
-	if (Machine.isActive(this.m, this.clock)) {
+	boolean isActive = Machine.isActive(this.m, this.clock);
+	if (isActive) {
 	    g.setColor(Color.WHITE);
 	} else {
 	    g.setColor(Color.GRAY);
@@ -74,6 +76,13 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	this.drawJobs(img);
 	g.setColor(Color.BLACK);
 	g.draw(new Rectangle(0, 0, img.getWidth() - 1, img.getHeight() - 1));
+	if (isActive) {
+	    g.setColor(Color.BLACK);
+	} else {
+	    g.setColor(Color.WHITE);
+	}
+	g.setFont(new Font("Monospaced", Font.PLAIN, 10));
+	g.drawString(this.m.getName(), 2, 10);
 	return img;
     }
 

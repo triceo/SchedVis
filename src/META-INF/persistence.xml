@@ -11,8 +11,6 @@
 	    <property name="hibernate.connection.driver_class" value="SQLite.JDBCDriver" />
 	    <property name="hibernate.dialect" value="org.hibernate.dialect.SQLiteDialect" />
 	    <!-- Some SQL-related stuff -->
-      <property name="hibernate.connection.autocommit" value="true" />
-      <property name="hibernate.connection.flush_before_completion" value="true" />
 	    <property name="hibernate.show_sql" value="false" />
 	    <property name="hibernate.hbm2ddl.auto" value="update" />
 	    <!-- Caching -->
