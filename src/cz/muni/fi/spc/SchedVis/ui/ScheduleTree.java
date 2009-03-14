@@ -6,6 +6,7 @@ package cz.muni.fi.spc.SchedVis.ui;
 import javax.swing.JTree;
 
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
+import cz.muni.fi.spc.SchedVis.rendering.ScheduleTreeCellRenderer;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>

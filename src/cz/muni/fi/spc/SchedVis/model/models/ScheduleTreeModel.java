@@ -21,8 +21,8 @@ import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 public class ScheduleTreeModel extends DefaultTreeModel {
 
     /**
-	 * 
-	 */
+     * 
+     */
     private static final long serialVersionUID = -5555189641185105899L;
     private static ScheduleTreeModel model;
 

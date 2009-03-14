@@ -1,10 +1,11 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis.ui;
+package cz.muni.fi.spc.SchedVis.rendering;
 
 import java.awt.Component;
-import java.util.concurrent.Future;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -16,8 +17,8 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
-import cz.muni.fi.spc.SchedVis.rendering.GroupRenderingController;
-import cz.muni.fi.spc.SchedVis.rendering.MachineRenderingController;
+import cz.muni.fi.spc.SchedVis.ui.GroupPanel;
+import cz.muni.fi.spc.SchedVis.ui.MachinePanel;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -25,25 +26,23 @@ import cz.muni.fi.spc.SchedVis.rendering.MachineRenderingController;
  */
 public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 
+    private static ExecutorService e = Executors.newCachedThreadPool();
+
     /**
      * 
      */
     private static final long serialVersionUID = -5148385915562957149L;
 
     private JPanel getGroup(final MachineGroup item, final boolean showDetailed) {
-	Future<JPanel> f = null;
-	if (showDetailed) {
-	    f = GroupRenderingController.getRendererOpen(item,
-		    TimelineSliderModel.getInstance().getValue());
-	} else {
-	    f = GroupRenderingController.getRendererCollapsed(item,
-		    TimelineSliderModel.getInstance().getValue());
-	}
-	while (!f.isDone()) {
-	    // do nothing
-	}
 	try {
-	    return f.get();
+	    GroupPanel target = new GroupPanel();
+	    if (item == null) {
+		target.add(new JLabel("Ungrouped Machines"));
+	    } else {
+		target.add(new JLabel("Group '" + item.getName() + "' of "
+			+ item.getMachines().size() + " machines."));
+	    }
+	    return target;
 	} catch (final Exception e) {
 	    final JPanel p = new JPanel();
 	    p.add(new JLabel("Wrong panel!"));
@@ -52,15 +51,16 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
     }
 
     private JPanel getMachine(final Machine item) {
-	final Future<JPanel> f = MachineRenderingController.getRenderer(item,
-		TimelineSliderModel.getInstance().getValue());
-	while (!f.isDone()) {
-	    // do nothing
-	}
 	try {
-	    return f.get();
+	    MachineRenderer mr = new MachineRenderer(item, TimelineSliderModel
+		    .getInstance().getValue());
+	    ScheduleTreeCellRenderer.e.submit(mr);
+	    final MachinePanel pane = new MachinePanel();
+	    pane.setToolTipText("Machine: " + item.getName() + ", time: "
+		    + this.getClass());
+	    pane.setImage(mr.get());
+	    return pane;
 	} catch (final Exception e) {
-	    e.printStackTrace();
 	    final JPanel p = new JPanel();
 	    p.add(new JLabel("Wrong panel!"));
 	    return p;
@@ -72,11 +72,12 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
     }
 
     @Override
-    public Component getTreeCellRendererComponent(final JTree tree,
+    public Component getTreeCellRendererComponent(
+	    final JTree tree,
 	    final Object value, final boolean sel, final boolean expanded,
 	    final boolean leaf, final int row, final boolean hasFocus) {
 	final Object userObject = ((DefaultMutableTreeNode) value)
-		.getUserObject();
+	.getUserObject();
 	if (userObject instanceof Machine) { // is a machine
 	    return this.getMachine((Machine) userObject);
 	} else if (userObject instanceof MachineGroup) { // is a group

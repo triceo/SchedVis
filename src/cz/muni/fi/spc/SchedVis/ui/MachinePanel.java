@@ -20,6 +20,10 @@ public class MachinePanel extends JPanel {
     private static final long serialVersionUID = 1407665978399872917L;
     protected Image ci = null;
 
+    public MachinePanel() {
+	super(true);
+    }
+
     public Image getDisplayedImage() {
 	return this.ci;
     }
@@ -33,9 +37,6 @@ public class MachinePanel extends JPanel {
 	this.ci = si;
 	this.setPreferredSize(new Dimension(this.ci.getWidth(null) + 1, this.ci
 		.getHeight(null) + 1));
-	this.validate();
-	this.repaint();
-
     }
 
     @Override

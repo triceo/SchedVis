@@ -2,6 +2,11 @@
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+  <appender name="async" class="org.apache.log4j.AsyncAppender">
+    <appender-ref ref="infoFile"/>
+    <appender-ref ref="debugFile"/>
+  </appender>
+  
   <appender name="infoFile" class="org.apache.log4j.FileAppender"> 
     <param name="File" value="schedvis.log"/> 
     <param name="Append" value="false"/> 
@@ -30,8 +35,7 @@
   <root> 
     <priority value ="DEBUG" /> 
     <appender-ref ref="console" /> 
-    <appender-ref ref="infoFile" /> 
-    <appender-ref ref="debugFile" /> 
+    <appender-ref ref="async" /> 
   </root>
   
 </log4j:configuration>

@@ -8,67 +8,119 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 
-import javax.swing.JPanel;
+import javax.imageio.ImageIO;
+import javax.swing.SwingWorker;
+
+import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
-import cz.muni.fi.spc.SchedVis.ui.MachinePanel;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public final class MachineRenderer implements Callable<JPanel> {
+public final class MachineRenderer extends SwingWorker<Image, Void> {
 
     private final Machine m;
+
+    private static final Long instanceId = Math.round(Math.random() * 100000);
 
     private final Integer clock;
     private final Integer tickOffset;
 
     private static final Integer NUM_PIXELS_PER_CPU = 4;
 
-    private static final Double NUM_PIXELS_PER_TICK = 0.05;
-    private static final Double LINE_WIDTH = Event.getMaxJobSpan()
-	    * MachineRenderer.NUM_PIXELS_PER_TICK;
+    private static final Float NUM_PIXELS_PER_TICK = new Float(0.05);
+    private static final Integer LINE_WIDTH = Math.round(Event.getMaxJobSpan()
+	    * MachineRenderer.NUM_PIXELS_PER_TICK);
     private static final Integer MIN_JOB_LENGTH_PIXELS = 4;
 
-    private static final Color[] colors = { Color.BLUE, Color.DARK_GRAY,
-	    Color.CYAN, Color.GREEN, Color.MAGENTA, Color.LIGHT_GRAY,
-	    Color.ORANGE, Color.PINK, Color.RED, Color.GRAY, Color.YELLOW };
+    private static final Color[] colors = { Color.BLUE, Color.CYAN,
+	Color.GREEN, Color.MAGENTA, Color.ORANGE, Color.PINK, Color.RED,
+	Color.YELLOW };
+
+    private static final Map<Integer, Color> jobColors = new HashMap<Integer, Color>();
+    private static final Map<Machine, Map<Integer, File>> files = new HashMap<Machine, Map<Integer, File>>();
 
     /**
      * 
      */
     public MachineRenderer(final Machine m, final Integer clock) {
-	super();
 	this.m = m;
 	this.clock = clock;
 	this.tickOffset = Event.getMinExpectedStartTime(this.clock);
     }
 
-    @Override
-    public JPanel call() {
+    private BufferedImage actuallyDraw() {
 	final BufferedImage img = new BufferedImage(MachineRenderer.LINE_WIDTH
 		.intValue(), this.m.getCPUs()
 		* MachineRenderer.NUM_PIXELS_PER_CPU,
 		BufferedImage.TYPE_INT_RGB);
 	final Graphics2D g = (Graphics2D) img.getGraphics();
-	g.setColor(Color.WHITE);
+	if (Machine.isActive(this.m, this.clock)) {
+	    g.setColor(Color.WHITE);
+	} else {
+	    g.setColor(Color.GRAY);
+	}
 	g.fill(new Rectangle(1, 1, img.getWidth() - 2, img.getHeight() - 2));
 	this.drawJobs(img);
 	g.setColor(Color.BLACK);
 	g.draw(new Rectangle(0, 0, img.getWidth() - 1, img.getHeight() - 1));
-	final MachinePanel pane = new MachinePanel();
-	pane.setToolTipText("Machine: " + this.m.getName() + ", time: "
-		+ this.getClass());
-	pane.setImage(img);
-	return pane;
+	return img;
+    }
+
+    @Override
+    public Image doInBackground() {
+	if (!MachineRenderer.files.containsKey(this.m)) {
+	    MachineRenderer.files.put(this.m, new HashMap<Integer, File>());
+	}
+	Map<Integer, File> filePerClock = MachineRenderer.files.get(this.m);
+	if (!filePerClock.containsKey(this.clock)) {
+	    boolean dontWrite = false;
+	    File f = null;
+	    try {
+		f = File.createTempFile("schedvis"
+			+ MachineRenderer.instanceId + "-t" + this.clock + "m"
+			+ this.m.getId() + ".", ".gif");
+	    } catch (IOException e) {
+		Logger.getLogger(MachineRenderer.class).warn(
+			"Won't cache machine " + this.m.getId() + " at "
+			+ this.clock
+			+ ". Failed to create a temp file.");
+		dontWrite = true;
+	    }
+	    BufferedImage img = this.actuallyDraw();
+	    if (!dontWrite) {
+		try {
+		    ImageIO.write(img, "gif", f);
+		    filePerClock.put(this.clock, f);
+		} catch (IOException e) {
+		    Logger.getLogger(MachineRenderer.class).warn(
+			    "Won't cache machine " + this.m.getId() + " at "
+			    + this.clock
+			    + ". Failed to write into a temp file.");
+		}
+	    }
+	    return img;
+	} else {
+	    try {
+		return ImageIO.read(filePerClock.get(this.clock));
+	    } catch (IOException e) {
+		Logger.getLogger(MachineRenderer.class).warn(
+			"Cannot read cache for machine " + this.m.getId()
+			+ " at " + this.clock
+			+ ". Failed to write into a temp file.");
+		return this.actuallyDraw();
+	    }
+	}
     }
 
     /**
@@ -79,18 +131,10 @@ public final class MachineRenderer implements Callable<JPanel> {
     private void drawJobs(final Image img) {
 	final Graphics2D g = (Graphics2D) img.getGraphics();
 	// render jobs in a schedule, one by one
-	Iterator<Color> it = this.getColorIterator();
-	Double jobStartX = 0.0;
-	Double jobLength = 0.0;
 	for (final Event evt : Machine.getLatestSchedule(this.m, this.clock)) {
-	    // assign color to the job
-	    if (!it.hasNext()) {
-		it = this.getColorIterator();
-	    }
-	    final Color currentColor = it.next();
 	    // get starting/ending coordinates
-	    jobStartX = Math.ceil(this.getStartingPosition(evt));
-	    jobLength = Math.floor(this.getJobLength(evt));
+	    int jobStartX = this.getStartingPosition(evt);
+	    int jobLength = this.getJobLength(evt);
 	    // get assigned CPUs, set will ensure they are unique
 	    final Set<Integer> assignedCPUs = new HashSet<Integer>();
 	    for (final String num : evt.getAssignedCPUs().split(",")) {
@@ -101,8 +145,8 @@ public final class MachineRenderer implements Callable<JPanel> {
 	     * paint them.
 	     */
 	    final Integer[] cpus = assignedCPUs.toArray(new Integer[] {});
-	    for (Integer i = 0; i < cpus.length; i++) {
-		final Integer currentCPU = cpus[i];
+	    for (int i = 0; i < cpus.length; i++) {
+		final Integer crntCPU = cpus[i];
 		try {
 		    while (cpus[i + 1] == cpus[i] + 1) {
 			// loop until a gap is found in the list of used CPUs
@@ -111,20 +155,13 @@ public final class MachineRenderer implements Callable<JPanel> {
 		} catch (final ArrayIndexOutOfBoundsException e) {
 		    // but finish when all the CPUs have been seeked through
 		}
-		final Integer lastCPU = cpus[i];
-		final Integer numCPUs = lastCPU - currentCPU + 1;
+		final int lastCPU = cpus[i];
+		final int numCPUs = lastCPU - crntCPU + 1;
 		// now draw
-		final Double leftTopX = 0 + jobStartX;
-		final Integer leftTopY = currentCPU
-			* MachineRenderer.NUM_PIXELS_PER_CPU;
-		g.setColor(currentColor);
-		g.fill(new Rectangle(leftTopX.intValue() + 1, leftTopY + 1,
-			jobLength.intValue() - 1, new Integer(numCPUs
-				* MachineRenderer.NUM_PIXELS_PER_CPU) - 1));
-		g.setColor(Color.BLACK);
-		g.draw(new Rectangle(leftTopX.intValue(), leftTopY, jobLength
-			.intValue(), new Integer(numCPUs
-			* MachineRenderer.NUM_PIXELS_PER_CPU)));
+		final int ltY = crntCPU * MachineRenderer.NUM_PIXELS_PER_CPU;
+		final int jobHgt = numCPUs * MachineRenderer.NUM_PIXELS_PER_CPU;
+		g.setColor(this.getJobColor(evt.getJob()));
+		g.fill3DRect(jobStartX, ltY, jobLength, jobHgt, true);
 	    }
 	}
     }
@@ -133,17 +170,29 @@ public final class MachineRenderer implements Callable<JPanel> {
 	return this.clock;
     }
 
-    private Iterator<Color> getColorIterator() {
-	return Arrays.asList(MachineRenderer.colors).iterator();
+    /**
+     * Make sure a job has always the same color, no matter when and where it is
+     * painted.
+     * 
+     * @param jobId
+     * @return
+     */
+    private Color getJobColor(final Integer jobId) {
+	if (!MachineRenderer.jobColors.containsKey(jobId)) {
+	    MachineRenderer.jobColors.put(jobId, MachineRenderer.colors[jobId
+	                                                                % MachineRenderer.colors.length]);
+	}
+	return MachineRenderer.jobColors.get(jobId);
     }
 
-    private Double getJobLength(final Event evt) {
+    private int getJobLength(final Event evt) {
 	try {
-	    return Math.max((evt.getExpectedEnd() - evt.getExpectedStart())
-		    * MachineRenderer.NUM_PIXELS_PER_TICK,
+	    return Math.max(Math.round((evt.getExpectedEnd() - evt
+		    .getExpectedStart())
+		    * MachineRenderer.NUM_PIXELS_PER_TICK),
 		    MachineRenderer.MIN_JOB_LENGTH_PIXELS);
 	} catch (final NullPointerException e) {
-	    return new Double(MachineRenderer.MIN_JOB_LENGTH_PIXELS);
+	    return MachineRenderer.MIN_JOB_LENGTH_PIXELS;
 	}
     }
 
@@ -159,12 +208,12 @@ public final class MachineRenderer implements Callable<JPanel> {
      *            The event in question.
      * @return The X starting coordinate.
      */
-    private Double getStartingPosition(final Event evt) {
+    private int getStartingPosition(final Event evt) {
 	try {
-	    return (evt.getExpectedStart() - this.tickOffset)
-		    * MachineRenderer.NUM_PIXELS_PER_TICK;
+	    return Math.round((evt.getExpectedStart() - this.tickOffset)
+		    * MachineRenderer.NUM_PIXELS_PER_TICK);
 	} catch (final NullPointerException e) {
-	    return 0.0;
+	    return 0;
 	}
     }
 

@@ -1,5 +1,8 @@
 package cz.muni.fi.spc.SchedVis.model.entities;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -7,12 +10,35 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
+import cz.muni.fi.spc.SchedVis.model.Database;
 
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class EventType extends BaseEntity {
 
+    public static Integer EVENT_JOB_ARRIVAL = 1;
+    public static Integer EVENT_JOB_EXECUTION_START = 2;
+    public static Integer EVENT_JOB_CANCEL = 3;
+    public static Integer EVENT_MACHINE_RESTART = 4;
+    public static Integer EVENT_MACHINE_FAILURE = 5;
+    public static Integer EVENT_JOB_MOVE_GOOD = 6;
+    public static Integer EVENT_JOB_MOVE_BAD = 7;
+    public static Integer EVENT_MACHINE_RESTART_JOB_MOVE_GOOD = 8;
+    public static Integer EVENT_MACHINE_RESTART_JOB_MOVE_BAD = 9;
+    public static Integer EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD = 10;
+    public static Integer EVENT_MACHINE_FAILURE_JOB_MOVE_BAD = 11;
+
+    private static Map<Integer, EventType> et = new HashMap<Integer, EventType>();
+
+    public static EventType get(final Integer eventTypeId) {
+	if (!EventType.et.containsKey(eventTypeId)) {
+	    EventType.et.put(eventTypeId, Database.getEntityManager().find(
+		    EventType.class, eventTypeId));
+	}
+	return EventType.et.get(eventTypeId);
+    }
     private String name;
+
     private Integer id;
 
     @Id

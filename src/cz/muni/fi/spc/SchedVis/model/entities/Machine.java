@@ -74,6 +74,45 @@ public class Machine extends BaseEntity {
 	return (Machine) crit.uniqueResult();
     }
 
+    public static boolean isActive(final Machine m, final Integer clock) {
+	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
+	crit
+	.add(Restrictions
+		.in(
+			"type",
+			new EventType[] {
+				EventType
+				.get(EventType.EVENT_MACHINE_FAILURE),
+				EventType
+				.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
+				EventType
+				.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
+				EventType
+				.get(EventType.EVENT_MACHINE_RESTART),
+				EventType
+				.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD),
+				EventType
+				.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) }));
+	crit.add(Restrictions.eq("sourceMachine", m));
+	crit.add(Restrictions.lt("clock", clock));
+	crit.addOrder(Order.desc("clock"));
+	crit.setMaxResults(1);
+	Event e = (Event) crit.uniqueResult();
+	try {
+	    Integer id = e.getType().getId();
+	    if ((id == EventType.EVENT_MACHINE_FAILURE)
+		    || (id == EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD)
+		    || (id == EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD)) {
+		return false;
+	    } else {
+		return true;
+	    }
+	} catch (NullPointerException ex) {
+	    // when no such event is found, the machine is active.
+	    return true;
+	}
+    }
+
     private String os;
     private Integer id;
     private Integer cpus;
