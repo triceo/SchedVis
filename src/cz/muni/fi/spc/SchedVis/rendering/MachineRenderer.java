@@ -25,6 +25,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +63,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     private static final Integer MIN_JOB_LENGTH_PIXELS = 4;
 
     private static final Color[] colors = { Color.BLUE, Color.CYAN,
-	Color.GREEN, Color.MAGENTA, Color.ORANGE, Color.PINK, Color.RED,
+	Color.GREEN, Color.GRAY, Color.MAGENTA, Color.ORANGE,
+	Color.LIGHT_GRAY, Color.PINK, Color.RED,
 	Color.YELLOW };
 
     private static final Map<Integer, Color> jobColors = new HashMap<Integer, Color>();
@@ -85,11 +87,12 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		* MachineRenderer.NUM_PIXELS_PER_CPU,
 		BufferedImage.TYPE_INT_RGB);
 	final Graphics2D g = (Graphics2D) img.getGraphics();
+	this.fineTuneGraphics(g);
 	boolean isActive = Machine.isActive(this.m, this.clock);
 	if (isActive) {
 	    g.setColor(Color.WHITE);
 	} else {
-	    g.setColor(Color.GRAY);
+	    g.setColor(Color.DARK_GRAY);
 	}
 	g.fill(new Rectangle(1, 1, img.getWidth() - 2, img.getHeight() - 2));
 	this.drawJobs(img);
@@ -159,12 +162,10 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      */
     private void drawJobs(final Image img) {
 	final Graphics2D g = (Graphics2D) img.getGraphics();
+	this.fineTuneGraphics(g);
 	// render jobs in a schedule, one by one
 	for (final Event evt : Machine.getLatestSchedule(this.m, this.clock)) {
-	    // get starting/ending coordinates
-	    int jobStartX = this.getStartingPosition(evt);
-	    int jobLength = this.getJobLength(evt);
-	    // get assigned CPUs, set will ensure they are unique
+	    // get assigned CPUs, set will ensure they are unique and sorted
 	    final Set<Integer> assignedCPUs = new HashSet<Integer>();
 	    for (final String num : evt.getAssignedCPUs().split(",")) {
 		assignedCPUs.add(new Integer(num));
@@ -175,7 +176,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	     */
 	    final Integer[] cpus = assignedCPUs.toArray(new Integer[] {});
 	    for (int i = 0; i < cpus.length; i++) {
-		final Integer crntCPU = cpus[i];
+		final int crntCPU = cpus[i];
 		try {
 		    while (cpus[i + 1] == cpus[i] + 1) {
 			// loop until a gap is found in the list of used CPUs
@@ -187,12 +188,27 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		final int lastCPU = cpus[i];
 		final int numCPUs = lastCPU - crntCPU + 1;
 		// now draw
+		final int jobStartX = this.getStartingPosition(evt);
+		final int jobLength = this.getJobLength(evt);
 		final int ltY = crntCPU * MachineRenderer.NUM_PIXELS_PER_CPU;
 		final int jobHgt = numCPUs * MachineRenderer.NUM_PIXELS_PER_CPU;
 		g.setColor(this.getJobColor(evt.getJob()));
 		g.fill3DRect(jobStartX, ltY, jobLength, jobHgt, true);
 	    }
 	}
+    }
+
+    private void fineTuneGraphics(final Graphics2D g) {
+	g.setRenderingHint(RenderingHints.KEY_RENDERING,
+		RenderingHints.VALUE_RENDER_SPEED);
+	g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+		RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+	g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING,
+		RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+	g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,
+		RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+		RenderingHints.VALUE_ANTIALIAS_OFF);
     }
 
     public Integer getClock() {
