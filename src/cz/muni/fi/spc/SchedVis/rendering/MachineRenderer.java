@@ -51,6 +51,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     private static final Map<Integer, Color> jobColors = new HashMap<Integer, Color>();
     private static final Map<Machine, Map<Integer, File>> files = new HashMap<Machine, Map<Integer, File>>();
 
+    private static Font font = new Font("Monospaced", Font.PLAIN, 9);
+
     /**
      * 
      */
@@ -76,13 +78,14 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	this.drawJobs(img);
 	g.setColor(Color.BLACK);
 	g.draw(new Rectangle(0, 0, img.getWidth() - 1, img.getHeight() - 1));
+	g.setFont(MachineRenderer.font);
 	if (isActive) {
 	    g.setColor(Color.BLACK);
+	    g.drawString(this.m.getName(), 2, 10);
 	} else {
 	    g.setColor(Color.WHITE);
+	    g.drawString(this.m.getName() + " (off-line)", 2, 10);
 	}
-	g.setFont(new Font("Monospaced", Font.PLAIN, 10));
-	g.drawString(this.m.getName(), 2, 10);
 	return img;
     }
 
