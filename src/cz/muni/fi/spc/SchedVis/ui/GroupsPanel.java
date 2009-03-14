@@ -86,7 +86,6 @@ public class GroupsPanel extends JBorderedPanel implements ActionListener {
     }
 
     public void actionPerformed(final ActionEvent e) {
-	System.out.println("Regrouping because of action.");
 	if (this.boxes.containsValue(e.getSource())) {
 	    ScheduleTreeModel.getInstance().regroup(this.getSelectedGroups());
 	}
@@ -104,6 +103,7 @@ public class GroupsPanel extends JBorderedPanel implements ActionListener {
 
     private void specialize() {
 	this.setLayout(new GridLayout(0, 2));
+	this.update();
     }
 
     public void update() {
@@ -126,7 +126,6 @@ public class GroupsPanel extends JBorderedPanel implements ActionListener {
 	    box.addActionListener(this);
 	    this.add(box);
 	}
-	System.out.println("Regrouping because of update.");
 	ScheduleTreeModel.getInstance().regroup(this.getSelectedGroups());
     }
 
