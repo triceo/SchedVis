@@ -37,9 +37,9 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     private final Integer clock;
     private final Integer tickOffset;
 
-    private static final Integer NUM_PIXELS_PER_CPU = 4;
+    private static final Integer NUM_PIXELS_PER_CPU = 5;
 
-    private static final Float NUM_PIXELS_PER_TICK = new Float(0.05);
+    private static final Float NUM_PIXELS_PER_TICK = new Float(0.1);
     private static final Integer LINE_WIDTH = Math.round(Event.getMaxJobSpan()
 	    * MachineRenderer.NUM_PIXELS_PER_TICK);
     private static final Integer MIN_JOB_LENGTH_PIXELS = 4;

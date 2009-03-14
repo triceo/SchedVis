@@ -53,8 +53,8 @@ public class Event extends BaseEntity {
 	final List<Integer> l = Database
 	.getSession()
 	.createSQLQuery(
-		"SELECT sum(expectedEnd-expectedStart) AS s FROM Event GROUP BY parent_fk, sourceMachine_id ORDER BY s DESC LIMIT 1")
-		.list();
+	"SELECT max(expectedEnd)-min(expectedStart) AS s FROM Event GROUP BY parent_fk, sourceMachine_id ORDER BY s DESC LIMIT 1")
+	.list();
 	return l.get(0);
     }
 
