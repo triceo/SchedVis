@@ -24,7 +24,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -53,7 +52,6 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     private static final Long instanceId = Math.round(Math.random() * 100000);
 
     private final Integer clock;
-    private final Integer tickOffset;
 
     private static final Integer NUM_PIXELS_PER_CPU = 5;
 
@@ -69,8 +67,17 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 
     private static final Map<Integer, Color> jobColors = new HashMap<Integer, Color>();
     private static final Map<Machine, Map<Integer, File>> files = new HashMap<Machine, Map<Integer, File>>();
+    private static final Map<Integer, Integer> tickOffsets = new HashMap<Integer, Integer>();
 
     private static Font font = new Font("Monospaced", Font.PLAIN, 9);
+
+    private static Integer getTickOffset(final Integer clock) {
+	if (!MachineRenderer.tickOffsets.containsKey(clock)) {
+	    MachineRenderer.tickOffsets.put(clock, Event
+		    .getMinExpectedStartTime(clock));
+	}
+	return MachineRenderer.tickOffsets.get(clock);
+    }
 
     /**
      * 
@@ -78,13 +85,11 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     public MachineRenderer(final Machine m, final Integer clock) {
 	this.m = m;
 	this.clock = clock;
-	this.tickOffset = Event.getMinExpectedStartTime(this.clock);
     }
 
     private BufferedImage actuallyDraw() {
-	final BufferedImage img = new BufferedImage(MachineRenderer.LINE_WIDTH
-		.intValue(), this.m.getCPUs()
-		* MachineRenderer.NUM_PIXELS_PER_CPU,
+	final BufferedImage img = new BufferedImage(MachineRenderer.LINE_WIDTH,
+		this.m.getCPUs() * MachineRenderer.NUM_PIXELS_PER_CPU,
 		BufferedImage.TYPE_INT_RGB);
 	final Graphics2D g = (Graphics2D) img.getGraphics();
 	this.fineTuneGraphics(g);
@@ -94,10 +99,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	} else {
 	    g.setColor(Color.DARK_GRAY);
 	}
-	g.fill(new Rectangle(1, 1, img.getWidth() - 2, img.getHeight() - 2));
+	g.fill3DRect(0, 0, img.getWidth() - 1, img.getHeight() - 1, true);
 	this.drawJobs(img);
-	g.setColor(Color.BLACK);
-	g.draw(new Rectangle(0, 0, img.getWidth() - 1, img.getHeight() - 1));
 	g.setFont(MachineRenderer.font);
 	if (isActive) {
 	    g.setColor(Color.BLACK);
@@ -211,10 +214,6 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		RenderingHints.VALUE_ANTIALIAS_OFF);
     }
 
-    public Integer getClock() {
-	return this.clock;
-    }
-
     /**
      * Make sure a job has always the same color, no matter when and where it is
      * painted.
@@ -241,10 +240,6 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	}
     }
 
-    public Machine getMachine() {
-	return this.m;
-    }
-
     /**
      * Get the starting position for the event, when being rendered on the
      * screen.
@@ -255,7 +250,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      */
     private int getStartingPosition(final Event evt) {
 	try {
-	    return Math.round((evt.getExpectedStart() - this.tickOffset)
+	    return Math.round((evt.getExpectedStart() - MachineRenderer
+		    .getTickOffset(this.clock))
 		    * MachineRenderer.NUM_PIXELS_PER_TICK);
 	} catch (final NullPointerException e) {
 	    return 0;
