@@ -72,12 +72,11 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
     }
 
     @Override
-    public Component getTreeCellRendererComponent(
-	    final JTree tree,
+    public Component getTreeCellRendererComponent(final JTree tree,
 	    final Object value, final boolean sel, final boolean expanded,
 	    final boolean leaf, final int row, final boolean hasFocus) {
 	final Object userObject = ((DefaultMutableTreeNode) value)
-	.getUserObject();
+		.getUserObject();
 	if (userObject instanceof Machine) { // is a machine
 	    return this.getMachine((Machine) userObject);
 	} else if (userObject instanceof MachineGroup) { // is a group

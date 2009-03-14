@@ -45,8 +45,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     private static final Integer MIN_JOB_LENGTH_PIXELS = 4;
 
     private static final Color[] colors = { Color.BLUE, Color.CYAN,
-	Color.GREEN, Color.MAGENTA, Color.ORANGE, Color.PINK, Color.RED,
-	Color.YELLOW };
+	    Color.GREEN, Color.MAGENTA, Color.ORANGE, Color.PINK, Color.RED,
+	    Color.YELLOW };
 
     private static final Map<Integer, Color> jobColors = new HashMap<Integer, Color>();
     private static final Map<Machine, Map<Integer, File>> files = new HashMap<Machine, Map<Integer, File>>();
@@ -99,14 +99,14 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	    boolean dontWrite = false;
 	    File f = null;
 	    try {
-		f = File.createTempFile("schedvis"
-			+ MachineRenderer.instanceId + "-t" + this.clock + "m"
-			+ this.m.getId() + ".", ".gif");
+		f = File.createTempFile("schedvis" + MachineRenderer.instanceId
+			+ "-t" + this.clock + "m" + this.m.getId() + ".",
+			".gif");
 	    } catch (IOException e) {
 		Logger.getLogger(MachineRenderer.class).warn(
 			"Won't cache machine " + this.m.getId() + " at "
-			+ this.clock
-			+ ". Failed to create a temp file.");
+				+ this.clock
+				+ ". Failed to create a temp file.");
 		dontWrite = true;
 	    }
 	    BufferedImage img = this.actuallyDraw();
@@ -117,8 +117,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		} catch (IOException e) {
 		    Logger.getLogger(MachineRenderer.class).warn(
 			    "Won't cache machine " + this.m.getId() + " at "
-			    + this.clock
-			    + ". Failed to write into a temp file.");
+				    + this.clock
+				    + ". Failed to write into a temp file.");
 		}
 	    }
 	    return img;
@@ -128,8 +128,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	    } catch (IOException e) {
 		Logger.getLogger(MachineRenderer.class).warn(
 			"Cannot read cache for machine " + this.m.getId()
-			+ " at " + this.clock
-			+ ". Failed to write into a temp file.");
+				+ " at " + this.clock
+				+ ". Failed to write into a temp file.");
 		return this.actuallyDraw();
 	    }
 	}
@@ -192,7 +192,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     private Color getJobColor(final Integer jobId) {
 	if (!MachineRenderer.jobColors.containsKey(jobId)) {
 	    MachineRenderer.jobColors.put(jobId, MachineRenderer.colors[jobId
-	                                                                % MachineRenderer.colors.length]);
+		    % MachineRenderer.colors.length]);
 	}
 	return MachineRenderer.jobColors.get(jobId);
     }

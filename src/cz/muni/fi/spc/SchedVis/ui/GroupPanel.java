@@ -7,7 +7,7 @@ import javax.swing.JPanel;
 
 /**
  * @author triceo
- *
+ * 
  */
 public class GroupPanel extends JPanel {
 

@@ -37,6 +37,7 @@ public class EventType extends BaseEntity {
 	}
 	return EventType.et.get(eventTypeId);
     }
+
     private String name;
 
     private Integer id;
