@@ -48,33 +48,82 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
  */
 public final class MachineRenderer extends SwingWorker<Image, Void> {
 
+    /**
+     * Holds the machine whose schedule is currently being rendered.
+     */
     private final Machine m;
 
+    /**
+     * Holds a random number so that caches from different runs of the program
+     * are invalid.
+     */
     private static final Long instanceId = Math.round(Math.random() * 100000);
 
-    private Integer clock;
+    /**
+     * Holds the position on the timeline that is currently being rendered.
+     */
+    private final Integer clock;
 
+    /**
+     * How many pixels shall one CPU of a machine occupy on the y axis of the
+     * schedule.
+     */
     private static final Integer NUM_PIXELS_PER_CPU = 5;
 
+    /**
+     * How many pixels shall be used per a single tick on the x axis of the
+     * schedule.
+     */
     private static final Float NUM_PIXELS_PER_TICK = new Float(0.1);
+    /**
+     * Total length of the x axis of the schedule. If you need to change it,
+     * please change the input values, not the equation.
+     */
     private static final Integer LINE_WIDTH = Math.round(Event.getMaxJobSpan()
 	    * MachineRenderer.NUM_PIXELS_PER_TICK);
+    /**
+     * Minimum length in pixels of a job in the schedule.
+     */
     private static final Integer MIN_JOB_LENGTH_PIXELS = 4;
 
+    /**
+     * Colors that are available for the jobs. This array can be extended at
+     * will and the color-picking code will adjust to it.
+     * 
+     * Please remember not to use following colors: white (background for
+     * machines), dark gray (background for disabled machines) and red (overdue
+     * jobs).
+     */
     private static final Color[] colors = { Color.BLUE, Color.CYAN,
 	Color.GREEN, Color.GRAY, Color.MAGENTA, Color.ORANGE,
 	Color.LIGHT_GRAY, Color.PINK, Color.YELLOW };
 
+    /**
+     * Holds job colors so that the same jobs have always the same color,
+     * regardless of schedule position or group placement.
+     */
     private static final Map<Integer, Color> jobColors = new HashMap<Integer, Color>();
+    /**
+     * Holds names of temporary files that contain already rendered images for
+     * future reference. Vastly improves speed in some cases.
+     * 
+     * Key of the outer map is a machine, key of the inner map is position in
+     * the schedule. Value of the inner map is the file holding the image for
+     * that particular machine and position.
+     */
     private static final Map<Machine, Map<Integer, File>> files = new HashMap<Machine, Map<Integer, File>>();
 
+    /**
+     * Holds a font used throughout the schedules. Memory use improvement.
+     */
     private static Font font = new Font("Monospaced", Font.PLAIN, 9);
 
+    /**
+     * Holds the schedule for the current machine and the current position in
+     * time.
+     */
     private final List<Event> events;
 
-    /**
-     * 
-     */
     public MachineRenderer(final Machine m, final Integer clock) {
 	this.m = m;
 	this.events = Machine.getLatestSchedule(this.m, clock);
@@ -88,7 +137,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	    Event eligibleEvent = this.events.get(0);
 	    if ((lastStateChange == null)
 		    || (clock <= eligibleEvent.getClock())) {
-		// job in a schedule points to first frame with the same schedule
+		// job in a schedule points to first frame with the same
+		// schedule
 		this.clock = eligibleEvent.getClock();
 	    } else {
 		// if a machine was restarted or brought back, take note of it
@@ -97,6 +147,12 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	}
     }
 
+    /**
+     * Performs the actual drawing of the machine schedule. Draws a frame and
+     * calls another method to perform drawing of jobs.
+     * 
+     * @return
+     */
     private BufferedImage actuallyDraw() {
 	final BufferedImage img = new BufferedImage(MachineRenderer.LINE_WIDTH,
 		this.m.getCPUs() * MachineRenderer.NUM_PIXELS_PER_CPU,
@@ -122,6 +178,13 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	return img;
     }
 
+    /**
+     * Background task to render the images used for machine schedules.
+     * 
+     * The logic in this method tries to cache rendered images whenever
+     * possible. If a cache file is not found, image is rendered and, if
+     * possible, cached so that it needs not be rendered next time.
+     */
     @Override
     public Image doInBackground() {
 	if (!MachineRenderer.files.containsKey(this.m)) {
@@ -169,6 +232,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     }
 
     /**
+     * Takes machine schedule data and renders them.
      * 
      * @param img
      * @todo Produces unclear job boundaries, probably because of rounding.
@@ -213,18 +277,19 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		final int jobHgt = numCPUs * MachineRenderer.NUM_PIXELS_PER_CPU;
 		if ((evt.getDeadline() > -1)
 			&& (evt.getDeadline() < this.clock)) {
+		    // the job has a deadline and has missed it
 		    g.setColor(Color.RED);
 		} else {
+		    // job with no deadlines
 		    g.setColor(this.getJobColor(evt.getJob()));
 		}
 		g.fill3DRect(jobStartX, ltY, jobLength, jobHgt, true);
 		g.setFont(MachineRenderer.font);
 		g.setColor(Color.BLACK);
-		g
-		.drawString(evt.getJob().toString(), jobStartX + 2,
-			ltY
+		g.drawString(evt.getJob().toString(), jobStartX + 2, ltY
 			+ jobHgt - 2);
-		int rightBoundary = jobStartX + jobLength - MachineRenderer.LINE_WIDTH;
+		int rightBoundary = jobStartX + jobLength
+		- MachineRenderer.LINE_WIDTH;
 		if (rightBoundary > 0) {
 		    Logger.getLogger(this.getClass()).warn(
 			    "Machine " + this.m.getName() + " at " + this.clock
@@ -235,6 +300,11 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	}
     }
 
+    /**
+     * Update the graphics object so that it performs better.
+     * 
+     * @param g
+     */
     private void fineTuneGraphics(final Graphics2D g) {
 	g.setRenderingHint(RenderingHints.KEY_RENDERING,
 		RenderingHints.VALUE_RENDER_SPEED);
@@ -253,7 +323,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      * painted.
      * 
      * @param jobId
-     * @return
+     * @return A color that shall be used for that job. May be ignored when the
+     *         job is overdue.
      */
     private Color getJobColor(final Integer jobId) {
 	if (!MachineRenderer.jobColors.containsKey(jobId)) {
