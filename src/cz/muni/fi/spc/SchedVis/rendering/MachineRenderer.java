@@ -221,6 +221,12 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		    g.setColor(this.getJobColor(evt.getJob()));
 		}
 		g.fill3DRect(jobStartX, ltY, jobLength, jobHgt, true);
+		g.setFont(MachineRenderer.font);
+		g.setColor(Color.BLACK);
+		g
+		.drawString(evt.getJob().toString(), jobStartX + 2,
+			ltY
+			+ jobHgt - 2);
 	    }
 	}
     }
