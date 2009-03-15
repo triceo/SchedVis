@@ -63,7 +63,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 
     private static final Color[] colors = { Color.BLUE, Color.CYAN,
 	Color.GREEN, Color.GRAY, Color.MAGENTA, Color.ORANGE,
-	Color.LIGHT_GRAY, Color.PINK, Color.RED, Color.YELLOW };
+	Color.LIGHT_GRAY, Color.PINK, Color.YELLOW };
 
     private static final Map<Integer, Color> jobColors = new HashMap<Integer, Color>();
     private static final Map<Machine, Map<Integer, File>> files = new HashMap<Machine, Map<Integer, File>>();
@@ -93,8 +93,16 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	    // no jobs in the schedule means we can render the first frame
 	    this.clock = 1;
 	} else {
-	    // job in a schedule points to first frame with the same schedule
-	    this.clock = this.events.get(0).getClock();
+	    Event lastStateChange = Machine.getLatestStateChange(this.m, clock);
+	    Event eligibleEvent = this.events.get(0);
+	    if ((lastStateChange == null)
+		    || (clock <= eligibleEvent.getClock())) {
+		// job in a schedule points to first frame with the same schedule
+		this.clock = eligibleEvent.getClock();
+	    } else {
+		// if a machine was restarted or brought back, take note of it
+		this.clock = lastStateChange.getClock();
+	    }
 	}
     }
 
@@ -206,7 +214,12 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		final int jobLength = this.getJobLength(evt);
 		final int ltY = crntCPU * MachineRenderer.NUM_PIXELS_PER_CPU;
 		final int jobHgt = numCPUs * MachineRenderer.NUM_PIXELS_PER_CPU;
-		g.setColor(this.getJobColor(evt.getJob()));
+		if ((evt.getDeadline() > -1)
+			&& (evt.getDeadline() < this.clock)) {
+		    g.setColor(Color.RED);
+		} else {
+		    g.setColor(this.getJobColor(evt.getJob()));
+		}
 		g.fill3DRect(jobStartX, ltY, jobLength, jobHgt, true);
 	    }
 	}

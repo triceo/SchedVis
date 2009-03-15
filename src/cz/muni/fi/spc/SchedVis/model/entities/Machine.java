@@ -79,6 +79,18 @@ public class Machine extends BaseEntity {
 	return crit.list();
     }
 
+    public static Event getLatestStateChange(final Machine which, final Integer clock) {
+	Criteria crit = BaseEntity.getCriteria(Event.class, true);
+	crit.add(Restrictions.eq("sourceMachine", which));
+	crit.add(Restrictions.le("clock", clock));
+	crit.add(Restrictions.in("type", new EventType[] {
+		EventType.get(EventType.EVENT_MACHINE_FAILURE),
+		EventType.get(EventType.EVENT_MACHINE_RESTART) }));
+	crit.addOrder(Property.forName("id").desc());
+	crit.setMaxResults(1);
+	return (Event) crit.uniqueResult();
+    }
+
     public static Machine getWithId(final Integer id) {
 	final Criteria crit = BaseEntity.getCriteria(Machine.class, true);
 	crit.add(Restrictions.idEq(id));
@@ -94,22 +106,22 @@ public class Machine extends BaseEntity {
     public static boolean isActive(final Machine m, final Integer clock) {
 	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
 	crit
-		.add(Restrictions
-			.in(
-				"type",
-				new EventType[] {
-					EventType
-						.get(EventType.EVENT_MACHINE_FAILURE),
-					EventType
-						.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
-					EventType
-						.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
-					EventType
-						.get(EventType.EVENT_MACHINE_RESTART),
-					EventType
-						.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD),
-					EventType
-						.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) }));
+	.add(Restrictions
+		.in(
+			"type",
+			new EventType[] {
+				EventType
+				.get(EventType.EVENT_MACHINE_FAILURE),
+				EventType
+				.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
+				EventType
+				.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
+				EventType
+				.get(EventType.EVENT_MACHINE_RESTART),
+				EventType
+				.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD),
+				EventType
+				.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) }));
 	crit.add(Restrictions.eq("sourceMachine", m));
 	crit.add(Restrictions.lt("clock", clock));
 	crit.addOrder(Order.desc("clock"));
