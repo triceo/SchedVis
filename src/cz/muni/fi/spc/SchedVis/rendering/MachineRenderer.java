@@ -227,6 +227,11 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		.drawString(evt.getJob().toString(), jobStartX + 2,
 			ltY
 			+ jobHgt - 2);
+		if ((jobStartX + jobLength) > MachineRenderer.LINE_WIDTH) {
+		    Logger.getLogger(this.getClass()).warn(
+			    "Machine " + this.m.getName() + " at " + this.clock
+			    + " is drawing over its boundary.");
+		}
 	    }
 	}
     }
