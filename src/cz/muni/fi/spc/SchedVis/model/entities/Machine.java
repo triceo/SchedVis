@@ -73,9 +73,8 @@ public class Machine extends BaseEntity {
 	    return new Vector<Event>();
 	}
 	crit = BaseEntity.getCriteria(Event.class, true);
-	crit.add(Restrictions.eq("clock", evt.getClock()));
 	crit.add(Restrictions.eq("sourceMachine", which));
-	crit.add(Restrictions.isNotNull("parent"));
+	crit.add(Restrictions.eq("parent", evt.getParent()));
 	return crit.list();
     }
 
