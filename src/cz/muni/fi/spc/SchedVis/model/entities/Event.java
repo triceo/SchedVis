@@ -79,7 +79,7 @@ public class Event extends BaseEntity {
 	final List<Integer> l = Database
 	.getSession()
 	.createSQLQuery(
-		"SELECT max(expectedStart) AS s FROM Event WHERE clock <= "
+		"SELECT min(expectedStart) AS s FROM Event WHERE clock <= "
 		+ clock.intValue()
 		+ " AND parent_fk IS NOT NULL GROUP BY sourceMachine_id ORDER BY s ASC LIMIT 1")
 		.list();

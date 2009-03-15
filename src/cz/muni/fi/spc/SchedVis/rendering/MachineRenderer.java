@@ -211,6 +211,12 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		final int numCPUs = lastCPU - crntCPU + 1;
 		// now draw
 		final int jobStartX = this.getStartingPosition(evt);
+		if (jobStartX < 0) {
+		    Logger.getLogger(this.getClass()).warn(
+			    "Machine " + this.m.getName() + " at " + this.clock
+			    + " is drawing " + jobStartX
+			    + " before its boundary.");
+		}
 		final int jobLength = this.getJobLength(evt);
 		final int ltY = crntCPU * MachineRenderer.NUM_PIXELS_PER_CPU;
 		final int jobHgt = numCPUs * MachineRenderer.NUM_PIXELS_PER_CPU;
@@ -227,10 +233,12 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		.drawString(evt.getJob().toString(), jobStartX + 2,
 			ltY
 			+ jobHgt - 2);
-		if ((jobStartX + jobLength) > MachineRenderer.LINE_WIDTH) {
+		int rightBoundary = jobStartX + jobLength - MachineRenderer.LINE_WIDTH;
+		if (rightBoundary > 0) {
 		    Logger.getLogger(this.getClass()).warn(
 			    "Machine " + this.m.getName() + " at " + this.clock
-			    + " is drawing over its boundary.");
+			    + " is drawing " + rightBoundary
+			    + "over its boundary.");
 		}
 	    }
 	}
