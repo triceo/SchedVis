@@ -74,22 +74,6 @@ public class Event extends BaseEntity {
 	return l.get(0);
     }
 
-    @SuppressWarnings("unchecked")
-    public static Integer getMinExpectedStartTime(final Integer clock) {
-	final List<Integer> l = Database
-	.getSession()
-	.createSQLQuery(
-		"SELECT min(s) AS a FROM (SELECT min(expectedStart) AS s,sourceMachine_id AS t FROM Event WHERE clock < "
-				+ clock.intValue()
-				+ " GROUP BY parent_fk  ORDER BY s DESC) GROUP BY t ORDER BY a DESC LIMIT 1;")
-		.list();
-	if (l.size() > 0) {
-	    return l.get(0);
-	} else {
-	    return 0;
-	}
-    }
-
     public static Event getNext(final Integer eventId) {
 	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
 	crit.addOrder(Property.forName("id").asc());

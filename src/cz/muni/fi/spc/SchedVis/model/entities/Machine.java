@@ -75,6 +75,7 @@ public class Machine extends BaseEntity {
 	crit = BaseEntity.getCriteria(Event.class, true);
 	crit.add(Restrictions.eq("sourceMachine", which));
 	crit.add(Restrictions.eq("parent", evt.getParent()));
+	crit.addOrder(Property.forName("expectedStart").asc());
 	return crit.list();
     }
 

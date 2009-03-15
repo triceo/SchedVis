@@ -67,17 +67,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 
     private static final Map<Integer, Color> jobColors = new HashMap<Integer, Color>();
     private static final Map<Machine, Map<Integer, File>> files = new HashMap<Machine, Map<Integer, File>>();
-    private static final Map<Integer, Integer> tickOffsets = new HashMap<Integer, Integer>();
 
     private static Font font = new Font("Monospaced", Font.PLAIN, 9);
-
-    private static Integer getTickOffset(final Integer clock) {
-	if (!MachineRenderer.tickOffsets.containsKey(clock)) {
-	    MachineRenderer.tickOffsets.put(clock, Event
-		    .getMinExpectedStartTime(clock));
-	}
-	return MachineRenderer.tickOffsets.get(clock);
-    }
 
     private final List<Event> events;
 
@@ -293,8 +284,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      */
     private int getStartingPosition(final Event evt) {
 	try {
-	    return Math.round((evt.getExpectedStart() - MachineRenderer
-		    .getTickOffset(this.clock))
+	    return Math.round((evt.getExpectedStart() - (this.events.get(0)
+		    .getExpectedStart() - this.clock))
 		    * MachineRenderer.NUM_PIXELS_PER_TICK);
 	} catch (final NullPointerException e) {
 	    return 0;
