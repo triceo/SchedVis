@@ -21,6 +21,7 @@
 package cz.muni.fi.spc.SchedVis.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import cz.muni.fi.spc.SchedVis.Main;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
 
@@ -41,7 +43,7 @@ import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
  * 
  */
 public class SliderPanel extends JPanel implements ChangeListener,
-	ActionListener {
+ActionListener {
 
     /**
      * 
@@ -109,7 +111,7 @@ public class SliderPanel extends JPanel implements ChangeListener,
 		return;
 	    }
 	    final Integer value = Event.getPrevious(this.tlsm.getValue())
-		    .getId();
+	    .getId();
 	    if (this.tlsm.getValue() != Event.getNext(value).getId()) {
 		this.tlsm.setValue(value);
 	    }
@@ -130,7 +132,12 @@ public class SliderPanel extends JPanel implements ChangeListener,
 		this.btnEnd.setEnabled(true);
 	    }
 	    if (!this.tlsm.getValueIsAdjusting()) {
+		Main.getFrame().setCursor(
+			Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		ScheduleTree.getInstance().updateUI();
+		Main.getFrame().setCursor(
+			Cursor
+			.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	    }
 	}
     }

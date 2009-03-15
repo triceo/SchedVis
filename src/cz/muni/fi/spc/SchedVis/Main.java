@@ -34,6 +34,10 @@ public final class Main {
 
     private static MainFrame frame;
 
+    public static MainFrame getFrame() {
+	return Main.frame;
+    }
+
     /**
      * MainFrame method for the whole project.
      * 
