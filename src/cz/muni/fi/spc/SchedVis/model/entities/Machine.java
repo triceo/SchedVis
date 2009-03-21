@@ -69,8 +69,7 @@ public class Machine extends BaseEntity {
 
     @SuppressWarnings("unchecked")
     public static synchronized List<Event> getLatestSchedule(
-	    final Machine which,
-	    final Integer eventId) {
+	    final Machine which, final Integer eventId) {
 	Criteria crit = BaseEntity.getCriteria(Event.class, true);
 	crit.add(Restrictions.eq("sourceMachine", which));
 	crit.add(Restrictions.le("clock", eventId));
@@ -86,8 +85,7 @@ public class Machine extends BaseEntity {
 	} catch (NullPointerException e) {
 	    Logger.getLogger(Machine.class).error(
 		    "NPE while fetching schedule for machine "
-		    + which.getName() + " at " + eventId
-		    + ".");
+			    + which.getName() + " at " + eventId + ".");
 	    return new Vector<Event>();
 	}
 	crit = BaseEntity.getCriteria(Event.class, true);
@@ -104,7 +102,8 @@ public class Machine extends BaseEntity {
 	}
     }
 
-    public static Event getLatestStateChange(final Machine which, final Integer clock) {
+    public static Event getLatestStateChange(final Machine which,
+	    final Integer clock) {
 	Criteria crit = BaseEntity.getCriteria(Event.class, true);
 	crit.add(Restrictions.eq("sourceMachine", which));
 	crit.add(Restrictions.le("clock", clock));
@@ -131,22 +130,22 @@ public class Machine extends BaseEntity {
     public static boolean isActive(final Machine m, final Integer clock) {
 	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
 	crit
-	.add(Restrictions
-		.in(
-			"type",
-			new EventType[] {
-				EventType
-				.get(EventType.EVENT_MACHINE_FAILURE),
-				EventType
-				.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
-				EventType
-				.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
-				EventType
-				.get(EventType.EVENT_MACHINE_RESTART),
-				EventType
-				.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD),
-				EventType
-				.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) }));
+		.add(Restrictions
+			.in(
+				"type",
+				new EventType[] {
+					EventType
+						.get(EventType.EVENT_MACHINE_FAILURE),
+					EventType
+						.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
+					EventType
+						.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
+					EventType
+						.get(EventType.EVENT_MACHINE_RESTART),
+					EventType
+						.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD),
+					EventType
+						.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) }));
 	crit.add(Restrictions.eq("sourceMachine", m));
 	crit.add(Restrictions.lt("clock", clock));
 	crit.addOrder(Order.desc("clock"));

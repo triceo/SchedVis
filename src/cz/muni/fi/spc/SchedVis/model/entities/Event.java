@@ -67,10 +67,10 @@ public class Event extends BaseEntity {
     @SuppressWarnings("unchecked")
     public static Integer getMaxJobSpan() {
 	final List<Integer> l = Database
-	.getSession()
-	.createSQLQuery(
-	"SELECT max(expectedEnd) AS s FROM Event GROUP BY parent_fk, sourceMachine_id ORDER BY s DESC LIMIT 1")
-	.list();
+		.getSession()
+		.createSQLQuery(
+			"SELECT max(expectedEnd) AS s FROM Event GROUP BY parent_fk, sourceMachine_id ORDER BY s DESC LIMIT 1")
+		.list();
 	return l.get(0);
     }
 
@@ -94,11 +94,9 @@ public class Event extends BaseEntity {
 
     @SuppressWarnings("unchecked")
     public static Integer getTickCount() {
-	final List<Integer> l = Database
-	.getSession()
-	.createSQLQuery(
-	"SELECT DISTINCT clock FROM Event WHERE parent_fk IS NULL")
-	.list();
+	final List<Integer> l = Database.getSession().createSQLQuery(
+		"SELECT DISTINCT clock FROM Event WHERE parent_fk IS NULL")
+		.list();
 	return l.size();
     }
 

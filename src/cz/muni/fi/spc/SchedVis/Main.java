@@ -61,8 +61,9 @@ public final class Main {
 
 	System.out.println("Submitting schedules for rendering...");
 	Integer processedTicks = 0;
-	Set<MachineRenderer> rs = Collections.synchronizedSet(new HashSet<MachineRenderer>());
-	Double time = new Double(System.nanoTime());
+	Set<MachineRenderer> rs = Collections
+		.synchronizedSet(new HashSet<MachineRenderer>());
+	Double startProcessingTime = new Double(System.nanoTime());
 	for (Integer clock : ticks) {
 	    for (Machine m : machines) {
 		MachineRenderer r = new MachineRenderer(m, clock);
@@ -74,7 +75,6 @@ public final class Main {
 
 	e.shutdown();
 	Integer totalSchedules = machines.size() * ticks.size();
-	Long startProcessingTime = System.nanoTime();
 	while (!e.isTerminated()) {
 	    try {
 		Thread.sleep(5000);
@@ -90,14 +90,14 @@ public final class Main {
 	    rs = rs2;
 	    Double percentage = (new Double(rs.size()) / new Double(
 		    totalSchedules)) * 100;
-	    Long processingTime = System.nanoTime() - startProcessingTime;
+	    Double processingTime = System.nanoTime() - startProcessingTime;
 	    Double timeLeft = (processingTime * (100 / (100 - percentage))) / 1000 / 1000 / 1000;
 	    System.out.println(percentage + " % (" + rs.size() + " out of "
 		    + totalSchedules + " schedules) left to render. Estimated "
 		    + timeLeft + " more second left.");
 	}
 
-	time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
+	Double time = (System.nanoTime() - startProcessingTime) / 1000 / 1000 / 1000;
 	System.out.println("Rendering successfully finished.");
 	System.out.println("Took " + time + " seconds.");
 
@@ -187,9 +187,9 @@ public final class Main {
 	    File machinesFile = new File(args[1]);
 	    if (!machinesFile.exists()) {
 		System.out
-		.print("Machines file "
-			+ machinesFile.getAbsolutePath()
-			+ " cannot be found! ");
+			.print("Machines file "
+				+ machinesFile.getAbsolutePath()
+				+ " cannot be found! ");
 		Main.printUsageAndExit();
 	    }
 	    File dataFile = new File(args[2]);
@@ -201,11 +201,11 @@ public final class Main {
 	    Main.importData(new Importer(machinesFile, dataFile, args[3]));
 	}
     }
+
     public static void printUsageAndExit() {
+	System.out.println("Please choose one of the operations available: ");
 	System.out
-	.println("Please choose one of the operations available: ");
-	System.out
-	.println(" ant import -Dmachines=<machineFileName> -Devents=<datasetFileName> -Ddatabase=<databaseName>");
+		.println(" ant import -Dmachines=<machineFileName> -Devents=<datasetFileName> -Ddatabase=<databaseName>");
 	System.out.println(" ant cache -Ddatabase=<databaseFileName>");
 	System.out.println(" ant run -Ddatabase=<databaseFileName>");
 	System.exit(1);

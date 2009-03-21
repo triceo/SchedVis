@@ -25,7 +25,7 @@ package cz.muni.fi.spc.SchedVis.parsers.schedule;
  * 
  */
 public class ScheduleEventMachine extends ScheduleEvent implements
-EventIsMachineRelated {
+	EventIsMachineRelated {
 
     private final String machineId;
 

@@ -27,7 +27,7 @@ import java.util.List;
  * 
  */
 public class ScheduleEventMove extends ScheduleEvent implements EventHasData,
-EventIsJobRelated, EventIsMachineRelated {
+	EventIsJobRelated, EventIsMachineRelated {
 
     private final Integer jobId;
     private final String srcMachine;

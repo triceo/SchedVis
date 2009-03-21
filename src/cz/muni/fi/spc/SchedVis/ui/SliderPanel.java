@@ -43,7 +43,7 @@ import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
  * 
  */
 public class SliderPanel extends JPanel implements ChangeListener,
-ActionListener {
+	ActionListener {
 
     /**
      * 
@@ -112,7 +112,7 @@ ActionListener {
 		return;
 	    }
 	    final Integer value = Event.getPrevious(this.tlsm.getValue())
-	    .getClock();
+		    .getClock();
 	    if (this.tlsm.getValue() != Event.getNext(value).getClock()) {
 		this.tlsm.setValue(value);
 	    }
@@ -137,8 +137,7 @@ ActionListener {
 			Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		ScheduleTree.getInstance().updateUI();
 		Main.getFrame().setCursor(
-			Cursor
-			.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	    }
 	}
     }
