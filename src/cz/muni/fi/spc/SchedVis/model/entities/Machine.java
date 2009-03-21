@@ -29,6 +29,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -76,8 +77,17 @@ public class Machine extends BaseEntity {
 	crit.add(Restrictions.isNotNull("parent"));
 	crit.addOrder(Property.forName("id").desc());
 	crit.setMaxResults(1);
-	final Event evt = (Event) crit.uniqueResult();
-	if (evt == null) {
+	final Event evt;
+	try {
+	    evt = (Event) crit.uniqueResult();
+	    if (evt == null) {
+		return new Vector<Event>();
+	    }
+	} catch (NullPointerException e) {
+	    Logger.getLogger(Machine.class).error(
+		    "NPE while fetching schedule for machine "
+		    + which.getName() + " at " + eventId
+			    + ". This shouldn't happen, please investigate.");
 	    return new Vector<Event>();
 	}
 	crit = BaseEntity.getCriteria(Event.class, true);

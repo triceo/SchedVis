@@ -28,7 +28,6 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -106,16 +105,6 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      * regardless of schedule position or group placement.
      */
     private static final Map<Integer, Color> jobColors = new HashMap<Integer, Color>();
-    /**
-     * Holds names of temporary files that contain already rendered images for
-     * future reference. Vastly improves speed in some cases.
-     * 
-     * Key of the outer map is a machine, key of the inner map is position in
-     * the schedule. Value of the inner map is the file holding the image for
-     * that particular machine and position.
-     */
-    private static final Map<Machine, Map<Integer, File>> files = Collections
-	    .synchronizedMap(new HashMap<Machine, Map<Integer, File>>());
 
     /**
      * Holds a font used throughout the schedules. Memory use improvement.
@@ -174,47 +163,42 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      */
     @Override
     public Image doInBackground() {
-	if (!MachineRenderer.files.containsKey(this.m)) {
-	    MachineRenderer.files.put(this.m, Collections
-		    .synchronizedMap(new HashMap<Integer, File>()));
-	}
-	Map<Integer, File> filePerClock = MachineRenderer.files.get(this.m);
-	if (!filePerClock.containsKey(this.clock)) {
+	File f = new File("tmp/schedvis-" + MachineRenderer.instanceId + "-"
+		+ this.clock + "-" + this.m.getId() + ".gif");
+	if (!f.exists()) {
 	    boolean dontWrite = false;
-	    String filename = "schedvis-" + MachineRenderer.instanceId + "-t"
-	    + this.clock + "m" + this.m.getId() + ".";
-	    File f = null;
 	    try {
-		f = File.createTempFile(filename, ".gif");
+		f.createNewFile();
 	    } catch (IOException e) {
 		Logger.getLogger(MachineRenderer.class).warn(
 			"Won't cache machine " + this.m.getId() + " at "
 			+ this.clock
-			+ ". Failed to create a temp file " + filename + ".");
+			+ ". Failed to create a file "
+			+ f.getAbsolutePath() + ".");
 		dontWrite = true;
 	    }
 	    BufferedImage img = this.actuallyDraw();
 	    if (!dontWrite) {
 		try {
 		    ImageIO.write(img, "gif", f);
-		    filePerClock.put(this.clock, f);
 		} catch (IOException e) {
 		    Logger.getLogger(MachineRenderer.class).warn(
 			    "Won't cache machine " + this.m.getId() + " at "
 			    + this.clock
-			    + ". Failed to write into a temp file "
+			    + ". Failed to write into a file "
 			    + f.getAbsolutePath() + ".");
 		}
 	    }
 	    return img;
 	} else {
 	    try {
-		return ImageIO.read(filePerClock.get(this.clock));
+		return ImageIO.read(f);
 	    } catch (IOException e) {
 		Logger.getLogger(MachineRenderer.class).warn(
 			"Cannot read cache for machine " + this.m.getId()
 			+ " at " + this.clock
-			+ ". Failed to write into a temp file.");
+			+ ". Failed to write into a file "
+			+ f.getAbsolutePath() + ".");
 		return this.actuallyDraw();
 	    }
 	}
