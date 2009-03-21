@@ -21,7 +21,9 @@
 package cz.muni.fi.spc.SchedVis;
 
 import java.io.File;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -43,37 +45,58 @@ public final class Main {
 
     private static MainFrame frame;
 
-    /**
-     * Not functional for now.
-     */
     private static void cache() {
-	ExecutorService e = Executors.newCachedThreadPool();
+	ExecutorService e = Executors.newFixedThreadPool(20);
 
-	System.out.println("Caching schedule images...");
-	List<Machine> machines = Machine.getAllGroupless();
+	System.out.println("Gathering data for rendering...");
+	Set<Machine> machines = new HashSet<Machine>(Machine.getAllGroupless());
+	// get all ticks
+	Set<Integer> ticks = new HashSet<Integer>();
 	Integer currentClock = 0;
 	Event currentEvent = null;
-	Integer totalTicks = Event.getTickCount();
-	Integer processedTicks = 0;
-	Double time = new Double(System.nanoTime());
 	while ((currentEvent = Event.getNext(currentClock)) != null) {
-	    for (Machine m : machines) {
-		MachineRenderer r = new MachineRenderer(m, currentClock);
-		e.submit(r);
-	    }
 	    currentClock = currentEvent.getClock();
-	    processedTicks++;
-	    Float percentage = (new Float(processedTicks) / new Float(
-		    totalTicks)) * 100;
-	    System.out.println("  " + processedTicks + " schedules ("
-		    + percentage + " %) already rendering.");
+	    ticks.add(currentClock);
 	}
 
-	System.out.println("Waiting until the render queue is empty...");
-	e.shutdown();
-	while (!e.isTerminated()) {
-	    // do nothing
+	System.out.println("Submitting schedules for rendering...");
+	Integer processedTicks = 0;
+	Set<MachineRenderer> rs = Collections.synchronizedSet(new HashSet<MachineRenderer>());
+	Double time = new Double(System.nanoTime());
+	for (Integer clock : ticks) {
+	    for (Machine m : machines) {
+		MachineRenderer r = new MachineRenderer(m, clock);
+		e.submit(r);
+		rs.add(r);
+	    }
+	    processedTicks++;
 	}
+
+	e.shutdown();
+	Integer totalSchedules = machines.size() * ticks.size();
+	Long startProcessingTime = System.nanoTime();
+	while (!e.isTerminated()) {
+	    try {
+		Thread.sleep(5000);
+	    } catch (InterruptedException ex) {
+		// do nothing
+	    }
+	    Set<MachineRenderer> rs2 = new HashSet<MachineRenderer>(rs);
+	    for (MachineRenderer r : rs) {
+		if (r.isDone()) {
+		    rs2.remove(r);
+		}
+	    }
+	    rs = rs2;
+	    Double percentage = (new Double(rs.size()) / new Double(
+		    totalSchedules)) * 100;
+	    Long processingTime = System.nanoTime() - startProcessingTime;
+	    Double timeLeft = (processingTime * (100 / (100 - percentage))) / 1000 / 1000 / 1000;
+	    System.out.println(percentage + " % (" + rs.size() + " out of "
+		    + totalSchedules + " schedules) left to render. Estimated "
+		    + timeLeft + " more second left.");
+	}
+
 	time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 	System.out.println("Rendering successfully finished.");
 	System.out.println("Took " + time + " seconds.");

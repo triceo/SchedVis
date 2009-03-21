@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="SchedVis" default="run" basedir=".">
   <property name="dir.bin" value="./bin" />
+  <property name="dir.tmp" value="./tmp" />
 	<property name="dir.build" value="./build" />
   <property name="dir.src" value="./src" />
 	<property name="dir.lib" value="./lib" />
@@ -50,6 +51,8 @@
 	<target name="clean" description="Restore the distribution to its default state.">
 		<delete dir="${dir.bin}" />
     <delete dir="${dir.build}" />
+    <delete dir="${dir.tmp}" />
+    <mkdir dir="${dir.tmp}" />
   </target>
 	<target name="run" description="Run the program.">
 		<java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true">
@@ -68,7 +71,7 @@
     </java>
   </target>
   <target name="cache" description="Render the schedules prior to executing the program.">
-    <java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true">
+    <java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" maxmemory="1024m">
       <sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
       <arg value="cache" />
       <arg value="${database}" />
