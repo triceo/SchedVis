@@ -163,28 +163,36 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      */
     @Override
     public Image doInBackground() {
+	Logger.getLogger(this.getClass()).debug(
+		this.m.getName() + "@" + this.clock + " started rendering.");
+	Double time = new Double(System.nanoTime());
 	File f = new File("tmp/schedvis-" + MachineRenderer.instanceId + "-"
-		+ this.clock + "-" + this.m.getId() + ".gif");
+		+ this.m.getId() + "-00000" + this.clock + ".gif");
+	BufferedImage img = null;
 	if (!f.exists()) {
-	    BufferedImage img = this.actuallyDraw();
+	    img = this.actuallyDraw();
 	    try {
 		ImageIO.write(img, "gif", f);
 	    } catch (IOException e) {
 		Logger.getLogger(MachineRenderer.class).warn("Won't cache machine " + this.m.getId() + " at " + this.clock + ". Failed to write into a file " + f.getAbsolutePath() + ".");
 	    }
-	    return img;
 	} else {
 	    try {
-		return ImageIO.read(f);
+		img = ImageIO.read(f);
 	    } catch (IOException e) {
 		Logger.getLogger(MachineRenderer.class).warn(
 			"Cannot read cache for machine " + this.m.getId()
 			+ " at " + this.clock
 			+ ". Failed to write into a file "
 			+ f.getAbsolutePath() + ".");
-		return this.actuallyDraw();
+		img = this.actuallyDraw();
 	    }
 	}
+	time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
+	Logger.getLogger(this.getClass()).debug(
+		this.m.getName() + "@" + this.clock
+		+ " finished rendering. Took " + time + " seconds.");
+	return img;
     }
 
     /**
