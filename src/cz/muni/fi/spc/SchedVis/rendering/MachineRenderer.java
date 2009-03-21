@@ -28,6 +28,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +40,7 @@ import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 
+import cz.muni.fi.spc.SchedVis.model.Database;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 
@@ -54,10 +56,11 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     private final Machine m;
 
     /**
-     * Holds a random number so that caches from different runs of the program
-     * are invalid.
+     * Holds a name of the database so that the cached schedule images from
+     * different databases don't interfere.
      */
-    private static final Long instanceId = Math.round(Math.random() * 100000);
+    private static final String instanceId = new File(Database.getName())
+    .getName();
 
     /**
      * Holds the position on the timeline that is currently being rendered.
@@ -111,7 +114,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      * the schedule. Value of the inner map is the file holding the image for
      * that particular machine and position.
      */
-    private static final Map<Machine, Map<Integer, File>> files = new HashMap<Machine, Map<Integer, File>>();
+    private static final Map<Machine, Map<Integer, File>> files = Collections
+	    .synchronizedMap(new HashMap<Machine, Map<Integer, File>>());
 
     /**
      * Holds a font used throughout the schedules. Memory use improvement.
@@ -127,24 +131,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     public MachineRenderer(final Machine m, final Integer clock) {
 	this.m = m;
 	this.events = Machine.getLatestSchedule(this.m, clock);
-	// determine if we can't skip rendering by referring to something
-	// previously rendered
-	if (this.events.size() == 0) {
-	    // no jobs in the schedule means we can render the first frame
-	    this.clock = 1;
-	} else {
-	    Event lastStateChange = Machine.getLatestStateChange(this.m, clock);
-	    Event eligibleEvent = this.events.get(0);
-	    if ((lastStateChange == null)
-		    || (clock <= eligibleEvent.getClock())) {
-		// job in a schedule points to first frame with the same
-		// schedule
-		this.clock = eligibleEvent.getClock();
-	    } else {
-		// if a machine was restarted or brought back, take note of it
-		this.clock = lastStateChange.getClock();
-	    }
-	}
+	this.clock = clock;
     }
 
     /**
@@ -188,21 +175,22 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     @Override
     public Image doInBackground() {
 	if (!MachineRenderer.files.containsKey(this.m)) {
-	    MachineRenderer.files.put(this.m, new HashMap<Integer, File>());
+	    MachineRenderer.files.put(this.m, Collections
+		    .synchronizedMap(new HashMap<Integer, File>()));
 	}
 	Map<Integer, File> filePerClock = MachineRenderer.files.get(this.m);
 	if (!filePerClock.containsKey(this.clock)) {
 	    boolean dontWrite = false;
+	    String filename = "schedvis-" + MachineRenderer.instanceId + "-t"
+	    + this.clock + "m" + this.m.getId() + ".";
 	    File f = null;
 	    try {
-		f = File.createTempFile("schedvis" + MachineRenderer.instanceId
-			+ "-t" + this.clock + "m" + this.m.getId() + ".",
-		".gif");
+		f = File.createTempFile(filename, ".gif");
 	    } catch (IOException e) {
 		Logger.getLogger(MachineRenderer.class).warn(
 			"Won't cache machine " + this.m.getId() + " at "
 			+ this.clock
-			+ ". Failed to create a temp file.");
+			+ ". Failed to create a temp file " + filename + ".");
 		dontWrite = true;
 	    }
 	    BufferedImage img = this.actuallyDraw();
@@ -214,7 +202,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		    Logger.getLogger(MachineRenderer.class).warn(
 			    "Won't cache machine " + this.m.getId() + " at "
 			    + this.clock
-			    + ". Failed to write into a temp file.");
+			    + ". Failed to write into a temp file "
+			    + f.getAbsolutePath() + ".");
 		}
 	    }
 	    return img;

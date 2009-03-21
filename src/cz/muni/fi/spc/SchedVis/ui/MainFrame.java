@@ -31,7 +31,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
 import cz.muni.fi.spc.SchedVis.ui.common.JBorderedPanel;
-import cz.muni.fi.spc.SchedVis.ui.dialogs.Import;
 
 /**
  * MainFrame class for SchedVis' user interface.
@@ -56,12 +55,6 @@ public class MainFrame extends JFrame {
 	// Create and set up the window.
 	this.setTitle("SchedVis");
 	this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-	// display a dialog
-	final Import dialog = new Import(this, true);
-	dialog.setVisible(true);
-	dialog.setVisible(false);
-	dialog.dispose();
 
 	// Create and set up the content pane.
 	this.setJMenuBar(new MainMenu(this));

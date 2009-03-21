@@ -48,8 +48,14 @@ public class Database {
 
     private static EntityManager currentEM;
 
+    private static String currentName;
+
     public static EntityManager getEntityManager() {
 	return Database.currentEM;
+    }
+
+    public static String getName() {
+	return Database.currentName;
     }
 
     public static Session getSession() {
@@ -99,12 +105,12 @@ public class Database {
     public static boolean use(final String name) {
 	if (!Database.ems.containsKey(name)) {
 	    final Map<String, String> map = new HashMap<String, String>();
-	    map.put("hibernate.connection.url", "jdbc:sqlite:/" + name
-		    + ".sqlite");
+	    map.put("hibernate.connection.url", "jdbc:sqlite:/" + name);
 	    Database.factory = Persistence.createEntityManagerFactory(
 		    "SchedVis", map);
 	    Database.ems.put(name, Database.factory.createEntityManager());
 	}
+	Database.currentName = name;
 	Database.currentEM = Database.ems.get(name);
 	return true;
     }

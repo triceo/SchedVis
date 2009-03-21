@@ -60,7 +60,15 @@ public class Machine extends BaseEntity {
     }
 
     @SuppressWarnings("unchecked")
-    public static List<Event> getLatestSchedule(final Machine which,
+    public static List<Machine> getAllGroupless() {
+	final Criteria crit = BaseEntity.getCriteria(Machine.class, true);
+	crit.addOrder(Order.asc("name"));
+	return crit.list();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static synchronized List<Event> getLatestSchedule(
+	    final Machine which,
 	    final Integer eventId) {
 	Criteria crit = BaseEntity.getCriteria(Event.class, true);
 	crit.add(Restrictions.eq("sourceMachine", which));

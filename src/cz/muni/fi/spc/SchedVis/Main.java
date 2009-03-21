@@ -20,9 +20,20 @@
  */
 package cz.muni.fi.spc.SchedVis;
 
+import java.io.File;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.apache.log4j.Logger;
+
+import cz.muni.fi.spc.SchedVis.model.Database;
+import cz.muni.fi.spc.SchedVis.model.entities.Event;
+import cz.muni.fi.spc.SchedVis.model.entities.Machine;
+import cz.muni.fi.spc.SchedVis.rendering.MachineRenderer;
 import cz.muni.fi.spc.SchedVis.ui.MainFrame;
 
 /**
@@ -34,6 +45,27 @@ public final class Main {
 
     private static MainFrame frame;
 
+    /**
+     * Not functional for now.
+     */
+    private static void cache() {
+	ExecutorService e = Executors.newCachedThreadPool();
+
+	System.out.println("Caching schedule images...");
+	List<Machine> machines = Machine.getAllGroupless();
+	Integer totalEvents = Event.getLast().getId();
+	for (int i = 1; i <= totalEvents; i++) {
+	    for (Machine m : machines) {
+		MachineRenderer r = new MachineRenderer(m, i);
+		Logger.getLogger(Main.class).info(
+			"Machine " + m.getName() + " at time " + i
+			+ " passed to rendering.");
+		e.submit(r);
+	    }
+	}
+	System.exit(0);
+    }
+
     public static MainFrame getFrame() {
 	return Main.frame;
     }
@@ -43,17 +75,7 @@ public final class Main {
      * 
      * @param args
      */
-    public static void main(final String[] args) {
-	/*
-	 * try { System.setOut(new PrintStream(new BufferedOutputStream( new
-	 * FileOutputStream("schedvis.out")), true)); } catch (final Exception
-	 * e) { Logger.getLogger(Main.class).error(
-	 * "Cannot redirect standard output to a file!"); } try {
-	 * System.setErr(new PrintStream(new BufferedOutputStream( new
-	 * FileOutputStream("schedvis.err")), true)); } catch (final Exception
-	 * e) { Logger.getLogger(Main.class).error(
-	 * "Cannot redirect error output to a file!"); }
-	 */
+    private static void gui() {
 	try {
 	    // Set System L&F
 	    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -74,6 +96,82 @@ public final class Main {
 		Main.frame.setVisible(true);
 	    }
 	});
+    }
+
+    private static void importData(final Importer i) {
+	System.out.println("Importing specified data.");
+	System.out.println("");
+	Executors.newCachedThreadPool().submit(i);
+	System.out.println("Processing...");
+	while (!i.isDone()) {
+	    try {
+		Thread.sleep(2500);
+	    } catch (InterruptedException e) {
+		// do nothing
+	    }
+	    System.out.println(" " + i.getProgress() + " % completed...");
+	}
+	System.out.println("");
+	if (i.isSuccess()) {
+	    System.out.println("Import finished successfully!");
+	    System.exit(0);
+	} else {
+	    System.out.println("Import failed!");
+	    System.exit(1);
+	}
+    }
+
+    public static void main(final String[] args) {
+	if (args.length < 1) {
+	    System.out.println("A");
+	    Main.printUsageAndExit();
+	}
+	if ("run".equals(args[0]) || "cache".equals(args[0])) {
+	    if (args.length != 2) {
+		Main.printUsageAndExit();
+	    }
+	    File dbFile = new File(args[1]);
+	    if (dbFile.exists()) {
+		Database.use(dbFile.getAbsolutePath());
+	    } else {
+		System.out.print("Database file " + dbFile.getAbsolutePath()
+			+ "cannot be found! ");
+		Main.printUsageAndExit();
+	    }
+	    if ("run".equals(args[0])) {
+		Main.gui();
+	    } else {
+		Main.cache();
+	    }
+	} else {
+	    if (args.length != 4) {
+		Main.printUsageAndExit();
+	    }
+	    File machinesFile = new File(args[1]);
+	    if (!machinesFile.exists()) {
+		System.out
+		.print("Machines file "
+			+ machinesFile.getAbsolutePath()
+			+ " cannot be found! ");
+		Main.printUsageAndExit();
+	    }
+	    File dataFile = new File(args[2]);
+	    if (!dataFile.exists()) {
+		System.out.print("Dataset file " + dataFile.getAbsolutePath()
+			+ " cannot be found! ");
+		Main.printUsageAndExit();
+	    }
+	    Main.importData(new Importer(machinesFile, dataFile, args[3]));
+	}
+    }
+    public static void printUsageAndExit() {
+	System.out
+	.println("Please choose one of the operations available: ");
+	System.out
+	.println(" ant import -Dmachines=<machineFileName> -Devents=<datasetFileName> -Ddatabase=<databaseName>");
+	System.out.println(" ant cache -Ddatabase=<databaseFileName>");
+	System.out.println(" ant run -Ddatabase=<databaseFileName>");
+	System.exit(1);
     }
 
     public static void update() {

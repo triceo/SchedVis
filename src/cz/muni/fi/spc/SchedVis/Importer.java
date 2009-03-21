@@ -115,8 +115,8 @@ public class Importer extends SwingWorker<Void, Void> {
 	    this.parseMachines(new BufferedReader(new FileReader(
 		    this.machinesFile)));
 	    this
-		    .parseDataSet(new BufferedReader(new FileReader(
-			    this.dataFile)));
+	    .parseDataSet(new BufferedReader(new FileReader(
+		    this.dataFile)));
 	} catch (final Exception e) {
 	    return null;
 	}
@@ -144,7 +144,7 @@ public class Importer extends SwingWorker<Void, Void> {
     public void nextLineParsed() {
 	this.parsedLines++;
 	final Double progress = (new Double(this.parsedLines * 100))
-		/ (new Double(this.totalLines + 1));
+	/ (new Double(this.totalLines + 1));
 	if (progress > 100) {
 	    this.setProgress(100);
 	} else if (progress < 0) {
@@ -163,7 +163,7 @@ public class Importer extends SwingWorker<Void, Void> {
      * @todo Somehow make assigned-CPUs a table if its own.
      */
     private void parseDataSet(final BufferedReader reader)
-	    throws cz.muni.fi.spc.SchedVis.parsers.schedule.ParseException {
+    throws cz.muni.fi.spc.SchedVis.parsers.schedule.ParseException {
 	this.setProgress(0);
 	final AbstractMap<String, Integer> eventTypes = new HashMap<String, Integer>();
 	eventTypes.put("job-arrival", EventType.EVENT_JOB_ARRIVAL);
@@ -183,7 +183,7 @@ public class Importer extends SwingWorker<Void, Void> {
 	eventTypes.put("machine-restart-move-bad",
 		EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD);
 	final Iterator<String> eventTypeIterator = eventTypes.keySet()
-		.iterator();
+	.iterator();
 	final List<EventType> etl = new Vector<EventType>();
 	while (eventTypeIterator.hasNext()) {
 	    final EventType et = new EventType();
@@ -227,7 +227,7 @@ public class Importer extends SwingWorker<Void, Void> {
 	    bel.add(evt);
 	    if (event instanceof EventHasData) {
 		final List<ScheduleMachineData> data = ((EventHasData) event)
-			.getData();
+		.getData();
 		for (final ScheduleMachineData machine : data) {
 		    eventId++;
 		    for (final ScheduleJobData job : machine.getJobs()) {
@@ -250,8 +250,8 @@ public class Importer extends SwingWorker<Void, Void> {
 		}
 	    }
 	    // update progress
-	    final Double progress = (new Double(lineId * 100))
-		    / (new Double(totalEvents));
+	    final Double progress = ((new Double(lineId * 100))
+		    / (new Double(totalEvents)) / 2) + 50;
 	    this.setProgress(progress.intValue());
 	    if (bel.size() > 2000) { // persist some items
 		Database.persist(bel);
@@ -275,7 +275,7 @@ public class Importer extends SwingWorker<Void, Void> {
      * @throws ParseException
      */
     private void parseMachines(final BufferedReader reader)
-	    throws cz.muni.fi.spc.SchedVis.parsers.machines.ParseException {
+    throws cz.muni.fi.spc.SchedVis.parsers.machines.ParseException {
 	// ready the parser
 	this.parsedLines = 0;
 	this.totalLines = this.machinesLineCount;
@@ -300,8 +300,8 @@ public class Importer extends SwingWorker<Void, Void> {
 	    machinesList.add(mcn);
 	    // update progress
 	    final Double progress = (new Double(machineId * 100))
-		    / (new Double(totalMachines));
-	    this.setProgress(progress.intValue());
+	    / (new Double(totalMachines)) / 2;
+	    this.setProgress(Math.round(progress.intValue()));
 	}
 	Database.persist(machinesList);
     }

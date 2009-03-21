@@ -52,9 +52,26 @@
     <delete dir="${dir.build}" />
   </target>
 	<target name="run" description="Run the program.">
-		<java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" spawn="true">
+		<java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true">
 			<sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
+			<arg value="run" />
+      <arg value="${database}" />
 		</java>
   </target>
-  <target name="bottom-up" description="Build it and run." depends="clean,build,run" />
+  <target name="import" description="Import data into a database.">
+    <java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true">
+      <sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
+      <arg value="import" />
+      <arg value="${machines}" />
+      <arg value="${events}" />
+      <arg value="${database}" />
+    </java>
+  </target>
+  <target name="cache" description="Render the schedules prior to executing the program.">
+    <java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true">
+      <sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
+      <arg value="cache" />
+      <arg value="${database}" />
+    </java>
+  </target>
 </project>

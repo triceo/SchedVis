@@ -31,7 +31,6 @@ import javax.swing.JMenuItem;
 
 import cz.muni.fi.spc.SchedVis.Main;
 import cz.muni.fi.spc.SchedVis.ui.dialogs.Groups;
-import cz.muni.fi.spc.SchedVis.ui.dialogs.Import;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -45,7 +44,6 @@ public class MainMenu extends JMenuBar implements ActionListener {
     private static final long serialVersionUID = -301105021169477153L;
 
     private static String ACTION_QUIT = "quit";
-    private static String ACTION_NEW = "new";
     private static String ACTION_MANAGE_GROUPS = "manage_groups";
 
     private final JFrame frame;
@@ -65,16 +63,6 @@ public class MainMenu extends JMenuBar implements ActionListener {
 	menu.getAccessibleContext().setAccessibleDescription(
 		"The classical file menu as seen in other apps.");
 	this.add(menu);
-
-	// a group of JMenuItems
-	menuItem = new JMenuItem("New data source", KeyEvent.VK_N);
-	menuItem.getAccessibleContext().setAccessibleDescription(
-		"Process new batch of data.");
-	menuItem.setActionCommand(MainMenu.ACTION_NEW);
-	menuItem.addActionListener(this);
-	menu.add(menuItem);
-
-	menu.addSeparator();
 
 	menuItem = new JMenuItem("Quit", KeyEvent.VK_Q);
 	menuItem.getAccessibleContext().setAccessibleDescription(
@@ -121,9 +109,6 @@ public class MainMenu extends JMenuBar implements ActionListener {
 	final String command = event.getActionCommand();
 	if (command.equals(MainMenu.ACTION_QUIT)) {
 	    this.quit();
-	} else if (command.equals(MainMenu.ACTION_NEW)) {
-	    final Import dialog = new Import(this.frame, true);
-	    dialog.setVisible(true);
 	} else if (command.equals(MainMenu.ACTION_MANAGE_GROUPS)) {
 	    final Groups dialog = new Groups(this.frame, true);
 	    dialog.setVisible(true);
