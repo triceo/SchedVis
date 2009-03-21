@@ -28,8 +28,6 @@ import java.util.concurrent.Executors;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import org.apache.log4j.Logger;
-
 import cz.muni.fi.spc.SchedVis.model.Database;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
@@ -53,16 +51,33 @@ public final class Main {
 
 	System.out.println("Caching schedule images...");
 	List<Machine> machines = Machine.getAllGroupless();
-	Integer totalEvents = Event.getLast().getId();
-	for (int i = 1; i <= totalEvents; i++) {
+	Integer currentClock = 0;
+	Event currentEvent = null;
+	Integer totalTicks = Event.getTickCount();
+	Integer processedTicks = 0;
+	Double time = new Double(System.nanoTime());
+	while ((currentEvent = Event.getNext(currentClock)) != null) {
 	    for (Machine m : machines) {
-		MachineRenderer r = new MachineRenderer(m, i);
-		Logger.getLogger(Main.class).info(
-			"Machine " + m.getName() + " at time " + i
-			+ " passed to rendering.");
+		MachineRenderer r = new MachineRenderer(m, currentClock);
 		e.submit(r);
 	    }
+	    currentClock = currentEvent.getClock();
+	    processedTicks++;
+	    Float percentage = (new Float(processedTicks) / new Float(
+		    totalTicks)) * 100;
+	    System.out.println("  " + processedTicks + " schedules ("
+		    + percentage + " %) already rendering.");
 	}
+
+	System.out.println("Waiting until the render queue is empty...");
+	e.shutdown();
+	while (!e.isTerminated()) {
+	    // do nothing
+	}
+	time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
+	System.out.println("Rendering successfully finished.");
+	System.out.println("Took " + time + " seconds.");
+
 	System.exit(0);
     }
 
@@ -123,7 +138,6 @@ public final class Main {
 
     public static void main(final String[] args) {
 	if (args.length < 1) {
-	    System.out.println("A");
 	    Main.printUsageAndExit();
 	}
 	if ("run".equals(args[0]) || "cache".equals(args[0])) {

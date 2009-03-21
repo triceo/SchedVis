@@ -50,7 +50,7 @@ public class Event extends BaseEntity {
 
     public static Event getFirst() {
 	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
-	crit.addOrder(Property.forName("id").asc());
+	crit.addOrder(Property.forName("clock").asc());
 	crit.add(Restrictions.isNull("parent"));
 	crit.setMaxResults(1);
 	return (Event) crit.uniqueResult();
@@ -58,7 +58,7 @@ public class Event extends BaseEntity {
 
     public static Event getLast() {
 	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
-	crit.addOrder(Property.forName("id").desc());
+	crit.addOrder(Property.forName("clock").desc());
 	crit.add(Restrictions.isNull("parent"));
 	crit.setMaxResults(1);
 	return (Event) crit.uniqueResult();
@@ -78,7 +78,7 @@ public class Event extends BaseEntity {
 	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
 	crit.addOrder(Property.forName("id").asc());
 	crit.add(Restrictions.isNull("parent"));
-	crit.add(Restrictions.gt("id", eventId));
+	crit.add(Restrictions.gt("clock", eventId));
 	crit.setMaxResults(1);
 	return (Event) crit.uniqueResult();
     }
@@ -87,9 +87,19 @@ public class Event extends BaseEntity {
 	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
 	crit.addOrder(Property.forName("id").desc());
 	crit.add(Restrictions.isNull("parent"));
-	crit.add(Restrictions.lt("id", eventId));
+	crit.add(Restrictions.lt("clock", eventId));
 	crit.setMaxResults(1);
 	return (Event) crit.uniqueResult();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Integer getTickCount() {
+	final List<Integer> l = Database
+	.getSession()
+	.createSQLQuery(
+	"SELECT DISTINCT clock FROM Event WHERE parent_fk IS NULL")
+	.list();
+	return l.size();
     }
 
     private Integer id;

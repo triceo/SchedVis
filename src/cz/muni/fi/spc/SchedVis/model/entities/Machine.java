@@ -87,14 +87,21 @@ public class Machine extends BaseEntity {
 	    Logger.getLogger(Machine.class).error(
 		    "NPE while fetching schedule for machine "
 		    + which.getName() + " at " + eventId
-			    + ". This shouldn't happen, please investigate.");
+		    + ".");
 	    return new Vector<Event>();
 	}
 	crit = BaseEntity.getCriteria(Event.class, true);
 	crit.add(Restrictions.eq("sourceMachine", which));
 	crit.add(Restrictions.eq("parent", evt.getParent()));
 	crit.addOrder(Property.forName("expectedStart").asc());
-	return crit.list();
+	try {
+	    return crit.list();
+	} catch (NullPointerException e) {
+	    Logger.getLogger(Machine.class).error(
+		    "Another NPE while fetching schedule for machine "
+			    + which.getName() + " at " + eventId + ".");
+	    return new Vector<Event>();
+	}
     }
 
     public static Event getLatestStateChange(final Machine which, final Integer clock) {

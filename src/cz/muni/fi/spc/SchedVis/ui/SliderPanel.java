@@ -97,9 +97,10 @@ ActionListener {
 	} else if (src.equals(this.btnNext) || src.equals(this.btnPrev)) {
 	    if (src.equals(this.btnPrev)) {
 		this.tlsm.setValue(Event.getPrevious(this.tlsm.getValue())
-			.getId());
+			.getClock());
 	    } else {
-		this.tlsm.setValue(Event.getNext(this.tlsm.getValue()).getId());
+		this.tlsm.setValue(Event.getNext(this.tlsm.getValue())
+			.getClock());
 	    }
 	}
     }
@@ -111,8 +112,8 @@ ActionListener {
 		return;
 	    }
 	    final Integer value = Event.getPrevious(this.tlsm.getValue())
-	    .getId();
-	    if (this.tlsm.getValue() != Event.getNext(value).getId()) {
+	    .getClock();
+	    if (this.tlsm.getValue() != Event.getNext(value).getClock()) {
 		this.tlsm.setValue(value);
 	    }
 	    if (value == this.tlsm.getMinimum()) {

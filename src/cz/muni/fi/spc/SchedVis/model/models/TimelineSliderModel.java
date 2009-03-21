@@ -41,7 +41,7 @@ public class TimelineSliderModel extends DefaultBoundedRangeModel {
     private static TimelineSliderModel model = null;
 
     public static TimelineSliderModel getInstance()
-	    throws IllegalArgumentException {
+    throws IllegalArgumentException {
 	if (TimelineSliderModel.model == null) {
 	    throw new IllegalArgumentException(
 		    "You need to set a listener first time you call this method!");
@@ -54,7 +54,7 @@ public class TimelineSliderModel extends DefaultBoundedRangeModel {
 	    TimelineSliderModel.model = new TimelineSliderModel(listener);
 	} else if (listener != null) {
 	    Logger.getLogger(TimelineSliderModel.class).warn(
-		    "Listener has already been set. This will have no effect.");
+	    "Listener has already been set. This will have no effect.");
 	}
 	return TimelineSliderModel.model;
     }
@@ -63,8 +63,8 @@ public class TimelineSliderModel extends DefaultBoundedRangeModel {
      * 
      */
     private TimelineSliderModel(final ChangeListener listener) {
-	this.setMinimum(Event.getFirst().getId());
-	this.setMaximum(Event.getLast().getId());
+	this.setMinimum(Event.getFirst().getClock());
+	this.setMaximum(Event.getLast().getClock());
 	this.setValue(this.getMinimum());
 	this.addChangeListener(listener);
     }
