@@ -35,7 +35,6 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
@@ -47,6 +46,8 @@ import cz.muni.fi.spc.SchedVis.model.BaseEntity;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Machine extends BaseEntity {
+
+    private static EventType[] machineEvents = null;
 
     @SuppressWarnings("unchecked")
     public static List<Machine> getAll(final Integer groupId) {
@@ -67,14 +68,19 @@ public class Machine extends BaseEntity {
 	return crit.list();
     }
 
-    @SuppressWarnings("unchecked")
-    public static synchronized List<Event> getLatestSchedule(
+    public static List<Event> getLatestSchedule(
 	    final Machine which, final Integer eventId) {
+	return Machine.getLatestScheduleInternal(which, eventId, 0);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<Event> getLatestScheduleInternal(
+	    final Machine which, final Integer eventId, Integer trial) {
 	Criteria crit = BaseEntity.getCriteria(Event.class, true);
 	crit.add(Restrictions.eq("sourceMachine", which));
 	crit.add(Restrictions.le("clock", eventId));
 	crit.add(Restrictions.isNotNull("parent"));
-	crit.addOrder(Property.forName("id").desc());
+	crit.addOrder(Order.desc("id"));
 	crit.setMaxResults(1);
 	final Event evt;
 	try {
@@ -83,69 +89,54 @@ public class Machine extends BaseEntity {
 		return new Vector<Event>();
 	    }
 	} catch (NullPointerException e) {
-	    Logger.getLogger(Machine.class).error(
-		    "NPE while fetching schedule for machine "
-			    + which.getName() + " at " + eventId + ".");
-	    return new Vector<Event>();
+	    if (trial < 3) {
+		Logger.getLogger(Machine.class).warn(
+			"NPE while fetching schedule for machine "
+			+ which.getName() + " at " + eventId
+			+ ". Trying again.");
+		return Machine.getLatestScheduleInternal(which, eventId, ++trial);
+	    } else {
+		Logger.getLogger(Machine.class).error(
+			"NPE while fetching schedule for machine "
+			+ which.getName() + " at " + eventId + ".");
+		return new Vector<Event>();
+	    }
 	}
-	crit = BaseEntity.getCriteria(Event.class, true);
-	crit.add(Restrictions.eq("sourceMachine", which));
-	crit.add(Restrictions.eq("parent", evt.getParent()));
-	crit.addOrder(Property.forName("expectedStart").asc());
-	try {
-	    return crit.list();
-	} catch (NullPointerException e) {
-	    Logger.getLogger(Machine.class).error(
-		    "Another NPE while fetching schedule for machine "
-			    + which.getName() + " at " + eventId + ".");
-	    return new Vector<Event>();
-	}
-    }
-
-    public static Event getLatestStateChange(final Machine which,
-	    final Integer clock) {
-	Criteria crit = BaseEntity.getCriteria(Event.class, true);
-	crit.add(Restrictions.eq("sourceMachine", which));
-	crit.add(Restrictions.le("clock", clock));
-	crit.add(Restrictions.in("type", new EventType[] {
-		EventType.get(EventType.EVENT_MACHINE_FAILURE),
-		EventType.get(EventType.EVENT_MACHINE_RESTART) }));
-	crit.addOrder(Property.forName("id").desc());
-	crit.setMaxResults(1);
-	return (Event) crit.uniqueResult();
+	Criteria crit2 = BaseEntity.getCriteria(Event.class, true);
+	crit2.add(Restrictions.eq("sourceMachine", which));
+	crit2.add(Restrictions.eq("parent", evt.getParent()));
+	crit2.addOrder(Order.asc("expectedStart"));
+	return crit2.list();
     }
 
     public static Machine getWithId(final Integer id) {
 	final Criteria crit = BaseEntity.getCriteria(Machine.class, true);
 	crit.add(Restrictions.idEq(id));
+	crit.setMaxResults(1);
 	return (Machine) crit.uniqueResult();
     }
 
     public static Machine getWithName(final String name) {
 	final Criteria crit = BaseEntity.getCriteria(Machine.class, true);
 	crit.add(Restrictions.eq("name", name));
+	crit.setMaxResults(1);
 	return (Machine) crit.uniqueResult();
     }
 
     public static boolean isActive(final Machine m, final Integer clock) {
+	if (Machine.machineEvents == null) {
+	    Machine.machineEvents = new EventType[] {
+		    EventType.get(EventType.EVENT_MACHINE_FAILURE),
+		    EventType.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
+		    EventType
+		    .get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
+		    EventType.get(EventType.EVENT_MACHINE_RESTART),
+		    EventType.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD),
+		    EventType
+		    .get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) };
+	}
 	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
-	crit
-		.add(Restrictions
-			.in(
-				"type",
-				new EventType[] {
-					EventType
-						.get(EventType.EVENT_MACHINE_FAILURE),
-					EventType
-						.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
-					EventType
-						.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
-					EventType
-						.get(EventType.EVENT_MACHINE_RESTART),
-					EventType
-						.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD),
-					EventType
-						.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) }));
+	crit.add(Restrictions.in("type", Machine.machineEvents));
 	crit.add(Restrictions.eq("sourceMachine", m));
 	crit.add(Restrictions.lt("clock", clock));
 	crit.addOrder(Order.desc("clock"));

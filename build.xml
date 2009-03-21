@@ -71,7 +71,7 @@
     </java>
   </target>
   <target name="cache" description="Render the schedules prior to executing the program.">
-    <java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" maxmemory="1024m">
+    <java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" maxmemory="768m">
       <sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
       <arg value="cache" />
       <arg value="${database}" />

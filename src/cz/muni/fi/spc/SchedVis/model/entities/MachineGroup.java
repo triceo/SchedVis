@@ -54,12 +54,14 @@ public class MachineGroup extends BaseEntity {
     public static MachineGroup getWithId(final Integer id) {
 	final Criteria crit = BaseEntity.getCriteria(MachineGroup.class, true);
 	crit.add(Restrictions.idEq(id));
+	crit.setMaxResults(1);
 	return (MachineGroup) crit.uniqueResult();
     }
 
     public static MachineGroup getWithName(final String name) {
 	final Criteria crit = BaseEntity.getCriteria(MachineGroup.class, true);
 	crit.add(Restrictions.eq("name", name));
+	crit.setMaxResults(1);
 	return (MachineGroup) crit.uniqueResult();
     }
 
