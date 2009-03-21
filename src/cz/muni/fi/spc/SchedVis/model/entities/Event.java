@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -32,6 +33,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import org.hibernate.Criteria;
+import org.hibernate.Session;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.criterion.Order;
@@ -49,54 +51,69 @@ import cz.muni.fi.spc.SchedVis.model.Database;
 public class Event extends BaseEntity {
 
     public static Event getFirst() {
-	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
+	EntityManager em = Database.newEntityManager();
+	final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
 	crit.addOrder(Order.asc("clock"));
 	crit.add(Restrictions.isNull("parent"));
 	crit.setMaxResults(1);
-	return (Event) crit.uniqueResult();
+	Event evt = (Event) crit.uniqueResult();
+	em.close();
+	return evt;
     }
 
     public static Event getLast() {
-	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
+	EntityManager em = Database.newEntityManager();
+	final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
 	crit.addOrder(Order.desc("clock"));
 	crit.add(Restrictions.isNull("parent"));
 	crit.setMaxResults(1);
-	return (Event) crit.uniqueResult();
+	Event evt = (Event) crit.uniqueResult();
+	em.close();
+	return evt;
     }
 
     @SuppressWarnings("unchecked")
     public static Integer getMaxJobSpan() {
-	final List<Integer> l = Database
-	.getSession()
+	EntityManager em = Database.newEntityManager();
+	final List<Integer> l = ((Session) em.getDelegate())
 	.createSQLQuery(
 	"SELECT max(expectedEnd) AS s FROM Event GROUP BY parent_fk, sourceMachine_id ORDER BY s DESC LIMIT 1")
 	.list();
+	em.close();
 	return l.get(0);
     }
 
     public static Event getNext(final Integer eventId) {
-	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
+	EntityManager em = Database.newEntityManager();
+	final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
 	crit.addOrder(Order.asc("id"));
 	crit.add(Restrictions.isNull("parent"));
 	crit.add(Restrictions.gt("clock", eventId));
 	crit.setMaxResults(1);
-	return (Event) crit.uniqueResult();
+	Event evt = (Event) crit.uniqueResult();
+	em.close();
+	return evt;
     }
 
     public static Event getPrevious(final Integer eventId) {
-	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
+	EntityManager em = Database.newEntityManager();
+	final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
 	crit.addOrder(Order.desc("id"));
 	crit.add(Restrictions.isNull("parent"));
 	crit.add(Restrictions.lt("clock", eventId));
 	crit.setMaxResults(1);
-	return (Event) crit.uniqueResult();
+	Event evt = (Event) crit.uniqueResult();
+	em.close();
+	return evt;
     }
 
     @SuppressWarnings("unchecked")
     public static Integer getTickCount() {
-	final List<Integer> l = Database.getSession().createSQLQuery(
+	EntityManager em = Database.newEntityManager();
+	final List<Integer> l = ((Session) em.getDelegate()).createSQLQuery(
 	"SELECT DISTINCT clock FROM Event WHERE parent_fk IS NULL")
 	.list();
+	em.close();
 	return l.size();
     }
 

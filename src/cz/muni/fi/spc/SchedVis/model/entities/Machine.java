@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -38,6 +38,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
+import cz.muni.fi.spc.SchedVis.model.Database;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -51,21 +52,27 @@ public class Machine extends BaseEntity {
 
     @SuppressWarnings("unchecked")
     public static List<Machine> getAll(final Integer groupId) {
-	final Criteria crit = BaseEntity.getCriteria(Machine.class, true);
+	EntityManager em = Database.newEntityManager();
+	final Criteria crit = BaseEntity.getCriteria(em, Machine.class, true);
 	if (groupId != null) {
 	    crit.add(Restrictions.eq("group", MachineGroup.getWithId(groupId)));
 	} else {
 	    crit.add(Restrictions.isNull("group"));
 	}
 	crit.addOrder(Order.asc("name"));
-	return crit.list();
+	List<Machine> l = crit.list();
+	em.close();
+	return l;
     }
 
     @SuppressWarnings("unchecked")
     public static List<Machine> getAllGroupless() {
-	final Criteria crit = BaseEntity.getCriteria(Machine.class, true);
+	EntityManager em = Database.newEntityManager();
+	final Criteria crit = BaseEntity.getCriteria(em, Machine.class, true);
 	crit.addOrder(Order.asc("name"));
-	return crit.list();
+	List<Machine> l = crit.list();
+	em.close();
+	return l;
     }
 
     public static List<Event> getLatestSchedule(
@@ -75,52 +82,46 @@ public class Machine extends BaseEntity {
 
     @SuppressWarnings("unchecked")
     private static List<Event> getLatestScheduleInternal(
-	    final Machine which, final Integer eventId, Integer trial) {
-	Criteria crit = BaseEntity.getCriteria(Event.class, true);
+	    final Machine which, final Integer eventId, final Integer trial) {
+	EntityManager em = Database.newEntityManager();
+	final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
 	crit.add(Restrictions.eq("sourceMachine", which));
 	crit.add(Restrictions.le("clock", eventId));
 	crit.add(Restrictions.isNotNull("parent"));
 	crit.addOrder(Order.desc("id"));
 	crit.setMaxResults(1);
-	final Event evt;
-	try {
-	    evt = (Event) crit.uniqueResult();
-	    if (evt == null) {
-		return new Vector<Event>();
-	    }
-	} catch (NullPointerException e) {
-	    if (trial < 3) {
-		Logger.getLogger(Machine.class).warn(
-			"NPE while fetching schedule for machine "
-			+ which.getName() + " at " + eventId
-			+ ". Trying again.");
-		return Machine.getLatestScheduleInternal(which, eventId, ++trial);
-	    } else {
-		Logger.getLogger(Machine.class).error(
-			"NPE while fetching schedule for machine "
-			+ which.getName() + " at " + eventId + ".");
-		return new Vector<Event>();
-	    }
+	final Event evt = (Event) crit.uniqueResult();
+	if (evt == null) {
+	    em.close();
+	    return new Vector<Event>();
 	}
-	Criteria crit2 = BaseEntity.getCriteria(Event.class, true);
+	Criteria crit2 = BaseEntity.getCriteria(em, Event.class, true);
 	crit2.add(Restrictions.eq("sourceMachine", which));
 	crit2.add(Restrictions.eq("parent", evt.getParent()));
 	crit2.addOrder(Order.asc("expectedStart"));
-	return crit2.list();
+	List<Event> l = crit2.list();
+	em.close();
+	return l;
     }
 
     public static Machine getWithId(final Integer id) {
-	final Criteria crit = BaseEntity.getCriteria(Machine.class, true);
+	EntityManager em = Database.newEntityManager();
+	final Criteria crit = BaseEntity.getCriteria(em, Machine.class, true);
 	crit.add(Restrictions.idEq(id));
 	crit.setMaxResults(1);
-	return (Machine) crit.uniqueResult();
+	Machine m = (Machine) crit.uniqueResult();
+	em.close();
+	return m;
     }
 
     public static Machine getWithName(final String name) {
-	final Criteria crit = BaseEntity.getCriteria(Machine.class, true);
+	EntityManager em = Database.newEntityManager();
+	final Criteria crit = BaseEntity.getCriteria(em, Machine.class, true);
 	crit.add(Restrictions.eq("name", name));
 	crit.setMaxResults(1);
-	return (Machine) crit.uniqueResult();
+	Machine m = (Machine) crit.uniqueResult();
+	em.close();
+	return m;
     }
 
     public static boolean isActive(final Machine m, final Integer clock) {
@@ -135,13 +136,15 @@ public class Machine extends BaseEntity {
 		    EventType
 		    .get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) };
 	}
-	final Criteria crit = BaseEntity.getCriteria(Event.class, true);
+	EntityManager em = Database.newEntityManager();
+	final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
 	crit.add(Restrictions.in("type", Machine.machineEvents));
 	crit.add(Restrictions.eq("sourceMachine", m));
 	crit.add(Restrictions.lt("clock", clock));
 	crit.addOrder(Order.desc("clock"));
 	crit.setMaxResults(1);
 	Event e = (Event) crit.uniqueResult();
+	em.close();
 	try {
 	    Integer id = e.getType().getId();
 	    if ((id == EventType.EVENT_MACHINE_FAILURE)

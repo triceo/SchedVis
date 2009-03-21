@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -35,6 +36,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
+import cz.muni.fi.spc.SchedVis.model.Database;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -46,23 +48,35 @@ public class MachineGroup extends BaseEntity {
 
     @SuppressWarnings("unchecked")
     public static List<MachineGroup> getAll() {
-	final Criteria crit = BaseEntity.getCriteria(MachineGroup.class, true);
+	EntityManager em = Database.newEntityManager();
+	final Criteria crit = BaseEntity.getCriteria(em, MachineGroup.class,
+		true);
 	crit.addOrder(Order.asc("name"));
-	return crit.list();
+	List<MachineGroup> l = crit.list();
+	em.close();
+	return l;
     }
 
     public static MachineGroup getWithId(final Integer id) {
-	final Criteria crit = BaseEntity.getCriteria(MachineGroup.class, true);
+	EntityManager em = Database.newEntityManager();
+	final Criteria crit = BaseEntity.getCriteria(em, MachineGroup.class,
+		true);
 	crit.add(Restrictions.idEq(id));
 	crit.setMaxResults(1);
-	return (MachineGroup) crit.uniqueResult();
+	MachineGroup mg = (MachineGroup) crit.uniqueResult();
+	em.close();
+	return mg;
     }
 
     public static MachineGroup getWithName(final String name) {
-	final Criteria crit = BaseEntity.getCriteria(MachineGroup.class, true);
+	EntityManager em = Database.newEntityManager();
+	final Criteria crit = BaseEntity.getCriteria(em, MachineGroup.class,
+		true);
 	crit.add(Restrictions.eq("name", name));
 	crit.setMaxResults(1);
-	return (MachineGroup) crit.uniqueResult();
+	MachineGroup mg = (MachineGroup) crit.uniqueResult();
+	em.close();
+	return mg;
     }
 
     private Integer id;

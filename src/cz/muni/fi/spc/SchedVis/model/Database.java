@@ -62,13 +62,18 @@ public class Database {
 	return (Session) Database.getEntityManager().getDelegate();
     }
 
+    public static EntityManager newEntityManager() {
+	return Database.factory.createEntityManager();
+    }
+
     public static void persist(final BaseEntity e) {
 	final List<BaseEntity> list = new Vector<BaseEntity>();
 	list.add(e);
 	Database.persist(list);
     }
 
-    public static void persist(final Collection<? extends BaseEntity> c) {
+    public static synchronized void persist(
+	    final Collection<? extends BaseEntity> c) {
 	boolean endTransaction = false;
 	if (!Database.getEntityManager().getTransaction().isActive()) {
 	    Database.getEntityManager().getTransaction().begin();
@@ -88,7 +93,7 @@ public class Database {
 	Database.remove(list);
     }
 
-    public static void remove(final Collection<BaseEntity> c) {
+    public static synchronized void remove(final Collection<BaseEntity> c) {
 	boolean endTransaction = false;
 	if (!Database.getEntityManager().getTransaction().isActive()) {
 	    Database.getEntityManager().getTransaction().begin();
@@ -102,7 +107,7 @@ public class Database {
 	}
     }
 
-    public static boolean use(final String name) {
+    public static synchronized boolean use(final String name) {
 	if (!Database.ems.containsKey(name)) {
 	    final Map<String, String> map = new HashMap<String, String>();
 	    map.put("hibernate.connection.url", "jdbc:sqlite:/" + name);
