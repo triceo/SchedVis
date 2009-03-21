@@ -166,28 +166,11 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	File f = new File("tmp/schedvis-" + MachineRenderer.instanceId + "-"
 		+ this.clock + "-" + this.m.getId() + ".gif");
 	if (!f.exists()) {
-	    boolean dontWrite = false;
-	    try {
-		f.createNewFile();
-	    } catch (IOException e) {
-		Logger.getLogger(MachineRenderer.class).warn(
-			"Won't cache machine " + this.m.getId() + " at "
-			+ this.clock
-			+ ". Failed to create a file "
-			+ f.getAbsolutePath() + ".");
-		dontWrite = true;
-	    }
 	    BufferedImage img = this.actuallyDraw();
-	    if (!dontWrite) {
-		try {
-		    ImageIO.write(img, "gif", f);
-		} catch (IOException e) {
-		    Logger.getLogger(MachineRenderer.class).warn(
-			    "Won't cache machine " + this.m.getId() + " at "
-			    + this.clock
-			    + ". Failed to write into a file "
-			    + f.getAbsolutePath() + ".");
-		}
+	    try {
+		ImageIO.write(img, "gif", f);
+	    } catch (IOException e) {
+		Logger.getLogger(MachineRenderer.class).warn("Won't cache machine " + this.m.getId() + " at " + this.clock + ". Failed to write into a file " + f.getAbsolutePath() + ".");
 	    }
 	    return img;
 	} else {
