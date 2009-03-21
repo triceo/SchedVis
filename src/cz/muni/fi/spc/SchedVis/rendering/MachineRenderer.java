@@ -166,8 +166,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	Logger.getLogger(this.getClass()).debug(
 		this.m.getName() + "@" + this.clock + " started rendering.");
 	Double time = new Double(System.nanoTime());
-	File f = new File("tmp/schedvis-" + MachineRenderer.instanceId + "-"
-		+ this.m.getId() + "-00000" + this.clock + ".gif");
+	File f = new File(this.getFilename());
 	BufferedImage img = null;
 	if (!f.exists()) {
 	    img = this.actuallyDraw();
@@ -280,6 +279,20 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
 	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 		RenderingHints.VALUE_ANTIALIAS_OFF);
+    }
+
+    /**
+     * Get filename for the cache file.
+     * 
+     * @return The file name.
+     * @todo Make the max length of the id unlimited.
+     */
+    private String getFilename() {
+	String id = "0000000000" + this.m.getId();
+	String id2 = "0000000000" + this.clock;
+	return "tmp/schedvis-" + MachineRenderer.instanceId + "-"
+	+ id.substring(id.length() - 10, id.length()) + "-"
+	+ id2.substring(id2.length() - 10, id2.length()) + ".gif";
     }
 
     /**
