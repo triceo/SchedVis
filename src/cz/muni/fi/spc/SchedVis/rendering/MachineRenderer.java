@@ -26,10 +26,12 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,7 +60,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      * different databases don't interfere.
      */
     private static final String instanceId = new File(Database.getName())
-	    .getName();
+    .getName();
 
     /**
      * Holds the position on the timeline that is currently being rendered.
@@ -96,8 +98,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      * jobs).
      */
     private static final Color[] colors = { Color.BLUE, Color.CYAN,
-	    Color.GREEN, Color.GRAY, Color.MAGENTA, Color.ORANGE,
-	    Color.LIGHT_GRAY, Color.PINK, Color.YELLOW };
+	Color.GREEN, Color.GRAY, Color.MAGENTA, Color.ORANGE,
+	Color.LIGHT_GRAY, Color.PINK, Color.YELLOW };
 
     /**
      * Holds job colors so that the same jobs have always the same color,
@@ -110,9 +112,18 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      */
     private static Font font = new Font("Monospaced", Font.PLAIN, 9);
 
-    public MachineRenderer(final Machine m, final Integer clock) {
+    private final boolean isCaching;
+
+    private List<Event> events;
+
+    public MachineRenderer(final Machine m, final Integer clock,
+	    final boolean isCaching, final PropertyChangeListener l) {
 	this.m = m;
 	this.clock = clock;
+	this.isCaching = isCaching;
+	if (l != null) {
+	    this.addPropertyChangeListener(l);
+	}
     }
 
     /**
@@ -123,6 +134,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      */
     private BufferedImage actuallyDraw() {
 	Double time = new Double(System.nanoTime());
+	this.events = Machine.getLatestSchedule(this.m, this.clock);
 	final BufferedImage img = new BufferedImage(MachineRenderer.LINE_WIDTH,
 		this.m.getCPUs() * MachineRenderer.NUM_PIXELS_PER_CPU,
 		BufferedImage.TYPE_INT_RGB);
@@ -135,19 +147,24 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	} else {
 	    g.setColor(Color.DARK_GRAY);
 	}
-	g.fill3DRect(0, 0, img.getWidth() - 1, img.getHeight() - 1, true);
+	g.fillRect(0, 0, img.getWidth() - 1, img.getHeight() - 1);
 	this.drawJobs(g);
 	if (isActive) {
 	    g.setColor(Color.BLACK);
-	    g.drawString(this.m.getName(), 2, 10);
+	    g.drawString(this.m.getName(), 1, 9);
 	} else {
 	    g.setColor(Color.WHITE);
-	    g.drawString(this.m.getName() + " (off-line)", 2, 10);
+	    g.drawString(this.m.getName() + " (off-line)", 1, 9);
+	}
+	int zeroPos = this.getZero();
+	if (zeroPos > 0) {
+	    g.drawLine(zeroPos, 0, zeroPos, this.m.getCPUs()
+		    * MachineRenderer.NUM_PIXELS_PER_CPU);
 	}
 	time = System.nanoTime() - time;
 	Logger.getLogger(MachineRenderer.class).debug(
 		"Actually rendering " + this.m.getName() + " at " + this.clock
-			+ " took " + (time / 1000 / 1000 / 1000) + " seconds.");
+		+ " took " + (time / 1000 / 1000 / 1000) + " seconds.");
 	return img;
     }
 
@@ -163,35 +180,39 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	Logger.getLogger(this.getClass()).debug(
 		this.m.getName() + "@" + this.clock + " started rendering.");
 	Double time = new Double(System.nanoTime());
-	File f = new File(this.getFilename());
+	File f = new File(this.getFilename()).getAbsoluteFile();
 	BufferedImage img = null;
 	if (!f.exists()) {
 	    img = this.actuallyDraw();
 	    try {
-		ImageIO.write(img, "gif", f);
+		synchronized(this) { ImageIO.write(img, "gif", f); }
 	    } catch (IOException e) {
 		Logger.getLogger(MachineRenderer.class).warn(
 			"Won't cache machine " + this.m.getId() + " at "
-				+ this.clock + ". Failed to write into a file "
-				+ f.getAbsolutePath() + ".");
+			+ this.clock + ". Failed to write into a file "
+			+ f.getAbsolutePath() + ".");
 	    }
-	} else {
+	} else if (!this.isCaching) {
 	    try {
 		img = ImageIO.read(f);
 	    } catch (IOException e) {
 		Logger.getLogger(MachineRenderer.class).warn(
 			"Cannot read cache for machine " + this.m.getId()
-				+ " at " + this.clock
-				+ ". Failed to write into a file "
-				+ f.getAbsolutePath() + ".");
+			+ " at " + this.clock
+			+ ". Failed to write into a file "
+			+ f.getAbsolutePath() + ".");
 		img = this.actuallyDraw();
 	    }
 	}
 	time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 	Logger.getLogger(this.getClass()).debug(
 		this.m.getName() + "@" + this.clock
-			+ " finished rendering. Took " + time + " seconds.");
-	return img;
+		+ " finished rendering. Took " + time + " seconds.");
+	if (!this.isCaching) {
+	    return img;
+	} else {
+	    return null;
+	}
     }
 
     /**
@@ -202,7 +223,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      */
     private void drawJobs(final Graphics2D g) {
 	// render jobs in a schedule, one by one
-	for (final Event evt : Machine.getLatestSchedule(this.m, this.clock)) {
+	for (final Event evt : this.events) {
 	    // get assigned CPUs, set will ensure they are unique and sorted
 	    final Set<Integer> assignedCPUs = new HashSet<Integer>();
 	    for (final String num : evt.getAssignedCPUs().split(",")) {
@@ -230,8 +251,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		if (jobStartX < 0) {
 		    Logger.getLogger(this.getClass()).warn(
 			    "Machine " + this.m.getName() + " at " + this.clock
-				    + " is drawing " + jobStartX
-				    + " before its boundary.");
+			    + " is drawing " + jobStartX
+			    + " before its boundary.");
 		}
 		final int jobLength = this.getJobLength(evt);
 		final int ltY = crntCPU * MachineRenderer.NUM_PIXELS_PER_CPU;
@@ -244,17 +265,17 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		    // job with no deadlines
 		    g.setColor(this.getJobColor(evt.getJob()));
 		}
-		g.fill3DRect(jobStartX, ltY, jobLength, jobHgt, true);
+		g.fillRect(jobStartX, ltY, jobLength, jobHgt);
 		g.setColor(Color.BLACK);
 		g.drawString(evt.getJob().toString(), jobStartX + 2, ltY
 			+ jobHgt - 2);
 		int rightBoundary = jobStartX + jobLength
-			- MachineRenderer.LINE_WIDTH;
+		- MachineRenderer.LINE_WIDTH;
 		if (rightBoundary > 0) {
 		    Logger.getLogger(this.getClass()).warn(
 			    "Machine " + this.m.getName() + " at " + this.clock
-				    + " is drawing " + rightBoundary
-				    + " over its boundary.");
+			    + " is drawing " + rightBoundary
+			    + " over its boundary.");
 		}
 	    }
 	}
@@ -287,9 +308,9 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     private String getFilename() {
 	String id = "0000000000" + this.m.getId();
 	String id2 = "0000000000" + this.clock;
-	return "tmp/schedvis-" + MachineRenderer.instanceId + "-"
-		+ id.substring(id.length() - 10, id.length()) + "-"
-		+ id2.substring(id2.length() - 10, id2.length()) + ".gif";
+	return "../tmp/schedvis-" + MachineRenderer.instanceId + "-"
+	+ id.substring(id.length() - 10, id.length()) + "-"
+	+ id2.substring(id2.length() - 10, id2.length()) + ".gif";
     }
 
     /**
@@ -303,7 +324,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     private Color getJobColor(final Integer jobId) {
 	if (!MachineRenderer.jobColors.containsKey(jobId)) {
 	    MachineRenderer.jobColors.put(jobId, MachineRenderer.colors[jobId
-		    % MachineRenderer.colors.length]);
+	                                                                % MachineRenderer.colors.length]);
 	}
 	return MachineRenderer.jobColors.get(jobId);
     }
@@ -329,11 +350,25 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      */
     private int getStartingPosition(final Event evt) {
 	try {
-	    return Math.round((evt.getExpectedStart() - this.clock)
+	    return Math.round((evt.getExpectedStart() - this.events.get(0)
+		    .getExpectedStart())
 		    * MachineRenderer.NUM_PIXELS_PER_TICK);
 	} catch (final NullPointerException e) {
 	    return 0;
 	}
+    }
+
+    /**
+     * Get the position of the current clock on the timeline being rendered.
+     * 
+     * 
+     * @return
+     */
+    private int getZero() {
+	return Math.round(Math.abs(Math.min(this.events.get(0)
+		.getExpectedStart()
+		- this.clock, 0))
+		* MachineRenderer.NUM_PIXELS_PER_TICK);
     }
 
 }

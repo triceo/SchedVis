@@ -70,7 +70,7 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
     private JPanel getMachine(final Machine item) {
 	try {
 	    MachineRenderer mr = new MachineRenderer(item, TimelineSliderModel
-		    .getInstance().getValue());
+		    .getInstance().getValue(), false, null);
 	    ScheduleTreeCellRenderer.e.submit(mr);
 	    final MachinePanel pane = new MachinePanel();
 	    pane.setToolTipText("Machine: " + item.getName() + ", time: "
@@ -93,7 +93,7 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 	    final Object value, final boolean sel, final boolean expanded,
 	    final boolean leaf, final int row, final boolean hasFocus) {
 	final Object userObject = ((DefaultMutableTreeNode) value)
-		.getUserObject();
+	.getUserObject();
 	if (userObject instanceof Machine) { // is a machine
 	    return this.getMachine((Machine) userObject);
 	} else if (userObject instanceof MachineGroup) { // is a group
