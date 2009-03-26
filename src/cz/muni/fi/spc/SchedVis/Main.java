@@ -58,7 +58,7 @@ public final class Main implements PropertyChangeListener {
 	Set<Machine> machines = new HashSet<Machine>(Machine.getAllGroupless());
 
 	System.out.println("Submitting schedules for rendering...");
-	Double startProcessingTime = new Double(System.nanoTime());
+	Double startProcessingTime = Double.valueOf(System.nanoTime());
 	for (Integer clock : Event.getAllTicks()) {
 	    for (Machine m : machines) {
 		e.submit(new MachineRenderer(m, clock, true, Main.main));
@@ -76,8 +76,7 @@ public final class Main implements PropertyChangeListener {
 		// do nothing
 	    }
 	    // show some progress
-	    Double percentage = (new Double(Main.activeRenderers) / new Double(
-		    Main.totalRenderers)) * 100;
+	    Double percentage = (Main.activeRenderers / (double) Main.totalRenderers) * 100;
 	    System.out.println(percentage + " % schedules ("
 		    + Main.activeRenderers + "/" + Main.totalRenderers
 		    + ") left.");
@@ -184,7 +183,15 @@ public final class Main implements PropertyChangeListener {
 			+ " cannot be found! ");
 		Main.printUsageAndExit();
 	    }
-	    Main.importData(new Importer(machinesFile, dataFile, args[3]));
+	    File dbFile = new File(args[3]);
+	    if (dbFile.exists()) {
+		Database.use(dbFile.getAbsolutePath());
+	    } else {
+		System.out.print("Database file " + dbFile.getAbsolutePath()
+			+ "cannot be found! ");
+		Main.printUsageAndExit();
+	    }
+	    Main.importData(new Importer(machinesFile, dataFile));
 	}
     }
 

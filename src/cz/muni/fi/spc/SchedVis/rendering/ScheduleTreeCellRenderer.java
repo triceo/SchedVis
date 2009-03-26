@@ -21,6 +21,7 @@
 package cz.muni.fi.spc.SchedVis.rendering;
 
 import java.awt.Component;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -51,20 +52,14 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
     private static final long serialVersionUID = -5148385915562957149L;
 
     private JPanel getGroup(final MachineGroup item, final boolean showDetailed) {
-	try {
-	    GroupPanel target = new GroupPanel();
-	    if (item == null) {
-		target.add(new JLabel("Ungrouped Machines"));
-	    } else {
-		target.add(new JLabel("Group '" + item.getName() + "' of "
-			+ item.getMachines().size() + " machines."));
-	    }
-	    return target;
-	} catch (final Exception e) {
-	    final JPanel p = new JPanel();
-	    p.add(new JLabel("Wrong panel!"));
-	    return p;
+	GroupPanel target = new GroupPanel();
+	if (item == null) {
+	    target.add(new JLabel("Ungrouped Machines"));
+	} else {
+	    target.add(new JLabel("Group '" + item.getName() + "' of "
+		    + item.getMachines().size() + " machines."));
 	}
+	return target;
     }
 
     private JPanel getMachine(final Machine item) {
@@ -77,9 +72,13 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 		    + this.getClass());
 	    pane.setImage(mr.get());
 	    return pane;
-	} catch (final Exception e) {
+	} catch (final InterruptedException e) {
 	    final JPanel p = new JPanel();
-	    p.add(new JLabel("Wrong panel!"));
+	    p.add(new JLabel("InterruptedEception caught!"));
+	    return p;
+	} catch (final ExecutionException e) {
+	    final JPanel p = new JPanel();
+	    p.add(new JLabel("ExecutionException caught!"));
 	    return p;
 	}
     }
@@ -93,7 +92,7 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 	    final Object value, final boolean sel, final boolean expanded,
 	    final boolean leaf, final int row, final boolean hasFocus) {
 	final Object userObject = ((DefaultMutableTreeNode) value)
-	.getUserObject();
+		.getUserObject();
 	if (userObject instanceof Machine) { // is a machine
 	    return this.getMachine((Machine) userObject);
 	} else if (userObject instanceof MachineGroup) { // is a group

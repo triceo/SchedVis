@@ -35,10 +35,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 public abstract class BaseEntity implements Cloneable {
 
     protected static synchronized Criteria getCriteria(final EntityManager em,
-	    final Class<?> clazz,
-	    final boolean cacheable) {
+	    final Class<?> clazz, final boolean cacheable) {
 	final Criteria crit = ((Session) em.getDelegate())
-	.createCriteria(clazz);
+		.createCriteria(clazz);
 	crit.setCacheable(cacheable);
 	return crit;
     }

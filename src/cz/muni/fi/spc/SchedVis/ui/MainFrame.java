@@ -44,8 +44,9 @@ public class MainFrame extends JFrame {
      * 
      */
     private static final long serialVersionUID = 6652856626507094021L;
-    private static GroupsPanel groupsPanel;
-    private static ScheduleTree tree = null;
+    private static GroupsPanel groupsPanel = new GroupsPanel(
+	    "Show following groups:");
+    private static ScheduleTree tree = ScheduleTree.getInstance();
 
     /**
      * Create the GUI and show it. For thread safety, this method should be
@@ -78,7 +79,6 @@ public class MainFrame extends JFrame {
 	detailPane.add(new JLabel("Here goes future machine detail."));
 	schedulePanel.add(detailPane, BorderLayout.PAGE_START);
 	// get scrolling pane with a tree
-	MainFrame.tree = ScheduleTree.getInstance();
 	final JScrollPane pane = new JScrollPane(MainFrame.tree);
 	pane.setWheelScrollingEnabled(true);
 	schedulePanel.add(pane, BorderLayout.CENTER);
@@ -89,7 +89,6 @@ public class MainFrame extends JFrame {
 	leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.PAGE_AXIS));
 	final JPanel statsPanel = new JBorderedPanel("Statistics");
 	// get panel with group picker
-	MainFrame.groupsPanel = new GroupsPanel("Show following groups:");
 	leftPanel.add(statsPanel);
 	leftPanel.add(MainFrame.groupsPanel);
 

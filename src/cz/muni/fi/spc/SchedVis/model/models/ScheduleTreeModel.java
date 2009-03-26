@@ -116,8 +116,8 @@ public class ScheduleTreeModel extends DefaultTreeModel {
 			isInSet = true;
 		    }
 		} else {
-		    if (visibleGroups.contains(new Integer(
-			    ScheduleTreeModel.ID_UNGROUPED))) {
+		    if (visibleGroups.contains(Integer
+			    .valueOf(ScheduleTreeModel.ID_UNGROUPED))) {
 			isInSet = true;
 		    }
 		}

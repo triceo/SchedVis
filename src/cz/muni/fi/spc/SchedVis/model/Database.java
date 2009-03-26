@@ -20,6 +20,7 @@
  */
 package cz.muni.fi.spc.SchedVis.model;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -110,7 +111,8 @@ public class Database {
     public static synchronized boolean use(final String name) {
 	if (!Database.ems.containsKey(name)) {
 	    final Map<String, String> map = new HashMap<String, String>();
-	    map.put("hibernate.connection.url", "jdbc:sqlite:/" + name);
+	    map.put("hibernate.connection.url", "jdbc:sqlite:/"
+		    + new File(name).getAbsolutePath());
 	    Database.factory = Persistence.createEntityManagerFactory(
 		    "SchedVis", map);
 	    Database.ems.put(name, Database.factory.createEntityManager());

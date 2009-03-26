@@ -26,8 +26,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
-import java.text.ParseException;
-import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -61,13 +59,10 @@ import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleParser;
  */
 public class Importer extends SwingWorker<Void, Void> {
 
-    AbstractMap<String, Integer> machineIds = new HashMap<String, Integer>();
-
     private final File machinesFile;
     private final Integer machinesLineCount;
     private final File dataFile;
     private final Integer dataLineCount;
-    private final String name;
 
     private Integer parsedLines = 0;
     private Integer totalLines = 0;
@@ -76,13 +71,11 @@ public class Importer extends SwingWorker<Void, Void> {
 
     private final Map<String, Machine> machines = new HashMap<String, Machine>();
 
-    public Importer(final File machinesFile, final File dataFile,
-	    final String name) {
+    public Importer(final File machinesFile, final File dataFile) {
 	this.machinesFile = machinesFile;
 	this.machinesLineCount = this.countLines(machinesFile);
 	this.dataFile = dataFile;
 	this.dataLineCount = this.countLines(dataFile);
-	this.name = name;
     }
 
     private Integer countLines(final File file) {
@@ -103,11 +96,6 @@ public class Importer extends SwingWorker<Void, Void> {
 
     @Override
     public Void doInBackground() {
-	try {
-	    Database.use(this.name);
-	} catch (final Exception e) {
-	    return null;
-	}
 	if (!this.machinesFile.canRead() || !this.dataFile.canRead()) {
 	    return null;
 	}
@@ -115,9 +103,13 @@ public class Importer extends SwingWorker<Void, Void> {
 	    this.parseMachines(new BufferedReader(new FileReader(
 		    this.machinesFile)));
 	    this
-		    .parseDataSet(new BufferedReader(new FileReader(
-			    this.dataFile)));
-	} catch (final Exception e) {
+	    .parseDataSet(new BufferedReader(new FileReader(
+		    this.dataFile)));
+	} catch (final FileNotFoundException e) {
+	    return null;
+	} catch (cz.muni.fi.spc.SchedVis.parsers.schedule.ParseException e) {
+	    return null;
+	} catch (cz.muni.fi.spc.SchedVis.parsers.machines.ParseException e) {
 	    return null;
 	}
 	this.result = true;
@@ -143,8 +135,8 @@ public class Importer extends SwingWorker<Void, Void> {
 
     public void nextLineParsed() {
 	this.parsedLines++;
-	final Double progress = (new Double(this.parsedLines * 100))
-		/ (new Double(this.totalLines + 1));
+	final Double progress = (this.parsedLines * 100)
+	/ (double) (this.totalLines + 1);
 	if (progress > 100) {
 	    this.setProgress(100);
 	} else if (progress < 0) {
@@ -163,9 +155,9 @@ public class Importer extends SwingWorker<Void, Void> {
      * @todo Somehow make assigned-CPUs a table if its own.
      */
     private void parseDataSet(final BufferedReader reader)
-	    throws cz.muni.fi.spc.SchedVis.parsers.schedule.ParseException {
+    throws cz.muni.fi.spc.SchedVis.parsers.schedule.ParseException {
 	this.setProgress(0);
-	final AbstractMap<String, Integer> eventTypes = new HashMap<String, Integer>();
+	final Map<String, Integer> eventTypes = new HashMap<String, Integer>();
 	eventTypes.put("job-arrival", EventType.EVENT_JOB_ARRIVAL);
 	eventTypes.put("job-execution-start",
 		EventType.EVENT_JOB_EXECUTION_START);
@@ -182,14 +174,14 @@ public class Importer extends SwingWorker<Void, Void> {
 		EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD);
 	eventTypes.put("machine-restart-move-bad",
 		EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD);
-	final Iterator<String> eventTypeIterator = eventTypes.keySet()
-		.iterator();
+	final Iterator<Map.Entry<String, Integer>> eventTypeIterator = eventTypes
+	.entrySet().iterator();
 	final List<EventType> etl = new Vector<EventType>();
 	while (eventTypeIterator.hasNext()) {
 	    final EventType et = new EventType();
-	    final String key = eventTypeIterator.next();
-	    et.setId(eventTypes.get(key));
-	    et.setName(key);
+	    final Map.Entry<String, Integer> item = eventTypeIterator.next();
+	    et.setId(item.getValue());
+	    et.setName(item.getKey());
 	    etl.add(et);
 	}
 	Database.persist(etl);
@@ -227,7 +219,7 @@ public class Importer extends SwingWorker<Void, Void> {
 	    bel.add(evt);
 	    if (event instanceof EventHasData) {
 		final List<ScheduleMachineData> data = ((EventHasData) event)
-			.getData();
+		.getData();
 		for (final ScheduleMachineData machine : data) {
 		    eventId++;
 		    for (final ScheduleJobData job : machine.getJobs()) {
@@ -250,8 +242,7 @@ public class Importer extends SwingWorker<Void, Void> {
 		}
 	    }
 	    // update progress
-	    final Double progress = ((new Double(lineId * 100))
-		    / (new Double(totalEvents)) / 2) + 50;
+	    final Double progress = (((lineId * 100) / (double) totalEvents) / 2) + 50;
 	    this.setProgress(progress.intValue());
 	    if (bel.size() > 2000) { // persist some items
 		Database.persist(bel);
@@ -275,7 +266,7 @@ public class Importer extends SwingWorker<Void, Void> {
      * @throws ParseException
      */
     private void parseMachines(final BufferedReader reader)
-	    throws cz.muni.fi.spc.SchedVis.parsers.machines.ParseException {
+    throws cz.muni.fi.spc.SchedVis.parsers.machines.ParseException {
 	// ready the parser
 	this.parsedLines = 0;
 	this.totalLines = this.machinesLineCount;
@@ -299,9 +290,8 @@ public class Importer extends SwingWorker<Void, Void> {
 	    mcn.setRAM(machine.getMemory());
 	    machinesList.add(mcn);
 	    // update progress
-	    final Double progress = (new Double(machineId * 100))
-		    / (new Double(totalMachines)) / 2;
-	    this.setProgress(Math.round(progress.intValue()));
+	    final Double progress = ((machineId * 100) / (double) totalMachines) / 2;
+	    this.setProgress(progress.intValue());
 	}
 	Database.persist(machinesList);
     }

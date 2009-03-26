@@ -72,11 +72,11 @@ public class Groups extends JDialog implements ActionListener,
     private GroupedMachinesList availableMachinesList;
     private GroupedMachinesList groupedMachinesList;
 
-    private final String COMMAND__CLOSE_DIALOG = "closeDialog";
-    private final String COMMAND__CREATE_NEW_GROUP = "createNewGroup";
-    private final String COMMAND__DELETE_GROUP = "deleteGroup";
-    private final String COMMAND__ADD_MACHINE_TO_GROUP = "addToGroup";
-    private final String COMMAND__REMOVE_MACHINE_FROM_GROUP = "removeFromGroup";
+    private static final String COMMAND__CLOSE_DIALOG = "closeDialog";
+    private static final String COMMAND__CREATE_NEW_GROUP = "createNewGroup";
+    private static final String COMMAND__DELETE_GROUP = "deleteGroup";
+    private static final String COMMAND__ADD_MACHINE_TO_GROUP = "addToGroup";
+    private static final String COMMAND__REMOVE_MACHINE_FROM_GROUP = "removeFromGroup";
 
     /**
      * 
@@ -234,7 +234,7 @@ public class Groups extends JDialog implements ActionListener,
     public void actionPerformed(final ActionEvent e) {
 	final String command = e.getActionCommand();
 	Database.getEntityManager().getTransaction().begin();
-	if (command.equals(this.COMMAND__CREATE_NEW_GROUP)) {
+	if (command.equals(Groups.COMMAND__CREATE_NEW_GROUP)) {
 	    final String text = this.newGroupName.getText().trim();
 	    if (text.length() == 0) {
 		JOptionPane.showMessageDialog(this,
@@ -254,7 +254,7 @@ public class Groups extends JDialog implements ActionListener,
 			    "Cannot create a group. Probably already exists.");
 		}
 	    }
-	} else if (command.equals(this.COMMAND__DELETE_GROUP)) {
+	} else if (command.equals(Groups.COMMAND__DELETE_GROUP)) {
 	    final MachineGroup mg = MachineGroup
 		    .getWithName((String) this.availableGroupsList
 			    .getSelectedItem());
@@ -279,7 +279,7 @@ public class Groups extends JDialog implements ActionListener,
 	    } else {
 		JOptionPane.showMessageDialog(this, "Cannot delete a group.");
 	    }
-	} else if (command.equals(this.COMMAND__ADD_MACHINE_TO_GROUP)) {
+	} else if (command.equals(Groups.COMMAND__ADD_MACHINE_TO_GROUP)) {
 	    for (final Object machineName : this.availableMachinesList
 		    .getSelectedValues()) {
 		final MachineGroup ge = MachineGroup
@@ -289,7 +289,7 @@ public class Groups extends JDialog implements ActionListener,
 	    }
 	    this.availableMachinesList.update();
 	    this.groupedMachinesList.update();
-	} else if (command.equals(this.COMMAND__REMOVE_MACHINE_FROM_GROUP)) {
+	} else if (command.equals(Groups.COMMAND__REMOVE_MACHINE_FROM_GROUP)) {
 	    for (final Object machineName : this.groupedMachinesList
 		    .getSelectedValues()) {
 		final Machine me = Machine.getWithName((String) machineName);
@@ -297,7 +297,7 @@ public class Groups extends JDialog implements ActionListener,
 	    }
 	    this.availableMachinesList.update();
 	    this.groupedMachinesList.update();
-	} else if (command.equals(this.COMMAND__CLOSE_DIALOG)) {
+	} else if (command.equals(Groups.COMMAND__CLOSE_DIALOG)) {
 	    this.setVisible(false);
 	}
 	Database.getEntityManager().getTransaction().commit();
@@ -346,7 +346,7 @@ public class Groups extends JDialog implements ActionListener,
 	topLeftPane.add(label);
 	topLeftPane.add(this.availableGroupsList);
 	this.deleteGroupButton = new JButton("Delete");
-	this.deleteGroupButton.setActionCommand(this.COMMAND__DELETE_GROUP);
+	this.deleteGroupButton.setActionCommand(Groups.COMMAND__DELETE_GROUP);
 	this.deleteGroupButton.addActionListener(this);
 	this.deleteGroupButton.setEnabled(false);
 	topLeftPane.add(this.deleteGroupButton);
@@ -356,7 +356,7 @@ public class Groups extends JDialog implements ActionListener,
 	this.newGroupName = new JTextField(10);
 	topRightPane.add(this.newGroupName);
 	this.newGroupButton = new JButton("Create group");
-	this.newGroupButton.setActionCommand(this.COMMAND__CREATE_NEW_GROUP);
+	this.newGroupButton.setActionCommand(Groups.COMMAND__CREATE_NEW_GROUP);
 	this.newGroupButton.addActionListener(this);
 	topRightPane.add(this.newGroupButton);
 	topPane.add(topRightPane);
@@ -379,13 +379,13 @@ public class Groups extends JDialog implements ActionListener,
 	buttonsPane.setLayout(new BoxLayout(buttonsPane, BoxLayout.PAGE_AXIS));
 	this.addMachineButton = new JButton("<<");
 	this.addMachineButton
-		.setActionCommand(this.COMMAND__ADD_MACHINE_TO_GROUP);
+		.setActionCommand(Groups.COMMAND__ADD_MACHINE_TO_GROUP);
 	this.addMachineButton.setEnabled(false);
 	this.addMachineButton.addActionListener(this);
 	this.removeMachineButton = new JButton(">>");
 	this.removeMachineButton.setEnabled(false);
 	this.removeMachineButton
-		.setActionCommand(this.COMMAND__REMOVE_MACHINE_FROM_GROUP);
+		.setActionCommand(Groups.COMMAND__REMOVE_MACHINE_FROM_GROUP);
 	this.removeMachineButton.addActionListener(this);
 	buttonsPane.add(this.addMachineButton);
 	buttonsPane.add(this.removeMachineButton);
@@ -402,7 +402,7 @@ public class Groups extends JDialog implements ActionListener,
 	// add dialog-closing button
 	bottomPane.setLayout(new FlowLayout(FlowLayout.CENTER));
 	this.closeButton = new JButton("Finish");
-	this.closeButton.setActionCommand(this.COMMAND__CLOSE_DIALOG);
+	this.closeButton.setActionCommand(Groups.COMMAND__CLOSE_DIALOG);
 	this.closeButton.addActionListener(this);
 	bottomPane.add(this.closeButton);
 	this.add(bottomPane, BorderLayout.PAGE_END);

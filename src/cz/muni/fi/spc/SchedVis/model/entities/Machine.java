@@ -75,14 +75,14 @@ public class Machine extends BaseEntity {
 	return l;
     }
 
-    public static List<Event> getLatestSchedule(
-	    final Machine which, final Integer eventId) {
+    public static List<Event> getLatestSchedule(final Machine which,
+	    final Integer eventId) {
 	return Machine.getLatestScheduleInternal(which, eventId, 0);
     }
 
     @SuppressWarnings("unchecked")
-    private static List<Event> getLatestScheduleInternal(
-	    final Machine which, final Integer eventId, final Integer trial) {
+    private static List<Event> getLatestScheduleInternal(final Machine which,
+	    final Integer eventId, final Integer trial) {
 	EntityManager em = Database.newEntityManager();
 	final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
 	crit.add(Restrictions.eq("sourceMachine", which));
@@ -125,16 +125,18 @@ public class Machine extends BaseEntity {
     }
 
     public static boolean isActive(final Machine m, final Integer clock) {
-	if (Machine.machineEvents == null) {
-	    Machine.machineEvents = new EventType[] {
-		    EventType.get(EventType.EVENT_MACHINE_FAILURE),
-		    EventType.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
-		    EventType
-		    .get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
-		    EventType.get(EventType.EVENT_MACHINE_RESTART),
-		    EventType.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD),
-		    EventType
-		    .get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) };
+	synchronized (new Machine()) {
+	    if (Machine.machineEvents == null) {
+		Machine.machineEvents = new EventType[] {
+			EventType.get(EventType.EVENT_MACHINE_FAILURE),
+			EventType.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
+			EventType
+			.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
+			EventType.get(EventType.EVENT_MACHINE_RESTART),
+			EventType.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD),
+			EventType
+			.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) };
+	    }
 	}
 	EntityManager em = Database.newEntityManager();
 	final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
@@ -147,9 +149,10 @@ public class Machine extends BaseEntity {
 	em.close();
 	try {
 	    Integer id = e.getType().getId();
-	    if ((id == EventType.EVENT_MACHINE_FAILURE)
-		    || (id == EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD)
-		    || (id == EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD)) {
+	    if ((id.equals(EventType.EVENT_MACHINE_FAILURE))
+		    || (id.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD))
+		    || (id
+			    .equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD))) {
 		return false;
 	    } else {
 		return true;
