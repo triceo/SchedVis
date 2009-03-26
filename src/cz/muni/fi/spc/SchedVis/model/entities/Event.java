@@ -50,6 +50,17 @@ import cz.muni.fi.spc.SchedVis.model.Database;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Event extends BaseEntity {
 
+    @SuppressWarnings("unchecked")
+    public static List<Integer> getAllTicks() {
+	EntityManager em = Database.newEntityManager();
+	final List<Integer> l = ((Session) em.getDelegate())
+	.createSQLQuery(
+		"SELECT DISTINCT clock FROM Event WHERE parent_FK IS NOT NULL ORDER BY clock ASC")
+		.list();
+	em.close();
+	return l;
+    }
+
     public static Event getFirst() {
 	EntityManager em = Database.newEntityManager();
 	final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);

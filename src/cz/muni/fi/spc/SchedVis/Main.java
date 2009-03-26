@@ -56,18 +56,10 @@ public final class Main implements PropertyChangeListener {
 
 	System.out.println("Gathering data for rendering...");
 	Set<Machine> machines = new HashSet<Machine>(Machine.getAllGroupless());
-	// get all ticks
-	Set<Integer> ticks = new HashSet<Integer>();
-	Integer currentClock = 0;
-	Event currentEvent = null;
-	while ((currentEvent = Event.getNext(currentClock)) != null) {
-	    currentClock = currentEvent.getClock();
-	    ticks.add(currentClock);
-	}
 
 	System.out.println("Submitting schedules for rendering...");
 	Double startProcessingTime = new Double(System.nanoTime());
-	for (Integer clock : ticks) {
+	for (Integer clock : Event.getAllTicks()) {
 	    for (Machine m : machines) {
 		e.submit(new MachineRenderer(m, clock, true, Main.main));
 		Main.activeRenderers++;
