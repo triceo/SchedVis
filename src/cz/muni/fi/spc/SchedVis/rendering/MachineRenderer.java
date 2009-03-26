@@ -29,10 +29,8 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -100,12 +98,6 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     private static final Color[] colors = { Color.BLUE, Color.CYAN,
 	Color.GREEN, Color.GRAY, Color.MAGENTA, Color.ORANGE,
 	Color.LIGHT_GRAY, Color.PINK, Color.YELLOW };
-
-    /**
-     * Holds job colors so that the same jobs have always the same color,
-     * regardless of schedule position or group placement.
-     */
-    private static final Map<Integer, Color> jobColors = new HashMap<Integer, Color>();
 
     /**
      * Holds a font used throughout the schedules. Memory use improvement.
@@ -322,11 +314,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      *         job is overdue.
      */
     private Color getJobColor(final Integer jobId) {
-	if (!MachineRenderer.jobColors.containsKey(jobId)) {
-	    MachineRenderer.jobColors.put(jobId, MachineRenderer.colors[jobId
-	                                                                % MachineRenderer.colors.length]);
-	}
-	return MachineRenderer.jobColors.get(jobId);
+	return MachineRenderer.colors[jobId % MachineRenderer.colors.length];
     }
 
     private int getJobLength(final Event evt) {
