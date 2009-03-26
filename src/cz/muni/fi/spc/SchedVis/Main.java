@@ -20,8 +20,9 @@
  */
 package cz.muni.fi.spc.SchedVis;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -41,12 +42,17 @@ import cz.muni.fi.spc.SchedVis.ui.MainFrame;
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
-public final class Main {
+public final class Main implements PropertyChangeListener {
+
+    private static final Main main = new Main();
 
     private static MainFrame frame;
 
+    private static Integer activeRenderers = 0;
+    private static Integer totalRenderers = 0;
+
     private static void cache() {
-	ExecutorService e = Executors.newFixedThreadPool(20);
+	ExecutorService e = Executors.newFixedThreadPool(32);
 
 	System.out.println("Gathering data for rendering...");
 	Set<Machine> machines = new HashSet<Machine>(Machine.getAllGroupless());
@@ -60,41 +66,29 @@ public final class Main {
 	}
 
 	System.out.println("Submitting schedules for rendering...");
-	Integer processedTicks = 0;
-	Set<MachineRenderer> rs = Collections
-		.synchronizedSet(new HashSet<MachineRenderer>());
 	Double startProcessingTime = new Double(System.nanoTime());
 	for (Integer clock : ticks) {
 	    for (Machine m : machines) {
-		MachineRenderer r = new MachineRenderer(m, clock);
-		e.submit(r);
-		rs.add(r);
+		e.submit(new MachineRenderer(m, clock, true, Main.main));
+		Main.activeRenderers++;
+		Main.totalRenderers++;
 	    }
-	    processedTicks++;
 	}
 
 	e.shutdown();
-	Integer totalSchedules = machines.size() * ticks.size();
+	System.out.println("Rendering in progress...");
 	while (!e.isTerminated()) {
 	    try {
 		Thread.sleep(5000);
 	    } catch (InterruptedException ex) {
 		// do nothing
 	    }
-	    Set<MachineRenderer> rs2 = new HashSet<MachineRenderer>(rs);
-	    for (MachineRenderer r : rs) {
-		if (r.isDone()) {
-		    rs2.remove(r);
-		}
-	    }
-	    rs = rs2;
-	    Double percentage = (new Double(rs.size()) / new Double(
-		    totalSchedules)) * 100;
-	    Double processingTime = System.nanoTime() - startProcessingTime;
-	    Double timeLeft = (processingTime * (100 / (100 - percentage))) / 1000 / 1000 / 1000;
-	    System.out.println(percentage + " % (" + rs.size() + " out of "
-		    + totalSchedules + " schedules) left to render. Estimated "
-		    + timeLeft + " more second left.");
+	    // show some progress
+	    Double percentage = (new Double(Main.activeRenderers) / new Double(
+		    Main.totalRenderers)) * 100;
+	    System.out.println(percentage + " % schedules ("
+		    + Main.activeRenderers + "/" + Main.totalRenderers
+		    + ") left.");
 	}
 
 	Double time = (System.nanoTime() - startProcessingTime) / 1000 / 1000 / 1000;
@@ -187,9 +181,9 @@ public final class Main {
 	    File machinesFile = new File(args[1]);
 	    if (!machinesFile.exists()) {
 		System.out
-			.print("Machines file "
-				+ machinesFile.getAbsolutePath()
-				+ " cannot be found! ");
+		.print("Machines file "
+			+ machinesFile.getAbsolutePath()
+			+ " cannot be found! ");
 		Main.printUsageAndExit();
 	    }
 	    File dataFile = new File(args[2]);
@@ -205,7 +199,7 @@ public final class Main {
     public static void printUsageAndExit() {
 	System.out.println("Please choose one of the operations available: ");
 	System.out
-		.println(" ant import -Dmachines=<machineFileName> -Devents=<datasetFileName> -Ddatabase=<databaseName>");
+	.println(" ant import -Dmachines=<machineFileName> -Devents=<datasetFileName> -Ddatabase=<databaseName>");
 	System.out.println(" ant cache -Ddatabase=<databaseFileName>");
 	System.out.println(" ant run -Ddatabase=<databaseFileName>");
 	System.exit(1);
@@ -214,6 +208,13 @@ public final class Main {
     public static void update() {
 	if (Main.frame != null) {
 	    Main.frame.update();
+	}
+    }
+
+    @Override
+    public synchronized void propertyChange(final PropertyChangeEvent evt) {
+	if (((MachineRenderer) evt.getSource()).isDone()) {
+	    Main.activeRenderers--;
 	}
     }
 
