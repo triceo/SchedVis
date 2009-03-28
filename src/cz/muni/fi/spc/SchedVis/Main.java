@@ -176,7 +176,8 @@ public final class Main implements PropertyChangeListener {
 
 	Double time = (System.nanoTime() - startProcessingTime) / 1000 / 1000 / 1000;
 	System.out.println("Rendering successfully finished.");
-	System.out.println("Took " + time + " seconds.");
+	System.out.println("Took " + new PrintfFormat("%.2f").sprintf(time)
+		+ " seconds.");
 
 	System.exit(0);
     }
@@ -242,17 +243,21 @@ public final class Main implements PropertyChangeListener {
 	if (((MachineRenderer) evt.getSource()).isDone()) {
 	    Main.doneRenderers++;
 	    Main.queuedRenderers--;
-	    if (Main.doneRenderers % 250 == 0) {
+	    Integer perMille = Main.totalRenderers / 1000;
+	    if (Main.doneRenderers % perMille == 0) {
 		Double timeItTook = (System.nanoTime() - Main.lastReportTime) / 1000.0 / 1000.0 / 1000.0;
 		Main.lastReportTime = System.nanoTime();
 		// show some progress
 		Double percentage = 100 - (Main.doneRenderers / (double) Main.totalRenderers) * 100;
-		System.out.println(percentage + " % schedules ("
-			+ (Main.totalRenderers - Main.doneRenderers) + "/"
-			+ Main.totalRenderers
-			+ ") left. Took "
-			+ timeItTook
-			+ " sec.");
+		System.out.println(new PrintfFormat("%.2f")
+		.sprintf(percentage)
+		+ " % schedules ("
+		+ (Main.totalRenderers - Main.doneRenderers)
+		+ "/"
+		+ Main.totalRenderers
+		+ ") left. Took "
+		+ new PrintfFormat("%.3f").sprintf(timeItTook)
+		+ " sec.");
 	    }
 	}
 	if (Main.queuedRenderers == 0) {
