@@ -214,13 +214,15 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	// render jobs in a schedule, one by one
 	for (final Event evt : this.events) {
 	    // get assigned CPUs, set will ensure they are unique and sorted
-	    if (!this.sets.containsKey(evt.getAssignedCPUs())) {
-		final Set<Integer> assignedCPUs = new HashSet<Integer>();
-		for (final String num : evt.getAssignedCPUs().split(",")) {
-		    assignedCPUs.add(Integer.valueOf(num));
+	    synchronized (this) {
+		if (!this.sets.containsKey(evt.getAssignedCPUs())) {
+		    final Set<Integer> assignedCPUs = new HashSet<Integer>();
+		    for (final String num : evt.getAssignedCPUs().split(",")) {
+			assignedCPUs.add(Integer.valueOf(num));
+		    }
+		    this.sets.put(evt.getAssignedCPUs(), assignedCPUs
+			    .toArray(new Integer[0]));
 		}
-		this.sets.put(evt.getAssignedCPUs(), assignedCPUs
-			.toArray(new Integer[0]));
 	    }
 	    /*
 	     * now isolate all the contiguous blocks of CPUs in the job and
