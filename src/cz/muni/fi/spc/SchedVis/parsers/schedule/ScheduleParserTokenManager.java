@@ -1012,7 +1012,6 @@ public class ScheduleParserTokenManager implements ScheduleParserConstants {
 		    }
 		} while (i != startsAt);
 	    } else {
-		int hiByte = (this.curChar >> 8);
 		do {
 		    switch (this.jjstateSet[--i]) {
 		    default:

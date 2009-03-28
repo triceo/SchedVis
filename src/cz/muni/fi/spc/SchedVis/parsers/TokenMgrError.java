@@ -91,7 +91,7 @@ public class TokenMgrError extends Error {
 		} else {
 		    retval.append(ch);
 		}
-	    continue;
+		continue;
 	    }
 	}
 	return retval.toString();
@@ -119,8 +119,8 @@ public class TokenMgrError extends Error {
 			: ("\""
 				+ TokenMgrError.addEscapes(String
 					.valueOf(curChar)) + "\"")
-					+ " (" + (int) curChar + "), ") + "after : \""
-					+ TokenMgrError.addEscapes(errorAfter) + "\"");
+				+ " (" + (int) curChar + "), ") + "after : \""
+		+ TokenMgrError.addEscapes(errorAfter) + "\"");
     }
 
     /**

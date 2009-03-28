@@ -30,6 +30,11 @@ package cz.muni.fi.spc.SchedVis.parsers;
 public class ParseException extends Exception {
 
     /**
+     * 
+     */
+    private static final long serialVersionUID = 7382158732602049820L;
+
+    /**
      * This variable determines which constructor was used to create this object
      * and thereby affects the semantics of the "getMessage" method (see below).
      */
@@ -170,9 +175,8 @@ public class ParseException extends Exception {
 	    if (maxSize < expectedTokenSequence.length) {
 		maxSize = expectedTokenSequence.length;
 	    }
-	    for (int j = 0; j < expectedTokenSequence.length; j++) {
-		expected.append(this.tokenImage[expectedTokenSequence[j]])
-			.append(' ');
+	    for (int element : expectedTokenSequence) {
+		expected.append(this.tokenImage[element]).append(' ');
 	    }
 	    if (expectedTokenSequence[expectedTokenSequence.length - 1] != 0) {
 		expected.append("...");

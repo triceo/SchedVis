@@ -191,7 +191,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
     }
 
     final public MachinesList machine_data(final MachinesList machines)
-    throws ParseException {
+	    throws ParseException {
 	if (this.getImporter() != null) {
 	    this.getImporter().nextLineParsed();
 	}
@@ -239,7 +239,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		break;
 	    default:
 		this.jj_la1[0] = this.jj_gen;
-	    break label_1;
+		break label_1;
 	    }
 	}
 	label_2: while (true) {
@@ -249,7 +249,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		break;
 	    default:
 		this.jj_la1[1] = this.jj_gen;
-	    break label_2;
+		break label_2;
 	    }
 	    this.jj_consume_token(4);
 	}
