@@ -45,198 +45,193 @@ import cz.muni.fi.spc.SchedVis.model.Database;
 @Entity
 public class Machine extends BaseEntity {
 
-    private static EventType[] machineEvents = null;
+	private static EventType[] machineEvents = null;
 
-    @SuppressWarnings("unchecked")
-    public static List<Machine> getAll(final Integer groupId) {
-	EntityManager em = Database.newEntityManager();
-	final Criteria crit = BaseEntity.getCriteria(em, Machine.class, true);
-	if (groupId != null) {
-	    crit.add(Restrictions.eq("group", MachineGroup.getWithId(groupId)));
-	} else {
-	    crit.add(Restrictions.isNull("group"));
+	@SuppressWarnings("unchecked")
+	public static List<Machine> getAll(final Integer groupId) {
+		EntityManager em = Database.newEntityManager();
+		final Criteria crit = BaseEntity.getCriteria(em, Machine.class, true);
+		if (groupId != null) {
+			crit.add(Restrictions.eq("group", MachineGroup.getWithId(groupId)));
+		} else {
+			crit.add(Restrictions.isNull("group"));
+		}
+		crit.addOrder(Order.asc("name"));
+		List<Machine> l = crit.list();
+		em.close();
+		return l;
 	}
-	crit.addOrder(Order.asc("name"));
-	List<Machine> l = crit.list();
-	em.close();
-	return l;
-    }
 
-    @SuppressWarnings("unchecked")
-    public static List<Machine> getAllGroupless() {
-	EntityManager em = Database.newEntityManager();
-	final Criteria crit = BaseEntity.getCriteria(em, Machine.class, false);
-	crit.addOrder(Order.asc("name"));
-	List<Machine> l = crit.list();
-	em.close();
-	return l;
-    }
+	@SuppressWarnings("unchecked")
+	public static List<Machine> getAllGroupless() {
+		EntityManager em = Database.newEntityManager();
+		final Criteria crit = BaseEntity.getCriteria(em, Machine.class, false);
+		crit.addOrder(Order.asc("name"));
+		List<Machine> l = crit.list();
+		em.close();
+		return l;
+	}
 
-    @SuppressWarnings("unchecked")
-    public static List<Event> getLatestSchedule(final Machine which,
+	@SuppressWarnings("unchecked")
+	public static List<Event> getLatestSchedule(final Machine which,
 	    final Integer eventId) {
-	EntityManager em = Database.newEntityManager();
-	final Criteria crit = BaseEntity.getCriteria(em, Event.class, false);
-	crit.add(Restrictions.eq("sourceMachine", which));
-	crit.add(Restrictions.le("clock", eventId));
-	crit.add(Restrictions.isNotNull("parent"));
-	crit.addOrder(Order.desc("id"));
-	crit.setMaxResults(1);
-	final Event evt = (Event) crit.uniqueResult();
-	if (evt == null) {
-	    em.close();
-	    return new Vector<Event>();
+		EntityManager em = Database.newEntityManager();
+		final Criteria crit = BaseEntity.getCriteria(em, Event.class, false);
+		crit.add(Restrictions.eq("sourceMachine", which));
+		crit.add(Restrictions.le("clock", eventId));
+		crit.add(Restrictions.isNotNull("parent"));
+		crit.addOrder(Order.desc("id"));
+		crit.setMaxResults(1);
+		final Event evt = (Event) crit.uniqueResult();
+		if (evt == null) {
+			em.close();
+			return new Vector<Event>();
+		}
+		Criteria crit2 = BaseEntity.getCriteria(em, Event.class, false);
+		crit2.add(Restrictions.eq("sourceMachine", which));
+		crit2.add(Restrictions.eq("parent", evt.getParent()));
+		crit2.addOrder(Order.asc("expectedStart"));
+		List<Event> l = crit2.list();
+		em.close();
+		return l;
 	}
-	Criteria crit2 = BaseEntity.getCriteria(em, Event.class, false);
-	crit2.add(Restrictions.eq("sourceMachine", which));
-	crit2.add(Restrictions.eq("parent", evt.getParent()));
-	crit2.addOrder(Order.asc("expectedStart"));
-	List<Event> l = crit2.list();
-	em.close();
-	return l;
-    }
 
-    public static Machine getWithId(final Integer id) {
-	return (Machine) Database.getSession().get(Machine.class, id);
-    }
-
-    public static Machine getWithName(final String name) {
-	EntityManager em = Database.newEntityManager();
-	final Criteria crit = BaseEntity.getCriteria(em, Machine.class, true);
-	crit.add(Restrictions.eq("name", name));
-	crit.setMaxResults(1);
-	Machine m = (Machine) crit.uniqueResult();
-	em.close();
-	return m;
-    }
-
-    public static boolean isActive(final Machine m, final Integer clock) {
-	synchronized (new Machine()) {
-	    if (Machine.machineEvents == null) {
-		Machine.machineEvents = new EventType[] {
-			EventType.get(EventType.EVENT_MACHINE_FAILURE),
-			EventType
-				.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
-			EventType
-				.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
-			EventType.get(EventType.EVENT_MACHINE_RESTART),
-			EventType
-				.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD),
-			EventType
-				.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) };
-	    }
+	public static Machine getWithId(final Integer id) {
+		return (Machine) Database.getSession().get(Machine.class, id);
 	}
-	EntityManager em = Database.newEntityManager();
-	final Criteria crit = BaseEntity.getCriteria(em, Event.class, false);
-	crit.add(Restrictions.in("type", Machine.machineEvents));
-	crit.add(Restrictions.eq("sourceMachine", m));
-	crit.add(Restrictions.lt("clock", clock));
-	crit.addOrder(Order.desc("clock"));
-	crit.setMaxResults(1);
-	Event e = (Event) crit.uniqueResult();
-	em.close();
-	try {
-	    Integer id = e.getType().getId();
-	    if ((id.equals(EventType.EVENT_MACHINE_FAILURE))
-		    || (id.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD))
-		    || (id
-			    .equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD))) {
-		return false;
-	    } else {
-		return true;
-	    }
-	} catch (NullPointerException ex) {
-	    // when no such event is found, the machine is active.
-	    return true;
+
+	public static Machine getWithName(final String name) {
+		EntityManager em = Database.newEntityManager();
+		final Criteria crit = BaseEntity.getCriteria(em, Machine.class, true);
+		crit.add(Restrictions.eq("name", name));
+		crit.setMaxResults(1);
+		Machine m = (Machine) crit.uniqueResult();
+		em.close();
+		return m;
 	}
-    }
 
-    private String os;
-    private Integer id;
-    private Integer cpus;
-    private Integer hdd;
-    private String name;
-    private String platform;
-    private Integer ram;
-    private Integer speed;
+	public static boolean isActive(final Machine m, final Integer clock) {
+		synchronized (Machine.machineEvents) {
+			if (Machine.machineEvents == null) {
+				Machine.machineEvents = new EventType[] {
+				    EventType.get(EventType.EVENT_MACHINE_FAILURE),
+				    EventType.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
+				    EventType.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
+				    EventType.get(EventType.EVENT_MACHINE_RESTART),
+				    EventType.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD),
+				    EventType.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) };
+			}
+		}
+		EntityManager em = Database.newEntityManager();
+		final Criteria crit = BaseEntity.getCriteria(em, Event.class, false);
+		crit.add(Restrictions.in("type", Machine.machineEvents));
+		crit.add(Restrictions.eq("sourceMachine", m));
+		crit.add(Restrictions.lt("clock", clock));
+		crit.addOrder(Order.desc("clock"));
+		crit.setMaxResults(1);
+		Event e = (Event) crit.uniqueResult();
+		em.close();
+		try {
+			Integer id = e.getType().getId();
+			if ((id.equals(EventType.EVENT_MACHINE_FAILURE))
+			    || (id.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD))
+			    || (id.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD))) {
+				return false;
+			} else {
+				return true;
+			}
+		} catch (NullPointerException ex) {
+			// when no such event is found, the machine is active.
+			return true;
+		}
+	}
 
-    private MachineGroup group;
+	private String os;
+	private Integer id;
+	private Integer cpus;
+	private Integer hdd;
+	private String name;
+	private String platform;
+	private Integer ram;
+	private Integer speed;
 
-    public Integer getCPUs() {
-	return this.cpus;
-    }
+	private MachineGroup group;
 
-    @ManyToOne
-    @JoinColumn(name = "group_fk")
-    public MachineGroup getGroup() {
-	return this.group;
-    }
+	public Integer getCPUs() {
+		return this.cpus;
+	}
 
-    public Integer getHDD() {
-	return this.hdd;
-    }
+	@ManyToOne
+	@JoinColumn(name = "group_fk")
+	public MachineGroup getGroup() {
+		return this.group;
+	}
 
-    @Id
-    @GeneratedValue
-    public Integer getId() {
-	return this.id;
-    }
+	public Integer getHDD() {
+		return this.hdd;
+	}
 
-    @Index(name = "NameIndex")
-    public String getName() {
-	return this.name;
-    }
+	@Id
+	@GeneratedValue
+	public Integer getId() {
+		return this.id;
+	}
 
-    public String getOS() {
-	return this.os;
-    }
+	@Index(name = "NameIndex")
+	public String getName() {
+		return this.name;
+	}
 
-    public String getPlatform() {
-	return this.platform;
-    }
+	public String getOS() {
+		return this.os;
+	}
 
-    public Integer getRAM() {
-	return this.ram;
-    }
+	public String getPlatform() {
+		return this.platform;
+	}
 
-    public Integer getSpeed() {
-	return this.speed;
-    }
+	public Integer getRAM() {
+		return this.ram;
+	}
 
-    public void setCPUs(final Integer cpus) {
-	this.cpus = cpus;
-    }
+	public Integer getSpeed() {
+		return this.speed;
+	}
 
-    public void setGroup(final MachineGroup group) {
-	this.group = group;
-    }
+	public void setCPUs(final Integer cpus) {
+		this.cpus = cpus;
+	}
 
-    public void setHDD(final Integer hdd) {
-	this.hdd = hdd;
-    }
+	public void setGroup(final MachineGroup group) {
+		this.group = group;
+	}
 
-    protected void setId(final Integer id) {
-	this.id = id;
-    }
+	public void setHDD(final Integer hdd) {
+		this.hdd = hdd;
+	}
 
-    public void setName(final String name) {
-	this.name = name;
-    }
+	protected void setId(final Integer id) {
+		this.id = id;
+	}
 
-    public void setOS(final String os) {
-	this.os = os;
-    }
+	public void setName(final String name) {
+		this.name = name;
+	}
 
-    public void setPlatform(final String platform) {
-	this.platform = platform;
-    }
+	public void setOS(final String os) {
+		this.os = os;
+	}
 
-    public void setRAM(final Integer ram) {
-	this.ram = ram;
-    }
+	public void setPlatform(final String platform) {
+		this.platform = platform;
+	}
 
-    public void setSpeed(final Integer speed) {
-	this.speed = speed;
-    }
+	public void setRAM(final Integer ram) {
+		this.ram = ram;
+	}
+
+	public void setSpeed(final Integer speed) {
+		this.speed = speed;
+	}
 
 }
