@@ -24,6 +24,9 @@
 //http://java.sun.com/nav/business/index.html for further important licensing
 //information for the Java Technology.
 //
+/*
+ * Cleaned up and updated by Lukáš Petrovický <petrovicky@mail.muni.cz>
+ */
 package cz.muni.fi.spc.SchedVis;
 
 import java.text.DecimalFormatSymbols;
@@ -584,7 +587,7 @@ public class PrintfFormat {
 	 *                malformed.
 	 */
 	ConversionSpecification(final String fmtArg)
-		throws IllegalArgumentException {
+	throws IllegalArgumentException {
 	    if (fmtArg == null) {
 		throw new NullPointerException();
 	    }
@@ -623,7 +626,7 @@ public class PrintfFormat {
 		}
 	    } else {
 		throw new IllegalArgumentException(
-			"Control strings must begin with %.");
+		"Control strings must begin with %.");
 	    }
 	}
 
@@ -712,9 +715,8 @@ public class PrintfFormat {
 	private char[] eFormatDigits(final double x, final char eChar) {
 	    char[] ca1, ca2, ca3;
 	    // int defaultDigits=6;
-	    String sx, sxOut;
+	    String sx;
 	    int i, j, k, p;
-	    int n1In, n2In;
 	    int expon = 0;
 	    int ePos, rPos, eSize;
 	    boolean minusSign = false;
@@ -735,22 +737,6 @@ public class PrintfFormat {
 		ePos = sx.indexOf('e');
 	    }
 	    rPos = sx.indexOf('.');
-	    if (rPos != -1) {
-		n1In = rPos;
-	    } else if (ePos != -1) {
-		n1In = ePos;
-	    } else {
-		n1In = sx.length();
-	    }
-	    if (rPos != -1) {
-		if (ePos != -1) {
-		    n2In = ePos - rPos - 1;
-		} else {
-		    n2In = sx.length() - rPos - 1;
-		}
-	    } else {
-		n2In = 0;
-	    }
 	    if (ePos != -1) {
 		int ie = ePos + 1;
 		expon = 0;
@@ -787,10 +773,10 @@ public class PrintfFormat {
 	    }
 	    if ((rPos != -1) && (ePos != -1)) {
 		ca1 = (sx.substring(0, rPos) + sx.substring(rPos + 1, ePos))
-			.toCharArray();
+		.toCharArray();
 	    } else if (rPos != -1) {
 		ca1 = (sx.substring(0, rPos) + sx.substring(rPos + 1))
-			.toCharArray();
+		.toCharArray();
 	    } else if (ePos != -1) {
 		ca1 = sx.substring(0, ePos).toCharArray();
 	    } else {
@@ -1075,7 +1061,6 @@ public class PrintfFormat {
 	 * @return the converted double value.
 	 */
 	private String eFormatString(final double x, final char eChar) {
-	    boolean noDigits = false;
 	    char[] ca4, ca5;
 	    if (Double.isInfinite(x)) {
 		if (x == Double.POSITIVE_INFINITY) {
@@ -1089,7 +1074,6 @@ public class PrintfFormat {
 		} else {
 		    ca4 = "-Inf".toCharArray();
 		}
-		noDigits = true;
 	    } else if (Double.isNaN(x)) {
 		if (this.leadingSign) {
 		    ca4 = "+NaN".toCharArray();
@@ -1098,7 +1082,6 @@ public class PrintfFormat {
 		} else {
 		    ca4 = "NaN".toCharArray();
 		}
-		noDigits = true;
 	    } else {
 		ca4 = this.eFormatDigits(x, eChar);
 	    }
@@ -1125,7 +1108,7 @@ public class PrintfFormat {
 	 */
 	private char[] fFormatDigits(final double x) {
 	    // int defaultDigits=6;
-	    String sx, sxOut;
+	    String sx;
 	    int i, j, k;
 	    int n1In, n2In;
 	    int expon = 0;
@@ -1380,7 +1363,6 @@ public class PrintfFormat {
 	 * @return the converted double value.
 	 */
 	private String fFormatString(final double x) {
-	    boolean noDigits = false;
 	    char[] ca6, ca7;
 	    if (Double.isInfinite(x)) {
 		if (x == Double.POSITIVE_INFINITY) {
@@ -1394,7 +1376,6 @@ public class PrintfFormat {
 		} else {
 		    ca6 = "-Inf".toCharArray();
 		}
-		noDigits = true;
 	    } else if (Double.isNaN(x)) {
 		if (this.leadingSign) {
 		    ca6 = "+NaN".toCharArray();
@@ -1403,7 +1384,6 @@ public class PrintfFormat {
 		} else {
 		    ca6 = "NaN".toCharArray();
 		}
-		noDigits = true;
 	    } else {
 		ca6 = this.fFormatDigits(x);
 	    }
@@ -1600,8 +1580,8 @@ public class PrintfFormat {
 	    default:
 		throw new IllegalArgumentException(
 			"Cannot format a int with a format using a "
-				+ this.conversionCharacter
-				+ " conversion character.");
+			+ this.conversionCharacter
+			+ " conversion character.");
 	    }
 	    return s2;
 	}
@@ -1654,8 +1634,8 @@ public class PrintfFormat {
 	    default:
 		throw new IllegalArgumentException(
 			"Cannot format a long with a format using a "
-				+ this.conversionCharacter
-				+ " conversion character.");
+			+ this.conversionCharacter
+			+ " conversion character.");
 	    }
 	    return s2;
 	}
@@ -1677,8 +1657,8 @@ public class PrintfFormat {
 	    } else {
 		throw new IllegalArgumentException(
 			"Cannot format a String with a format using" + " a "
-				+ this.conversionCharacter
-				+ " conversion character.");
+			+ this.conversionCharacter
+			+ " conversion character.");
 	    }
 	    return s2;
 	}
@@ -2013,7 +1993,6 @@ public class PrintfFormat {
 	    int savePrecision = this.precision;
 	    int i;
 	    char[] ca4, ca5;
-	    boolean noDigits = false;
 	    if (Double.isInfinite(x)) {
 		if (x == Double.POSITIVE_INFINITY) {
 		    if (this.leadingSign) {
@@ -2026,7 +2005,6 @@ public class PrintfFormat {
 		} else {
 		    ca4 = "-Inf".toCharArray();
 		}
-		noDigits = true;
 	    } else if (Double.isNaN(x)) {
 		if (this.leadingSign) {
 		    ca4 = "+NaN".toCharArray();
@@ -2035,7 +2013,6 @@ public class PrintfFormat {
 		} else {
 		    ca4 = "NaN".toCharArray();
 		}
-		noDigits = true;
 	    } else {
 		if (!this.precisionSet) {
 		    this.precision = ConversionSpecification.defaultDigits;
@@ -2332,7 +2309,7 @@ public class PrintfFormat {
 		    break;
 		}
 	    } else {
-		sx = Integer.toString((int) x, 8);
+		sx = Integer.toString(x, 8);
 	    }
 	    return this.printOFormat(sx);
 	}
@@ -2499,7 +2476,7 @@ public class PrintfFormat {
 		sx = "80000000";
 	    } else if (x < 0) {
 		String t = Integer
-			.toString((~(-x - 1)) ^ Integer.MIN_VALUE, 16);
+		.toString((~(-x - 1)) ^ Integer.MIN_VALUE, 16);
 		switch (t.length()) {
 		case 1:
 		    sx = "8000000" + t;
@@ -2905,7 +2882,7 @@ public class PrintfFormat {
 		if (this.fmt.charAt(xPos) == '$') {
 		    this.positionalFieldWidth = true;
 		    this.argumentPositionForFieldWidth = Integer
-			    .parseInt(this.fmt.substring(this.pos, xPos));
+		    .parseInt(this.fmt.substring(this.pos, xPos));
 		    this.pos = xPos + 1;
 		    ret = true;
 		}
@@ -3051,7 +3028,7 @@ public class PrintfFormat {
 		if (this.fmt.charAt(xPos) == '$') {
 		    this.positionalPrecision = true;
 		    this.argumentPositionForPrecision = Integer
-			    .parseInt(this.fmt.substring(this.pos, xPos));
+		    .parseInt(this.fmt.substring(this.pos, xPos));
 		    this.pos = xPos + 1;
 		    ret = true;
 		}
@@ -3128,7 +3105,7 @@ public class PrintfFormat {
     }
 
     /** Vector of control strings and format literals. */
-    private final Vector vFmt = new Vector();
+    private final Vector<ConversionSpecification> vFmt = new Vector<ConversionSpecification>();
     /** Character position. Used by the constructor. */
     private int cPos = 0;
     /** Character position. Used by the constructor. */
@@ -3147,7 +3124,7 @@ public class PrintfFormat {
      *                malformed.
      */
     public PrintfFormat(final Locale locale, final String fmtArg)
-	    throws IllegalArgumentException {
+    throws IllegalArgumentException {
 	this.dfs = new DecimalFormatSymbols(locale);
 	int ePos = 0;
 	ConversionSpecification sFmt = null;
@@ -3244,7 +3221,6 @@ public class PrintfFormat {
      *         control string.
      */
     private String nonControl(final String s, final int start) {
-	String ret = "";
 	this.cPos = s.indexOf("%", start);
 	if (this.cPos == -1) {
 	    this.cPos = s.length();
@@ -3258,7 +3234,7 @@ public class PrintfFormat {
      * @return the formatted String.
      */
     public String sprintf() {
-	Enumeration e = this.vFmt.elements();
+	Enumeration<ConversionSpecification> e = this.vFmt.elements();
 	ConversionSpecification cs = null;
 	char c = 0;
 	StringBuffer sb = new StringBuffer();
@@ -3285,7 +3261,7 @@ public class PrintfFormat {
      *                o.
      */
     public String sprintf(final double x) throws IllegalArgumentException {
-	Enumeration e = this.vFmt.elements();
+	Enumeration<ConversionSpecification> e = this.vFmt.elements();
 	ConversionSpecification cs = null;
 	char c = 0;
 	StringBuffer sb = new StringBuffer();
@@ -3313,7 +3289,7 @@ public class PrintfFormat {
      *                if the conversion character is f, e, E, g, G, s, or S.
      */
     public String sprintf(final int x) throws IllegalArgumentException {
-	Enumeration e = this.vFmt.elements();
+	Enumeration<ConversionSpecification> e = this.vFmt.elements();
 	ConversionSpecification cs = null;
 	char c = 0;
 	StringBuffer sb = new StringBuffer();
@@ -3341,7 +3317,7 @@ public class PrintfFormat {
      *                if the conversion character is f, e, E, g, G, s, or S.
      */
     public String sprintf(final long x) throws IllegalArgumentException {
-	Enumeration e = this.vFmt.elements();
+	Enumeration<ConversionSpecification> e = this.vFmt.elements();
 	ConversionSpecification cs = null;
 	char c = 0;
 	StringBuffer sb = new StringBuffer();
@@ -3373,7 +3349,7 @@ public class PrintfFormat {
      *                formatting an unwrapped value.
      */
     public String sprintf(final Object x) throws IllegalArgumentException {
-	Enumeration e = this.vFmt.elements();
+	Enumeration<ConversionSpecification> e = this.vFmt.elements();
 	ConversionSpecification cs = null;
 	char c = 0;
 	StringBuffer sb = new StringBuffer();
@@ -3418,7 +3394,7 @@ public class PrintfFormat {
      * @return The formatted String.
      */
     public String sprintf(final Object[] o) {
-	Enumeration e = this.vFmt.elements();
+	Enumeration<ConversionSpecification> e = this.vFmt.elements();
 	ConversionSpecification cs = null;
 	char c = 0;
 	int i = 0;
@@ -3463,8 +3439,8 @@ public class PrintfFormat {
 		    sb.append(cs.internalsprintf(((Float) o[i]).floatValue()));
 		} else if (o[i] instanceof Double) {
 		    sb
-			    .append(cs.internalsprintf(((Double) o[i])
-				    .doubleValue()));
+		    .append(cs.internalsprintf(((Double) o[i])
+			    .doubleValue()));
 		} else if (o[i] instanceof Character) {
 		    sb.append(cs
 			    .internalsprintf(((Character) o[i]).charValue()));
@@ -3491,7 +3467,7 @@ public class PrintfFormat {
      *                if the conversion character is neither s nor S.
      */
     public String sprintf(final String x) throws IllegalArgumentException {
-	Enumeration e = this.vFmt.elements();
+	Enumeration<ConversionSpecification> e = this.vFmt.elements();
 	ConversionSpecification cs = null;
 	char c = 0;
 	StringBuffer sb = new StringBuffer();
