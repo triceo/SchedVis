@@ -151,9 +151,9 @@ public final class Main implements PropertyChangeListener {
 		Main.queuedRenderers++;
 		if (Main.queuedRenderers > Main.MAX_QUEUED_RENDERERS) {
 		    try {
-			Main.logger.debug("Added "
+			Main.logger.debug("Enqueued "
 				+ (Main.queuedRenderers - initialRenderers)
-				+ " new renderers.");
+				+ " more renderers.");
 			Main.main.wait();
 			initialRenderers = Main.queuedRenderers;
 		    } catch (InterruptedException ex) {
@@ -237,7 +237,6 @@ public final class Main implements PropertyChangeListener {
 	Double leastPossibleQueueLength = (Main.MAX_QUEUED_RENDERERS - Main.MAX_RENDERER_THREADS) * 0.5;
 	if (Main.queuedRenderers < leastPossibleQueueLength) {
 	    // wake up the main thread to add some more renderers to the queue
-	    Main.logger.debug("Waking main thread for more renderers.");
 	    this.notifyAll();
 	}
 	if (((MachineRenderer) evt.getSource()).isDone()) {
