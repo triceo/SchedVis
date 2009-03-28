@@ -18,7 +18,10 @@
  */
 package cz.muni.fi.spc.SchedVis.parsers.schedule;
 
+import cz.muni.fi.spc.SchedVis.parsers.ParseException;
 import cz.muni.fi.spc.SchedVis.parsers.Parser;
+import cz.muni.fi.spc.SchedVis.parsers.SimpleCharStream;
+import cz.muni.fi.spc.SchedVis.parsers.Token;
 
 public class ScheduleParser extends Parser implements ScheduleParserConstants {
     private static void jj_la1_init_0() {

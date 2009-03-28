@@ -17,7 +17,7 @@
  along with SchedVis.  If not, see <http://www.gnu.org/licenses/>.
 
  */
-package cz.muni.fi.spc.SchedVis.parsers.schedule;
+package cz.muni.fi.spc.SchedVis.parsers;
 
 /**
  * This exception is thrown when parse errors are encountered. You can

@@ -18,6 +18,10 @@
  */
 package cz.muni.fi.spc.SchedVis.parsers.machines;
 
+import cz.muni.fi.spc.SchedVis.parsers.SimpleCharStream;
+import cz.muni.fi.spc.SchedVis.parsers.Token;
+import cz.muni.fi.spc.SchedVis.parsers.TokenMgrError;
+
 /** Token Manager. */
 public class MachinesParserTokenManager implements MachinesParserConstants {
 
@@ -26,7 +30,7 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
     static final int[] jjnextStates = {};
     /** Token literal values. */
     public static final String[] jjstrLiteralImages = { "", null, null, null,
-	    "\12", "\73", };
+	"\12", "\73", };
     /** Lexer state names. */
     public static final String[] lexStateNames = { "DEFAULT", };
     protected SimpleCharStream input_stream;
@@ -46,7 +50,7 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
     public MachinesParserTokenManager(final SimpleCharStream stream) {
 	if (SimpleCharStream.staticFlag) {
 	    throw new Error(
-		    "ERROR: Cannot use a static CharStream class with a non-static lexical analyzer.");
+	    "ERROR: Cannot use a static CharStream class with a non-static lexical analyzer.");
 	}
 	this.input_stream = stream;
     }

@@ -20,6 +20,8 @@
  */
 package cz.muni.fi.spc.SchedVis.parsers.schedule;
 
+import cz.muni.fi.spc.SchedVis.parsers.Token;
+
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 

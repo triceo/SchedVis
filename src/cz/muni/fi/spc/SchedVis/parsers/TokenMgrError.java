@@ -17,7 +17,7 @@
  along with SchedVis.  If not, see <http://www.gnu.org/licenses/>.
 
  */
-package cz.muni.fi.spc.SchedVis.parsers.machines;
+package cz.muni.fi.spc.SchedVis.parsers;
 
 /** Token Manager Error. */
 @SuppressWarnings("serial")
@@ -30,7 +30,7 @@ public class TokenMgrError extends Error {
     /**
      * Lexical error occurred.
      */
-    static final int LEXICAL_ERROR = 0;
+    public static final int LEXICAL_ERROR = 0;
 
     /**
      * An attempt was made to create a second instance of a static token
@@ -41,7 +41,7 @@ public class TokenMgrError extends Error {
     /**
      * Tried to change to an invalid lexical state.
      */
-    static final int INVALID_LEXICAL_STATE = 2;
+    public static final int INVALID_LEXICAL_STATE = 2;
 
     /**
      * Detected (and bailed out of) an infinite loop in the token manager.
@@ -153,6 +153,6 @@ public class TokenMgrError extends Error {
 
 }
 /*
- * JavaCC - OriginalChecksum=7d62ce9c587cef283eb7c7a4cd1ce9f6 (do not edit this
+ * JavaCC - OriginalChecksum=81b2bddec7fd9d3af8f192ae1453b663 (do not edit this
  * line)
  */

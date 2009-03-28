@@ -20,6 +20,8 @@
  */
 package cz.muni.fi.spc.SchedVis.parsers.schedule;
 
+import cz.muni.fi.spc.SchedVis.parsers.Token;
+
 /**
  * This holds all information about a single event. Filled by parser, read by
  * importer.

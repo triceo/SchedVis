@@ -18,6 +18,10 @@
  */
 package cz.muni.fi.spc.SchedVis.parsers.schedule;
 
+import cz.muni.fi.spc.SchedVis.parsers.SimpleCharStream;
+import cz.muni.fi.spc.SchedVis.parsers.Token;
+import cz.muni.fi.spc.SchedVis.parsers.TokenMgrError;
+
 /** Token Manager. */
 public class ScheduleParserTokenManager implements ScheduleParserConstants {
 

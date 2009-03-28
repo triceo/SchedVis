@@ -17,7 +17,7 @@
  along with SchedVis.  If not, see <http://www.gnu.org/licenses/>.
 
  */
-package cz.muni.fi.spc.SchedVis.parsers.machines;
+package cz.muni.fi.spc.SchedVis.parsers;
 
 /**
  * Describes the input token stream.
@@ -135,6 +135,6 @@ public class Token {
 
 }
 /*
- * JavaCC - OriginalChecksum=f29a1d746df269d2f703d24b7e3a18d5 (do not edit this
+ * JavaCC - OriginalChecksum=5f786608fdd0192e6ff629e4c856c883 (do not edit this
  * line)
  */
