@@ -217,7 +217,6 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 		    }
 		} while (i != startsAt);
 	    } else {
-		int hiByte = (this.curChar >> 8);
 		do {
 		    switch (this.jjstateSet[--i]) {
 		    default:
@@ -257,13 +256,6 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 	this.jjmatchedKind = kind;
 	this.jjmatchedPos = pos;
 	return pos + 1;
-    }
-
-    private final int jjStopStringLiteralDfa_0(final int pos, final long active0) {
-	switch (pos) {
-	default:
-	    return -1;
-	}
     }
 
     /** Reinitialise parser. */

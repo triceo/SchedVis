@@ -100,19 +100,8 @@ public final class Main implements PropertyChangeListener {
 		Main.printUsageAndExit();
 	    }
 	    File dataFile = new File(args[2]);
-	    if (!dataFile.exists()) {
-		System.out.print("Dataset file " + dataFile.getAbsolutePath()
-			+ " cannot be found! ");
-		Main.printUsageAndExit();
-	    }
 	    File dbFile = new File(args[3]);
-	    if (dbFile.exists()) {
-		Database.use(dbFile.getAbsolutePath());
-	    } else {
-		System.out.print("Database file " + dbFile.getAbsolutePath()
-			+ "cannot be found! ");
-		Main.printUsageAndExit();
-	    }
+	    Database.use(dbFile.getAbsolutePath());
 	    Main.main.importData(new Importer(machinesFile, dataFile));
 	}
     }

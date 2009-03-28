@@ -1056,13 +1056,6 @@ public class ScheduleParserTokenManager implements ScheduleParserConstants {
 	return pos + 1;
     }
 
-    private final int jjStopStringLiteralDfa_0(final int pos, final long active0) {
-	switch (pos) {
-	default:
-	    return -1;
-	}
-    }
-
     /** Reinitialise parser. */
     public void ReInit(final SimpleCharStream stream) {
 	this.jjmatchedPos = this.jjnewStateCnt = 0;
