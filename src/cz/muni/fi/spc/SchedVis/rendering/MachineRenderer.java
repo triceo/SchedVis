@@ -127,8 +127,6 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      * @return
      */
     private BufferedImage actuallyDraw() {
-	MachineRenderer.logger.debug(
-		this.m.getName() + "@" + this.clock + " started rendering.");
 	Double time = Double.valueOf(System.nanoTime());
 	this.events = Machine.getLatestSchedule(this.m, this.clock);
 	final BufferedImage img = new BufferedImage(MachineRenderer.LINE_WIDTH,
@@ -175,8 +173,6 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	File f = new File(this.getFilename()).getAbsoluteFile();
 	BufferedImage img = null;
 	if (!f.exists()) {
-	    MachineRenderer.logger.debug("Caching machine " + this.m.getId()
-		    + "@" + this.clock + ".");
 	    img = this.actuallyDraw();
 	    try {
 		ImageIO.write(img, "gif", f);
@@ -188,8 +184,6 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	    }
 	} else if (!this.isCaching) {
 	    try {
-		MachineRenderer.logger.debug("Reading cached machine "
-			+ this.m.getId() + "@" + this.clock + ".");
 		img = ImageIO.read(f);
 	    } catch (IOException e) {
 		MachineRenderer.logger.warn("Cannot read cache for machine "
