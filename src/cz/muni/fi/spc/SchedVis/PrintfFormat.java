@@ -441,75 +441,65 @@ import java.util.Vector;
 public class PrintfFormat {
     /**
      *<p>
-     * ConversionSpecification allows the formatting of
-     * a single primitive or object embedded within a
-     * string.  The formatting is controlled by a
-     * format string.  Only one Java primitive or
-     * object can be formatted at a time.
+     * ConversionSpecification allows the formatting of a single primitive or
+     * object embedded within a string. The formatting is controlled by a format
+     * string. Only one Java primitive or object can be formatted at a time.
      *<p>
-     * A format string is a Java string that contains
-     * a control string.  The control string starts at
-     * the first percent sign (%) in the string,
+     * A format string is a Java string that contains a control string. The
+     * control string starts at the first percent sign (%) in the string,
      * provided that this percent sign
      *<ol>
-     *<li>is not escaped protected by a matching % or
-     *     is not an escape % character,
+     *<li>is not escaped protected by a matching % or is not an escape %
+     * character,
      *<li>is not at the end of the format string, and
-     *<li>precedes a sequence of characters that parses
-     *     as a valid control string.
+     *<li>precedes a sequence of characters that parses as a valid control
+     * string.
      *</ol>
      *<p>
      * A control string takes the form:
-     *<pre> % ['-+ #0]* [0..9]* { . [0..9]* }+
+     * 
+     * <pre>
+     * % ['-+ #0]* [0..9]* { . [0..9]* }+
      *                { [hlL] }+ [idfgGoxXeEcs]
      *</pre>
      *<p>
-     * The behavior is like printf.  One (hopefully the
-     * only) exception is that the minimum number of
-     * exponent digits is 3 instead of 2 for e and E
-     * formats when the optional L is used before the
-     * e, E, g, or G conversion character.  The
-     * optional L does not imply conversion to a long
-     * long double.
+     * The behavior is like printf. One (hopefully the only) exception is that
+     * the minimum number of exponent digits is 3 instead of 2 for e and E
+     * formats when the optional L is used before the e, E, g, or G conversion
+     * character. The optional L does not imply conversion to a long long
+     * double.
      */
     private class ConversionSpecification {
 	/**
-	 * The integer portion of the result of a decimal
-	 * conversion (i, d, u, f, g, or G) will be
-	 * formatted with thousands' grouping characters.
+	 * The integer portion of the result of a decimal conversion (i, d, u,
+	 * f, g, or G) will be formatted with thousands' grouping characters.
 	 * For other conversions the flag is ignored.
 	 */
 	private boolean thousands = false;
 	/**
-	 * The result of the conversion will be
-	 * left-justified within the field.
+	 * The result of the conversion will be left-justified within the field.
 	 */
 	private boolean leftJustify = false;
 	/**
-	 * The result of a signed conversion will always
-	 * begin with a sign (+ or -).
+	 * The result of a signed conversion will always begin with a sign (+ or
+	 * -).
 	 */
 	private boolean leadingSign = false;
 	/**
-	 * Flag indicating that left padding with spaces is
-	 * specified.
+	 * Flag indicating that left padding with spaces is specified.
 	 */
 	private boolean leadingSpace = false;
 	/**
-	 * For an o conversion, increase the precision to
-	 * force the first digit of the result to be a
-	 * zero.  For x (or X) conversions, a non-zero
-	 * result will have 0x (or 0X) prepended to it.
-	 * For e, E, f, g, or G conversions, the result
-	 * will always contain a radix character, even if
-	 * no digits follow the point.  For g and G
-	 * conversions, trailing zeros will not be removed
-	 * from the result.
+	 * For an o conversion, increase the precision to force the first digit
+	 * of the result to be a zero. For x (or X) conversions, a non-zero
+	 * result will have 0x (or 0X) prepended to it. For e, E, f, g, or G
+	 * conversions, the result will always contain a radix character, even
+	 * if no digits follow the point. For g and G conversions, trailing
+	 * zeros will not be removed from the result.
 	 */
 	private boolean alternateForm = false;
 	/**
-	 * Flag indicating that left padding with zeroes is
-	 * specified.
+	 * Flag indicating that left padding with zeroes is specified.
 	 */
 	private boolean leadingZeros = false;
 	/**
@@ -517,181 +507,177 @@ public class PrintfFormat {
 	 */
 	private boolean variableFieldWidth = false;
 	/**
-	 * If the converted value has fewer bytes than the
-	 * field width, it will be padded with spaces or
-	 * zeroes.
+	 * If the converted value has fewer bytes than the field width, it will
+	 * be padded with spaces or zeroes.
 	 */
 	private int fieldWidth = 0;
 	/**
-	 * Flag indicating whether or not the field width
-	 * has been set.
+	 * Flag indicating whether or not the field width has been set.
 	 */
 	private boolean fieldWidthSet = false;
 	/**
-	 * The minimum number of digits to appear for the
-	 * d, i, o, u, x, or X conversions.  The number of
-	 * digits to appear after the radix character for
-	 * the e, E, and f conversions.  The maximum number
-	 *  of significant digits for the g and G
-	 * conversions.  The maximum number of bytes to be
+	 * The minimum number of digits to appear for the d, i, o, u, x, or X
+	 * conversions. The number of digits to appear after the radix character
+	 * for the e, E, and f conversions. The maximum number of significant
+	 * digits for the g and G conversions. The maximum number of bytes to be
 	 * printed from a string in s and S conversions.
 	 */
 	private int precision = 0;
 	/** Default precision. */
-	private final static int defaultDigits=6;
+	private final static int defaultDigits = 6;
 	/**
 	 * Flag indicating that the precision is *.
 	 */
 	private boolean variablePrecision = false;
 	/**
-	 * Flag indicating whether or not the precision has
-	 * been set.
+	 * Flag indicating whether or not the precision has been set.
 	 */
 	private boolean precisionSet = false;
 	/*
 	 */
-	private boolean positionalSpecification=false;
-	private int argumentPosition=0;
-	private boolean positionalFieldWidth=false;
-	private int argumentPositionForFieldWidth=0;
-	private boolean positionalPrecision=false;
-	private int argumentPositionForPrecision=0;
+	private boolean positionalSpecification = false;
+	private int argumentPosition = 0;
+	private boolean positionalFieldWidth = false;
+	private int argumentPositionForFieldWidth = 0;
+	private boolean positionalPrecision = false;
+	private int argumentPositionForPrecision = 0;
 	/**
-	 * Flag specifying that a following d, i, o, u, x,
-	 * or X conversion character applies to a type
-	 * short int.
+	 * Flag specifying that a following d, i, o, u, x, or X conversion
+	 * character applies to a type short int.
 	 */
 	private boolean optionalh = false;
 	/**
-	 * Flag specifying that a following d, i, o, u, x,
-	 * or X conversion character applies to a type lont
-	 * int argument.
+	 * Flag specifying that a following d, i, o, u, x, or X conversion
+	 * character applies to a type lont int argument.
 	 */
 	private boolean optionall = false;
 	/**
-	 * Flag specifying that a following e, E, f, g, or
-	 * G conversion character applies to a type double
-	 * argument.  This is a noop in Java.
+	 * Flag specifying that a following e, E, f, g, or G conversion
+	 * character applies to a type double argument. This is a noop in Java.
 	 */
 	private boolean optionalL = false;
 	/** Control string type. */
 	private char conversionCharacter = '\0';
 	/**
-	 * Position within the control string.  Used by
-	 * the constructor.
+	 * Position within the control string. Used by the constructor.
 	 */
 	private int pos = 0;
 	/** Literal or control format string. */
 	private String fmt;
+
 	/**
-	 * Constructor.  Used to prepare an instance
-	 * to hold a literal, not a control string.
+	 * Constructor. Used to prepare an instance to hold a literal, not a
+	 * control string.
 	 */
-	ConversionSpecification() { }
+	ConversionSpecification() {
+	}
+
 	/**
-	 * Constructor for a conversion specification.
-	 * The argument must begin with a % and end
-	 * with the conversion character for the
-	 * conversion specification.
-	 * @param fmtArg  String specifying the
-	 *     conversion specification.
-	 * @exception IllegalArgumentException if the
-	 *     input string is null, zero length, or
-	 *     otherwise malformed.
+	 * Constructor for a conversion specification. The argument must begin
+	 * with a % and end with the conversion character for the conversion
+	 * specification.
+	 * 
+	 * @param fmtArg
+	 *            String specifying the conversion specification.
+	 * @exception IllegalArgumentException
+	 *                if the input string is null, zero length, or otherwise
+	 *                malformed.
 	 */
 	ConversionSpecification(final String fmtArg)
-	throws IllegalArgumentException {
-	    if (fmtArg==null) {
+		throws IllegalArgumentException {
+	    if (fmtArg == null) {
 		throw new NullPointerException();
 	    }
-	    if (fmtArg.length()==0) {
+	    if (fmtArg.length() == 0) {
 		throw new IllegalArgumentException(
-			"Control strings must have positive"+
-		" lengths.");
+			"Control strings must have positive" + " lengths.");
 	    }
-	    if (fmtArg.charAt(0)=='%') {
+	    if (fmtArg.charAt(0) == '%') {
 		this.fmt = fmtArg;
-		this.pos=1;
+		this.pos = 1;
 		this.setArgPosition();
 		this.setFlagCharacters();
 		this.setFieldWidth();
 		this.setPrecision();
 		this.setOptionalHL();
 		if (this.setConversionCharacter()) {
-		    if (this.pos==fmtArg.length()) {
-			if(this.leadingZeros&&this.leftJustify) {
-			    this.leadingZeros=false;
+		    if (this.pos == fmtArg.length()) {
+			if (this.leadingZeros && this.leftJustify) {
+			    this.leadingZeros = false;
 			}
-			if(this.precisionSet&&this.leadingZeros){
-			    if((this.conversionCharacter=='d')
-				    ||(this.conversionCharacter=='i')
-				    ||(this.conversionCharacter=='o')
-				    ||(this.conversionCharacter=='x'))
-			    {
-				this.leadingZeros=false;
+			if (this.precisionSet && this.leadingZeros) {
+			    if ((this.conversionCharacter == 'd')
+				    || (this.conversionCharacter == 'i')
+				    || (this.conversionCharacter == 'o')
+				    || (this.conversionCharacter == 'x')) {
+				this.leadingZeros = false;
 			    }
 			}
 		    } else {
 			throw new IllegalArgumentException(
-				"Malformed conversion specification="+
-				fmtArg);
+				"Malformed conversion specification=" + fmtArg);
 		    }
 		} else {
 		    throw new IllegalArgumentException(
-			    "Malformed conversion specification="+
-			    fmtArg);
+			    "Malformed conversion specification=" + fmtArg);
 		}
 	    } else {
 		throw new IllegalArgumentException(
 			"Control strings must begin with %.");
 	    }
 	}
+
 	/**
 	 * Apply zero or blank, left or right padding.
-	 * @param ca4 array of characters before padding is
-	 *     finished
-	 * @param noDigits NaN or signed Inf
+	 * 
+	 * @param ca4
+	 *            array of characters before padding is finished
+	 * @param noDigits
+	 *            NaN or signed Inf
 	 * @return a padded array of characters
 	 */
-	private char[] applyFloatPadding(
-		final char[] ca4,final boolean noDigits) {
+	private char[] applyFloatPadding(final char[] ca4,
+		final boolean noDigits) {
 	    char[] ca5 = ca4;
 	    if (this.fieldWidthSet) {
-		int i,j,nBlanks;
+		int i, j, nBlanks;
 		if (this.leftJustify) {
-		    nBlanks = this.fieldWidth-ca4.length;
+		    nBlanks = this.fieldWidth - ca4.length;
 		    if (nBlanks > 0) {
-			ca5 = new char[ca4.length+nBlanks];
-			for (i=0; i<ca4.length; i++) {
+			ca5 = new char[ca4.length + nBlanks];
+			for (i = 0; i < ca4.length; i++) {
 			    ca5[i] = ca4[i];
 			}
-			for (j=0; j<nBlanks; j++,i++) {
+			for (j = 0; j < nBlanks; j++, i++) {
 			    ca5[i] = ' ';
 			}
 		    }
-		}
-		else if (!this.leadingZeros || noDigits) {
-		    nBlanks = this.fieldWidth-ca4.length;
+		} else if (!this.leadingZeros || noDigits) {
+		    nBlanks = this.fieldWidth - ca4.length;
 		    if (nBlanks > 0) {
-			ca5 = new char[ca4.length+nBlanks];
-			for (i=0; i<nBlanks; i++) {
+			ca5 = new char[ca4.length + nBlanks];
+			for (i = 0; i < nBlanks; i++) {
 			    ca5[i] = ' ';
 			}
-			for (j=0; j<ca4.length; i++,j++) {
+			for (j = 0; j < ca4.length; i++, j++) {
 			    ca5[i] = ca4[j];
 			}
 		    }
-		}
-		else if (this.leadingZeros) {
-		    nBlanks = this.fieldWidth-ca4.length;
+		} else if (this.leadingZeros) {
+		    nBlanks = this.fieldWidth - ca4.length;
 		    if (nBlanks > 0) {
-			ca5 = new char[ca4.length+nBlanks];
-			i=0; j=0;
-			if (ca4[0]=='-') { ca5[0]='-'; i++; j++; }
-			for (int k=0; k<nBlanks; i++,k++) {
+			ca5 = new char[ca4.length + nBlanks];
+			i = 0;
+			j = 0;
+			if (ca4[0] == '-') {
+			    ca5[0] = '-';
+			    i++;
+			    j++;
+			}
+			for (int k = 0; k < nBlanks; i++, k++) {
 			    ca5[i] = '0';
 			}
-			for (; j<ca4.length; i++,j++) {
+			for (; j < ca4.length; i++, j++) {
 			    ca5[i] = ca4[j];
 			}
 		    }
@@ -699,346 +685,400 @@ public class PrintfFormat {
 	    }
 	    return ca5;
 	}
+
 	/**
-	 * For e format, the flag character '-', means that
-	 * the output should be left justified within the
-	 * field.  The default is to pad with blanks on the
-	 * left.  '+' character means that the conversion
-	 * will always begin with a sign (+ or -).  The
-	 * blank flag character means that a non-negative
-	 * input will be preceded with a blank.  If both a
-	 * '+' and a ' ' are specified, the blank flag is
-	 * ignored.  The '0' flag character implies that
-	 * padding to the field width will be done with
-	 * zeros instead of blanks.
-	 *
-	 * The field width is treated as the minimum number
-	 * of characters to be printed.  The default is to
-	 * add no padding.  Padding is with blanks by
+	 * For e format, the flag character '-', means that the output should be
+	 * left justified within the field. The default is to pad with blanks on
+	 * the left. '+' character means that the conversion will always begin
+	 * with a sign (+ or -). The blank flag character means that a
+	 * non-negative input will be preceded with a blank. If both a '+' and a
+	 * ' ' are specified, the blank flag is ignored. The '0' flag character
+	 * implies that padding to the field width will be done with zeros
+	 * instead of blanks.
+	 * 
+	 * The field width is treated as the minimum number of characters to be
+	 * printed. The default is to add no padding. Padding is with blanks by
 	 * default.
-	 *
-	 * The precision, if set, is the minimum number of
-	 * digits to appear after the radix character.
-	 * Padding is with trailing 0s.
-	 *
-	 * The behavior is like printf.  One (hopefully the
-	 * only) exception is that the minimum number of
-	 * exponent digits is 3 instead of 2 for e and E
-	 * formats when the optional L is used before the
-	 * e, E, g, or G conversion character. The optional
-	 * L does not imply conversion to a long long
-	 * double.
+	 * 
+	 * The precision, if set, is the minimum number of digits to appear
+	 * after the radix character. Padding is with trailing 0s.
+	 * 
+	 * The behavior is like printf. One (hopefully the only) exception is
+	 * that the minimum number of exponent digits is 3 instead of 2 for e
+	 * and E formats when the optional L is used before the e, E, g, or G
+	 * conversion character. The optional L does not imply conversion to a
+	 * long long double.
 	 */
-	private char[] eFormatDigits(final double x,final char eChar) {
-	    char[] ca1,ca2,ca3;
+	private char[] eFormatDigits(final double x, final char eChar) {
+	    char[] ca1, ca2, ca3;
 	    // int defaultDigits=6;
-	    String sx,sxOut;
-	    int i,j,k,p;
-	    int n1In,n2In;
-	    int expon=0;
-	    int ePos,rPos,eSize;
-	    boolean minusSign=false;
-	    if (x>0.0) {
+	    String sx, sxOut;
+	    int i, j, k, p;
+	    int n1In, n2In;
+	    int expon = 0;
+	    int ePos, rPos, eSize;
+	    boolean minusSign = false;
+	    if (x > 0.0) {
 		sx = Double.toString(x);
-	    } else if (x<0.0) {
+	    } else if (x < 0.0) {
 		sx = Double.toString(-x);
-		minusSign=true;
-	    }
-	    else {
+		minusSign = true;
+	    } else {
 		sx = Double.toString(x);
-		if (sx.charAt(0)=='-') {
-		    minusSign=true;
-		    sx=sx.substring(1);
+		if (sx.charAt(0) == '-') {
+		    minusSign = true;
+		    sx = sx.substring(1);
 		}
 	    }
 	    ePos = sx.indexOf('E');
-	    if (ePos==-1) {
+	    if (ePos == -1) {
 		ePos = sx.indexOf('e');
 	    }
 	    rPos = sx.indexOf('.');
-	    if (rPos!=-1) {
-		n1In=rPos;
-	    } else if (ePos!=-1) {
-		n1In=ePos;
+	    if (rPos != -1) {
+		n1In = rPos;
+	    } else if (ePos != -1) {
+		n1In = ePos;
 	    } else {
-		n1In=sx.length();
+		n1In = sx.length();
 	    }
-	    if (rPos!=-1) {
-		if (ePos!=-1) {
-		    n2In = ePos-rPos-1;
+	    if (rPos != -1) {
+		if (ePos != -1) {
+		    n2In = ePos - rPos - 1;
 		} else {
-		    n2In = sx.length()-rPos-1;
+		    n2In = sx.length() - rPos - 1;
 		}
 	    } else {
 		n2In = 0;
 	    }
-	    if (ePos!=-1) {
-		int ie=ePos+1;
-		expon=0;
-		if (sx.charAt(ie)=='-') {
-		    for (++ie; ie<sx.length(); ie++) {
-			if (sx.charAt(ie)!='0') {
+	    if (ePos != -1) {
+		int ie = ePos + 1;
+		expon = 0;
+		if (sx.charAt(ie) == '-') {
+		    for (++ie; ie < sx.length(); ie++) {
+			if (sx.charAt(ie) != '0') {
 			    break;
 			}
 		    }
-		    if (ie<sx.length()) {
-			expon=-Integer.parseInt(sx.substring(ie));
+		    if (ie < sx.length()) {
+			expon = -Integer.parseInt(sx.substring(ie));
 		    }
-		}
-		else {
-		    if (sx.charAt(ie)=='+') {
+		} else {
+		    if (sx.charAt(ie) == '+') {
 			++ie;
 		    }
-		    for (; ie<sx.length(); ie++) {
-			if (sx.charAt(ie)!='0') {
+		    for (; ie < sx.length(); ie++) {
+			if (sx.charAt(ie) != '0') {
 			    break;
 			}
 		    }
-		    if (ie<sx.length()) {
-			expon=Integer.parseInt(sx.substring(ie));
+		    if (ie < sx.length()) {
+			expon = Integer.parseInt(sx.substring(ie));
 		    }
 		}
 	    }
-	    if (rPos!=-1) {
-		expon += rPos-1;
+	    if (rPos != -1) {
+		expon += rPos - 1;
 	    }
 	    if (this.precisionSet) {
 		p = this.precision;
 	    } else {
-		p = ConversionSpecification.defaultDigits-1;
+		p = ConversionSpecification.defaultDigits - 1;
 	    }
-	    if ((rPos!=-1) && (ePos!=-1)) {
-		ca1=(sx.substring(0,rPos)+
-			sx.substring(rPos+1,ePos)).toCharArray();
-	    } else if (rPos!=-1) {
-		ca1 = (sx.substring(0,rPos)+
-			sx.substring(rPos+1)).toCharArray();
-	    } else if (ePos!=-1) {
-		ca1 = sx.substring(0,ePos).toCharArray();
+	    if ((rPos != -1) && (ePos != -1)) {
+		ca1 = (sx.substring(0, rPos) + sx.substring(rPos + 1, ePos))
+			.toCharArray();
+	    } else if (rPos != -1) {
+		ca1 = (sx.substring(0, rPos) + sx.substring(rPos + 1))
+			.toCharArray();
+	    } else if (ePos != -1) {
+		ca1 = sx.substring(0, ePos).toCharArray();
 	    } else {
 		ca1 = sx.toCharArray();
 	    }
-	    boolean carry=false;
-	    int i0=0;
-	    if (ca1[0]!='0') {
+	    boolean carry = false;
+	    int i0 = 0;
+	    if (ca1[0] != '0') {
 		i0 = 0;
 	    } else {
-		for (i0=0; i0<ca1.length; i0++) {
-		    if (ca1[i0]!='0') {
+		for (i0 = 0; i0 < ca1.length; i0++) {
+		    if (ca1[i0] != '0') {
 			break;
 		    }
 		}
 	    }
-	    if (i0+p<ca1.length-1) {
-		carry=this.checkForCarry(ca1,i0+p+1);
+	    if (i0 + p < ca1.length - 1) {
+		carry = this.checkForCarry(ca1, i0 + p + 1);
 		if (carry) {
-		    carry = this.startSymbolicCarry(ca1,i0+p,i0);
+		    carry = this.startSymbolicCarry(ca1, i0 + p, i0);
 		}
 		if (carry) {
-		    ca2 = new char[i0+p+1];
-		    ca2[i0]='1';
-		    for (j=0; j<i0; j++) {
-			ca2[j]='0';
+		    ca2 = new char[i0 + p + 1];
+		    ca2[i0] = '1';
+		    for (j = 0; j < i0; j++) {
+			ca2[j] = '0';
 		    }
-		    for (i=i0,j=i0+1; j<p+1; i++,j++) {
+		    for (i = i0, j = i0 + 1; j < p + 1; i++, j++) {
 			ca2[j] = ca1[i];
 		    }
 		    expon++;
 		    ca1 = ca2;
 		}
 	    }
-	    if ((Math.abs(expon)<100) && !this.optionalL) {
-		eSize=4;
+	    if ((Math.abs(expon) < 100) && !this.optionalL) {
+		eSize = 4;
 	    } else {
-		eSize=5;
+		eSize = 5;
 	    }
-	    if (this.alternateForm||!this.precisionSet||(this.precision!=0)) {
-		ca2 = new char[2+p+eSize];
+	    if (this.alternateForm || !this.precisionSet
+		    || (this.precision != 0)) {
+		ca2 = new char[2 + p + eSize];
 	    } else {
-		ca2 = new char[1+eSize];
+		ca2 = new char[1 + eSize];
 	    }
-	    if (ca1[0]!='0') {
+	    if (ca1[0] != '0') {
 		ca2[0] = ca1[0];
-		j=1;
-	    }
-	    else {
-		for (j=1; j<(ePos==-1?ca1.length:ePos); j++) {
-		    if (ca1[j]!='0') {
+		j = 1;
+	    } else {
+		for (j = 1; j < (ePos == -1 ? ca1.length : ePos); j++) {
+		    if (ca1[j] != '0') {
 			break;
 		    }
 		}
-		if (((ePos!=-1) && (j<ePos))||
-			((ePos==-1) && (j<ca1.length))) {
+		if (((ePos != -1) && (j < ePos))
+			|| ((ePos == -1) && (j < ca1.length))) {
 		    ca2[0] = ca1[j];
 		    expon -= j;
 		    j++;
-		}
-		else {
-		    ca2[0]='0';
-		    j=2;
+		} else {
+		    ca2[0] = '0';
+		    j = 2;
 		}
 	    }
-	    if (this.alternateForm||!this.precisionSet||(this.precision!=0)) {
+	    if (this.alternateForm || !this.precisionSet
+		    || (this.precision != 0)) {
 		ca2[1] = '.';
-		i=2;
+		i = 2;
 	    } else {
-		i=1;
+		i = 1;
 	    }
-	    for (k=0; (k<p) && (j<ca1.length); j++,i++,k++) {
+	    for (k = 0; (k < p) && (j < ca1.length); j++, i++, k++) {
 		ca2[i] = ca1[j];
 	    }
-	    for (;i<ca2.length-eSize; i++) {
+	    for (; i < ca2.length - eSize; i++) {
 		ca2[i] = '0';
 	    }
 	    ca2[i++] = eChar;
-	    if (expon<0) {
-		ca2[i++]='-';
+	    if (expon < 0) {
+		ca2[i++] = '-';
 	    } else {
-		ca2[i++]='+';
+		ca2[i++] = '+';
 	    }
 	    expon = Math.abs(expon);
-	    if (expon>=100) {
-		switch(expon/100) {
-		case 1: ca2[i]='1'; break;
-		case 2: ca2[i]='2'; break;
-		case 3: ca2[i]='3'; break;
-		case 4: ca2[i]='4'; break;
-		case 5: ca2[i]='5'; break;
-		case 6: ca2[i]='6'; break;
-		case 7: ca2[i]='7'; break;
-		case 8: ca2[i]='8'; break;
-		case 9: ca2[i]='9'; break;
+	    if (expon >= 100) {
+		switch (expon / 100) {
+		case 1:
+		    ca2[i] = '1';
+		    break;
+		case 2:
+		    ca2[i] = '2';
+		    break;
+		case 3:
+		    ca2[i] = '3';
+		    break;
+		case 4:
+		    ca2[i] = '4';
+		    break;
+		case 5:
+		    ca2[i] = '5';
+		    break;
+		case 6:
+		    ca2[i] = '6';
+		    break;
+		case 7:
+		    ca2[i] = '7';
+		    break;
+		case 8:
+		    ca2[i] = '8';
+		    break;
+		case 9:
+		    ca2[i] = '9';
+		    break;
 		}
 		i++;
 	    }
-	    switch((expon%100)/10) {
-	    case 0: ca2[i]='0'; break;
-	    case 1: ca2[i]='1'; break;
-	    case 2: ca2[i]='2'; break;
-	    case 3: ca2[i]='3'; break;
-	    case 4: ca2[i]='4'; break;
-	    case 5: ca2[i]='5'; break;
-	    case 6: ca2[i]='6'; break;
-	    case 7: ca2[i]='7'; break;
-	    case 8: ca2[i]='8'; break;
-	    case 9: ca2[i]='9'; break;
+	    switch ((expon % 100) / 10) {
+	    case 0:
+		ca2[i] = '0';
+		break;
+	    case 1:
+		ca2[i] = '1';
+		break;
+	    case 2:
+		ca2[i] = '2';
+		break;
+	    case 3:
+		ca2[i] = '3';
+		break;
+	    case 4:
+		ca2[i] = '4';
+		break;
+	    case 5:
+		ca2[i] = '5';
+		break;
+	    case 6:
+		ca2[i] = '6';
+		break;
+	    case 7:
+		ca2[i] = '7';
+		break;
+	    case 8:
+		ca2[i] = '8';
+		break;
+	    case 9:
+		ca2[i] = '9';
+		break;
 	    }
 	    i++;
-	    switch(expon%10) {
-	    case 0: ca2[i]='0'; break;
-	    case 1: ca2[i]='1'; break;
-	    case 2: ca2[i]='2'; break;
-	    case 3: ca2[i]='3'; break;
-	    case 4: ca2[i]='4'; break;
-	    case 5: ca2[i]='5'; break;
-	    case 6: ca2[i]='6'; break;
-	    case 7: ca2[i]='7'; break;
-	    case 8: ca2[i]='8'; break;
-	    case 9: ca2[i]='9'; break;
+	    switch (expon % 10) {
+	    case 0:
+		ca2[i] = '0';
+		break;
+	    case 1:
+		ca2[i] = '1';
+		break;
+	    case 2:
+		ca2[i] = '2';
+		break;
+	    case 3:
+		ca2[i] = '3';
+		break;
+	    case 4:
+		ca2[i] = '4';
+		break;
+	    case 5:
+		ca2[i] = '5';
+		break;
+	    case 6:
+		ca2[i] = '6';
+		break;
+	    case 7:
+		ca2[i] = '7';
+		break;
+	    case 8:
+		ca2[i] = '8';
+		break;
+	    case 9:
+		ca2[i] = '9';
+		break;
 	    }
-	    int nZeros=0;
+	    int nZeros = 0;
 	    if (!this.leftJustify && this.leadingZeros) {
-		int xThousands=0;
+		int xThousands = 0;
 		if (this.thousands) {
-		    int xlead=0;
-		    if ((ca2[0]=='+')||(ca2[0]=='-')||(ca2[0]==' ')) {
-			xlead=1;
+		    int xlead = 0;
+		    if ((ca2[0] == '+') || (ca2[0] == '-') || (ca2[0] == ' ')) {
+			xlead = 1;
 		    }
-		    int xdp=xlead;
-		    for (; xdp<ca2.length; xdp++) {
-			if (ca2[xdp]=='.') {
+		    int xdp = xlead;
+		    for (; xdp < ca2.length; xdp++) {
+			if (ca2[xdp] == '.') {
 			    break;
 			}
 		    }
-		    xThousands=(xdp-xlead)/3;
+		    xThousands = (xdp - xlead) / 3;
 		}
 		if (this.fieldWidthSet) {
-		    nZeros = this.fieldWidth-ca2.length;
+		    nZeros = this.fieldWidth - ca2.length;
 		}
-		if ((!minusSign&&(this.leadingSign||this.leadingSpace))||minusSign) {
+		if ((!minusSign && (this.leadingSign || this.leadingSpace))
+			|| minusSign) {
 		    nZeros--;
 		}
-		nZeros-=xThousands;
-		if (nZeros<0) {
-		    nZeros=0;
+		nZeros -= xThousands;
+		if (nZeros < 0) {
+		    nZeros = 0;
 		}
 	    }
-	    j=0;
-	    if ((!minusSign&&(this.leadingSign || this.leadingSpace))||minusSign) {
-		ca3 = new char[ca2.length+nZeros+1];
+	    j = 0;
+	    if ((!minusSign && (this.leadingSign || this.leadingSpace))
+		    || minusSign) {
+		ca3 = new char[ca2.length + nZeros + 1];
 		j++;
 	    } else {
-		ca3 = new char[ca2.length+nZeros];
+		ca3 = new char[ca2.length + nZeros];
 	    }
 	    if (!minusSign) {
 		if (this.leadingSign) {
-		    ca3[0]='+';
+		    ca3[0] = '+';
 		}
 		if (this.leadingSpace) {
-		    ca3[0]=' ';
+		    ca3[0] = ' ';
 		}
 	    } else {
-		ca3[0]='-';
+		ca3[0] = '-';
 	    }
-	    for (k=0; k<nZeros; j++,k++) {
-		ca3[j]='0';
+	    for (k = 0; k < nZeros; j++, k++) {
+		ca3[j] = '0';
 	    }
-	    for (i=0; (i<ca2.length) && (j<ca3.length); i++,j++) {
-		ca3[j]=ca2[i];
+	    for (i = 0; (i < ca2.length) && (j < ca3.length); i++, j++) {
+		ca3[j] = ca2[i];
 	    }
 
-	    int lead=0;
-	    if ((ca3[0]=='+')||(ca3[0]=='-')||(ca3[0]==' ')) {
-		lead=1;
+	    int lead = 0;
+	    if ((ca3[0] == '+') || (ca3[0] == '-') || (ca3[0] == ' ')) {
+		lead = 1;
 	    }
-	    int dp=lead;
-	    for (; dp<ca3.length; dp++) {
-		if (ca3[dp]=='.') {
+	    int dp = lead;
+	    for (; dp < ca3.length; dp++) {
+		if (ca3[dp] == '.') {
 		    break;
 		}
 	    }
-	    int nThousands=dp/3;
+	    int nThousands = dp / 3;
 	    // Localize the decimal point.
 	    if (dp < ca3.length) {
 		ca3[dp] = PrintfFormat.this.dfs.getDecimalSeparator();
 	    }
 	    char[] ca4 = ca3;
-	    if (this.thousands && (nThousands>0)) {
-		ca4 = new char[ca3.length+nThousands+lead];
-		ca4[0]=ca3[0];
-		for (i=lead,k=lead; i<dp; i++) {
-		    if ((i>0) && ((dp-i)%3==0)) {
+	    if (this.thousands && (nThousands > 0)) {
+		ca4 = new char[ca3.length + nThousands + lead];
+		ca4[0] = ca3[0];
+		for (i = lead, k = lead; i < dp; i++) {
+		    if ((i > 0) && ((dp - i) % 3 == 0)) {
 			// ca4[k]=',';
-			ca4[k]=PrintfFormat.this.dfs.getGroupingSeparator();
-			ca4[k+1]=ca3[i];
-			k+=2;
-		    }
-		    else {
-			ca4[k]=ca3[i]; k++;
+			ca4[k] = PrintfFormat.this.dfs.getGroupingSeparator();
+			ca4[k + 1] = ca3[i];
+			k += 2;
+		    } else {
+			ca4[k] = ca3[i];
+			k++;
 		    }
 		}
-		for (; i<ca3.length; i++,k++) {
-		    ca4[k]=ca3[i];
+		for (; i < ca3.length; i++, k++) {
+		    ca4[k] = ca3[i];
 		}
 	    }
 	    return ca4;
 	}
+
 	/**
-	 * An intermediate routine on the way to creating
-	 * an e format String.  The method decides whether
-	 * the input double value is an infinity,
-	 * not-a-number, or a finite double and formats
-	 * each type of input appropriately.
-	 * @param x the double value to be formatted.
-	 * @param eChar an 'e' or 'E' to use in the
-	 *     converted double value.
+	 * An intermediate routine on the way to creating an e format String.
+	 * The method decides whether the input double value is an infinity,
+	 * not-a-number, or a finite double and formats each type of input
+	 * appropriately.
+	 * 
+	 * @param x
+	 *            the double value to be formatted.
+	 * @param eChar
+	 *            an 'e' or 'E' to use in the converted double value.
 	 * @return the converted double value.
 	 */
-	private String eFormatString(final double x,final char eChar) {
-	    boolean noDigits=false;
-	    char[] ca4,ca5;
+	private String eFormatString(final double x, final char eChar) {
+	    boolean noDigits = false;
+	    char[] ca4, ca5;
 	    if (Double.isInfinite(x)) {
-		if (x==Double.POSITIVE_INFINITY) {
+		if (x == Double.POSITIVE_INFINITY) {
 		    if (this.leadingSign) {
 			ca4 = "+Inf".toCharArray();
 		    } else if (this.leadingSpace) {
@@ -1050,8 +1090,7 @@ public class PrintfFormat {
 		    ca4 = "-Inf".toCharArray();
 		}
 		noDigits = true;
-	    }
-	    else if (Double.isNaN(x)) {
+	    } else if (Double.isNaN(x)) {
 		if (this.leadingSign) {
 		    ca4 = "+NaN".toCharArray();
 		} else if (this.leadingSpace) {
@@ -1061,95 +1100,89 @@ public class PrintfFormat {
 		}
 		noDigits = true;
 	    } else {
-		ca4 = this.eFormatDigits(x,eChar);
+		ca4 = this.eFormatDigits(x, eChar);
 	    }
-	    ca5 = this.applyFloatPadding(ca4,false);
+	    ca5 = this.applyFloatPadding(ca4, false);
 	    return new String(ca5);
 	}
+
 	/**
-	 * For f format, the flag character '-', means that
-	 * the output should be left justified within the
-	 * field.  The default is to pad with blanks on the
-	 * left.  '+' character means that the conversion
-	 * will always begin with a sign (+ or -).  The
-	 * blank flag character means that a non-negative
-	 * input will be preceded with a blank.  If both
-	 * a '+' and a ' ' are specified, the blank flag
-	 * is ignored.  The '0' flag character implies that
-	 * padding to the field width will be done with
-	 * zeros instead of blanks.
-	 *
-	 * The field width is treated as the minimum number
-	 * of characters to be printed.  The default is to
-	 * add no padding.  Padding is with blanks by
+	 * For f format, the flag character '-', means that the output should be
+	 * left justified within the field. The default is to pad with blanks on
+	 * the left. '+' character means that the conversion will always begin
+	 * with a sign (+ or -). The blank flag character means that a
+	 * non-negative input will be preceded with a blank. If both a '+' and a
+	 * ' ' are specified, the blank flag is ignored. The '0' flag character
+	 * implies that padding to the field width will be done with zeros
+	 * instead of blanks.
+	 * 
+	 * The field width is treated as the minimum number of characters to be
+	 * printed. The default is to add no padding. Padding is with blanks by
 	 * default.
-	 *
-	 * The precision, if set, is the number of digits
-	 * to appear after the radix character.  Padding is
-	 * with trailing 0s.
+	 * 
+	 * The precision, if set, is the number of digits to appear after the
+	 * radix character. Padding is with trailing 0s.
 	 */
 	private char[] fFormatDigits(final double x) {
 	    // int defaultDigits=6;
-	    String sx,sxOut;
-	    int i,j,k;
-	    int n1In,n2In;
-	    int expon=0;
-	    boolean minusSign=false;
-	    if (x>0.0) {
+	    String sx, sxOut;
+	    int i, j, k;
+	    int n1In, n2In;
+	    int expon = 0;
+	    boolean minusSign = false;
+	    if (x > 0.0) {
 		sx = Double.toString(x);
-	    } else if (x<0.0) {
+	    } else if (x < 0.0) {
 		sx = Double.toString(-x);
-		minusSign=true;
-	    }
-	    else {
+		minusSign = true;
+	    } else {
 		sx = Double.toString(x);
-		if (sx.charAt(0)=='-') {
-		    minusSign=true;
-		    sx=sx.substring(1);
+		if (sx.charAt(0) == '-') {
+		    minusSign = true;
+		    sx = sx.substring(1);
 		}
 	    }
 	    int ePos = sx.indexOf('E');
 	    int rPos = sx.indexOf('.');
-	    if (rPos!=-1) {
-		n1In=rPos;
-	    } else if (ePos!=-1) {
-		n1In=ePos;
+	    if (rPos != -1) {
+		n1In = rPos;
+	    } else if (ePos != -1) {
+		n1In = ePos;
 	    } else {
-		n1In=sx.length();
+		n1In = sx.length();
 	    }
-	    if (rPos!=-1) {
-		if (ePos!=-1) {
-		    n2In = ePos-rPos-1;
+	    if (rPos != -1) {
+		if (ePos != -1) {
+		    n2In = ePos - rPos - 1;
 		} else {
-		    n2In = sx.length()-rPos-1;
+		    n2In = sx.length() - rPos - 1;
 		}
 	    } else {
 		n2In = 0;
 	    }
-	    if (ePos!=-1) {
-		int ie=ePos+1;
-		expon=0;
-		if (sx.charAt(ie)=='-') {
-		    for (++ie; ie<sx.length(); ie++) {
-			if (sx.charAt(ie)!='0') {
+	    if (ePos != -1) {
+		int ie = ePos + 1;
+		expon = 0;
+		if (sx.charAt(ie) == '-') {
+		    for (++ie; ie < sx.length(); ie++) {
+			if (sx.charAt(ie) != '0') {
 			    break;
 			}
 		    }
-		    if (ie<sx.length()) {
-			expon=-Integer.parseInt(sx.substring(ie));
+		    if (ie < sx.length()) {
+			expon = -Integer.parseInt(sx.substring(ie));
 		    }
-		}
-		else {
-		    if (sx.charAt(ie)=='+') {
+		} else {
+		    if (sx.charAt(ie) == '+') {
 			++ie;
 		    }
-		    for (; ie<sx.length(); ie++) {
-			if (sx.charAt(ie)!='0') {
+		    for (; ie < sx.length(); ie++) {
+			if (sx.charAt(ie) != '0') {
 			    break;
 			}
 		    }
-		    if (ie<sx.length()) {
-			expon=Integer.parseInt(sx.substring(ie));
+		    if (ie < sx.length()) {
+			expon = Integer.parseInt(sx.substring(ie));
 		    }
 		}
 	    }
@@ -1157,195 +1190,200 @@ public class PrintfFormat {
 	    if (this.precisionSet) {
 		p = this.precision;
 	    } else {
-		p = ConversionSpecification.defaultDigits-1;
+		p = ConversionSpecification.defaultDigits - 1;
 	    }
 	    char[] ca1 = sx.toCharArray();
-	    char[] ca2 = new char[n1In+n2In];
-	    char[] ca3,ca4,ca5;
-	    for (j=0; j<n1In; j++) {
+	    char[] ca2 = new char[n1In + n2In];
+	    char[] ca3, ca4, ca5;
+	    for (j = 0; j < n1In; j++) {
 		ca2[j] = ca1[j];
 	    }
-	    i = j+1;
-	    for (k=0; k<n2In; j++,i++,k++) {
+	    i = j + 1;
+	    for (k = 0; k < n2In; j++, i++, k++) {
 		ca2[j] = ca1[i];
 	    }
-	    if (n1In+expon<=0) {
-		ca3 = new char[-expon+n2In];
-		for (j=0,k=0; k<(-n1In-expon); k++,j++) {
-		    ca3[j]='0';
+	    if (n1In + expon <= 0) {
+		ca3 = new char[-expon + n2In];
+		for (j = 0, k = 0; k < (-n1In - expon); k++, j++) {
+		    ca3[j] = '0';
 		}
-		for (i=0; i<(n1In+n2In); i++,j++) {
-		    ca3[j]=ca2[i];
+		for (i = 0; i < (n1In + n2In); i++, j++) {
+		    ca3[j] = ca2[i];
 		}
 	    } else {
 		ca3 = ca2;
 	    }
-	    boolean carry=false;
-	    if (p<-expon+n2In) {
-		if (expon<0) {
+	    boolean carry = false;
+	    if (p < -expon + n2In) {
+		if (expon < 0) {
 		    i = p;
 		} else {
-		    i = p+n1In;
+		    i = p + n1In;
 		}
-		carry=this.checkForCarry(ca3,i);
+		carry = this.checkForCarry(ca3, i);
 		if (carry) {
-		    carry=this.startSymbolicCarry(ca3,i-1,0);
+		    carry = this.startSymbolicCarry(ca3, i - 1, 0);
 		}
 	    }
-	    if (n1In+expon<=0) {
-		ca4 = new char[2+p];
+	    if (n1In + expon <= 0) {
+		ca4 = new char[2 + p];
 		if (!carry) {
-		    ca4[0]='0';
+		    ca4[0] = '0';
 		} else {
-		    ca4[0]='1';
+		    ca4[0] = '1';
 		}
-		if(this.alternateForm||!this.precisionSet||(this.precision!=0)){
-		    ca4[1]='.';
-		    for(i=0,j=2;i<Math.min(p,ca3.length);i++,j++) {
-			ca4[j]=ca3[i];
+		if (this.alternateForm || !this.precisionSet
+			|| (this.precision != 0)) {
+		    ca4[1] = '.';
+		    for (i = 0, j = 2; i < Math.min(p, ca3.length); i++, j++) {
+			ca4[j] = ca3[i];
 		    }
-		    for (; j<ca4.length; j++) {
-			ca4[j]='0';
+		    for (; j < ca4.length; j++) {
+			ca4[j] = '0';
 		    }
 		}
-	    }
-	    else {
+	    } else {
 		if (!carry) {
-		    if(this.alternateForm||!this.precisionSet
-			    ||(this.precision!=0)) {
-			ca4 = new char[n1In+expon+p+1];
+		    if (this.alternateForm || !this.precisionSet
+			    || (this.precision != 0)) {
+			ca4 = new char[n1In + expon + p + 1];
 		    } else {
-			ca4 = new char[n1In+expon];
+			ca4 = new char[n1In + expon];
 		    }
-		    j=0;
-		}
-		else {
-		    if(this.alternateForm||!this.precisionSet
-			    ||(this.precision!=0)) {
-			ca4 = new char[n1In+expon+p+2];
+		    j = 0;
+		} else {
+		    if (this.alternateForm || !this.precisionSet
+			    || (this.precision != 0)) {
+			ca4 = new char[n1In + expon + p + 2];
 		    } else {
-			ca4 = new char[n1In+expon+1];
+			ca4 = new char[n1In + expon + 1];
 		    }
-		    ca4[0]='1';
-		    j=1;
+		    ca4[0] = '1';
+		    j = 1;
 		}
-		for (i=0; i<Math.min(n1In+expon,ca3.length); i++,j++) {
-		    ca4[j]=ca3[i];
+		for (i = 0; i < Math.min(n1In + expon, ca3.length); i++, j++) {
+		    ca4[j] = ca3[i];
 		}
-		for (; i<n1In+expon; i++,j++) {
-		    ca4[j]='0';
+		for (; i < n1In + expon; i++, j++) {
+		    ca4[j] = '0';
 		}
-		if(this.alternateForm||!this.precisionSet||(this.precision!=0)){
-		    ca4[j]='.'; j++;
-		    for (k=0; (i<ca3.length) && (k<p); i++,j++,k++) {
-			ca4[j]=ca3[i];
+		if (this.alternateForm || !this.precisionSet
+			|| (this.precision != 0)) {
+		    ca4[j] = '.';
+		    j++;
+		    for (k = 0; (i < ca3.length) && (k < p); i++, j++, k++) {
+			ca4[j] = ca3[i];
 		    }
-		    for (; j<ca4.length; j++) {
-			ca4[j]='0';
+		    for (; j < ca4.length; j++) {
+			ca4[j] = '0';
 		    }
 		}
 	    }
-	    int nZeros=0;
+	    int nZeros = 0;
 	    if (!this.leftJustify && this.leadingZeros) {
-		int xThousands=0;
+		int xThousands = 0;
 		if (this.thousands) {
-		    int xlead=0;
-		    if ((ca4[0]=='+')||(ca4[0]=='-')||(ca4[0]==' ')) {
-			xlead=1;
+		    int xlead = 0;
+		    if ((ca4[0] == '+') || (ca4[0] == '-') || (ca4[0] == ' ')) {
+			xlead = 1;
 		    }
-		    int xdp=xlead;
-		    for (; xdp<ca4.length; xdp++) {
-			if (ca4[xdp]=='.') {
+		    int xdp = xlead;
+		    for (; xdp < ca4.length; xdp++) {
+			if (ca4[xdp] == '.') {
 			    break;
 			}
 		    }
-		    xThousands=(xdp-xlead)/3;
+		    xThousands = (xdp - xlead) / 3;
 		}
 		if (this.fieldWidthSet) {
-		    nZeros = this.fieldWidth-ca4.length;
+		    nZeros = this.fieldWidth - ca4.length;
 		}
-		if ((!minusSign&&(this.leadingSign||this.leadingSpace))||minusSign) {
+		if ((!minusSign && (this.leadingSign || this.leadingSpace))
+			|| minusSign) {
 		    nZeros--;
 		}
-		nZeros-=xThousands;
-		if (nZeros<0) {
-		    nZeros=0;
+		nZeros -= xThousands;
+		if (nZeros < 0) {
+		    nZeros = 0;
 		}
 	    }
-	    j=0;
-	    if ((!minusSign&&(this.leadingSign||this.leadingSpace))||minusSign) {
-		ca5 = new char[ca4.length+nZeros+1];
+	    j = 0;
+	    if ((!minusSign && (this.leadingSign || this.leadingSpace))
+		    || minusSign) {
+		ca5 = new char[ca4.length + nZeros + 1];
 		j++;
 	    } else {
-		ca5 = new char[ca4.length+nZeros];
+		ca5 = new char[ca4.length + nZeros];
 	    }
 	    if (!minusSign) {
 		if (this.leadingSign) {
-		    ca5[0]='+';
+		    ca5[0] = '+';
 		}
 		if (this.leadingSpace) {
-		    ca5[0]=' ';
+		    ca5[0] = ' ';
 		}
 	    } else {
-		ca5[0]='-';
+		ca5[0] = '-';
 	    }
-	    for (i=0; i<nZeros; i++,j++) {
-		ca5[j]='0';
+	    for (i = 0; i < nZeros; i++, j++) {
+		ca5[j] = '0';
 	    }
-	    for (i=0; i<ca4.length; i++,j++) {
-		ca5[j]=ca4[i];
+	    for (i = 0; i < ca4.length; i++, j++) {
+		ca5[j] = ca4[i];
 	    }
 
-	    int lead=0;
-	    if ((ca5[0]=='+')||(ca5[0]=='-')||(ca5[0]==' ')) {
-		lead=1;
+	    int lead = 0;
+	    if ((ca5[0] == '+') || (ca5[0] == '-') || (ca5[0] == ' ')) {
+		lead = 1;
 	    }
-	    int dp=lead;
-	    for (; dp<ca5.length; dp++) {
-		if (ca5[dp]=='.') {
+	    int dp = lead;
+	    for (; dp < ca5.length; dp++) {
+		if (ca5[dp] == '.') {
 		    break;
 		}
 	    }
-	    int nThousands=(dp-lead)/3;
+	    int nThousands = (dp - lead) / 3;
 	    // Localize the decimal point.
-	    if (dp<ca5.length) {
-		ca5[dp]=PrintfFormat.this.dfs.getDecimalSeparator();
+	    if (dp < ca5.length) {
+		ca5[dp] = PrintfFormat.this.dfs.getDecimalSeparator();
 	    }
 	    char[] ca6 = ca5;
-	    if (this.thousands && (nThousands>0)) {
-		ca6 = new char[ca5.length+nThousands+lead];
-		ca6[0]=ca5[0];
-		for (i=lead,k=lead; i<dp; i++) {
-		    if ((i>0) && ((dp-i)%3==0)) {
+	    if (this.thousands && (nThousands > 0)) {
+		ca6 = new char[ca5.length + nThousands + lead];
+		ca6[0] = ca5[0];
+		for (i = lead, k = lead; i < dp; i++) {
+		    if ((i > 0) && ((dp - i) % 3 == 0)) {
 			// ca6[k]=',';
-			ca6[k]=PrintfFormat.this.dfs.getGroupingSeparator();
-			ca6[k+1]=ca5[i];
-			k+=2;
-		    }
-		    else {
-			ca6[k]=ca5[i]; k++;
+			ca6[k] = PrintfFormat.this.dfs.getGroupingSeparator();
+			ca6[k + 1] = ca5[i];
+			k += 2;
+		    } else {
+			ca6[k] = ca5[i];
+			k++;
 		    }
 		}
-		for (; i<ca5.length; i++,k++) {
-		    ca6[k]=ca5[i];
+		for (; i < ca5.length; i++, k++) {
+		    ca6[k] = ca5[i];
 		}
 	    }
 	    return ca6;
 	}
+
 	/**
-	 * An intermediate routine on the way to creating
-	 * an f format String.  The method decides whether
-	 * the input double value is an infinity,
-	 * not-a-number, or a finite double and formats
-	 * each type of input appropriately.
-	 * @param x the double value to be formatted.
+	 * An intermediate routine on the way to creating an f format String.
+	 * The method decides whether the input double value is an infinity,
+	 * not-a-number, or a finite double and formats each type of input
+	 * appropriately.
+	 * 
+	 * @param x
+	 *            the double value to be formatted.
 	 * @return the converted double value.
 	 */
 	private String fFormatString(final double x) {
-	    boolean noDigits=false;
-	    char[] ca6,ca7;
+	    boolean noDigits = false;
+	    char[] ca6, ca7;
 	    if (Double.isInfinite(x)) {
-		if (x==Double.POSITIVE_INFINITY) {
+		if (x == Double.POSITIVE_INFINITY) {
 		    if (this.leadingSign) {
 			ca6 = "+Inf".toCharArray();
 		    } else if (this.leadingSpace) {
@@ -1357,8 +1395,7 @@ public class PrintfFormat {
 		    ca6 = "-Inf".toCharArray();
 		}
 		noDigits = true;
-	    }
-	    else if (Double.isNaN(x)) {
+	    } else if (Double.isNaN(x)) {
 		if (this.leadingSign) {
 		    ca6 = "+NaN".toCharArray();
 		} else if (this.leadingSpace) {
@@ -1370,42 +1407,48 @@ public class PrintfFormat {
 	    } else {
 		ca6 = this.fFormatDigits(x);
 	    }
-	    ca7 = this.applyFloatPadding(ca6,false);
+	    ca7 = this.applyFloatPadding(ca6, false);
 	    return new String(ca7);
 	}
-	int getArgumentPosition() { return this.argumentPosition; }
+
+	int getArgumentPosition() {
+	    return this.argumentPosition;
+	}
+
 	int getArgumentPositionForFieldWidth() {
 	    return this.argumentPositionForFieldWidth;
 	}
+
 	int getArgumentPositionForPrecision() {
 	    return this.argumentPositionForPrecision;
 	}
+
 	/**
-	 * Get the conversion character that tells what
-	 * type of control character this instance has.
-	 *
+	 * Get the conversion character that tells what type of control
+	 * character this instance has.
+	 * 
 	 * @return the conversion character.
 	 */
 	char getConversionCharacter() {
 	    return this.conversionCharacter;
 	}
+
 	/**
-	 * Get the String for this instance.  Translate
-	 * any escape sequences.
-	 *
+	 * Get the String for this instance. Translate any escape sequences.
+	 * 
 	 * @return s the stored String.
 	 */
 	String getLiteral() {
-	    StringBuffer sb=new StringBuffer();
-	    int i=0;
-	    while (i<this.fmt.length()) {
-		if (this.fmt.charAt(i)=='\\') {
+	    StringBuffer sb = new StringBuffer();
+	    int i = 0;
+	    while (i < this.fmt.length()) {
+		if (this.fmt.charAt(i) == '\\') {
 		    i++;
-		    if (i<this.fmt.length()) {
-			char c=this.fmt.charAt(i);
-			switch(c) {
+		    if (i < this.fmt.length()) {
+			char c = this.fmt.charAt(i);
+			switch (c) {
 			case 'a':
-			    sb.append((char)0x07);
+			    sb.append((char) 0x07);
 			    break;
 			case 'b':
 			    sb.append('\b');
@@ -1423,7 +1466,7 @@ public class PrintfFormat {
 			    sb.append('\t');
 			    break;
 			case 'v':
-			    sb.append((char)0x0b);
+			    sb.append((char) 0x0b);
 			    break;
 			case '\\':
 			    sb.append('\\');
@@ -1439,52 +1482,57 @@ public class PrintfFormat {
 	    }
 	    return this.fmt;
 	}
+
 	/**
-	 * Check to see if the digits that are going to
-	 * be truncated because of the precision should
-	 * force a round in the preceding digits.
-	 * @param ca1 the array of digits
-	 * @param icarry the index of the first digit that
-	 *     is to be truncated from the print
-	 * @return <code>true</code> if the truncation forces
-	 *     a round that will change the print
+	 * Check to see if the digits that are going to be truncated because of
+	 * the precision should force a round in the preceding digits.
+	 * 
+	 * @param ca1
+	 *            the array of digits
+	 * @param icarry
+	 *            the index of the first digit that is to be truncated from
+	 *            the print
+	 * @return <code>true</code> if the truncation forces a round that will
+	 *         change the print
 	 */
-	private boolean checkForCarry(final char[] ca1,final int icarry) {
-	    boolean carry=false;
-	    if (icarry<ca1.length) {
-		if ((ca1[icarry]=='6')||(ca1[icarry]=='7')
-			||(ca1[icarry]=='8')||(ca1[icarry]=='9')) {
-		    carry=true;
-		} else if (ca1[icarry]=='5') {
-		    int ii=icarry+1;
-		    for (;ii<ca1.length; ii++) {
-			if (ca1[ii]!='0') {
+	private boolean checkForCarry(final char[] ca1, final int icarry) {
+	    boolean carry = false;
+	    if (icarry < ca1.length) {
+		if ((ca1[icarry] == '6') || (ca1[icarry] == '7')
+			|| (ca1[icarry] == '8') || (ca1[icarry] == '9')) {
+		    carry = true;
+		} else if (ca1[icarry] == '5') {
+		    int ii = icarry + 1;
+		    for (; ii < ca1.length; ii++) {
+			if (ca1[ii] != '0') {
 			    break;
 			}
 		    }
-		    carry=ii<ca1.length;
-		    if (!carry&&(icarry>0)) {
-			carry=((ca1[icarry-1]=='1')||(ca1[icarry-1]=='3')
-				||(ca1[icarry-1]=='5')||(ca1[icarry-1]=='7')
-				||(ca1[icarry-1]=='9'));
+		    carry = ii < ca1.length;
+		    if (!carry && (icarry > 0)) {
+			carry = ((ca1[icarry - 1] == '1')
+				|| (ca1[icarry - 1] == '3')
+				|| (ca1[icarry - 1] == '5')
+				|| (ca1[icarry - 1] == '7') || (ca1[icarry - 1] == '9'));
 		    }
 		}
 	    }
 	    return carry;
 	}
+
 	/**
-	 * Format a double argument using this conversion
-	 * specification.
-	 * @param s the double to format.
+	 * Format a double argument using this conversion specification.
+	 * 
+	 * @param s
+	 *            the double to format.
 	 * @return the formatted String.
-	 * @exception IllegalArgumentException if the
-	 *     conversion character is c, C, s, S, i, d,
-	 *     x, X, or o.
+	 * @exception IllegalArgumentException
+	 *                if the conversion character is c, C, s, S, i, d, x, X,
+	 *                or o.
 	 */
-	String internalsprintf(final double s)
-	throws IllegalArgumentException {
+	String internalsprintf(final double s) throws IllegalArgumentException {
 	    String s2 = "";
-	    switch(this.conversionCharacter) {
+	    switch (this.conversionCharacter) {
 	    case 'f':
 		s2 = this.printFFormat(s);
 		break;
@@ -1497,30 +1545,31 @@ public class PrintfFormat {
 		s2 = this.printGFormat(s);
 		break;
 	    default:
-		throw new IllegalArgumentException("Cannot "+
-			"format a double with a format using a "+
-			this.conversionCharacter+" conversion character.");
+		throw new IllegalArgumentException("Cannot "
+			+ "format a double with a format using a "
+			+ this.conversionCharacter + " conversion character.");
 	    }
 	    return s2;
 	}
+
 	/**
-	 * Format an int argument using this conversion
-	 * specification.
-	 * @param s the int to format.
+	 * Format an int argument using this conversion specification.
+	 * 
+	 * @param s
+	 *            the int to format.
 	 * @return the formatted String.
-	 * @exception IllegalArgumentException if the
-	 *     conversion character is f, e, E, g, or G.
+	 * @exception IllegalArgumentException
+	 *                if the conversion character is f, e, E, g, or G.
 	 */
-	String internalsprintf(final int s)
-	throws IllegalArgumentException {
+	String internalsprintf(final int s) throws IllegalArgumentException {
 	    String s2 = "";
-	    switch(this.conversionCharacter) {
+	    switch (this.conversionCharacter) {
 	    case 'd':
 	    case 'i':
 		if (this.optionalh) {
-		    s2 = this.printDFormat((short)s);
+		    s2 = this.printDFormat((short) s);
 		} else if (this.optionall) {
-		    s2 = this.printDFormat((long)s);
+		    s2 = this.printDFormat((long) s);
 		} else {
 		    s2 = this.printDFormat(s);
 		}
@@ -1528,174 +1577,182 @@ public class PrintfFormat {
 	    case 'x':
 	    case 'X':
 		if (this.optionalh) {
-		    s2 = this.printXFormat((short)s);
+		    s2 = this.printXFormat((short) s);
 		} else if (this.optionall) {
-		    s2 = this.printXFormat((long)s);
+		    s2 = this.printXFormat((long) s);
 		} else {
 		    s2 = this.printXFormat(s);
 		}
 		break;
 	    case 'o':
 		if (this.optionalh) {
-		    s2 = this.printOFormat((short)s);
+		    s2 = this.printOFormat((short) s);
 		} else if (this.optionall) {
-		    s2 = this.printOFormat((long)s);
+		    s2 = this.printOFormat((long) s);
 		} else {
 		    s2 = this.printOFormat(s);
 		}
 		break;
 	    case 'c':
 	    case 'C':
-		s2 = this.printCFormat((char)s);
+		s2 = this.printCFormat((char) s);
 		break;
 	    default:
 		throw new IllegalArgumentException(
-			"Cannot format a int with a format using a "+
-			this.conversionCharacter+
-		" conversion character.");
+			"Cannot format a int with a format using a "
+				+ this.conversionCharacter
+				+ " conversion character.");
 	    }
 	    return s2;
 	}
+
 	/**
-	 * Format a long argument using this conversion
-	 * specification.
-	 * @param s the long to format.
+	 * Format a long argument using this conversion specification.
+	 * 
+	 * @param s
+	 *            the long to format.
 	 * @return the formatted String.
-	 * @exception IllegalArgumentException if the
-	 *     conversion character is f, e, E, g, or G.
+	 * @exception IllegalArgumentException
+	 *                if the conversion character is f, e, E, g, or G.
 	 */
-	String internalsprintf(final long s)
-	throws IllegalArgumentException {
+	String internalsprintf(final long s) throws IllegalArgumentException {
 	    String s2 = "";
-	    switch(this.conversionCharacter) {
+	    switch (this.conversionCharacter) {
 	    case 'd':
 	    case 'i':
 		if (this.optionalh) {
-		    s2 = this.printDFormat((short)s);
+		    s2 = this.printDFormat((short) s);
 		} else if (this.optionall) {
 		    s2 = this.printDFormat(s);
 		} else {
-		    s2 = this.printDFormat((int)s);
+		    s2 = this.printDFormat((int) s);
 		}
 		break;
 	    case 'x':
 	    case 'X':
 		if (this.optionalh) {
-		    s2 = this.printXFormat((short)s);
+		    s2 = this.printXFormat((short) s);
 		} else if (this.optionall) {
 		    s2 = this.printXFormat(s);
 		} else {
-		    s2 = this.printXFormat((int)s);
+		    s2 = this.printXFormat((int) s);
 		}
 		break;
 	    case 'o':
 		if (this.optionalh) {
-		    s2 = this.printOFormat((short)s);
+		    s2 = this.printOFormat((short) s);
 		} else if (this.optionall) {
 		    s2 = this.printOFormat(s);
 		} else {
-		    s2 = this.printOFormat((int)s);
+		    s2 = this.printOFormat((int) s);
 		}
 		break;
 	    case 'c':
 	    case 'C':
-		s2 = this.printCFormat((char)s);
+		s2 = this.printCFormat((char) s);
 		break;
 	    default:
 		throw new IllegalArgumentException(
-			"Cannot format a long with a format using a "+
-			this.conversionCharacter+" conversion character.");
+			"Cannot format a long with a format using a "
+				+ this.conversionCharacter
+				+ " conversion character.");
 	    }
 	    return s2;
 	}
+
 	/**
-	 * Format an Object argument using this conversion
-	 * specification.
-	 * @param s the Object to format.
+	 * Format an Object argument using this conversion specification.
+	 * 
+	 * @param s
+	 *            the Object to format.
 	 * @return the formatted String.
-	 * @exception IllegalArgumentException if the
-	 *     conversion character is neither s nor S.
+	 * @exception IllegalArgumentException
+	 *                if the conversion character is neither s nor S.
 	 */
 	String internalsprintf(final Object s) {
 	    String s2 = "";
-	    if((this.conversionCharacter=='s')
-		    || (this.conversionCharacter=='S')) {
+	    if ((this.conversionCharacter == 's')
+		    || (this.conversionCharacter == 'S')) {
 		s2 = this.printSFormat(s.toString());
 	    } else {
 		throw new IllegalArgumentException(
-			"Cannot format a String with a format using"+
-			" a "+this.conversionCharacter+
-		" conversion character.");
+			"Cannot format a String with a format using" + " a "
+				+ this.conversionCharacter
+				+ " conversion character.");
 	    }
 	    return s2;
 	}
+
 	/**
-	 * Format a String argument using this conversion
-	 * specification.
-	 * @param s the String to format.
+	 * Format a String argument using this conversion specification.
+	 * 
+	 * @param s
+	 *            the String to format.
 	 * @return the formatted String.
-	 * @exception IllegalArgumentException if the
-	 *   conversion character is neither s nor S.
+	 * @exception IllegalArgumentException
+	 *                if the conversion character is neither s nor S.
 	 */
-	String internalsprintf(final String s)
-	throws IllegalArgumentException {
+	String internalsprintf(final String s) throws IllegalArgumentException {
 	    String s2 = "";
-	    if((this.conversionCharacter=='s')
-		    || (this.conversionCharacter=='S')) {
+	    if ((this.conversionCharacter == 's')
+		    || (this.conversionCharacter == 'S')) {
 		s2 = this.printSFormat(s);
 	    } else {
-		throw new IllegalArgumentException("Cannot "+
-			"format a String with a format using a "+
-			this.conversionCharacter+" conversion character.");
+		throw new IllegalArgumentException("Cannot "
+			+ "format a String with a format using a "
+			+ this.conversionCharacter + " conversion character.");
 	    }
 	    return s2;
 	}
+
 	boolean isPositionalFieldWidth() {
 	    return this.positionalFieldWidth;
 	}
+
 	boolean isPositionalPrecision() {
 	    return this.positionalPrecision;
 	}
+
 	boolean isPositionalSpecification() {
 	    return this.positionalSpecification;
 	}
+
 	/**
-	 * Check whether the specifier has a variable
-	 * field width that is going to be set by an
-	 * argument.
-	 * @return <code>true</code> if the conversion
-	 *   uses an * field width; otherwise
-	 *   <code>false</code>.
+	 * Check whether the specifier has a variable field width that is going
+	 * to be set by an argument.
+	 * 
+	 * @return <code>true</code> if the conversion uses an * field width;
+	 *         otherwise <code>false</code>.
 	 */
 	boolean isVariableFieldWidth() {
 	    return this.variableFieldWidth;
 	}
+
 	/**
-	 * Check whether the specifier has a variable
-	 * precision that is going to be set by an
-	 * argument.
-	 * @return <code>true</code> if the conversion
-	 *   uses an * precision; otherwise
-	 *   <code>false</code>.
+	 * Check whether the specifier has a variable precision that is going to
+	 * be set by an argument.
+	 * 
+	 * @return <code>true</code> if the conversion uses an * precision;
+	 *         otherwise <code>false</code>.
 	 */
 	boolean isVariablePrecision() {
 	    return this.variablePrecision;
 	}
+
 	/**
-	 * Format method for the c conversion character and
-	 * char argument.
-	 *
-	 * The only flag character that affects c format is
-	 * the '-', meaning that the output should be left
-	 * justified within the field.  The default is to
-	 * pad with blanks on the left.
-	 *
-	 * The field width is treated as the minimum number
-	 * of characters to be printed.  Padding is with
-	 * blanks by default.  The default width is 1.
-	 *
+	 * Format method for the c conversion character and char argument.
+	 * 
+	 * The only flag character that affects c format is the '-', meaning
+	 * that the output should be left justified within the field. The
+	 * default is to pad with blanks on the left.
+	 * 
+	 * The field width is treated as the minimum number of characters to be
+	 * printed. Padding is with blanks by default. The default width is 1.
+	 * 
 	 * The precision, if set, is ignored.
-	 * @param x the char to format.
+	 * 
+	 * @param x
+	 *            the char to format.
 	 * @return the formatted String.
 	 */
 	private String printCFormat(final char x) {
@@ -1705,145 +1762,138 @@ public class PrintfFormat {
 		width = nPrint;
 	    }
 	    char[] ca = new char[width];
-	    int i=0;
+	    int i = 0;
 	    if (this.leftJustify) {
 		ca[0] = x;
-		for (i=1; i<=width-nPrint; i++) {
-		    ca[i]=' ';
+		for (i = 1; i <= width - nPrint; i++) {
+		    ca[i] = ' ';
 		}
-	    }
-	    else {
-		for (i=0; i<width-nPrint; i++) {
-		    ca[i]=' ';
+	    } else {
+		for (i = 0; i < width - nPrint; i++) {
+		    ca[i] = ' ';
 		}
 		ca[i] = x;
 	    }
 	    return new String(ca);
 	}
+
 	/**
-	 * Format method for the d conversion character and
-	 * int argument.
-	 *
-	 * For d format, the flag character '-', means that
-	 * the output should be left justified within the
-	 * field.  The default is to pad with blanks on the
-	 * left.  A '+' character means that the conversion
-	 * will always begin with a sign (+ or -).  The
-	 * blank flag character means that a non-negative
-	 * input will be preceded with a blank.  If both a
-	 * '+' and a ' ' are specified, the blank flag is
-	 * ignored.  The '0' flag character implies that
-	 * padding to the field width will be done with
-	 * zeros instead of blanks.
-	 *
-	 * The field width is treated as the minimum number
-	 * of characters to be printed.  The default is to
-	 * add no padding.  Padding is with blanks by
+	 * Format method for the d conversion character and int argument.
+	 * 
+	 * For d format, the flag character '-', means that the output should be
+	 * left justified within the field. The default is to pad with blanks on
+	 * the left. A '+' character means that the conversion will always begin
+	 * with a sign (+ or -). The blank flag character means that a
+	 * non-negative input will be preceded with a blank. If both a '+' and a
+	 * ' ' are specified, the blank flag is ignored. The '0' flag character
+	 * implies that padding to the field width will be done with zeros
+	 * instead of blanks.
+	 * 
+	 * The field width is treated as the minimum number of characters to be
+	 * printed. The default is to add no padding. Padding is with blanks by
 	 * default.
-	 *
-	 * The precision, if set, is the minimum number of
-	 * digits to appear.  Padding is with leading 0s.
-	 * @param x the int to format.
+	 * 
+	 * The precision, if set, is the minimum number of digits to appear.
+	 * Padding is with leading 0s.
+	 * 
+	 * @param x
+	 *            the int to format.
 	 * @return the formatted String.
 	 */
 	private String printDFormat(final int x) {
 	    return this.printDFormat(Integer.toString(x));
 	}
+
 	/**
-	 * Format method for the d conversion character and
-	 * long argument.
-	 *
-	 * For d format, the flag character '-', means that
-	 * the output should be left justified within the
-	 * field.  The default is to pad with blanks on the
-	 * left.  A '+' character means that the conversion
-	 * will always begin with a sign (+ or -).  The
-	 * blank flag character means that a non-negative
-	 * input will be preceded with a blank.  If both a
-	 * '+' and a ' ' are specified, the blank flag is
-	 * ignored.  The '0' flag character implies that
-	 * padding to the field width will be done with
-	 * zeros instead of blanks.
-	 *
-	 * The field width is treated as the minimum number
-	 * of characters to be printed.  The default is to
-	 * add no padding.  Padding is with blanks by
+	 * Format method for the d conversion character and long argument.
+	 * 
+	 * For d format, the flag character '-', means that the output should be
+	 * left justified within the field. The default is to pad with blanks on
+	 * the left. A '+' character means that the conversion will always begin
+	 * with a sign (+ or -). The blank flag character means that a
+	 * non-negative input will be preceded with a blank. If both a '+' and a
+	 * ' ' are specified, the blank flag is ignored. The '0' flag character
+	 * implies that padding to the field width will be done with zeros
+	 * instead of blanks.
+	 * 
+	 * The field width is treated as the minimum number of characters to be
+	 * printed. The default is to add no padding. Padding is with blanks by
 	 * default.
-	 *
-	 * The precision, if set, is the minimum number of
-	 * digits to appear.  Padding is with leading 0s.
-	 * @param x the long to format.
+	 * 
+	 * The precision, if set, is the minimum number of digits to appear.
+	 * Padding is with leading 0s.
+	 * 
+	 * @param x
+	 *            the long to format.
 	 * @return the formatted String.
 	 */
 	private String printDFormat(final long x) {
 	    return this.printDFormat(Long.toString(x));
 	}
+
 	/**
-	 * Format method for the d conversion specifer and
-	 * short argument.
-	 *
-	 * For d format, the flag character '-', means that
-	 * the output should be left justified within the
-	 * field.  The default is to pad with blanks on the
-	 * left.  A '+' character means that the conversion
-	 * will always begin with a sign (+ or -).  The
-	 * blank flag character means that a non-negative
-	 * input will be preceded with a blank.  If both a
-	 * '+' and a ' ' are specified, the blank flag is
-	 * ignored.  The '0' flag character implies that
-	 * padding to the field width will be done with
-	 * zeros instead of blanks.
-	 *
-	 * The field width is treated as the minimum number
-	 * of characters to be printed.  The default is to
-	 * add no padding.  Padding is with blanks by
+	 * Format method for the d conversion specifer and short argument.
+	 * 
+	 * For d format, the flag character '-', means that the output should be
+	 * left justified within the field. The default is to pad with blanks on
+	 * the left. A '+' character means that the conversion will always begin
+	 * with a sign (+ or -). The blank flag character means that a
+	 * non-negative input will be preceded with a blank. If both a '+' and a
+	 * ' ' are specified, the blank flag is ignored. The '0' flag character
+	 * implies that padding to the field width will be done with zeros
+	 * instead of blanks.
+	 * 
+	 * The field width is treated as the minimum number of characters to be
+	 * printed. The default is to add no padding. Padding is with blanks by
 	 * default.
-	 *
-	 * The precision, if set, is the minimum number of
-	 * digits to appear.  Padding is with leading 0s.
-	 * @param x the short to format.
+	 * 
+	 * The precision, if set, is the minimum number of digits to appear.
+	 * Padding is with leading 0s.
+	 * 
+	 * @param x
+	 *            the short to format.
 	 * @return the formatted String.
 	 */
 	private String printDFormat(final short x) {
 	    return this.printDFormat(Short.toString(x));
 	}
+
 	/**
-	 * Utility method for formatting using the d
-	 * conversion character.
-	 * @param sx the String to format, the result of
-	 *     converting a short, int, or long to a
-	 *     String.
+	 * Utility method for formatting using the d conversion character.
+	 * 
+	 * @param sx
+	 *            the String to format, the result of converting a short,
+	 *            int, or long to a String.
 	 * @return the formatted String.
 	 */
 	private String printDFormat(String sx) {
-	    int nLeadingZeros=0;
-	    int nBlanks=0,n=0;
-	    int i=0,jFirst=0;
-	    boolean neg = sx.charAt(0)=='-';
-	    if (sx.equals("0")&&this.precisionSet&&(this.precision==0)) {
-		sx="";
+	    int nLeadingZeros = 0;
+	    int nBlanks = 0, n = 0;
+	    int i = 0, jFirst = 0;
+	    boolean neg = sx.charAt(0) == '-';
+	    if (sx.equals("0") && this.precisionSet && (this.precision == 0)) {
+		sx = "";
 	    }
 	    if (!neg) {
 		if (this.precisionSet && (sx.length() < this.precision)) {
-		    nLeadingZeros = this.precision-sx.length();
+		    nLeadingZeros = this.precision - sx.length();
+		}
+	    } else {
+		if (this.precisionSet && ((sx.length() - 1) < this.precision)) {
+		    nLeadingZeros = this.precision - sx.length() + 1;
 		}
 	    }
-	    else {
-		if (this.precisionSet&&((sx.length()-1)<this.precision)) {
-		    nLeadingZeros = this.precision-sx.length()+1;
-		}
-	    }
-	    if (nLeadingZeros<0) {
-		nLeadingZeros=0;
+	    if (nLeadingZeros < 0) {
+		nLeadingZeros = 0;
 	    }
 	    if (this.fieldWidthSet) {
-		nBlanks = this.fieldWidth-nLeadingZeros-sx.length();
-		if (!neg&&(this.leadingSign||this.leadingSpace)) {
+		nBlanks = this.fieldWidth - nLeadingZeros - sx.length();
+		if (!neg && (this.leadingSign || this.leadingSpace)) {
 		    nBlanks--;
 		}
 	    }
-	    if (nBlanks<0) {
-		nBlanks=0;
+	    if (nBlanks < 0) {
+		nBlanks = 0;
 	    }
 	    if (this.leadingSign) {
 		n++;
@@ -1863,20 +1913,19 @@ public class PrintfFormat {
 		    ca[i++] = ' ';
 		}
 		char[] csx = sx.toCharArray();
-		jFirst = neg?1:0;
-		for (int j=0; j<nLeadingZeros; i++,j++) {
-		    ca[i]='0';
+		jFirst = neg ? 1 : 0;
+		for (int j = 0; j < nLeadingZeros; i++, j++) {
+		    ca[i] = '0';
 		}
-		for (int j=jFirst; j<csx.length; j++,i++) {
+		for (int j = jFirst; j < csx.length; j++, i++) {
 		    ca[i] = csx[j];
 		}
-		for (int j=0; j<nBlanks; i++,j++) {
+		for (int j = 0; j < nBlanks; i++, j++) {
 		    ca[i] = ' ';
 		}
-	    }
-	    else {
+	    } else {
 		if (!this.leadingZeros) {
-		    for (i=0; i<nBlanks; i++) {
+		    for (i = 0; i < nBlanks; i++) {
 			ca[i] = ' ';
 		    }
 		    if (neg) {
@@ -1886,8 +1935,7 @@ public class PrintfFormat {
 		    } else if (this.leadingSpace) {
 			ca[i++] = ' ';
 		    }
-		}
-		else {
+		} else {
 		    if (neg) {
 			ca[i++] = '-';
 		    } else if (this.leadingSign) {
@@ -1895,76 +1943,79 @@ public class PrintfFormat {
 		    } else if (this.leadingSpace) {
 			ca[i++] = ' ';
 		    }
-		    for (int j=0; j<nBlanks; j++,i++) {
+		    for (int j = 0; j < nBlanks; j++, i++) {
 			ca[i] = '0';
 		    }
 		}
-		for (int j=0; j<nLeadingZeros; j++,i++) {
+		for (int j = 0; j < nLeadingZeros; j++, i++) {
 		    ca[i] = '0';
 		}
 		char[] csx = sx.toCharArray();
-		jFirst = neg?1:0;
-		for (int j=jFirst; j<csx.length; j++,i++) {
+		jFirst = neg ? 1 : 0;
+		for (int j = jFirst; j < csx.length; j++, i++) {
 		    ca[i] = csx[j];
 		}
 	    }
 	    return new String(ca);
 	}
+
 	/**
-	 * Format method for the e or E conversion
-	 * character.
-	 * @param x the double to format.
+	 * Format method for the e or E conversion character.
+	 * 
+	 * @param x
+	 *            the double to format.
 	 * @return the formatted String.
 	 */
 	private String printEFormat(final double x) {
-	    if (this.conversionCharacter=='e') {
-		return this.eFormatString(x,'e');
+	    if (this.conversionCharacter == 'e') {
+		return this.eFormatString(x, 'e');
 	    } else {
-		return this.eFormatString(x,'E');
+		return this.eFormatString(x, 'E');
 	    }
 	}
+
 	/**
 	 * Format method for the f conversion character.
-	 * @param x the double to format.
+	 * 
+	 * @param x
+	 *            the double to format.
 	 * @return the formatted String.
 	 */
 	private String printFFormat(final double x) {
 	    return this.fFormatString(x);
 	}
+
 	/**
 	 * Format method for the g conversion character.
-	 *
-	 * For g format, the flag character '-', means that
-	 *  the output should be left justified within the
-	 * field.  The default is to pad with blanks on the
-	 * left.  '+' character means that the conversion
-	 * will always begin with a sign (+ or -).  The
-	 * blank flag character means that a non-negative
-	 * input will be preceded with a blank.  If both a
-	 * '+' and a ' ' are specified, the blank flag is
-	 * ignored.  The '0' flag character implies that
-	 * padding to the field width will be done with
-	 * zeros instead of blanks.
-	 *
-	 * The field width is treated as the minimum number
-	 * of characters to be printed.  The default is to
-	 * add no padding.  Padding is with blanks by
+	 * 
+	 * For g format, the flag character '-', means that the output should be
+	 * left justified within the field. The default is to pad with blanks on
+	 * the left. '+' character means that the conversion will always begin
+	 * with a sign (+ or -). The blank flag character means that a
+	 * non-negative input will be preceded with a blank. If both a '+' and a
+	 * ' ' are specified, the blank flag is ignored. The '0' flag character
+	 * implies that padding to the field width will be done with zeros
+	 * instead of blanks.
+	 * 
+	 * The field width is treated as the minimum number of characters to be
+	 * printed. The default is to add no padding. Padding is with blanks by
 	 * default.
-	 *
-	 * The precision, if set, is the minimum number of
-	 * digits to appear after the radix character.
-	 * Padding is with trailing 0s.
-	 * @param x the double to format.
+	 * 
+	 * The precision, if set, is the minimum number of digits to appear
+	 * after the radix character. Padding is with trailing 0s.
+	 * 
+	 * @param x
+	 *            the double to format.
 	 * @return the formatted String.
 	 */
 	private String printGFormat(final double x) {
-	    String sx,sy,sz,ret;
-	    int savePrecision=this.precision;
+	    String sx, sy, sz, ret;
+	    int savePrecision = this.precision;
 	    int i;
-	    char[] ca4,ca5;
-	    boolean noDigits=false;
+	    char[] ca4, ca5;
+	    boolean noDigits = false;
 	    if (Double.isInfinite(x)) {
-		if (x==Double.POSITIVE_INFINITY) {
+		if (x == Double.POSITIVE_INFINITY) {
 		    if (this.leadingSign) {
 			ca4 = "+Inf".toCharArray();
 		    } else if (this.leadingSpace) {
@@ -1976,8 +2027,7 @@ public class PrintfFormat {
 		    ca4 = "-Inf".toCharArray();
 		}
 		noDigits = true;
-	    }
-	    else if (Double.isNaN(x)) {
+	    } else if (Double.isNaN(x)) {
 		if (this.leadingSign) {
 		    ca4 = "+NaN".toCharArray();
 		} else if (this.leadingSpace) {
@@ -1986,81 +2036,77 @@ public class PrintfFormat {
 		    ca4 = "NaN".toCharArray();
 		}
 		noDigits = true;
-	    }
-	    else {
+	    } else {
 		if (!this.precisionSet) {
-		    this.precision=ConversionSpecification.defaultDigits;
+		    this.precision = ConversionSpecification.defaultDigits;
 		}
-		if (this.precision==0) {
-		    this.precision=1;
+		if (this.precision == 0) {
+		    this.precision = 1;
 		}
-		int ePos=-1;
-		if (this.conversionCharacter=='g') {
-		    sx = this.eFormatString(x,'e').trim();
-		    ePos=sx.indexOf('e');
+		int ePos = -1;
+		if (this.conversionCharacter == 'g') {
+		    sx = this.eFormatString(x, 'e').trim();
+		    ePos = sx.indexOf('e');
+		} else {
+		    sx = this.eFormatString(x, 'E').trim();
+		    ePos = sx.indexOf('E');
 		}
-		else {
-		    sx = this.eFormatString(x,'E').trim();
-		    ePos=sx.indexOf('E');
-		}
-		i=ePos+1;
-		int expon=0;
-		if (sx.charAt(i)=='-') {
-		    for (++i; i<sx.length(); i++) {
-			if (sx.charAt(i)!='0') {
+		i = ePos + 1;
+		int expon = 0;
+		if (sx.charAt(i) == '-') {
+		    for (++i; i < sx.length(); i++) {
+			if (sx.charAt(i) != '0') {
 			    break;
 			}
 		    }
-		    if (i<sx.length()) {
-			expon=-Integer.parseInt(sx.substring(i));
+		    if (i < sx.length()) {
+			expon = -Integer.parseInt(sx.substring(i));
 		    }
-		}
-		else {
-		    if (sx.charAt(i)=='+') {
+		} else {
+		    if (sx.charAt(i) == '+') {
 			++i;
 		    }
-		    for (; i<sx.length(); i++) {
-			if (sx.charAt(i)!='0') {
+		    for (; i < sx.length(); i++) {
+			if (sx.charAt(i) != '0') {
 			    break;
 			}
 		    }
-		    if (i<sx.length()) {
-			expon=Integer.parseInt(sx.substring(i));
+		    if (i < sx.length()) {
+			expon = Integer.parseInt(sx.substring(i));
 		    }
 		}
 		// Trim trailing zeros.
 		// If the radix character is not followed by
 		// a digit, trim it, too.
 		if (!this.alternateForm) {
-		    if ((expon>=-4) && (expon<this.precision)) {
+		    if ((expon >= -4) && (expon < this.precision)) {
 			sy = this.fFormatString(x).trim();
 		    } else {
-			sy = sx.substring(0,ePos);
+			sy = sx.substring(0, ePos);
 		    }
-		    i=sy.length()-1;
-		    for (; i>=0; i--) {
-			if (sy.charAt(i)!='0') {
+		    i = sy.length() - 1;
+		    for (; i >= 0; i--) {
+			if (sy.charAt(i) != '0') {
 			    break;
 			}
 		    }
-		    if ((i>=0) && (sy.charAt(i)=='.')) {
+		    if ((i >= 0) && (sy.charAt(i) == '.')) {
 			i--;
 		    }
-		    if (i==-1) {
-			sz="0";
+		    if (i == -1) {
+			sz = "0";
 		    } else if (!Character.isDigit(sy.charAt(i))) {
-			sz=sy.substring(0,i+1)+"0";
+			sz = sy.substring(0, i + 1) + "0";
 		    } else {
-			sz=sy.substring(0,i+1);
+			sz = sy.substring(0, i + 1);
 		    }
-		    if ((expon>=-4) && (expon<this.precision)) {
-			ret=sz;
+		    if ((expon >= -4) && (expon < this.precision)) {
+			ret = sz;
 		    } else {
-			ret=sz+sx.substring(ePos);
+			ret = sz + sx.substring(ePos);
 		    }
-		}
-		else {
-		    if ((expon>=-4) && (expon<this.precision)) {
+		} else {
+		    if ((expon >= -4) && (expon < this.precision)) {
 			ret = this.fFormatString(x).trim();
 		    } else {
 			ret = sx;
@@ -2069,755 +2115,742 @@ public class PrintfFormat {
 		// leading space was trimmed off during
 		// construction
 		if (this.leadingSpace) {
-		    if (x>=0) {
-			ret = " "+ret;
+		    if (x >= 0) {
+			ret = " " + ret;
 		    }
 		}
 		ca4 = ret.toCharArray();
 	    }
 	    // Pad with blanks or zeros.
-	    ca5 = this.applyFloatPadding(ca4,false);
-	    this.precision=savePrecision;
+	    ca5 = this.applyFloatPadding(ca4, false);
+	    this.precision = savePrecision;
 	    return new String(ca5);
 	}
+
 	/**
-	 * Format method for the o conversion character and
-	 * int argument.
-	 *
-	 * For o format, the flag character '-', means that
-	 * the output should be left justified within the
-	 * field.  The default is to pad with blanks on the
-	 * left.  The '#' flag character means that the
-	 * output begins with a leading 0 and the precision
-	 * is increased by 1.
-	 *
-	 * The field width is treated as the minimum number
-	 * of characters to be printed.  The default is to
-	 * add no padding.  Padding is with blanks by
+	 * Format method for the o conversion character and int argument.
+	 * 
+	 * For o format, the flag character '-', means that the output should be
+	 * left justified within the field. The default is to pad with blanks on
+	 * the left. The '#' flag character means that the output begins with a
+	 * leading 0 and the precision is increased by 1.
+	 * 
+	 * The field width is treated as the minimum number of characters to be
+	 * printed. The default is to add no padding. Padding is with blanks by
 	 * default.
-	 *
-	 * The precision, if set, is the minimum number of
-	 * digits to appear.  Padding is with leading 0s.
-	 * @param x the int to format.
+	 * 
+	 * The precision, if set, is the minimum number of digits to appear.
+	 * Padding is with leading 0s.
+	 * 
+	 * @param x
+	 *            the int to format.
 	 * @return the formatted String.
 	 */
 	private String printOFormat(final int x) {
-	    String sx=null;
+	    String sx = null;
 	    if (x == Integer.MIN_VALUE) {
 		sx = "20000000000";
 	    } else if (x < 0) {
-		String t = Integer.toString(
-			(~(-x-1))^Integer.MIN_VALUE,8);
+		String t = Integer.toString((~(-x - 1)) ^ Integer.MIN_VALUE, 8);
 		switch (t.length()) {
 		case 1:
-		    sx = "2000000000"+t;
+		    sx = "2000000000" + t;
 		    break;
 		case 2:
-		    sx = "200000000"+t;
+		    sx = "200000000" + t;
 		    break;
 		case 3:
-		    sx = "20000000"+t;
+		    sx = "20000000" + t;
 		    break;
 		case 4:
-		    sx = "2000000"+t;
+		    sx = "2000000" + t;
 		    break;
 		case 5:
-		    sx = "200000"+t;
+		    sx = "200000" + t;
 		    break;
 		case 6:
-		    sx = "20000"+t;
+		    sx = "20000" + t;
 		    break;
 		case 7:
-		    sx = "2000"+t;
+		    sx = "2000" + t;
 		    break;
 		case 8:
-		    sx = "200"+t;
+		    sx = "200" + t;
 		    break;
 		case 9:
-		    sx = "20"+t;
+		    sx = "20" + t;
 		    break;
 		case 10:
-		    sx = "2"+t;
+		    sx = "2" + t;
 		    break;
 		case 11:
-		    sx = "3"+t.substring(1);
+		    sx = "3" + t.substring(1);
 		    break;
 		}
 	    } else {
-		sx = Integer.toString(x,8);
+		sx = Integer.toString(x, 8);
 	    }
 	    return this.printOFormat(sx);
 	}
+
 	/**
-	 * Format method for the o conversion character and
-	 * long argument.
-	 *
-	 * For o format, the flag character '-', means that
-	 * the output should be left justified within the
-	 * field.  The default is to pad with blanks on the
-	 * left.  The '#' flag character means that the
-	 * output begins with a leading 0 and the precision
-	 * is increased by 1.
-	 *
-	 * The field width is treated as the minimum number
-	 * of characters to be printed.  The default is to
-	 * add no padding.  Padding is with blanks by
+	 * Format method for the o conversion character and long argument.
+	 * 
+	 * For o format, the flag character '-', means that the output should be
+	 * left justified within the field. The default is to pad with blanks on
+	 * the left. The '#' flag character means that the output begins with a
+	 * leading 0 and the precision is increased by 1.
+	 * 
+	 * The field width is treated as the minimum number of characters to be
+	 * printed. The default is to add no padding. Padding is with blanks by
 	 * default.
-	 *
-	 * The precision, if set, is the minimum number of
-	 * digits to appear.  Padding is with leading 0s.
-	 * @param x the long to format.
+	 * 
+	 * The precision, if set, is the minimum number of digits to appear.
+	 * Padding is with leading 0s.
+	 * 
+	 * @param x
+	 *            the long to format.
 	 * @return the formatted String.
 	 */
 	private String printOFormat(final long x) {
-	    String sx=null;
+	    String sx = null;
 	    if (x == Long.MIN_VALUE) {
 		sx = "1000000000000000000000";
 	    } else if (x < 0) {
-		String t = Long.toString(
-			(~(-x-1))^Long.MIN_VALUE,8);
+		String t = Long.toString((~(-x - 1)) ^ Long.MIN_VALUE, 8);
 		switch (t.length()) {
 		case 1:
-		    sx = "100000000000000000000"+t;
+		    sx = "100000000000000000000" + t;
 		    break;
 		case 2:
-		    sx = "10000000000000000000"+t;
+		    sx = "10000000000000000000" + t;
 		    break;
 		case 3:
-		    sx = "1000000000000000000"+t;
+		    sx = "1000000000000000000" + t;
 		    break;
 		case 4:
-		    sx = "100000000000000000"+t;
+		    sx = "100000000000000000" + t;
 		    break;
 		case 5:
-		    sx = "10000000000000000"+t;
+		    sx = "10000000000000000" + t;
 		    break;
 		case 6:
-		    sx = "1000000000000000"+t;
+		    sx = "1000000000000000" + t;
 		    break;
 		case 7:
-		    sx = "100000000000000"+t;
+		    sx = "100000000000000" + t;
 		    break;
 		case 8:
-		    sx = "10000000000000"+t;
+		    sx = "10000000000000" + t;
 		    break;
 		case 9:
-		    sx = "1000000000000"+t;
+		    sx = "1000000000000" + t;
 		    break;
 		case 10:
-		    sx = "100000000000"+t;
+		    sx = "100000000000" + t;
 		    break;
 		case 11:
-		    sx = "10000000000"+t;
+		    sx = "10000000000" + t;
 		    break;
 		case 12:
-		    sx = "1000000000"+t;
+		    sx = "1000000000" + t;
 		    break;
 		case 13:
-		    sx = "100000000"+t;
+		    sx = "100000000" + t;
 		    break;
 		case 14:
-		    sx = "10000000"+t;
+		    sx = "10000000" + t;
 		    break;
 		case 15:
-		    sx = "1000000"+t;
+		    sx = "1000000" + t;
 		    break;
 		case 16:
-		    sx = "100000"+t;
+		    sx = "100000" + t;
 		    break;
 		case 17:
-		    sx = "10000"+t;
+		    sx = "10000" + t;
 		    break;
 		case 18:
-		    sx = "1000"+t;
+		    sx = "1000" + t;
 		    break;
 		case 19:
-		    sx = "100"+t;
+		    sx = "100" + t;
 		    break;
 		case 20:
-		    sx = "10"+t;
+		    sx = "10" + t;
 		    break;
 		case 21:
-		    sx = "1"+t;
+		    sx = "1" + t;
 		    break;
 		}
 	    } else {
-		sx = Long.toString(x,8);
+		sx = Long.toString(x, 8);
 	    }
 	    return this.printOFormat(sx);
 	}
+
 	/**
-	 * Format method for the o conversion character and
-	 * short argument.
-	 *
-	 * For o format, the flag character '-', means that
-	 * the output should be left justified within the
-	 * field.  The default is to pad with blanks on the
-	 * left.  The '#' flag character means that the
-	 * output begins with a leading 0 and the precision
-	 * is increased by 1.
-	 *
-	 * The field width is treated as the minimum number
-	 * of characters to be printed.  The default is to
-	 * add no padding.  Padding is with blanks by
+	 * Format method for the o conversion character and short argument.
+	 * 
+	 * For o format, the flag character '-', means that the output should be
+	 * left justified within the field. The default is to pad with blanks on
+	 * the left. The '#' flag character means that the output begins with a
+	 * leading 0 and the precision is increased by 1.
+	 * 
+	 * The field width is treated as the minimum number of characters to be
+	 * printed. The default is to add no padding. Padding is with blanks by
 	 * default.
-	 *
-	 * The precision, if set, is the minimum number of
-	 * digits to appear.  Padding is with leading 0s.
-	 * @param x the short to format.
+	 * 
+	 * The precision, if set, is the minimum number of digits to appear.
+	 * Padding is with leading 0s.
+	 * 
+	 * @param x
+	 *            the short to format.
 	 * @return the formatted String.
 	 */
 	private String printOFormat(final short x) {
-	    String sx=null;
+	    String sx = null;
 	    if (x == Short.MIN_VALUE) {
 		sx = "100000";
 	    } else if (x < 0) {
-		String t = Integer.toString(
-			(~(-x-1))^Short.MIN_VALUE,8);
+		String t = Integer.toString((~(-x - 1)) ^ Short.MIN_VALUE, 8);
 		switch (t.length()) {
 		case 1:
-		    sx = "10000"+t;
+		    sx = "10000" + t;
 		    break;
 		case 2:
-		    sx = "1000"+t;
+		    sx = "1000" + t;
 		    break;
 		case 3:
-		    sx = "100"+t;
+		    sx = "100" + t;
 		    break;
 		case 4:
-		    sx = "10"+t;
+		    sx = "10" + t;
 		    break;
 		case 5:
-		    sx = "1"+t;
+		    sx = "1" + t;
 		    break;
 		}
 	    } else {
-		sx = Integer.toString((int)x,8);
+		sx = Integer.toString((int) x, 8);
 	    }
 	    return this.printOFormat(sx);
 	}
+
 	/**
-	 * Utility method for formatting using the o
-	 * conversion character.
-	 * @param sx the String to format, the result of
-	 *     converting a short, int, or long to a
-	 *     String.
+	 * Utility method for formatting using the o conversion character.
+	 * 
+	 * @param sx
+	 *            the String to format, the result of converting a short,
+	 *            int, or long to a String.
 	 * @return the formatted String.
 	 */
 	private String printOFormat(String sx) {
 	    int nLeadingZeros = 0;
 	    int nBlanks = 0;
-	    if (sx.equals("0")&&this.precisionSet&&(this.precision==0)) {
-		sx="";
+	    if (sx.equals("0") && this.precisionSet && (this.precision == 0)) {
+		sx = "";
 	    }
 	    if (this.precisionSet) {
-		nLeadingZeros = this.precision-sx.length();
+		nLeadingZeros = this.precision - sx.length();
 	    }
 	    if (this.alternateForm) {
 		nLeadingZeros++;
 	    }
-	    if (nLeadingZeros<0) {
-		nLeadingZeros=0;
+	    if (nLeadingZeros < 0) {
+		nLeadingZeros = 0;
 	    }
 	    if (this.fieldWidthSet) {
-		nBlanks = this.fieldWidth-nLeadingZeros-sx.length();
+		nBlanks = this.fieldWidth - nLeadingZeros - sx.length();
 	    }
-	    if (nBlanks<0) {
-		nBlanks=0;
+	    if (nBlanks < 0) {
+		nBlanks = 0;
 	    }
-	    int n=nLeadingZeros+sx.length()+nBlanks;
+	    int n = nLeadingZeros + sx.length() + nBlanks;
 	    char[] ca = new char[n];
 	    int i;
 	    if (this.leftJustify) {
-		for (i=0; i<nLeadingZeros; i++) {
-		    ca[i]='0';
+		for (i = 0; i < nLeadingZeros; i++) {
+		    ca[i] = '0';
 		}
 		char[] csx = sx.toCharArray();
-		for (int j=0; j<csx.length; j++,i++) {
+		for (int j = 0; j < csx.length; j++, i++) {
 		    ca[i] = csx[j];
 		}
-		for (int j=0; j<nBlanks; j++,i++) {
+		for (int j = 0; j < nBlanks; j++, i++) {
 		    ca[i] = ' ';
 		}
-	    }
-	    else {
+	    } else {
 		if (this.leadingZeros) {
-		    for (i=0; i<nBlanks; i++) {
-			ca[i]='0';
+		    for (i = 0; i < nBlanks; i++) {
+			ca[i] = '0';
 		    }
 		} else {
-		    for (i=0; i<nBlanks; i++) {
-			ca[i]=' ';
+		    for (i = 0; i < nBlanks; i++) {
+			ca[i] = ' ';
 		    }
 		}
-		for (int j=0; j<nLeadingZeros; j++,i++) {
-		    ca[i]='0';
+		for (int j = 0; j < nLeadingZeros; j++, i++) {
+		    ca[i] = '0';
 		}
 		char[] csx = sx.toCharArray();
-		for (int j=0; j<csx.length; j++,i++) {
+		for (int j = 0; j < csx.length; j++, i++) {
 		    ca[i] = csx[j];
 		}
 	    }
 	    return new String(ca);
 	}
+
 	/**
-	 * Format method for the s conversion character and
-	 * String argument.
-	 *
-	 * The only flag character that affects s format is
-	 * the '-', meaning that the output should be left
-	 * justified within the field.  The default is to
-	 * pad with blanks on the left.
-	 *
-	 * The field width is treated as the minimum number
-	 * of characters to be printed.  The default is the
-	 * smaller of the number of characters in the the
-	 * input and the precision.  Padding is with blanks
-	 * by default.
-	 *
-	 * The precision, if set, specifies the maximum
-	 * number of characters to be printed from the
-	 * string.  A null digit string is treated
-	 * as a 0.  The default is not to set a maximum
-	 * number of characters to be printed.
-	 * @param x the String to format.
+	 * Format method for the s conversion character and String argument.
+	 * 
+	 * The only flag character that affects s format is the '-', meaning
+	 * that the output should be left justified within the field. The
+	 * default is to pad with blanks on the left.
+	 * 
+	 * The field width is treated as the minimum number of characters to be
+	 * printed. The default is the smaller of the number of characters in
+	 * the the input and the precision. Padding is with blanks by default.
+	 * 
+	 * The precision, if set, specifies the maximum number of characters to
+	 * be printed from the string. A null digit string is treated as a 0.
+	 * The default is not to set a maximum number of characters to be
+	 * printed.
+	 * 
+	 * @param x
+	 *            the String to format.
 	 * @return the formatted String.
 	 */
 	private String printSFormat(final String x) {
 	    int nPrint = x.length();
 	    int width = this.fieldWidth;
-	    if (this.precisionSet && (nPrint>this.precision)) {
-		nPrint=this.precision;
+	    if (this.precisionSet && (nPrint > this.precision)) {
+		nPrint = this.precision;
 	    }
 	    if (!this.fieldWidthSet) {
 		width = nPrint;
 	    }
-	    int n=0;
-	    if (width>nPrint) {
-		n+=width-nPrint;
+	    int n = 0;
+	    if (width > nPrint) {
+		n += width - nPrint;
 	    }
-	    if (nPrint>=x.length()) {
-		n+= x.length();
+	    if (nPrint >= x.length()) {
+		n += x.length();
 	    } else {
-		n+= nPrint;
+		n += nPrint;
 	    }
 	    char[] ca = new char[n];
-	    int i=0;
+	    int i = 0;
 	    if (this.leftJustify) {
-		if (nPrint>=x.length()) {
+		if (nPrint >= x.length()) {
 		    char[] csx = x.toCharArray();
-		    for (i=0; i<x.length(); i++) {
-			ca[i]=csx[i];
+		    for (i = 0; i < x.length(); i++) {
+			ca[i] = csx[i];
+		    }
+		} else {
+		    char[] csx = x.substring(0, nPrint).toCharArray();
+		    for (i = 0; i < nPrint; i++) {
+			ca[i] = csx[i];
 		    }
 		}
-		else {
-		    char[] csx =
-			x.substring(0,nPrint).toCharArray();
-		    for (i=0; i<nPrint; i++) {
-			ca[i]=csx[i];
-		    }
+		for (int j = 0; j < width - nPrint; j++, i++) {
+		    ca[i] = ' ';
 		}
-		for (int j=0; j<width-nPrint; j++,i++) {
-		    ca[i]=' ';
+	    } else {
+		for (i = 0; i < width - nPrint; i++) {
+		    ca[i] = ' ';
 		}
-	    }
-	    else {
-		for (i=0; i<width-nPrint; i++) {
-		    ca[i]=' ';
-		}
-		if (nPrint>=x.length()) {
+		if (nPrint >= x.length()) {
 		    char[] csx = x.toCharArray();
-		    for (int j=0; j<x.length(); i++,j++) {
-			ca[i]=csx[j];
+		    for (int j = 0; j < x.length(); i++, j++) {
+			ca[i] = csx[j];
 		    }
-		}
-		else {
-		    char[] csx =
-			x.substring(0,nPrint).toCharArray();
-		    for (int j=0; j<nPrint; i++,j++) {
-			ca[i]=csx[j];
+		} else {
+		    char[] csx = x.substring(0, nPrint).toCharArray();
+		    for (int j = 0; j < nPrint; i++, j++) {
+			ca[i] = csx[j];
 		    }
 		}
 	    }
 	    return new String(ca);
 	}
+
 	/**
-	 * Format method for the x conversion character and
-	 * int argument.
-	 *
-	 * For x format, the flag character '-', means that
-	 * the output should be left justified within the
-	 * field.  The default is to pad with blanks on the
-	 * left.  The '#' flag character means to lead with
-	 * '0x'.
-	 *
-	 * The field width is treated as the minimum number
-	 * of characters to be printed.  The default is to
-	 * add no padding.  Padding is with blanks by
+	 * Format method for the x conversion character and int argument.
+	 * 
+	 * For x format, the flag character '-', means that the output should be
+	 * left justified within the field. The default is to pad with blanks on
+	 * the left. The '#' flag character means to lead with '0x'.
+	 * 
+	 * The field width is treated as the minimum number of characters to be
+	 * printed. The default is to add no padding. Padding is with blanks by
 	 * default.
-	 *
-	 * The precision, if set, is the minimum number of
-	 * digits to appear.  Padding is with leading 0s.
-	 * @param x the int to format.
+	 * 
+	 * The precision, if set, is the minimum number of digits to appear.
+	 * Padding is with leading 0s.
+	 * 
+	 * @param x
+	 *            the int to format.
 	 * @return the formatted String.
 	 */
 	private String printXFormat(final int x) {
-	    String sx=null;
+	    String sx = null;
 	    if (x == Integer.MIN_VALUE) {
 		sx = "80000000";
 	    } else if (x < 0) {
-		String t = Integer.toString(
-			(~(-x-1))^Integer.MIN_VALUE,16);
+		String t = Integer
+			.toString((~(-x - 1)) ^ Integer.MIN_VALUE, 16);
 		switch (t.length()) {
 		case 1:
-		    sx = "8000000"+t;
+		    sx = "8000000" + t;
 		    break;
 		case 2:
-		    sx = "800000"+t;
+		    sx = "800000" + t;
 		    break;
 		case 3:
-		    sx = "80000"+t;
+		    sx = "80000" + t;
 		    break;
 		case 4:
-		    sx = "8000"+t;
+		    sx = "8000" + t;
 		    break;
 		case 5:
-		    sx = "800"+t;
+		    sx = "800" + t;
 		    break;
 		case 6:
-		    sx = "80"+t;
+		    sx = "80" + t;
 		    break;
 		case 7:
-		    sx = "8"+t;
+		    sx = "8" + t;
 		    break;
 		case 8:
 		    switch (t.charAt(0)) {
 		    case '1':
-			sx = "9"+t.substring(1,8);
+			sx = "9" + t.substring(1, 8);
 			break;
 		    case '2':
-			sx = "a"+t.substring(1,8);
+			sx = "a" + t.substring(1, 8);
 			break;
 		    case '3':
-			sx = "b"+t.substring(1,8);
+			sx = "b" + t.substring(1, 8);
 			break;
 		    case '4':
-			sx = "c"+t.substring(1,8);
+			sx = "c" + t.substring(1, 8);
 			break;
 		    case '5':
-			sx = "d"+t.substring(1,8);
+			sx = "d" + t.substring(1, 8);
 			break;
 		    case '6':
-			sx = "e"+t.substring(1,8);
+			sx = "e" + t.substring(1, 8);
 			break;
 		    case '7':
-			sx = "f"+t.substring(1,8);
+			sx = "f" + t.substring(1, 8);
 			break;
 		    }
 		    break;
 		}
 	    } else {
-		sx = Integer.toString(x,16);
+		sx = Integer.toString(x, 16);
 	    }
 	    return this.printXFormat(sx);
 	}
+
 	/**
-	 * Format method for the x conversion character and
-	 * long argument.
-	 *
-	 * For x format, the flag character '-', means that
-	 * the output should be left justified within the
-	 * field.  The default is to pad with blanks on the
-	 * left.  The '#' flag character means to lead with
-	 * '0x'.
-	 *
-	 * The field width is treated as the minimum number
-	 * of characters to be printed.  The default is to
-	 * add no padding.  Padding is with blanks by
+	 * Format method for the x conversion character and long argument.
+	 * 
+	 * For x format, the flag character '-', means that the output should be
+	 * left justified within the field. The default is to pad with blanks on
+	 * the left. The '#' flag character means to lead with '0x'.
+	 * 
+	 * The field width is treated as the minimum number of characters to be
+	 * printed. The default is to add no padding. Padding is with blanks by
 	 * default.
-	 *
-	 * The precision, if set, is the minimum number of
-	 * digits to appear.  Padding is with leading 0s.
-	 * @param x the long to format.
+	 * 
+	 * The precision, if set, is the minimum number of digits to appear.
+	 * Padding is with leading 0s.
+	 * 
+	 * @param x
+	 *            the long to format.
 	 * @return the formatted String.
 	 */
 	private String printXFormat(final long x) {
-	    String sx=null;
+	    String sx = null;
 	    if (x == Long.MIN_VALUE) {
 		sx = "8000000000000000";
 	    } else if (x < 0) {
-		String t = Long.toString(
-			(~(-x-1))^Long.MIN_VALUE,16);
+		String t = Long.toString((~(-x - 1)) ^ Long.MIN_VALUE, 16);
 		switch (t.length()) {
 		case 1:
-		    sx = "800000000000000"+t;
+		    sx = "800000000000000" + t;
 		    break;
 		case 2:
-		    sx = "80000000000000"+t;
+		    sx = "80000000000000" + t;
 		    break;
 		case 3:
-		    sx = "8000000000000"+t;
+		    sx = "8000000000000" + t;
 		    break;
 		case 4:
-		    sx = "800000000000"+t;
+		    sx = "800000000000" + t;
 		    break;
 		case 5:
-		    sx = "80000000000"+t;
+		    sx = "80000000000" + t;
 		    break;
 		case 6:
-		    sx = "8000000000"+t;
+		    sx = "8000000000" + t;
 		    break;
 		case 7:
-		    sx = "800000000"+t;
+		    sx = "800000000" + t;
 		    break;
 		case 8:
-		    sx = "80000000"+t;
+		    sx = "80000000" + t;
 		    break;
 		case 9:
-		    sx = "8000000"+t;
+		    sx = "8000000" + t;
 		    break;
 		case 10:
-		    sx = "800000"+t;
+		    sx = "800000" + t;
 		    break;
 		case 11:
-		    sx = "80000"+t;
+		    sx = "80000" + t;
 		    break;
 		case 12:
-		    sx = "8000"+t;
+		    sx = "8000" + t;
 		    break;
 		case 13:
-		    sx = "800"+t;
+		    sx = "800" + t;
 		    break;
 		case 14:
-		    sx = "80"+t;
+		    sx = "80" + t;
 		    break;
 		case 15:
-		    sx = "8"+t;
+		    sx = "8" + t;
 		    break;
 		case 16:
 		    switch (t.charAt(0)) {
 		    case '1':
-			sx = "9"+t.substring(1,16);
+			sx = "9" + t.substring(1, 16);
 			break;
 		    case '2':
-			sx = "a"+t.substring(1,16);
+			sx = "a" + t.substring(1, 16);
 			break;
 		    case '3':
-			sx = "b"+t.substring(1,16);
+			sx = "b" + t.substring(1, 16);
 			break;
 		    case '4':
-			sx = "c"+t.substring(1,16);
+			sx = "c" + t.substring(1, 16);
 			break;
 		    case '5':
-			sx = "d"+t.substring(1,16);
+			sx = "d" + t.substring(1, 16);
 			break;
 		    case '6':
-			sx = "e"+t.substring(1,16);
+			sx = "e" + t.substring(1, 16);
 			break;
 		    case '7':
-			sx = "f"+t.substring(1,16);
+			sx = "f" + t.substring(1, 16);
 			break;
 		    }
 		    break;
 		}
 	    } else {
-		sx = Long.toString(x,16);
+		sx = Long.toString(x, 16);
 	    }
 	    return this.printXFormat(sx);
 	}
+
 	/**
-	 * Format method for the x conversion character and
-	 * short argument.
-	 *
-	 * For x format, the flag character '-', means that
-	 * the output should be left justified within the
-	 * field.  The default is to pad with blanks on the
-	 * left.  The '#' flag character means to lead with
-	 * '0x'.
-	 *
-	 * The field width is treated as the minimum number
-	 * of characters to be printed.  The default is to
-	 * add no padding.  Padding is with blanks by
+	 * Format method for the x conversion character and short argument.
+	 * 
+	 * For x format, the flag character '-', means that the output should be
+	 * left justified within the field. The default is to pad with blanks on
+	 * the left. The '#' flag character means to lead with '0x'.
+	 * 
+	 * The field width is treated as the minimum number of characters to be
+	 * printed. The default is to add no padding. Padding is with blanks by
 	 * default.
-	 *
-	 * The precision, if set, is the minimum number of
-	 * digits to appear.  Padding is with leading 0s.
-	 * @param x the short to format.
+	 * 
+	 * The precision, if set, is the minimum number of digits to appear.
+	 * Padding is with leading 0s.
+	 * 
+	 * @param x
+	 *            the short to format.
 	 * @return the formatted String.
 	 */
 	private String printXFormat(final short x) {
-	    String sx=null;
+	    String sx = null;
 	    if (x == Short.MIN_VALUE) {
 		sx = "8000";
 	    } else if (x < 0) {
 		String t;
-		if (x==Short.MIN_VALUE) {
+		if (x == Short.MIN_VALUE) {
 		    t = "0";
 		} else {
-		    t = Integer.toString(
-			    (~(-x-1))^Short.MIN_VALUE,16);
-		    if ((t.charAt(0)=='F')||(t.charAt(0)=='f')) {
-			t = t.substring(16,32);
+		    t = Integer.toString((~(-x - 1)) ^ Short.MIN_VALUE, 16);
+		    if ((t.charAt(0) == 'F') || (t.charAt(0) == 'f')) {
+			t = t.substring(16, 32);
 		    }
 		}
 		switch (t.length()) {
 		case 1:
-		    sx = "800"+t;
+		    sx = "800" + t;
 		    break;
 		case 2:
-		    sx = "80"+t;
+		    sx = "80" + t;
 		    break;
 		case 3:
-		    sx = "8"+t;
+		    sx = "8" + t;
 		    break;
 		case 4:
 		    switch (t.charAt(0)) {
 		    case '1':
-			sx = "9"+t.substring(1,4);
+			sx = "9" + t.substring(1, 4);
 			break;
 		    case '2':
-			sx = "a"+t.substring(1,4);
+			sx = "a" + t.substring(1, 4);
 			break;
 		    case '3':
-			sx = "b"+t.substring(1,4);
+			sx = "b" + t.substring(1, 4);
 			break;
 		    case '4':
-			sx = "c"+t.substring(1,4);
+			sx = "c" + t.substring(1, 4);
 			break;
 		    case '5':
-			sx = "d"+t.substring(1,4);
+			sx = "d" + t.substring(1, 4);
 			break;
 		    case '6':
-			sx = "e"+t.substring(1,4);
+			sx = "e" + t.substring(1, 4);
 			break;
 		    case '7':
-			sx = "f"+t.substring(1,4);
+			sx = "f" + t.substring(1, 4);
 			break;
 		    }
 		    break;
 		}
 	    } else {
-		sx = Integer.toString(x,16);
+		sx = Integer.toString(x, 16);
 	    }
 	    return this.printXFormat(sx);
 	}
+
 	/**
-	 * Utility method for formatting using the x
-	 * conversion character.
-	 * @param sx the String to format, the result of
-	 *     converting a short, int, or long to a
-	 *     String.
+	 * Utility method for formatting using the x conversion character.
+	 * 
+	 * @param sx
+	 *            the String to format, the result of converting a short,
+	 *            int, or long to a String.
 	 * @return the formatted String.
 	 */
 	private String printXFormat(String sx) {
 	    int nLeadingZeros = 0;
 	    int nBlanks = 0;
-	    if (sx.equals("0")&&this.precisionSet&&(this.precision==0)) {
-		sx="";
+	    if (sx.equals("0") && this.precisionSet && (this.precision == 0)) {
+		sx = "";
 	    }
 	    if (this.precisionSet) {
-		nLeadingZeros = this.precision-sx.length();
+		nLeadingZeros = this.precision - sx.length();
 	    }
-	    if (nLeadingZeros<0) {
-		nLeadingZeros=0;
+	    if (nLeadingZeros < 0) {
+		nLeadingZeros = 0;
 	    }
 	    if (this.fieldWidthSet) {
-		nBlanks = this.fieldWidth-nLeadingZeros-sx.length();
+		nBlanks = this.fieldWidth - nLeadingZeros - sx.length();
 		if (this.alternateForm) {
 		    nBlanks = nBlanks - 2;
 		}
 	    }
-	    if (nBlanks<0) {
-		nBlanks=0;
+	    if (nBlanks < 0) {
+		nBlanks = 0;
 	    }
-	    int n=0;
+	    int n = 0;
 	    if (this.alternateForm) {
-		n+=2;
+		n += 2;
 	    }
 	    n += nLeadingZeros;
 	    n += sx.length();
 	    n += nBlanks;
 	    char[] ca = new char[n];
-	    int i=0;
+	    int i = 0;
 	    if (this.leftJustify) {
 		if (this.alternateForm) {
-		    ca[i++]='0'; ca[i++]='x';
+		    ca[i++] = '0';
+		    ca[i++] = 'x';
 		}
-		for (int j=0; j<nLeadingZeros; j++,i++) {
-		    ca[i]='0';
+		for (int j = 0; j < nLeadingZeros; j++, i++) {
+		    ca[i] = '0';
 		}
 		char[] csx = sx.toCharArray();
-		for (int j=0; j<csx.length; j++,i++) {
+		for (int j = 0; j < csx.length; j++, i++) {
 		    ca[i] = csx[j];
 		}
-		for (int j=0; j<nBlanks; j++,i++) {
+		for (int j = 0; j < nBlanks; j++, i++) {
 		    ca[i] = ' ';
 		}
-	    }
-	    else {
+	    } else {
 		if (!this.leadingZeros) {
-		    for (int j=0; j<nBlanks; j++,i++) {
+		    for (int j = 0; j < nBlanks; j++, i++) {
 			ca[i] = ' ';
 		    }
 		}
 		if (this.alternateForm) {
-		    ca[i++]='0'; ca[i++]='x';
+		    ca[i++] = '0';
+		    ca[i++] = 'x';
 		}
 		if (this.leadingZeros) {
-		    for (int j=0; j<nBlanks; j++,i++) {
+		    for (int j = 0; j < nBlanks; j++, i++) {
 			ca[i] = '0';
 		    }
 		}
-		for (int j=0; j<nLeadingZeros; j++,i++) {
-		    ca[i]='0';
+		for (int j = 0; j < nLeadingZeros; j++, i++) {
+		    ca[i] = '0';
 		}
 		char[] csx = sx.toCharArray();
-		for (int j=0; j<csx.length; j++,i++) {
+		for (int j = 0; j < csx.length; j++, i++) {
 		    ca[i] = csx[j];
 		}
 	    }
-	    String caReturn=new String(ca);
-	    if (this.conversionCharacter=='X') {
+	    String caReturn = new String(ca);
+	    if (this.conversionCharacter == 'X') {
 		caReturn = caReturn.toUpperCase();
 	    }
 	    return caReturn;
 	}
+
 	/**
 	 * Store the digits <code>n</code> in %n$ forms.
 	 */
 	private void setArgPosition() {
 	    int xPos;
-	    for (xPos=this.pos; xPos<this.fmt.length(); xPos++) {
+	    for (xPos = this.pos; xPos < this.fmt.length(); xPos++) {
 		if (!Character.isDigit(this.fmt.charAt(xPos))) {
 		    break;
 		}
 	    }
-	    if ((xPos>this.pos) && (xPos<this.fmt.length())) {
-		if (this.fmt.charAt(xPos)=='$') {
+	    if ((xPos > this.pos) && (xPos < this.fmt.length())) {
+		if (this.fmt.charAt(xPos) == '$') {
 		    this.positionalSpecification = true;
-		    this.argumentPosition=
-			Integer.parseInt(this.fmt.substring(this.pos,xPos));
-		    this.pos=xPos+1;
+		    this.argumentPosition = Integer.parseInt(this.fmt
+			    .substring(this.pos, xPos));
+		    this.pos = xPos + 1;
 		}
 	    }
 	}
+
 	/**
-	 * Check for a conversion character.  If it is
-	 * there, store it.
-	 * @param x the String to format.
-	 * @return <code>true</code> if the conversion
-	 *     character is there, and
-	 *     <code>false</code> otherwise.
+	 * Check for a conversion character. If it is there, store it.
+	 * 
+	 * @param x
+	 *            the String to format.
+	 * @return <code>true</code> if the conversion character is there, and
+	 *         <code>false</code> otherwise.
 	 */
 	private boolean setConversionCharacter() {
 	    /* idfgGoxXeEcs */
 	    boolean ret = false;
-	    this.conversionCharacter='\0';
+	    this.conversionCharacter = '\0';
 	    if (this.pos < this.fmt.length()) {
 		char c = this.fmt.charAt(this.pos);
-		if ((c=='i')||(c=='d')||(c=='f')||(c=='g')||(c=='G')
-			|| (c=='o') || (c=='x') || (c=='X') || (c=='e')
-			|| (c=='E') || (c=='c') || (c=='s') || (c=='%')) {
+		if ((c == 'i') || (c == 'd') || (c == 'f') || (c == 'g')
+			|| (c == 'G') || (c == 'o') || (c == 'x') || (c == 'X')
+			|| (c == 'e') || (c == 'E') || (c == 'c') || (c == 's')
+			|| (c == '%')) {
 		    this.conversionCharacter = c;
 		    this.pos++;
 		    ret = true;
@@ -2825,6 +2858,7 @@ public class PrintfFormat {
 	    }
 	    return ret;
 	}
+
 	/**
 	 * Set the field width.
 	 */
@@ -2833,14 +2867,13 @@ public class PrintfFormat {
 	    this.fieldWidth = 0;
 	    this.fieldWidthSet = false;
 	    if ((this.pos < this.fmt.length())
-		    && (this.fmt.charAt(this.pos)=='*')) {
+		    && (this.fmt.charAt(this.pos) == '*')) {
 		this.pos++;
 		if (!this.setFieldWidthArgPosition()) {
 		    this.variableFieldWidth = true;
 		    this.fieldWidthSet = true;
 		}
-	    }
-	    else {
+	    } else {
 		while (this.pos < this.fmt.length()) {
 		    char c = this.fmt.charAt(this.pos);
 		    if (Character.isDigit(c)) {
@@ -2849,48 +2882,52 @@ public class PrintfFormat {
 			break;
 		    }
 		}
-		if ((firstPos<this.pos) && (firstPos < this.fmt.length())) {
-		    String sz = this.fmt.substring(firstPos,this.pos);
+		if ((firstPos < this.pos) && (firstPos < this.fmt.length())) {
+		    String sz = this.fmt.substring(firstPos, this.pos);
 		    this.fieldWidth = Integer.parseInt(sz);
 		    this.fieldWidthSet = true;
 		}
 	    }
 	}
+
 	/**
 	 * Store the digits <code>n</code> in *n$ forms.
 	 */
 	private boolean setFieldWidthArgPosition() {
-	    boolean ret=false;
+	    boolean ret = false;
 	    int xPos;
-	    for (xPos=this.pos; xPos<this.fmt.length(); xPos++) {
+	    for (xPos = this.pos; xPos < this.fmt.length(); xPos++) {
 		if (!Character.isDigit(this.fmt.charAt(xPos))) {
 		    break;
 		}
 	    }
-	    if ((xPos>this.pos) && (xPos<this.fmt.length())) {
-		if (this.fmt.charAt(xPos)=='$') {
+	    if ((xPos > this.pos) && (xPos < this.fmt.length())) {
+		if (this.fmt.charAt(xPos) == '$') {
 		    this.positionalFieldWidth = true;
-		    this.argumentPositionForFieldWidth=
-			Integer.parseInt(this.fmt.substring(this.pos,xPos));
-		    this.pos=xPos+1;
-		    ret=true;
+		    this.argumentPositionForFieldWidth = Integer
+			    .parseInt(this.fmt.substring(this.pos, xPos));
+		    this.pos = xPos + 1;
+		    ret = true;
 		}
 	    }
 	    return ret;
 	}
+
 	/**
-	 * Set the field width with an argument.  A
-	 * negative field width is taken as a - flag
-	 * followed by a positive field width.
-	 * @param fw the field width.
+	 * Set the field width with an argument. A negative field width is taken
+	 * as a - flag followed by a positive field width.
+	 * 
+	 * @param fw
+	 *            the field width.
 	 */
 	void setFieldWidthWithArg(final int fw) {
-	    if (fw<0) {
+	    if (fw < 0) {
 		this.leftJustify = true;
 	    }
 	    this.fieldWidthSet = true;
 	    this.fieldWidth = Math.abs(fw);
 	}
+
 	/**
 	 * Set flag characters, one of '-+#0 or a space.
 	 */
@@ -2902,24 +2939,21 @@ public class PrintfFormat {
 	    this.leadingSpace = false;
 	    this.alternateForm = false;
 	    this.leadingZeros = false;
-	    for ( ; this.pos < this.fmt.length(); this.pos++) {
+	    for (; this.pos < this.fmt.length(); this.pos++) {
 		char c = this.fmt.charAt(this.pos);
 		if (c == '\'') {
 		    this.thousands = true;
 		} else if (c == '-') {
 		    this.leftJustify = true;
 		    this.leadingZeros = false;
-		}
-		else if (c == '+') {
+		} else if (c == '+') {
 		    this.leadingSign = true;
 		    this.leadingSpace = false;
-		}
-		else if (c == ' ') {
+		} else if (c == ' ') {
 		    if (!this.leadingSign) {
 			this.leadingSpace = true;
 		    }
-		}
-		else if (c == '#') {
+		} else if (c == '#') {
 		    this.alternateForm = true;
 		} else if (c == '0') {
 		    if (!this.leftJustify) {
@@ -2930,51 +2964,61 @@ public class PrintfFormat {
 		}
 	    }
 	}
+
 	/**
 	 * Set the String for this instance.
-	 * @param s the String to store.
+	 * 
+	 * @param s
+	 *            the String to store.
 	 */
 	void setLiteral(final String s) {
 	    this.fmt = s;
 	}
+
 	/**
-	 * Check for an h, l, or L in a format.  An L is
-	 * used to control the minimum number of digits
-	 * in an exponent when using floating point
-	 * formats.  An l or h is used to control
-	 * conversion of the input to a long or short,
-	 * respectively, before formatting.  If any of
-	 * these is present, store them.
+	 * Check for an h, l, or L in a format. An L is used to control the
+	 * minimum number of digits in an exponent when using floating point
+	 * formats. An l or h is used to control conversion of the input to a
+	 * long or short, respectively, before formatting. If any of these is
+	 * present, store them.
 	 */
 	private void setOptionalHL() {
-	    this.optionalh=false;
-	    this.optionall=false;
-	    this.optionalL=false;
+	    this.optionalh = false;
+	    this.optionall = false;
+	    this.optionalL = false;
 	    if (this.pos < this.fmt.length()) {
 		char c = this.fmt.charAt(this.pos);
-		if (c=='h') { this.optionalh=true; this.pos++; }
-		else if (c=='l') { this.optionall=true; this.pos++; }
-		else if (c=='L') { this.optionalL=true; this.pos++; }
+		if (c == 'h') {
+		    this.optionalh = true;
+		    this.pos++;
+		} else if (c == 'l') {
+		    this.optionall = true;
+		    this.pos++;
+		} else if (c == 'L') {
+		    this.optionalL = true;
+		    this.pos++;
+		}
 	    }
 	}
+
 	/**
 	 * Set the precision.
 	 */
 	private void setPrecision() {
 	    int firstPos = this.pos;
 	    this.precisionSet = false;
-	    if ((this.pos<this.fmt.length())&&(this.fmt.charAt(this.pos)=='.')) {
+	    if ((this.pos < this.fmt.length())
+		    && (this.fmt.charAt(this.pos) == '.')) {
 		this.pos++;
 		if ((this.pos < this.fmt.length())
-			&& (this.fmt.charAt(this.pos)=='*')) {
+			&& (this.fmt.charAt(this.pos) == '*')) {
 		    this.pos++;
 		    if (!this.setPrecisionArgPosition()) {
 			this.variablePrecision = true;
 			this.precisionSet = true;
 		    }
 		    return;
-		}
-		else {
+		} else {
 		    while (this.pos < this.fmt.length()) {
 			char c = this.fmt.charAt(this.pos);
 			if (Character.isDigit(c)) {
@@ -2983,74 +3027,100 @@ public class PrintfFormat {
 			    break;
 			}
 		    }
-		    if (this.pos > firstPos+1) {
-			String sz = this.fmt.substring(firstPos+1,this.pos);
+		    if (this.pos > firstPos + 1) {
+			String sz = this.fmt.substring(firstPos + 1, this.pos);
 			this.precision = Integer.parseInt(sz);
 			this.precisionSet = true;
 		    }
 		}
 	    }
 	}
+
 	/**
 	 * Store the digits <code>n</code> in *n$ forms.
 	 */
 	private boolean setPrecisionArgPosition() {
-	    boolean ret=false;
+	    boolean ret = false;
 	    int xPos;
-	    for (xPos=this.pos; xPos<this.fmt.length(); xPos++) {
+	    for (xPos = this.pos; xPos < this.fmt.length(); xPos++) {
 		if (!Character.isDigit(this.fmt.charAt(xPos))) {
 		    break;
 		}
 	    }
-	    if ((xPos>this.pos) && (xPos<this.fmt.length())) {
-		if (this.fmt.charAt(xPos)=='$') {
+	    if ((xPos > this.pos) && (xPos < this.fmt.length())) {
+		if (this.fmt.charAt(xPos) == '$') {
 		    this.positionalPrecision = true;
-		    this.argumentPositionForPrecision=
-			Integer.parseInt(this.fmt.substring(this.pos,xPos));
-		    this.pos=xPos+1;
-		    ret=true;
+		    this.argumentPositionForPrecision = Integer
+			    .parseInt(this.fmt.substring(this.pos, xPos));
+		    this.pos = xPos + 1;
+		    ret = true;
 		}
 	    }
 	    return ret;
 	}
+
 	/**
-	 * Set the precision with an argument.  A
-	 * negative precision will be changed to zero.
-	 * @param pr the precision.
+	 * Set the precision with an argument. A negative precision will be
+	 * changed to zero.
+	 * 
+	 * @param pr
+	 *            the precision.
 	 */
 	void setPrecisionWithArg(final int pr) {
 	    this.precisionSet = true;
-	    this.precision = Math.max(pr,0);
+	    this.precision = Math.max(pr, 0);
 	}
+
 	/**
-	 * Start the symbolic carry process.  The process
-	 * is not quite finished because the symbolic
-	 * carry may change the length of the string and
+	 * Start the symbolic carry process. The process is not quite finished
+	 * because the symbolic carry may change the length of the string and
 	 * change the exponent (in e format).
-	 * @param cLast index of the last digit changed
-	 *     by the round
-	 * @param cFirst index of the first digit allowed
-	 *     to be changed by this phase of the round
-	 * @return <code>true</code> if the carry forces
-	 *     a round that will change the print still
-	 *     more
+	 * 
+	 * @param cLast
+	 *            index of the last digit changed by the round
+	 * @param cFirst
+	 *            index of the first digit allowed to be changed by this
+	 *            phase of the round
+	 * @return <code>true</code> if the carry forces a round that will
+	 *         change the print still more
 	 */
-	private boolean startSymbolicCarry(
-		final char[] ca,final int cLast,final int cFirst) {
-	    boolean carry=true;
-	    for (int i=cLast; carry && (i>=cFirst); i--) {
+	private boolean startSymbolicCarry(final char[] ca, final int cLast,
+		final int cFirst) {
+	    boolean carry = true;
+	    for (int i = cLast; carry && (i >= cFirst); i--) {
 		carry = false;
-		switch(ca[i]) {
-		case '0': ca[i]='1'; break;
-		case '1': ca[i]='2'; break;
-		case '2': ca[i]='3'; break;
-		case '3': ca[i]='4'; break;
-		case '4': ca[i]='5'; break;
-		case '5': ca[i]='6'; break;
-		case '6': ca[i]='7'; break;
-		case '7': ca[i]='8'; break;
-		case '8': ca[i]='9'; break;
-		case '9': ca[i]='0'; carry=true; break;
+		switch (ca[i]) {
+		case '0':
+		    ca[i] = '1';
+		    break;
+		case '1':
+		    ca[i] = '2';
+		    break;
+		case '2':
+		    ca[i] = '3';
+		    break;
+		case '3':
+		    ca[i] = '4';
+		    break;
+		case '4':
+		    ca[i] = '5';
+		    break;
+		case '5':
+		    ca[i] = '6';
+		    break;
+		case '6':
+		    ca[i] = '7';
+		    break;
+		case '7':
+		    ca[i] = '8';
+		    break;
+		case '8':
+		    ca[i] = '9';
+		    break;
+		case '9':
+		    ca[i] = '0';
+		    carry = true;
+		    break;
 		}
 	    }
 	    return carry;
@@ -3263,25 +3333,24 @@ public class PrintfFormat {
 
     /**
      * Format an long.
-     * @param x The long to format.
-     * @return  The formatted String.
-     * @exception IllegalArgumentException if the
-     *     conversion character is f, e, E, g, G, s,
-     *     or S.
+     * 
+     * @param x
+     *            The long to format.
+     * @return The formatted String.
+     * @exception IllegalArgumentException
+     *                if the conversion character is f, e, E, g, G, s, or S.
      */
-    public String sprintf(final long x)
-    throws IllegalArgumentException {
+    public String sprintf(final long x) throws IllegalArgumentException {
 	Enumeration e = this.vFmt.elements();
 	ConversionSpecification cs = null;
 	char c = 0;
-	StringBuffer sb=new StringBuffer();
+	StringBuffer sb = new StringBuffer();
 	while (e.hasMoreElements()) {
-	    cs = (ConversionSpecification)
-	    e.nextElement();
+	    cs = (ConversionSpecification) e.nextElement();
 	    c = cs.getConversionCharacter();
-	    if (c=='\0') {
+	    if (c == '\0') {
 		sb.append(cs.getLiteral());
-	    } else if (c=='%') {
+	    } else if (c == '%') {
 		sb.append("%");
 	    } else {
 		sb.append(cs.internalsprintf(x));
@@ -3414,24 +3483,24 @@ public class PrintfFormat {
 
     /**
      * Format a String.
-     * @param x The String to format.
-     * @return  The formatted String.
-     * @exception IllegalArgumentException if the
-     *   conversion character is neither s nor S.
+     * 
+     * @param x
+     *            The String to format.
+     * @return The formatted String.
+     * @exception IllegalArgumentException
+     *                if the conversion character is neither s nor S.
      */
-    public String sprintf(final String x)
-    throws IllegalArgumentException {
+    public String sprintf(final String x) throws IllegalArgumentException {
 	Enumeration e = this.vFmt.elements();
 	ConversionSpecification cs = null;
 	char c = 0;
-	StringBuffer sb=new StringBuffer();
+	StringBuffer sb = new StringBuffer();
 	while (e.hasMoreElements()) {
-	    cs = (ConversionSpecification)
-	    e.nextElement();
+	    cs = (ConversionSpecification) e.nextElement();
 	    c = cs.getConversionCharacter();
-	    if (c=='\0') {
+	    if (c == '\0') {
 		sb.append(cs.getLiteral());
-	    } else if (c=='%') {
+	    } else if (c == '%') {
 		sb.append("%");
 	    } else {
 		sb.append(cs.internalsprintf(x));

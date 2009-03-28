@@ -115,13 +115,15 @@ public class Machine extends BaseEntity {
 	    if (Machine.machineEvents == null) {
 		Machine.machineEvents = new EventType[] {
 			EventType.get(EventType.EVENT_MACHINE_FAILURE),
-			EventType.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
 			EventType
-			.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
+				.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
+			EventType
+				.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
 			EventType.get(EventType.EVENT_MACHINE_RESTART),
-			EventType.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD),
 			EventType
-			.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) };
+				.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD),
+			EventType
+				.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) };
 	    }
 	}
 	EntityManager em = Database.newEntityManager();

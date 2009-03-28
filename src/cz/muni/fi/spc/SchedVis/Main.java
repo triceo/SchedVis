@@ -94,9 +94,9 @@ public final class Main implements PropertyChangeListener {
 	    File machinesFile = new File(args[1]);
 	    if (!machinesFile.exists()) {
 		System.out
-		.print("Machines file "
-			+ machinesFile.getAbsolutePath()
-			+ " cannot be found! ");
+			.print("Machines file "
+				+ machinesFile.getAbsolutePath()
+				+ " cannot be found! ");
 		Main.printUsageAndExit();
 	    }
 	    File dataFile = new File(args[2]);
@@ -120,7 +120,7 @@ public final class Main implements PropertyChangeListener {
     public static void printUsageAndExit() {
 	System.out.println("Please choose one of the operations available: ");
 	System.out
-	.println(" ant import -Dmachines=<machineFileName> -Devents=<datasetFileName> -Ddatabase=<databaseName>");
+		.println(" ant import -Dmachines=<machineFileName> -Devents=<datasetFileName> -Ddatabase=<databaseName>");
 	System.out.println(" ant cache -Ddatabase=<databaseFileName>");
 	System.out.println(" ant run -Ddatabase=<databaseFileName>");
 	System.exit(1);
@@ -134,7 +134,7 @@ public final class Main implements PropertyChangeListener {
 
     private synchronized void cache() {
 	ExecutorService e = Executors
-	.newFixedThreadPool(Main.MAX_RENDERER_THREADS);
+		.newFixedThreadPool(Main.MAX_RENDERER_THREADS);
 
 	System.out.println("Gathering data for rendering...");
 	Set<Machine> machines = new HashSet<Machine>(Machine.getAllGroupless());
@@ -164,7 +164,7 @@ public final class Main implements PropertyChangeListener {
 	}
 
 	System.out
-	.println("Please wait while the rest of the schedules are being rendered...");
+		.println("Please wait while the rest of the schedules are being rendered...");
 	e.shutdown();
 	while (!e.isTerminated()) {
 	    try {
@@ -249,15 +249,12 @@ public final class Main implements PropertyChangeListener {
 		Main.lastReportTime = System.nanoTime();
 		// show some progress
 		Double percentage = 100 - (Main.doneRenderers / (double) Main.totalRenderers) * 100;
-		System.out.println(new PrintfFormat("%.2f")
-		.sprintf(percentage)
-		+ " % schedules ("
-		+ (Main.totalRenderers - Main.doneRenderers)
-		+ "/"
-		+ Main.totalRenderers
-		+ ") left. Took "
-		+ new PrintfFormat("%.3f").sprintf(timeItTook)
-		+ " sec.");
+		System.out.println(new PrintfFormat("%.2f").sprintf(percentage)
+			+ " % schedules ("
+			+ (Main.totalRenderers - Main.doneRenderers) + "/"
+			+ Main.totalRenderers + ") left. Took "
+			+ new PrintfFormat("%.3f").sprintf(timeItTook)
+			+ " sec.");
 	    }
 	}
 	if (Main.queuedRenderers == 0) {

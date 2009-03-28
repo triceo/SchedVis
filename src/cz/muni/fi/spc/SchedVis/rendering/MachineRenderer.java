@@ -60,7 +60,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      * different databases don't interfere.
      */
     private static final String instanceId = new File(Database.getName())
-    .getName();
+	    .getName();
 
     /**
      * Holds the position on the timeline that is currently being rendered.
@@ -98,8 +98,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      * jobs).
      */
     private static final Color[] colors = { Color.BLUE, Color.CYAN,
-	Color.GREEN, Color.GRAY, Color.MAGENTA, Color.ORANGE,
-	Color.LIGHT_GRAY, Color.PINK, Color.YELLOW };
+	    Color.GREEN, Color.GRAY, Color.MAGENTA, Color.ORANGE,
+	    Color.LIGHT_GRAY, Color.PINK, Color.YELLOW };
 
     /**
      * Holds a font used throughout the schedules. Memory use improvement.
@@ -264,7 +264,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		g.drawString(evt.getJob().toString(), jobStartX + 2, ltY
 			+ jobHgt - 2);
 		int rightBoundary = jobStartX + jobLength
-		- MachineRenderer.LINE_WIDTH;
+			- MachineRenderer.LINE_WIDTH;
 		if (rightBoundary > 0) {
 		    MachineRenderer.logger.warn("Machine " + this.m.getName()
 			    + " at " + this.clock + " is drawing "
@@ -302,8 +302,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	String id = "0000000000" + this.m.getId();
 	String id2 = "0000000000" + this.clock;
 	return "../tmp/schedvis-" + MachineRenderer.instanceId + "-"
-	+ id.substring(id.length() - 10, id.length()) + "-"
-	+ id2.substring(id2.length() - 10, id2.length()) + ".gif";
+		+ id.substring(id.length() - 10, id.length()) + "-"
+		+ id2.substring(id2.length() - 10, id2.length()) + ".gif";
     }
 
     /**

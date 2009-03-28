@@ -51,9 +51,9 @@ public class Event extends BaseEntity {
     public static List<Integer> getAllTicks() {
 	EntityManager em = Database.newEntityManager();
 	final List<Integer> l = ((Session) em.getDelegate())
-	.createSQLQuery(
-	"SELECT DISTINCT clock FROM Event WHERE parent_FK IS NOT NULL ORDER BY clock ASC")
-	.list();
+		.createSQLQuery(
+			"SELECT DISTINCT clock FROM Event WHERE parent_FK IS NOT NULL ORDER BY clock ASC")
+		.list();
 	em.close();
 	return l;
     }
@@ -84,9 +84,9 @@ public class Event extends BaseEntity {
     public static Integer getMaxJobSpan() {
 	EntityManager em = Database.newEntityManager();
 	final List<Integer> l = ((Session) em.getDelegate())
-	.createSQLQuery(
-	"SELECT max(expectedEnd) AS s FROM Event GROUP BY parent_fk, sourceMachine_id ORDER BY s DESC LIMIT 1")
-	.list();
+		.createSQLQuery(
+			"SELECT max(expectedEnd) AS s FROM Event GROUP BY parent_fk, sourceMachine_id ORDER BY s DESC LIMIT 1")
+		.list();
 	em.close();
 	return l.get(0);
     }
@@ -119,8 +119,8 @@ public class Event extends BaseEntity {
     public static Integer getTickCount() {
 	EntityManager em = Database.newEntityManager();
 	final List<Integer> l = ((Session) em.getDelegate()).createSQLQuery(
-	"SELECT DISTINCT clock FROM Event WHERE parent_fk IS NULL")
-	.list();
+		"SELECT DISTINCT clock FROM Event WHERE parent_fk IS NULL")
+		.list();
 	em.close();
 	return l.size();
     }
