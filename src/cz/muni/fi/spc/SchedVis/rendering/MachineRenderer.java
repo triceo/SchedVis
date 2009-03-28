@@ -29,8 +29,10 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -109,6 +111,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     private List<Event> events;
 
     private static Logger logger = Logger.getLogger(MachineRenderer.class);
+
+    private final Map<String, Integer[]> sets = new HashMap<String, Integer[]>();
 
     public MachineRenderer(final Machine m, final Integer clock,
 	    final boolean isCaching, final PropertyChangeListener l) {
@@ -210,15 +214,19 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	// render jobs in a schedule, one by one
 	for (final Event evt : this.events) {
 	    // get assigned CPUs, set will ensure they are unique and sorted
-	    final Set<Integer> assignedCPUs = new HashSet<Integer>();
-	    for (final String num : evt.getAssignedCPUs().split(",")) {
-		assignedCPUs.add(new Integer(num));
+	    if (!this.sets.containsKey(evt.getAssignedCPUs())) {
+		final Set<Integer> assignedCPUs = new HashSet<Integer>();
+		for (final String num : evt.getAssignedCPUs().split(",")) {
+		    assignedCPUs.add(Integer.valueOf(num));
+		}
+		this.sets.put(evt.getAssignedCPUs(), assignedCPUs
+			.toArray(new Integer[0]));
 	    }
 	    /*
 	     * now isolate all the contiguous blocks of CPUs in the job and
 	     * paint them.
 	     */
-	    final Integer[] cpus = assignedCPUs.toArray(new Integer[0]);
+	    final Integer[] cpus = this.sets.get(evt.getAssignedCPUs());
 	    for (int i = 0; i < cpus.length; i++) {
 		final int crntCPU = cpus[i];
 		try {
