@@ -55,12 +55,28 @@ public final class Main implements PropertyChangeListener {
     private static Integer totalRenderers = 0;
     private static Integer queuedRenderers = 0;
 
-    private static final Integer MAX_RENDERER_THREADS = 64;
+    private static final Integer MAX_RENDERER_THREADS = 32;
     private static final Integer MAX_QUEUED_RENDERERS = Main.MAX_RENDERER_THREADS * 4;
 
     private static Long lastReportTime;
 
     private static Logger logger = Logger.getLogger(Main.class);
+
+    private static Double startProcessingTime;
+
+    /**
+     * Estimate the remaining time that the caching job will take.
+     * 
+     * @param elapsedTime
+     *            In nanoseconds.
+     * @param alreadyDonePct
+     *            In range <0, 1>.
+     * @return Number of nanoseconds in which we expect to complete the job.
+     */
+    private static Double countProgress(final Double elapsedTime,
+	    final Double alreadyDonePct) {
+	return (1 / alreadyDonePct) * elapsedTime;
+    }
 
     public static MainFrame getFrame() {
 	return Main.frame;
@@ -129,8 +145,8 @@ public final class Main implements PropertyChangeListener {
 	Set<Machine> machines = new HashSet<Machine>(Machine.getAllGroupless());
 
 	System.out.println("Submitting schedules for rendering...");
-	Double startProcessingTime = Double.valueOf(System.nanoTime());
-	Main.lastReportTime = startProcessingTime.longValue();
+	Main.startProcessingTime = Double.valueOf(System.nanoTime());
+	Main.lastReportTime = Main.startProcessingTime.longValue();
 	List<Integer> ticks = Event.getAllTicks();
 	Main.totalRenderers = ticks.size() * machines.size();
 	Integer initialRenderers = 0;
@@ -163,7 +179,7 @@ public final class Main implements PropertyChangeListener {
 	    }
 	}
 
-	Double time = (System.nanoTime() - startProcessingTime) / 1000 / 1000 / 1000;
+	Double time = (System.nanoTime() - Main.startProcessingTime) / 1000 / 1000 / 1000;
 	System.out.println("Rendering successfully finished.");
 	System.out.println("Took " + new PrintfFormat("%.2f").sprintf(time)
 		+ " seconds.");
@@ -237,13 +253,20 @@ public final class Main implements PropertyChangeListener {
 		Double timeItTook = (System.nanoTime() - Main.lastReportTime) / 1000.0 / 1000.0 / 1000.0;
 		Main.lastReportTime = System.nanoTime();
 		// show some progress
-		Double percentage = 100 - (Main.doneRenderers / (double) Main.totalRenderers) * 100;
-		System.out.println(new PrintfFormat("%.2f").sprintf(percentage)
-			+ " % schedules ("
-			+ (Main.totalRenderers - Main.doneRenderers) + "/"
-			+ Main.totalRenderers + ") left. Took "
-			+ new PrintfFormat("%.3f").sprintf(timeItTook)
-			+ " sec.");
+		Double percentage = (Main.doneRenderers / (double) Main.totalRenderers);
+		Double timeLeft = Main.countProgress(Main.lastReportTime
+			- Main.startProcessingTime, percentage) / 1000.0 / 1000.0 / 1000.0;
+		System.out.println(new PrintfFormat("%.2f")
+			.sprintf(percentage * 100)
+			+ " % ("
+			+ (Main.doneRenderers)
+			+ "/"
+			+ Main.totalRenderers
+			+ ") done in "
+			+ new PrintfFormat("%.1f").sprintf(timeItTook)
+			+ "s, need "
+			+ new PrintfFormat("%.0f").sprintf(timeLeft)
+			+ "s more.");
 	    }
 	}
 	if (Main.queuedRenderers == 0) {
