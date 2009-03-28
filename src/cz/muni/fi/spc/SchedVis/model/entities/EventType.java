@@ -30,7 +30,6 @@ import cz.muni.fi.spc.SchedVis.model.BaseEntity;
 import cz.muni.fi.spc.SchedVis.model.Database;
 
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class EventType extends BaseEntity {
 
     public static Integer EVENT_JOB_ARRIVAL = 1;

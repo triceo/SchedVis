@@ -30,8 +30,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 import org.hibernate.Criteria;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
@@ -43,7 +41,6 @@ import cz.muni.fi.spc.SchedVis.model.Database;
  * 
  */
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class MachineGroup extends BaseEntity {
 
     @SuppressWarnings("unchecked")

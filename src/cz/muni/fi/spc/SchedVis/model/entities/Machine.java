@@ -31,8 +31,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import org.hibernate.Criteria;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -45,7 +43,6 @@ import cz.muni.fi.spc.SchedVis.model.Database;
  * 
  */
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Machine extends BaseEntity {
 
     private static EventType[] machineEvents = null;
@@ -68,23 +65,18 @@ public class Machine extends BaseEntity {
     @SuppressWarnings("unchecked")
     public static List<Machine> getAllGroupless() {
 	EntityManager em = Database.newEntityManager();
-	final Criteria crit = BaseEntity.getCriteria(em, Machine.class, true);
+	final Criteria crit = BaseEntity.getCriteria(em, Machine.class, false);
 	crit.addOrder(Order.asc("name"));
 	List<Machine> l = crit.list();
 	em.close();
 	return l;
     }
 
+    @SuppressWarnings("unchecked")
     public static List<Event> getLatestSchedule(final Machine which,
 	    final Integer eventId) {
-	return Machine.getLatestScheduleInternal(which, eventId, 0);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static List<Event> getLatestScheduleInternal(final Machine which,
-	    final Integer eventId, final Integer trial) {
 	EntityManager em = Database.newEntityManager();
-	final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
+	final Criteria crit = BaseEntity.getCriteria(em, Event.class, false);
 	crit.add(Restrictions.eq("sourceMachine", which));
 	crit.add(Restrictions.le("clock", eventId));
 	crit.add(Restrictions.isNotNull("parent"));
@@ -95,7 +87,7 @@ public class Machine extends BaseEntity {
 	    em.close();
 	    return new Vector<Event>();
 	}
-	Criteria crit2 = BaseEntity.getCriteria(em, Event.class, true);
+	Criteria crit2 = BaseEntity.getCriteria(em, Event.class, false);
 	crit2.add(Restrictions.eq("sourceMachine", which));
 	crit2.add(Restrictions.eq("parent", evt.getParent()));
 	crit2.addOrder(Order.asc("expectedStart"));
@@ -105,13 +97,7 @@ public class Machine extends BaseEntity {
     }
 
     public static Machine getWithId(final Integer id) {
-	EntityManager em = Database.newEntityManager();
-	final Criteria crit = BaseEntity.getCriteria(em, Machine.class, true);
-	crit.add(Restrictions.idEq(id));
-	crit.setMaxResults(1);
-	Machine m = (Machine) crit.uniqueResult();
-	em.close();
-	return m;
+	return (Machine) Database.getSession().get(Machine.class, id);
     }
 
     public static Machine getWithName(final String name) {
@@ -139,7 +125,7 @@ public class Machine extends BaseEntity {
 	    }
 	}
 	EntityManager em = Database.newEntityManager();
-	final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
+	final Criteria crit = BaseEntity.getCriteria(em, Event.class, false);
 	crit.add(Restrictions.in("type", Machine.machineEvents));
 	crit.add(Restrictions.eq("sourceMachine", m));
 	crit.add(Restrictions.lt("clock", clock));

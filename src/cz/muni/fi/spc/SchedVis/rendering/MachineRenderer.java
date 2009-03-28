@@ -58,7 +58,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      * different databases don't interfere.
      */
     private static final String instanceId = new File(Database.getName())
-	    .getName();
+    .getName();
 
     /**
      * Holds the position on the timeline that is currently being rendered.
@@ -96,8 +96,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      * jobs).
      */
     private static final Color[] colors = { Color.BLUE, Color.CYAN,
-	    Color.GREEN, Color.GRAY, Color.MAGENTA, Color.ORANGE,
-	    Color.LIGHT_GRAY, Color.PINK, Color.YELLOW };
+	Color.GREEN, Color.GRAY, Color.MAGENTA, Color.ORANGE,
+	Color.LIGHT_GRAY, Color.PINK, Color.YELLOW };
 
     /**
      * Holds a font used throughout the schedules. Memory use improvement.
@@ -107,6 +107,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
     private final boolean isCaching;
 
     private List<Event> events;
+
+    private static Logger logger = Logger.getLogger(MachineRenderer.class);
 
     public MachineRenderer(final Machine m, final Integer clock,
 	    final boolean isCaching, final PropertyChangeListener l) {
@@ -125,6 +127,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      * @return
      */
     private BufferedImage actuallyDraw() {
+	MachineRenderer.logger.debug(
+		this.m.getName() + "@" + this.clock + " started rendering.");
 	Double time = Double.valueOf(System.nanoTime());
 	this.events = Machine.getLatestSchedule(this.m, this.clock);
 	final BufferedImage img = new BufferedImage(MachineRenderer.LINE_WIDTH,
@@ -153,10 +157,9 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	    g.drawLine(zeroPos, 0, zeroPos, this.m.getCPUs()
 		    * MachineRenderer.NUM_PIXELS_PER_CPU);
 	}
-	time = System.nanoTime() - time;
-	Logger.getLogger(MachineRenderer.class).debug(
-		"Actually rendering " + this.m.getName() + " at " + this.clock
-			+ " took " + (time / 1000 / 1000 / 1000) + " seconds.");
+	time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
+	MachineRenderer.logger.debug(this.m.getName() + "@" + this.clock
+		+ " finished rendering. Took " + time + " seconds.");
 	return img;
     }
 
@@ -169,40 +172,33 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
      */
     @Override
     public Image doInBackground() {
-	Logger.getLogger(this.getClass()).debug(
-		this.m.getName() + "@" + this.clock + " started rendering.");
-	Double time = Double.valueOf(System.nanoTime());
 	File f = new File(this.getFilename()).getAbsoluteFile();
 	BufferedImage img = null;
 	if (!f.exists()) {
+	    MachineRenderer.logger.debug("Caching machine " + this.m.getId()
+		    + "@" + this.clock + ".");
 	    img = this.actuallyDraw();
 	    try {
-		synchronized (this) {
-		    // only one thread writes at a time, to avoid crazy seeking
-		    ImageIO.write(img, "gif", f);
-		}
+		ImageIO.write(img, "gif", f);
 	    } catch (IOException e) {
-		Logger.getLogger(MachineRenderer.class).warn(
-			"Won't cache machine " + this.m.getId() + " at "
-				+ this.clock + ". Failed to write into a file "
-				+ f.getAbsolutePath() + ".");
+		MachineRenderer.logger.warn("Won't cache machine "
+			+ this.m.getId() + "@" + this.clock
+			+ ". Failed to write into a file "
+			+ f.getAbsolutePath() + ".");
 	    }
 	} else if (!this.isCaching) {
 	    try {
+		MachineRenderer.logger.debug("Reading cached machine "
+			+ this.m.getId() + "@" + this.clock + ".");
 		img = ImageIO.read(f);
 	    } catch (IOException e) {
-		Logger.getLogger(MachineRenderer.class).warn(
-			"Cannot read cache for machine " + this.m.getId()
-				+ " at " + this.clock
-				+ ". Failed to write into a file "
-				+ f.getAbsolutePath() + ".");
+		MachineRenderer.logger.warn("Cannot read cache for machine "
+			+ this.m.getId() + "@" + this.clock
+			+ ". Failed to write into a file "
+			+ f.getAbsolutePath() + ".");
 		img = this.actuallyDraw();
 	    }
 	}
-	time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-	Logger.getLogger(this.getClass()).debug(
-		this.m.getName() + "@" + this.clock
-			+ " finished rendering. Took " + time + " seconds.");
 	if (!this.isCaching) {
 	    return img;
 	} else {
@@ -244,10 +240,9 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		// now draw
 		final int jobStartX = this.getStartingPosition(evt);
 		if (jobStartX < 0) {
-		    Logger.getLogger(this.getClass()).warn(
-			    "Machine " + this.m.getName() + " at " + this.clock
-				    + " is drawing " + jobStartX
-				    + " before its boundary.");
+		    MachineRenderer.logger.warn("Machine " + this.m.getName()
+			    + " at " + this.clock + " is drawing " + jobStartX
+			    + " before its boundary.");
 		}
 		final int jobLength = this.getJobLength(evt);
 		final int ltY = crntCPU * MachineRenderer.NUM_PIXELS_PER_CPU;
@@ -265,12 +260,11 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		g.drawString(evt.getJob().toString(), jobStartX + 2, ltY
 			+ jobHgt - 2);
 		int rightBoundary = jobStartX + jobLength
-			- MachineRenderer.LINE_WIDTH;
+		- MachineRenderer.LINE_WIDTH;
 		if (rightBoundary > 0) {
-		    Logger.getLogger(this.getClass()).warn(
-			    "Machine " + this.m.getName() + " at " + this.clock
-				    + " is drawing " + rightBoundary
-				    + " over its boundary.");
+		    MachineRenderer.logger.warn("Machine " + this.m.getName()
+			    + " at " + this.clock + " is drawing "
+			    + rightBoundary + " over its boundary.");
 		}
 	    }
 	}
@@ -304,8 +298,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	String id = "0000000000" + this.m.getId();
 	String id2 = "0000000000" + this.clock;
 	return "../tmp/schedvis-" + MachineRenderer.instanceId + "-"
-		+ id.substring(id.length() - 10, id.length()) + "-"
-		+ id2.substring(id2.length() - 10, id2.length()) + ".gif";
+	+ id.substring(id.length() - 10, id.length()) + "-"
+	+ id2.substring(id2.length() - 10, id2.length()) + ".gif";
     }
 
     /**

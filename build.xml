@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="SchedVis" default="run" basedir=".">
   <property name="dir.bin" value="./bin" />
-  <property name="dir.tmp" value="./tmp" />
+  <property name="dir.tmp" value="../tmp" />
 	<property name="dir.build" value="./build" />
   <property name="dir.src" value="./src" />
 	<property name="dir.lib" value="./lib" />
@@ -71,7 +71,8 @@
     </java>
   </target>
   <target name="cache" description="Render the schedules prior to executing the program.">
-    <java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" maxmemory="768m">
+    <java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" maxmemory="256m">
+    	<!--jvmarg value="-Xloggc:garbage_collector.log" /-->
       <sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
       <arg value="cache" />
       <arg value="${database}" />
