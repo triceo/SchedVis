@@ -23,8 +23,10 @@ package cz.muni.fi.spc.SchedVis;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -64,18 +66,37 @@ public final class Main implements PropertyChangeListener {
 
     private static Double startProcessingTime;
 
+    private static Map<Double, Double> lastProcessingTimes = new HashMap<Double, Double>();
+
     /**
-     * Estimate the remaining time that the caching job will take.
+     * Estimate a remaining time that a job will take.
      * 
-     * @param elapsedTime
-     *            In nanoseconds.
+     * @param lastUnitTook
+     *            How long did last unit take. In nanoseconds.
      * @param alreadyDonePct
-     *            In range <0, 1>.
-     * @return Number of nanoseconds in which we expect to complete the job.
+     *            How many units are already done. In percent.
+     * @param unitSize
+     *            How many renderable items does a unit contain.
+     * @param historySize
+     *            How many recent unit execution times should be taken into
+     *            account.
+     * @return Remaining time estimation in nanoseconds.
      */
-    private static Double countProgress(final Double elapsedTime,
-	    final Double alreadyDonePct) {
-	return (1 / alreadyDonePct) * elapsedTime;
+    private static Double countProgress(final Double lastUnitTook,
+	    final Double alreadyDonePct, final Integer unitSize,
+	    final Integer historySize) {
+	Main.lastProcessingTimes.put(alreadyDonePct, lastUnitTook);
+	if (Main.lastProcessingTimes.size() > historySize) {
+	    Main.lastProcessingTimes.remove(Main.lastProcessingTimes.keySet()
+		    .toArray()[0]);
+	}
+	Double totalTime = 0.0;
+	for (Map.Entry<Double, Double> m : Main.lastProcessingTimes.entrySet()) {
+	    totalTime += m.getValue();
+	}
+	Double averageTime = totalTime / (double) historySize;
+	return ((1 - alreadyDonePct) * (Main.totalRenderers / unitSize))
+	* averageTime;
     }
 
     public static MainFrame getFrame() {
@@ -110,9 +131,9 @@ public final class Main implements PropertyChangeListener {
 	    File machinesFile = new File(args[1]);
 	    if (!machinesFile.exists()) {
 		System.out
-			.print("Machines file "
-				+ machinesFile.getAbsolutePath()
-				+ " cannot be found! ");
+		.print("Machines file "
+			+ machinesFile.getAbsolutePath()
+			+ " cannot be found! ");
 		Main.printUsageAndExit();
 	    }
 	    File dataFile = new File(args[2]);
@@ -125,7 +146,7 @@ public final class Main implements PropertyChangeListener {
     public static void printUsageAndExit() {
 	System.out.println("Please choose one of the operations available: ");
 	System.out
-		.println(" ant import -Dmachines=<machineFileName> -Devents=<datasetFileName> -Ddatabase=<databaseName>");
+	.println(" ant import -Dmachines=<machineFileName> -Devents=<datasetFileName> -Ddatabase=<databaseName>");
 	System.out.println(" ant cache -Ddatabase=<databaseFileName>");
 	System.out.println(" ant run -Ddatabase=<databaseFileName>");
 	System.exit(1);
@@ -139,7 +160,7 @@ public final class Main implements PropertyChangeListener {
 
     private synchronized void cache() {
 	ExecutorService e = Executors
-		.newFixedThreadPool(Main.MAX_RENDERER_THREADS);
+	.newFixedThreadPool(Main.MAX_RENDERER_THREADS);
 
 	System.out.println("Gathering data for rendering...");
 	Set<Machine> machines = new HashSet<Machine>(Machine.getAllGroupless());
@@ -169,7 +190,7 @@ public final class Main implements PropertyChangeListener {
 	}
 
 	System.out
-		.println("Please wait while the rest of the schedules are being rendered...");
+	.println("Please wait while the rest of the schedules are being rendered...");
 	e.shutdown();
 	while (!e.isTerminated()) {
 	    try {
@@ -250,23 +271,25 @@ public final class Main implements PropertyChangeListener {
 	    Main.queuedRenderers--;
 	    Integer perMille = Main.totalRenderers / 1000;
 	    if (Main.doneRenderers % perMille == 0) {
-		Double timeItTook = (System.nanoTime() - Main.lastReportTime) / 1000.0 / 1000.0 / 1000.0;
+		Long timeItTook = (System.nanoTime() - Main.lastReportTime);
 		Main.lastReportTime = System.nanoTime();
 		// show some progress
 		Double percentage = (Main.doneRenderers / (double) Main.totalRenderers);
-		Double timeLeft = Main.countProgress(Main.lastReportTime
-			- Main.startProcessingTime, percentage) / 1000.0 / 1000.0 / 1000.0;
+		Double timeLeft = Main.countProgress(
+			Double.valueOf(timeItTook), percentage, perMille, 10);
 		System.out.println(new PrintfFormat("%.2f")
-			.sprintf(percentage * 100)
-			+ " % ("
-			+ (Main.doneRenderers)
-			+ "/"
-			+ Main.totalRenderers
-			+ ") done in "
-			+ new PrintfFormat("%.1f").sprintf(timeItTook)
-			+ "s, need "
-			+ new PrintfFormat("%.0f").sprintf(timeLeft)
-			+ "s more.");
+		.sprintf(percentage * 100)
+		+ " % ("
+		+ (Main.doneRenderers)
+		+ "/"
+		+ Main.totalRenderers
+		+ ") done in "
+		+ new PrintfFormat("%.1f")
+		.sprintf(timeItTook / 1000.0 / 1000.0 / 1000.0)
+		+ "s, need "
+		+ new PrintfFormat("%.0f")
+		.sprintf(timeLeft / 1000.0 / 1000.0 / 1000.0)
+		+ "s more.");
 	    }
 	}
 	if (Main.queuedRenderers == 0) {
