@@ -23,10 +23,10 @@ package cz.muni.fi.spc.SchedVis;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -66,7 +66,7 @@ public final class Main implements PropertyChangeListener {
 
     private static Double startProcessingTime;
 
-    private static Map<Double, Double> lastProcessingTimes = new HashMap<Double, Double>();
+    private static Queue<Double> lastProcessingTimes = new LinkedList<Double>();
 
     /**
      * Estimate a remaining time that a job will take.
@@ -85,14 +85,13 @@ public final class Main implements PropertyChangeListener {
     private static Double countProgress(final Double lastUnitTook,
 	    final Double alreadyDonePct, final Integer unitSize,
 	    final Integer historySize) {
-	Main.lastProcessingTimes.put(alreadyDonePct, lastUnitTook);
+	Main.lastProcessingTimes.add(lastUnitTook);
 	if (Main.lastProcessingTimes.size() > historySize) {
-	    Main.lastProcessingTimes.remove(Main.lastProcessingTimes.keySet()
-		    .toArray()[0]);
+	    Main.lastProcessingTimes.remove();
 	}
 	Double totalTime = 0.0;
-	for (Map.Entry<Double, Double> m : Main.lastProcessingTimes.entrySet()) {
-	    totalTime += m.getValue();
+	for (Double m : Main.lastProcessingTimes) {
+	    totalTime += m;
 	}
 	Double averageTime = totalTime / (double) historySize;
 	return ((1 - alreadyDonePct) * (Main.totalRenderers / unitSize))
