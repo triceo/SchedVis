@@ -182,6 +182,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 				    + f.getAbsolutePath() + ".");
 			}
 		} else if (!this.isCaching) {
+			MachineRenderer.logger.debug("3");
 			try {
 				img = ImageIO.read(f);
 			} catch (IOException e) {

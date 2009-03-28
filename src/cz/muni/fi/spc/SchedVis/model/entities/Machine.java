@@ -45,7 +45,7 @@ import cz.muni.fi.spc.SchedVis.model.Database;
 @Entity
 public class Machine extends BaseEntity {
 
-	private static EventType[] machineEvents = null;
+	private static EventType[] machineEvents = new EventType[0];
 
 	@SuppressWarnings("unchecked")
 	public static List<Machine> getAll(final Integer groupId) {
@@ -112,7 +112,7 @@ public class Machine extends BaseEntity {
 
 	public static boolean isActive(final Machine m, final Integer clock) {
 		synchronized (Machine.machineEvents) {
-			if (Machine.machineEvents == null) {
+			if (Machine.machineEvents.length == 0) {
 				Machine.machineEvents = new EventType[] {
 				    EventType.get(EventType.EVENT_MACHINE_FAILURE),
 				    EventType.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
