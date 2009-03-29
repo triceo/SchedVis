@@ -30,43 +30,43 @@ import javax.swing.filechooser.FileFilter;
  * supported in a future Swing release.
  */
 public class DataFileFilter extends FileFilter {
-    protected String description;
+	protected String description;
 
-    protected List<String> exts = new ArrayList<String>();
+	protected List<String> exts = new ArrayList<String>();
 
-    /** Return true if the given file is accepted by this filter. */
-    @Override
-    public boolean accept(final File f) {
-	// If we don't do this, only directory names ending in one of the
-	// extensions appear in the window.
-	if (f.isDirectory()) {
-	    return true;
+	/** Return true if the given file is accepted by this filter. */
+	@Override
+	public boolean accept(final File f) {
+		// If we don't do this, only directory names ending in one of the
+		// extensions appear in the window.
+		if (f.isDirectory()) {
+			return true;
 
-	} else if (f.isFile()) {
-	    final Iterator<String> it = this.exts.iterator();
-	    while (it.hasNext()) {
-		if (f.getName().endsWith(it.next())) {
-		    return true;
+		} else if (f.isFile()) {
+			final Iterator<String> it = this.exts.iterator();
+			while (it.hasNext()) {
+				if (f.getName().endsWith(it.next())) {
+					return true;
+				}
+			}
 		}
-	    }
+
+		// A file that didn't match, or a weirdo (e.g. UNIX device file?).
+		return false;
 	}
 
-	// A file that didn't match, or a weirdo (e.g. UNIX device file?).
-	return false;
-    }
+	public void addType(final String s) {
+		this.exts.add(s);
+	}
 
-    public void addType(final String s) {
-	this.exts.add(s);
-    }
+	/** Return the printable description of this filter. */
+	@Override
+	public String getDescription() {
+		return this.description;
+	}
 
-    /** Return the printable description of this filter. */
-    @Override
-    public String getDescription() {
-	return this.description;
-    }
-
-    /** Set the printable description of this filter. */
-    public void setDescription(final String s) {
-	this.description = s;
-    }
+	/** Set the printable description of this filter. */
+	public void setDescription(final String s) {
+		this.description = s;
+	}
 }

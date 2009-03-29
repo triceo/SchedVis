@@ -33,20 +33,20 @@ import cz.muni.fi.spc.SchedVis.parsers.Token;
  */
 public class ScheduleMachineData {
 
-    private final String machineId;
-    private final List<ScheduleJobData> jobs;
+	private final String machineId;
+	private final List<ScheduleJobData> jobs;
 
-    public ScheduleMachineData(final Token machineId,
+	public ScheduleMachineData(final Token machineId,
 	    final List<ScheduleJobData> data) {
-	this.jobs = data;
-	this.machineId = machineId.toString();
-    }
+		this.jobs = data;
+		this.machineId = machineId.toString();
+	}
 
-    public List<ScheduleJobData> getJobs() {
-	return this.jobs;
-    }
+	public List<ScheduleJobData> getJobs() {
+		return this.jobs;
+	}
 
-    public String getMachineId() {
-	return this.machineId;
-    }
+	public String getMachineId() {
+		return this.machineId;
+	}
 }

@@ -31,37 +31,37 @@ import javax.swing.JPanel;
  * 
  */
 public class MachinePanel extends JPanel {
-    /**
+	/**
      * 
      */
-    private static final long serialVersionUID = 1407665978399872917L;
-    protected Image ci = null;
+	private static final long serialVersionUID = 1407665978399872917L;
+	protected Image ci = null;
 
-    public MachinePanel() {
-	super(true);
-    }
-
-    public Image getDisplayedImage() {
-	return this.ci;
-    }
-
-    @Override
-    public void paint(final Graphics g) {
-	this.update(g);
-    }
-
-    public void setImage(final Image si) {
-	this.ci = si;
-	this.setPreferredSize(new Dimension(this.ci.getWidth(null) + 1, this.ci
-		.getHeight(null) + 1));
-    }
-
-    @Override
-    public void update(final Graphics g) {
-	if (this.ci != null) {
-	    g.drawImage(this.ci, 0, 0, null);
-	} else {
-	    super.update(g);
+	public MachinePanel() {
+		super(true);
 	}
-    }
+
+	public Image getDisplayedImage() {
+		return this.ci;
+	}
+
+	@Override
+	public void paint(final Graphics g) {
+		this.update(g);
+	}
+
+	public void setImage(final Image si) {
+		this.ci = si;
+		this.setPreferredSize(new Dimension(this.ci.getWidth(null) + 1, this.ci
+		    .getHeight(null) + 1));
+	}
+
+	@Override
+	public void update(final Graphics g) {
+		if (this.ci != null) {
+			g.drawImage(this.ci, 0, 0, null);
+		} else {
+			super.update(g);
+		}
+	}
 }

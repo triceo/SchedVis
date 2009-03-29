@@ -47,248 +47,247 @@ import cz.muni.fi.spc.SchedVis.model.Database;
 @Entity
 public class Event extends BaseEntity {
 
-    @SuppressWarnings("unchecked")
-    public static List<Integer> getAllTicks() {
-	EntityManager em = Database.newEntityManager();
-	final List<Integer> l = ((Session) em.getDelegate())
-	.createSQLQuery(
-		"SELECT DISTINCT clock FROM Event WHERE parent_FK IS NOT NULL ORDER BY clock ASC")
-		.list();
-	em.close();
-	return l;
-    }
+	@SuppressWarnings("unchecked")
+	public static List<Integer> getAllTicks() {
+		EntityManager em = Database.newEntityManager();
+		final List<Integer> l = ((Session) em.getDelegate())
+		    .createSQLQuery(
+		        "SELECT DISTINCT clock FROM Event WHERE parent_FK IS NOT NULL ORDER BY clock ASC")
+		    .list();
+		em.close();
+		return l;
+	}
 
-    public static Event getFirst() {
-	EntityManager em = Database.newEntityManager();
-	final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
-	crit.addOrder(Order.asc("clock"));
-	crit.add(Restrictions.isNull("parent"));
-	crit.setMaxResults(1);
-	Event evt = (Event) crit.uniqueResult();
-	em.close();
-	return evt;
-    }
+	public static Event getFirst() {
+		EntityManager em = Database.newEntityManager();
+		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
+		crit.addOrder(Order.asc("clock"));
+		crit.add(Restrictions.isNull("parent"));
+		crit.setMaxResults(1);
+		Event evt = (Event) crit.uniqueResult();
+		em.close();
+		return evt;
+	}
 
-    public static Event getLast() {
-	EntityManager em = Database.newEntityManager();
-	final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
-	crit.addOrder(Order.desc("clock"));
-	crit.add(Restrictions.isNull("parent"));
-	crit.setMaxResults(1);
-	Event evt = (Event) crit.uniqueResult();
-	em.close();
-	return evt;
-    }
+	public static Event getLast() {
+		EntityManager em = Database.newEntityManager();
+		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
+		crit.addOrder(Order.desc("clock"));
+		crit.add(Restrictions.isNull("parent"));
+		crit.setMaxResults(1);
+		Event evt = (Event) crit.uniqueResult();
+		em.close();
+		return evt;
+	}
 
-    @SuppressWarnings("unchecked")
-    public static Integer getMaxJobSpan() {
-	EntityManager em = Database.newEntityManager();
-	final List<Integer> l = ((Session) em.getDelegate())
-	.createSQLQuery(
-		"SELECT max(expectedEnd - clock) AS s FROM Event GROUP BY parent_fk, sourceMachine_id ORDER BY s DESC LIMIT 1")
-		.list();
-	em.close();
-	return l.get(0);
-    }
+	@SuppressWarnings("unchecked")
+	public static Integer getMaxJobSpan() {
+		EntityManager em = Database.newEntityManager();
+		final List<Integer> l = ((Session) em.getDelegate())
+		    .createSQLQuery(
+		        "SELECT max(expectedEnd - clock) AS s FROM Event GROUP BY parent_fk, sourceMachine_id ORDER BY s DESC LIMIT 1")
+		    .list();
+		em.close();
+		return l.get(0);
+	}
 
-    public static Event getNext(final Integer eventId) {
-	EntityManager em = Database.newEntityManager();
-	final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
-	crit.addOrder(Order.asc("id"));
-	crit.add(Restrictions.isNull("parent"));
-	crit.add(Restrictions.gt("clock", eventId));
-	crit.setMaxResults(1);
-	Event evt = (Event) crit.uniqueResult();
-	em.close();
-	return evt;
-    }
+	public static Event getNext(final Integer eventId) {
+		EntityManager em = Database.newEntityManager();
+		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
+		crit.addOrder(Order.asc("id"));
+		crit.add(Restrictions.isNull("parent"));
+		crit.add(Restrictions.gt("clock", eventId));
+		crit.setMaxResults(1);
+		Event evt = (Event) crit.uniqueResult();
+		em.close();
+		return evt;
+	}
 
-    public static Event getPrevious(final Integer eventId) {
-	EntityManager em = Database.newEntityManager();
-	final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
-	crit.addOrder(Order.desc("id"));
-	crit.add(Restrictions.isNull("parent"));
-	crit.add(Restrictions.lt("clock", eventId));
-	crit.setMaxResults(1);
-	Event evt = (Event) crit.uniqueResult();
-	em.close();
-	return evt;
-    }
+	public static Event getPrevious(final Integer eventId) {
+		EntityManager em = Database.newEntityManager();
+		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
+		crit.addOrder(Order.desc("id"));
+		crit.add(Restrictions.isNull("parent"));
+		crit.add(Restrictions.lt("clock", eventId));
+		crit.setMaxResults(1);
+		Event evt = (Event) crit.uniqueResult();
+		em.close();
+		return evt;
+	}
 
-    @SuppressWarnings("unchecked")
-    public static Integer getTickCount() {
-	EntityManager em = Database.newEntityManager();
-	final List<Integer> l = ((Session) em.getDelegate()).createSQLQuery(
-	"SELECT DISTINCT clock FROM Event WHERE parent_fk IS NULL")
-	.list();
-	em.close();
-	return l.size();
-    }
+	@SuppressWarnings("unchecked")
+	public static Integer getTickCount() {
+		EntityManager em = Database.newEntityManager();
+		final List<Integer> l = ((Session) em.getDelegate()).createSQLQuery(
+		    "SELECT DISTINCT clock FROM Event WHERE parent_fk IS NULL").list();
+		em.close();
+		return l.size();
+	}
 
-    private Integer id;
-    private EventType eventType;
-    private Machine srcMachine;
-    private Machine dstMachine;
-    private Integer clock;
-    private Integer deadline;
-    private Integer expectedEnd;
-    private Integer expectedStart;
-    private Integer job;
-    private Integer neededCPUs;
-    private Integer neededHDD;
+	private Integer id;
+	private EventType eventType;
+	private Machine srcMachine;
+	private Machine dstMachine;
+	private Integer clock;
+	private Integer deadline;
+	private Integer expectedEnd;
+	private Integer expectedStart;
+	private Integer job;
+	private Integer neededCPUs;
+	private Integer neededHDD;
 
-    private Integer neededRAM;
+	private Integer neededRAM;
 
-    private String neededPlatform;
+	private String neededPlatform;
 
-    private Event parent;
+	private Event parent;
 
-    private String assignedCPUs;
+	private String assignedCPUs;
 
-    private Set<Event> events = new HashSet<Event>();
+	private Set<Event> events = new HashSet<Event>();
 
-    public void addChild(final Event e) {
-	this.events.add(e);
-    }
+	public void addChild(final Event e) {
+		this.events.add(e);
+	}
 
-    public String getAssignedCPUs() {
-	return this.assignedCPUs;
-    }
+	public String getAssignedCPUs() {
+		return this.assignedCPUs;
+	}
 
-    public Integer getClock() {
-	return this.clock;
-    }
+	public Integer getClock() {
+		return this.clock;
+	}
 
-    public Integer getDeadline() {
-	return this.deadline;
-    }
+	public Integer getDeadline() {
+		return this.deadline;
+	}
 
-    public Integer getExpectedEnd() {
-	return this.expectedEnd;
-    }
+	public Integer getExpectedEnd() {
+		return this.expectedEnd;
+	}
 
-    public Integer getExpectedStart() {
-	return this.expectedStart;
-    }
+	public Integer getExpectedStart() {
+		return this.expectedStart;
+	}
 
-    @OneToMany(mappedBy = "parent")
-    public Set<Event> getChildren() {
-	return this.events;
-    }
+	@OneToMany(mappedBy = "parent")
+	public Set<Event> getChildren() {
+		return this.events;
+	}
 
-    @Id
-    @GeneratedValue
-    public Integer getId() {
-	return this.id;
-    }
+	@Id
+	@GeneratedValue
+	public Integer getId() {
+		return this.id;
+	}
 
-    public Integer getJob() {
-	return this.job;
-    }
+	public Integer getJob() {
+		return this.job;
+	}
 
-    public Integer getNeededCPUs() {
-	return this.neededCPUs;
-    }
+	public Integer getNeededCPUs() {
+		return this.neededCPUs;
+	}
 
-    public Integer getNeededHDD() {
-	return this.neededHDD;
-    }
+	public Integer getNeededHDD() {
+		return this.neededHDD;
+	}
 
-    public String getNeededPlatform() {
-	return this.neededPlatform;
-    }
+	public String getNeededPlatform() {
+		return this.neededPlatform;
+	}
 
-    public Integer getNeededRAM() {
-	return this.neededRAM;
-    }
+	public Integer getNeededRAM() {
+		return this.neededRAM;
+	}
 
-    @ManyToOne
-    @JoinColumn(name = "parent_fk")
-    public Event getParent() {
-	return this.parent;
-    }
+	@ManyToOne
+	@JoinColumn(name = "parent_fk")
+	public Event getParent() {
+		return this.parent;
+	}
 
-    @OneToOne
-    public Machine getSourceMachine() {
-	return this.srcMachine;
-    }
+	@OneToOne
+	public Machine getSourceMachine() {
+		return this.srcMachine;
+	}
 
-    @OneToOne
-    public Machine getTargetMachine() {
-	return this.dstMachine;
-    }
+	@OneToOne
+	public Machine getTargetMachine() {
+		return this.dstMachine;
+	}
 
-    @ManyToOne
-    public EventType getType() {
-	return this.eventType;
-    }
+	@ManyToOne
+	public EventType getType() {
+		return this.eventType;
+	}
 
-    public void removeChild(final Event e) {
-	this.events.remove(e);
-    }
+	public void removeChild(final Event e) {
+		this.events.remove(e);
+	}
 
-    public void setAssignedCPUs(final String value) {
-	this.assignedCPUs = value;
-    }
+	public void setAssignedCPUs(final String value) {
+		this.assignedCPUs = value;
+	}
 
-    public void setClock(final Integer value) {
-	this.clock = value;
-    }
+	public void setClock(final Integer value) {
+		this.clock = value;
+	}
 
-    public void setDeadline(final Integer value) {
-	this.deadline = value;
-    }
+	public void setDeadline(final Integer value) {
+		this.deadline = value;
+	}
 
-    public void setExpectedEnd(final Integer value) {
-	this.expectedEnd = value;
-    }
+	public void setExpectedEnd(final Integer value) {
+		this.expectedEnd = value;
+	}
 
-    public void setExpectedStart(final Integer value) {
-	this.expectedStart = value;
-    }
+	public void setExpectedStart(final Integer value) {
+		this.expectedStart = value;
+	}
 
-    protected void setChildren(final Set<Event> events) {
-	this.events = events;
-    }
+	protected void setChildren(final Set<Event> events) {
+		this.events = events;
+	}
 
-    public void setId(final Integer id) {
-	this.id = id;
-    }
+	public void setId(final Integer id) {
+		this.id = id;
+	}
 
-    public void setJob(final Integer value) {
-	this.job = value;
-    }
+	public void setJob(final Integer value) {
+		this.job = value;
+	}
 
-    public void setNeededCPUs(final Integer value) {
-	this.neededCPUs = value;
-    }
+	public void setNeededCPUs(final Integer value) {
+		this.neededCPUs = value;
+	}
 
-    public void setNeededHDD(final Integer value) {
-	this.neededHDD = value;
-    }
+	public void setNeededHDD(final Integer value) {
+		this.neededHDD = value;
+	}
 
-    public void setNeededPlatform(final String value) {
-	this.neededPlatform = value;
-    }
+	public void setNeededPlatform(final String value) {
+		this.neededPlatform = value;
+	}
 
-    public void setNeededRAM(final Integer value) {
-	this.neededRAM = value;
-    }
+	public void setNeededRAM(final Integer value) {
+		this.neededRAM = value;
+	}
 
-    public void setParent(final Event parent) {
-	this.parent = parent;
-    }
+	public void setParent(final Event parent) {
+		this.parent = parent;
+	}
 
-    public void setSourceMachine(final Machine machine) {
-	this.srcMachine = machine;
-    }
+	public void setSourceMachine(final Machine machine) {
+		this.srcMachine = machine;
+	}
 
-    public void setTargetMachine(final Machine machine) {
-	this.dstMachine = machine;
-    }
+	public void setTargetMachine(final Machine machine) {
+		this.dstMachine = machine;
+	}
 
-    public void setType(final EventType type) {
-	this.eventType = type;
-    }
+	public void setType(final EventType type) {
+		this.eventType = type;
+	}
 
 }

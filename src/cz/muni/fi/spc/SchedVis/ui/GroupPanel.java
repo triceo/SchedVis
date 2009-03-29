@@ -28,12 +28,12 @@ import javax.swing.JPanel;
  */
 public class GroupPanel extends JPanel {
 
-    /**
+	/**
      * 
      */
-    private static final long serialVersionUID = 7130448608133564732L;
+	private static final long serialVersionUID = 7130448608133564732L;
 
-    public GroupPanel() {
-    }
+	public GroupPanel() {
+	}
 
 }

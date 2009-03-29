@@ -43,78 +43,75 @@ import cz.muni.fi.spc.SchedVis.model.Database;
 @Entity
 public class MachineGroup extends BaseEntity {
 
-    @SuppressWarnings("unchecked")
-    public static List<MachineGroup> getAll() {
-	EntityManager em = Database.newEntityManager();
-	final Criteria crit = BaseEntity.getCriteria(em, MachineGroup.class,
-		true);
-	crit.addOrder(Order.asc("name"));
-	List<MachineGroup> l = crit.list();
-	em.close();
-	return l;
-    }
+	@SuppressWarnings("unchecked")
+	public static List<MachineGroup> getAll() {
+		EntityManager em = Database.newEntityManager();
+		final Criteria crit = BaseEntity.getCriteria(em, MachineGroup.class, true);
+		crit.addOrder(Order.asc("name"));
+		List<MachineGroup> l = crit.list();
+		em.close();
+		return l;
+	}
 
-    public static MachineGroup getWithId(final Integer id) {
-	EntityManager em = Database.newEntityManager();
-	final Criteria crit = BaseEntity.getCriteria(em, MachineGroup.class,
-		true);
-	crit.add(Restrictions.idEq(id));
-	crit.setMaxResults(1);
-	MachineGroup mg = (MachineGroup) crit.uniqueResult();
-	em.close();
-	return mg;
-    }
+	public static MachineGroup getWithId(final Integer id) {
+		EntityManager em = Database.newEntityManager();
+		final Criteria crit = BaseEntity.getCriteria(em, MachineGroup.class, true);
+		crit.add(Restrictions.idEq(id));
+		crit.setMaxResults(1);
+		MachineGroup mg = (MachineGroup) crit.uniqueResult();
+		em.close();
+		return mg;
+	}
 
-    public static MachineGroup getWithName(final String name) {
-	EntityManager em = Database.newEntityManager();
-	final Criteria crit = BaseEntity.getCriteria(em, MachineGroup.class,
-		true);
-	crit.add(Restrictions.eq("name", name));
-	crit.setMaxResults(1);
-	MachineGroup mg = (MachineGroup) crit.uniqueResult();
-	em.close();
-	return mg;
-    }
+	public static MachineGroup getWithName(final String name) {
+		EntityManager em = Database.newEntityManager();
+		final Criteria crit = BaseEntity.getCriteria(em, MachineGroup.class, true);
+		crit.add(Restrictions.eq("name", name));
+		crit.setMaxResults(1);
+		MachineGroup mg = (MachineGroup) crit.uniqueResult();
+		em.close();
+		return mg;
+	}
 
-    private Integer id;
+	private Integer id;
 
-    private String name;
+	private String name;
 
-    private Set<Machine> machines;
+	private Set<Machine> machines;
 
-    public void addMachine(final Machine me) {
-	this.machines.add(me);
-    }
+	public void addMachine(final Machine me) {
+		this.machines.add(me);
+	}
 
-    @GeneratedValue
-    @Id
-    public Integer getId() {
-	return this.id;
-    }
+	@GeneratedValue
+	@Id
+	public Integer getId() {
+		return this.id;
+	}
 
-    @OneToMany(mappedBy = "group")
-    public Set<Machine> getMachines() {
-	return this.machines;
-    }
+	@OneToMany(mappedBy = "group")
+	public Set<Machine> getMachines() {
+		return this.machines;
+	}
 
-    public String getName() {
-	return this.name;
-    }
+	public String getName() {
+		return this.name;
+	}
 
-    public void removeMachine(final Machine me) {
-	this.machines.remove(me);
-    }
+	public void removeMachine(final Machine me) {
+		this.machines.remove(me);
+	}
 
-    protected void setId(final Integer id) {
-	this.id = id;
-    }
+	protected void setId(final Integer id) {
+		this.id = id;
+	}
 
-    protected void setMachines(final Set<Machine> machines) {
-	this.machines = machines;
-    }
+	protected void setMachines(final Set<Machine> machines) {
+		this.machines = machines;
+	}
 
-    public void setName(final String name) {
-	this.name = name;
-    }
+	public void setName(final String name) {
+		this.name = name;
+	}
 
 }

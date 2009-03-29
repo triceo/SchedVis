@@ -24,517 +24,513 @@ import cz.muni.fi.spc.SchedVis.parsers.SimpleCharStream;
 import cz.muni.fi.spc.SchedVis.parsers.Token;
 
 public class ScheduleParser extends Parser implements ScheduleParserConstants {
-    private static void jj_la1_init_0() {
-	ScheduleParser.jj_la1_0 = new int[] { 0x1c0, 0x200, 0x20, 0x20, 0x20,
-		0x1c0, 0x20, 0x800, 0x6, 0x2000, };
-    }
-
-    public static void main(final String args[]) throws ParseException {
-	try {
-	    ScheduleParser parser = new ScheduleParser(System.in);
-	    ScheduleEventsList events = parser.read();
-	    System.out.println("Successfully read " + events.size()
-		    + " events!");
-	} catch (Exception e) {
-	    System.out.println("NOK.");
-	    System.out.println(e.getMessage());
-	} catch (Error e) {
-	    System.out.println("Oops.");
-	    System.out.println(e.getMessage());
+	private static void jj_la1_init_0() {
+		ScheduleParser.jj_la1_0 = new int[] { 0x1c0, 0x200, 0x20, 0x20, 0x20,
+		    0x1c0, 0x20, 0x800, 0x6, 0x2000, };
 	}
-    }
 
-    /** Generated Token Manager. */
-    public ScheduleParserTokenManager token_source;
-
-    SimpleCharStream jj_input_stream;
-
-    /** Current token. */
-    public Token token;
-
-    /** Next token. */
-    public Token jj_nt;
-
-    private int jj_gen;
-
-    final private int[] jj_la1 = new int[10];
-
-    static private int[] jj_la1_0;
-
-    static {
-	ScheduleParser.jj_la1_init_0();
-    }
-    private final java.util.List jj_expentries = new java.util.ArrayList();
-    private int[] jj_expentry;
-    private int jj_kind = -1;
-
-    /** Constructor with InputStream. */
-    public ScheduleParser(final java.io.InputStream stream) {
-	this(stream, null);
-    }
-
-    /** Constructor with InputStream and supplied encoding */
-    public ScheduleParser(final java.io.InputStream stream,
-	    final String encoding) {
-	try {
-	    this.jj_input_stream = new SimpleCharStream(stream, encoding, 1, 1);
-	} catch (java.io.UnsupportedEncodingException e) {
-	    throw new RuntimeException(e);
+	public static void main(final String args[]) throws ParseException {
+		try {
+			ScheduleParser parser = new ScheduleParser(System.in);
+			ScheduleEventsList events = parser.read();
+			System.out.println("Successfully read " + events.size() + " events!");
+		} catch (Exception e) {
+			System.out.println("NOK.");
+			System.out.println(e.getMessage());
+		} catch (Error e) {
+			System.out.println("Oops.");
+			System.out.println(e.getMessage());
+		}
 	}
-	this.token_source = new ScheduleParserTokenManager(this.jj_input_stream);
-	this.token = new Token();
-	this.token.next = this.jj_nt = this.token_source.getNextToken();
-	this.jj_gen = 0;
-	for (int i = 0; i < 10; i++) {
-	    this.jj_la1[i] = -1;
+
+	/** Generated Token Manager. */
+	public ScheduleParserTokenManager token_source;
+
+	SimpleCharStream jj_input_stream;
+
+	/** Current token. */
+	public Token token;
+
+	/** Next token. */
+	public Token jj_nt;
+
+	private int jj_gen;
+
+	final private int[] jj_la1 = new int[10];
+
+	static private int[] jj_la1_0;
+
+	static {
+		ScheduleParser.jj_la1_init_0();
 	}
-    }
+	private final java.util.List jj_expentries = new java.util.ArrayList();
+	private int[] jj_expentry;
+	private int jj_kind = -1;
 
-    /** Constructor. */
-    public ScheduleParser(final java.io.Reader stream) {
-	this.jj_input_stream = new SimpleCharStream(stream, 1, 1);
-	this.token_source = new ScheduleParserTokenManager(this.jj_input_stream);
-	this.token = new Token();
-	this.token.next = this.jj_nt = this.token_source.getNextToken();
-	this.jj_gen = 0;
-	for (int i = 0; i < 10; i++) {
-	    this.jj_la1[i] = -1;
+	/** Constructor with InputStream. */
+	public ScheduleParser(final java.io.InputStream stream) {
+		this(stream, null);
 	}
-    }
 
-    /** Constructor with generated Token Manager. */
-    public ScheduleParser(final ScheduleParserTokenManager tm) {
-	this.token_source = tm;
-	this.token = new Token();
-	this.token.next = this.jj_nt = this.token_source.getNextToken();
-	this.jj_gen = 0;
-	for (int i = 0; i < 10; i++) {
-	    this.jj_la1[i] = -1;
+	/** Constructor with InputStream and supplied encoding */
+	public ScheduleParser(final java.io.InputStream stream, final String encoding) {
+		try {
+			this.jj_input_stream = new SimpleCharStream(stream, encoding, 1, 1);
+		} catch (java.io.UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+		this.token_source = new ScheduleParserTokenManager(this.jj_input_stream);
+		this.token = new Token();
+		this.token.next = this.jj_nt = this.token_source.getNextToken();
+		this.jj_gen = 0;
+		for (int i = 0; i < 10; i++) {
+			this.jj_la1[i] = -1;
+		}
 	}
-    }
 
-    /** Disable tracing. */
-    final public void disable_tracing() {
-    }
+	/** Constructor. */
+	public ScheduleParser(final java.io.Reader stream) {
+		this.jj_input_stream = new SimpleCharStream(stream, 1, 1);
+		this.token_source = new ScheduleParserTokenManager(this.jj_input_stream);
+		this.token = new Token();
+		this.token.next = this.jj_nt = this.token_source.getNextToken();
+		this.jj_gen = 0;
+		for (int i = 0; i < 10; i++) {
+			this.jj_la1[i] = -1;
+		}
+	}
 
-    /** Enable tracing. */
-    final public void enable_tracing() {
-    }
+	/** Constructor with generated Token Manager. */
+	public ScheduleParser(final ScheduleParserTokenManager tm) {
+		this.token_source = tm;
+		this.token = new Token();
+		this.token.next = this.jj_nt = this.token_source.getNextToken();
+		this.jj_gen = 0;
+		for (int i = 0; i < 10; i++) {
+			this.jj_la1[i] = -1;
+		}
+	}
 
-    final public ScheduleEventsList event_data(ScheduleEventsList events)
+	/** Disable tracing. */
+	final public void disable_tracing() {
+	}
+
+	/** Enable tracing. */
+	final public void enable_tracing() {
+	}
+
+	final public ScheduleEventsList event_data(ScheduleEventsList events)
 	    throws ParseException {
-	if (this.getImporter() != null) {
-	    this.getImporter().nextLineParsed();
-	}
-	switch (this.jj_nt.kind) {
-	case MACHINE_EVENT_FLAG:
-	    events = this.machine_event(events);
-	    label_3: while (true) {
+		if (this.getImporter() != null) {
+			this.getImporter().nextLineParsed();
+		}
 		switch (this.jj_nt.kind) {
-		case WHITESPACE:
-		    ;
-		    break;
+		case MACHINE_EVENT_FLAG:
+			events = this.machine_event(events);
+			label_3: while (true) {
+				switch (this.jj_nt.kind) {
+				case WHITESPACE:
+					;
+					break;
+				default:
+					this.jj_la1[2] = this.jj_gen;
+					break label_3;
+				}
+				this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+			}
+			this.jj_consume_token(9);
+			{
+				if (true) {
+					return events;
+				}
+			}
+			break;
+		case MOVE_EVENT_FLAG:
+			events = this.move_event(events);
+			label_4: while (true) {
+				switch (this.jj_nt.kind) {
+				case WHITESPACE:
+					;
+					break;
+				default:
+					this.jj_la1[3] = this.jj_gen;
+					break label_4;
+				}
+				this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+			}
+			this.jj_consume_token(9);
+			{
+				if (true) {
+					return events;
+				}
+			}
+			break;
+		case IO_EVENT_FLAG:
+			events = this.IO_event(events);
+			label_5: while (true) {
+				switch (this.jj_nt.kind) {
+				case WHITESPACE:
+					;
+					break;
+				default:
+					this.jj_la1[4] = this.jj_gen;
+					break label_5;
+				}
+				this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+			}
+			this.jj_consume_token(9);
+			{
+				if (true) {
+					return events;
+				}
+			}
+			break;
 		default:
-		    this.jj_la1[2] = this.jj_gen;
-		    break label_3;
+			this.jj_la1[5] = this.jj_gen;
+			this.jj_consume_token(-1);
+			throw new ParseException();
 		}
-		this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
-	    }
-	    this.jj_consume_token(9);
-	    {
-		if (true) {
-		    return events;
-		}
-	    }
-	    break;
-	case MOVE_EVENT_FLAG:
-	    events = this.move_event(events);
-	    label_4: while (true) {
-		switch (this.jj_nt.kind) {
-		case WHITESPACE:
-		    ;
-		    break;
-		default:
-		    this.jj_la1[3] = this.jj_gen;
-		    break label_4;
-		}
-		this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
-	    }
-	    this.jj_consume_token(9);
-	    {
-		if (true) {
-		    return events;
-		}
-	    }
-	    break;
-	case IO_EVENT_FLAG:
-	    events = this.IO_event(events);
-	    label_5: while (true) {
-		switch (this.jj_nt.kind) {
-		case WHITESPACE:
-		    ;
-		    break;
-		default:
-		    this.jj_la1[4] = this.jj_gen;
-		    break label_5;
-		}
-		this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
-	    }
-	    this.jj_consume_token(9);
-	    {
-		if (true) {
-		    return events;
-		}
-	    }
-	    break;
-	default:
-	    this.jj_la1[5] = this.jj_gen;
-	    this.jj_consume_token(-1);
-	    throw new ParseException();
+		throw new Error("Missing return statement in function");
 	}
-	throw new Error("Missing return statement in function");
-    }
 
-    /** Generate ParseException. */
-    public ParseException generateParseException() {
-	this.jj_expentries.clear();
-	boolean[] la1tokens = new boolean[14];
-	if (this.jj_kind >= 0) {
-	    la1tokens[this.jj_kind] = true;
-	    this.jj_kind = -1;
-	}
-	for (int i = 0; i < 10; i++) {
-	    if (this.jj_la1[i] == this.jj_gen) {
-		for (int j = 0; j < 32; j++) {
-		    if ((ScheduleParser.jj_la1_0[i] & (1 << j)) != 0) {
-			la1tokens[j] = true;
-		    }
+	/** Generate ParseException. */
+	public ParseException generateParseException() {
+		this.jj_expentries.clear();
+		boolean[] la1tokens = new boolean[14];
+		if (this.jj_kind >= 0) {
+			la1tokens[this.jj_kind] = true;
+			this.jj_kind = -1;
 		}
-	    }
+		for (int i = 0; i < 10; i++) {
+			if (this.jj_la1[i] == this.jj_gen) {
+				for (int j = 0; j < 32; j++) {
+					if ((ScheduleParser.jj_la1_0[i] & (1 << j)) != 0) {
+						la1tokens[j] = true;
+					}
+				}
+			}
+		}
+		for (int i = 0; i < 14; i++) {
+			if (la1tokens[i]) {
+				this.jj_expentry = new int[1];
+				this.jj_expentry[0] = i;
+				this.jj_expentries.add(this.jj_expentry);
+			}
+		}
+		int[][] exptokseq = new int[this.jj_expentries.size()][];
+		for (int i = 0; i < this.jj_expentries.size(); i++) {
+			exptokseq[i] = (int[]) this.jj_expentries.get(i);
+		}
+		return new ParseException(this.token, exptokseq,
+		    ScheduleParserConstants.tokenImage);
 	}
-	for (int i = 0; i < 14; i++) {
-	    if (la1tokens[i]) {
-		this.jj_expentry = new int[1];
-		this.jj_expentry[0] = i;
-		this.jj_expentries.add(this.jj_expentry);
-	    }
-	}
-	int[][] exptokseq = new int[this.jj_expentries.size()][];
-	for (int i = 0; i < this.jj_expentries.size(); i++) {
-	    exptokseq[i] = (int[]) this.jj_expentries.get(i);
-	}
-	return new ParseException(this.token, exptokseq,
-		ScheduleParserConstants.tokenImage);
-    }
 
-    /** Get the next Token. */
-    final public Token getNextToken() {
-	if ((this.token = this.jj_nt).next != null) {
-	    this.jj_nt = this.jj_nt.next;
-	} else {
-	    this.jj_nt = this.jj_nt.next = this.token_source.getNextToken();
+	/** Get the next Token. */
+	final public Token getNextToken() {
+		if ((this.token = this.jj_nt).next != null) {
+			this.jj_nt = this.jj_nt.next;
+		} else {
+			this.jj_nt = this.jj_nt.next = this.token_source.getNextToken();
+		}
+		this.jj_gen++;
+		return this.token;
 	}
-	this.jj_gen++;
-	return this.token;
-    }
 
-    /** Get the specific Token. */
-    final public Token getToken(final int index) {
-	Token t = this.token;
-	for (int i = 0; i < index; i++) {
-	    if (t.next != null) {
-		t = t.next;
-	    } else {
-		t = t.next = this.token_source.getNextToken();
-	    }
+	/** Get the specific Token. */
+	final public Token getToken(final int index) {
+		Token t = this.token;
+		for (int i = 0; i < index; i++) {
+			if (t.next != null) {
+				t = t.next;
+			} else {
+				t = t.next = this.token_source.getNextToken();
+			}
+		}
+		return t;
 	}
-	return t;
-    }
 
-    final public ScheduleEventsList IO_event(final ScheduleEventsList list)
+	final public ScheduleEventsList IO_event(final ScheduleEventsList list)
 	    throws ParseException {
-	Token event;
-	Token clock;
-	Token job;
-	ScheduleMachineDataList data;
-	event = this.jj_consume_token(ScheduleParserConstants.IO_EVENT_FLAG);
-	this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
-	clock = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
-	this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
-	job = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
-	data = this.schedule_data();
-	list.add(new ScheduleEventIO(event, clock, job, data));
-	{
-	    if (true) {
-		return list;
-	    }
+		Token event;
+		Token clock;
+		Token job;
+		ScheduleMachineDataList data;
+		event = this.jj_consume_token(ScheduleParserConstants.IO_EVENT_FLAG);
+		this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+		clock = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
+		this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+		job = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
+		data = this.schedule_data();
+		list.add(new ScheduleEventIO(event, clock, job, data));
+		{
+			if (true) {
+				return list;
+			}
+		}
+		throw new Error("Missing return statement in function");
 	}
-	throw new Error("Missing return statement in function");
-    }
 
-    private Token jj_consume_token(final int kind) throws ParseException {
-	Token oldToken = this.token;
-	if ((this.token = this.jj_nt).next != null) {
-	    this.jj_nt = this.jj_nt.next;
-	} else {
-	    this.jj_nt = this.jj_nt.next = this.token_source.getNextToken();
+	private Token jj_consume_token(final int kind) throws ParseException {
+		Token oldToken = this.token;
+		if ((this.token = this.jj_nt).next != null) {
+			this.jj_nt = this.jj_nt.next;
+		} else {
+			this.jj_nt = this.jj_nt.next = this.token_source.getNextToken();
+		}
+		if (this.token.kind == kind) {
+			this.jj_gen++;
+			return this.token;
+		}
+		this.jj_nt = this.token;
+		this.token = oldToken;
+		this.jj_kind = kind;
+		throw this.generateParseException();
 	}
-	if (this.token.kind == kind) {
-	    this.jj_gen++;
-	    return this.token;
-	}
-	this.jj_nt = this.token;
-	this.token = oldToken;
-	this.jj_kind = kind;
-	throw this.generateParseException();
-    }
 
-    final public ScheduleJobDataList job_data(final ScheduleJobDataList list)
+	final public ScheduleJobDataList job_data(final ScheduleJobDataList list)
 	    throws ParseException {
-	Token job;
-	Token numCPUs;
-	Token assignedCPUs;
-	Token arch;
-	Token memory;
-	Token space;
-	Token start;
-	Token end;
-	Token deadline;
-	ScheduleJobData data = new ScheduleJobData();
-	job = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
-	this.jj_consume_token(13);
-	numCPUs = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
-	this.jj_consume_token(13);
-	switch (this.jj_nt.kind) {
-	case CONSTANT_LIST:
-	    assignedCPUs = this
-		    .jj_consume_token(ScheduleParserConstants.CONSTANT_LIST);
-	    break;
-	case CONSTANT:
-	    assignedCPUs = this
-		    .jj_consume_token(ScheduleParserConstants.CONSTANT);
-	    break;
-	default:
-	    this.jj_la1[8] = this.jj_gen;
-	    this.jj_consume_token(-1);
-	    throw new ParseException();
+		Token job;
+		Token numCPUs;
+		Token assignedCPUs;
+		Token arch;
+		Token memory;
+		Token space;
+		Token start;
+		Token end;
+		Token deadline;
+		ScheduleJobData data = new ScheduleJobData();
+		job = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
+		this.jj_consume_token(13);
+		numCPUs = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
+		this.jj_consume_token(13);
+		switch (this.jj_nt.kind) {
+		case CONSTANT_LIST:
+			assignedCPUs = this
+			    .jj_consume_token(ScheduleParserConstants.CONSTANT_LIST);
+			break;
+		case CONSTANT:
+			assignedCPUs = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
+			break;
+		default:
+			this.jj_la1[8] = this.jj_gen;
+			this.jj_consume_token(-1);
+			throw new ParseException();
+		}
+		this.jj_consume_token(13);
+		arch = this.jj_consume_token(ScheduleParserConstants.STRING);
+		this.jj_consume_token(13);
+		memory = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
+		this.jj_consume_token(13);
+		space = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
+		this.jj_consume_token(13);
+		start = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
+		this.jj_consume_token(13);
+		end = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
+		this.jj_consume_token(13);
+		deadline = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
+		label_8: while (true) {
+			switch (this.jj_nt.kind) {
+			case 13:
+				;
+				break;
+			default:
+				this.jj_la1[9] = this.jj_gen;
+				break label_8;
+			}
+			this.jj_consume_token(13);
+		}
+		data.setId(job);
+		data.setNeedsCPUs(numCPUs);
+		data.assignCPUs(assignedCPUs);
+		data.setArch(arch);
+		data.setNeedsMemory(memory);
+		data.setNeedsSpace(space);
+		data.setStarts(start);
+		data.setEnds(end);
+		data.setDeadline(deadline);
+		list.add(data);
+		{
+			if (true) {
+				return list;
+			}
+		}
+		throw new Error("Missing return statement in function");
 	}
-	this.jj_consume_token(13);
-	arch = this.jj_consume_token(ScheduleParserConstants.STRING);
-	this.jj_consume_token(13);
-	memory = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
-	this.jj_consume_token(13);
-	space = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
-	this.jj_consume_token(13);
-	start = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
-	this.jj_consume_token(13);
-	end = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
-	this.jj_consume_token(13);
-	deadline = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
-	label_8: while (true) {
-	    switch (this.jj_nt.kind) {
-	    case 13:
-		;
-		break;
-	    default:
-		this.jj_la1[9] = this.jj_gen;
-		break label_8;
-	    }
-	    this.jj_consume_token(13);
-	}
-	data.setId(job);
-	data.setNeedsCPUs(numCPUs);
-	data.assignCPUs(assignedCPUs);
-	data.setArch(arch);
-	data.setNeedsMemory(memory);
-	data.setNeedsSpace(space);
-	data.setStarts(start);
-	data.setEnds(end);
-	data.setDeadline(deadline);
-	list.add(data);
-	{
-	    if (true) {
-		return list;
-	    }
-	}
-	throw new Error("Missing return statement in function");
-    }
 
-    final public ScheduleMachineDataList machine_data(
+	final public ScheduleMachineDataList machine_data(
 	    final ScheduleMachineDataList list) throws ParseException {
-	ScheduleJobDataList data = new ScheduleJobDataList();
-	Token machineId;
-	this.jj_consume_token(10);
-	machineId = this.jj_consume_token(ScheduleParserConstants.STRING);
-	label_7: while (true) {
-	    switch (this.jj_nt.kind) {
-	    case 11:
-		;
-		break;
-	    default:
-		this.jj_la1[7] = this.jj_gen;
-		break label_7;
-	    }
-	    this.jj_consume_token(11);
-	    data = this.job_data(data);
+		ScheduleJobDataList data = new ScheduleJobDataList();
+		Token machineId;
+		this.jj_consume_token(10);
+		machineId = this.jj_consume_token(ScheduleParserConstants.STRING);
+		label_7: while (true) {
+			switch (this.jj_nt.kind) {
+			case 11:
+				;
+				break;
+			default:
+				this.jj_la1[7] = this.jj_gen;
+				break label_7;
+			}
+			this.jj_consume_token(11);
+			data = this.job_data(data);
+		}
+		this.jj_consume_token(12);
+		list.add(new ScheduleMachineData(machineId, data));
+		{
+			if (true) {
+				return list;
+			}
+		}
+		throw new Error("Missing return statement in function");
 	}
-	this.jj_consume_token(12);
-	list.add(new ScheduleMachineData(machineId, data));
-	{
-	    if (true) {
-		return list;
-	    }
-	}
-	throw new Error("Missing return statement in function");
-    }
 
-    final public ScheduleEventsList machine_event(final ScheduleEventsList list)
+	final public ScheduleEventsList machine_event(final ScheduleEventsList list)
 	    throws ParseException {
-	Token event;
-	Token clock;
-	Token machine;
-	event = this
-		.jj_consume_token(ScheduleParserConstants.MACHINE_EVENT_FLAG);
-	this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
-	clock = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
-	this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
-	machine = this.jj_consume_token(ScheduleParserConstants.STRING);
-	list.add(new ScheduleEventMachine(event, clock, machine));
-	{
-	    if (true) {
-		return list;
-	    }
+		Token event;
+		Token clock;
+		Token machine;
+		event = this.jj_consume_token(ScheduleParserConstants.MACHINE_EVENT_FLAG);
+		this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+		clock = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
+		this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+		machine = this.jj_consume_token(ScheduleParserConstants.STRING);
+		list.add(new ScheduleEventMachine(event, clock, machine));
+		{
+			if (true) {
+				return list;
+			}
+		}
+		throw new Error("Missing return statement in function");
 	}
-	throw new Error("Missing return statement in function");
-    }
 
-    final public ScheduleEventsList move_event(final ScheduleEventsList list)
+	final public ScheduleEventsList move_event(final ScheduleEventsList list)
 	    throws ParseException {
-	Token event;
-	Token clock;
-	Token job;
-	Token origMachine;
-	Token newMachine;
-	ScheduleMachineDataList data;
-	event = this.jj_consume_token(ScheduleParserConstants.MOVE_EVENT_FLAG);
-	this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
-	clock = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
-	this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
-	job = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
-	this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
-	origMachine = this.jj_consume_token(ScheduleParserConstants.STRING);
-	this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
-	newMachine = this.jj_consume_token(ScheduleParserConstants.STRING);
-	data = this.schedule_data();
-	list.add(new ScheduleEventMove(event, clock, job, origMachine,
-		newMachine, data));
-	{
-	    if (true) {
-		return list;
-	    }
+		Token event;
+		Token clock;
+		Token job;
+		Token origMachine;
+		Token newMachine;
+		ScheduleMachineDataList data;
+		event = this.jj_consume_token(ScheduleParserConstants.MOVE_EVENT_FLAG);
+		this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+		clock = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
+		this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+		job = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
+		this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+		origMachine = this.jj_consume_token(ScheduleParserConstants.STRING);
+		this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+		newMachine = this.jj_consume_token(ScheduleParserConstants.STRING);
+		data = this.schedule_data();
+		list.add(new ScheduleEventMove(event, clock, job, origMachine, newMachine,
+		    data));
+		{
+			if (true) {
+				return list;
+			}
+		}
+		throw new Error("Missing return statement in function");
 	}
-	throw new Error("Missing return statement in function");
-    }
 
-    final public ScheduleEventsList read() throws ParseException {
-	ScheduleEventsList events = new ScheduleEventsList();
-	label_1: while (true) {
-	    events = this.event_data(events);
-	    switch (this.jj_nt.kind) {
-	    case MOVE_EVENT_FLAG:
-	    case MACHINE_EVENT_FLAG:
-	    case IO_EVENT_FLAG:
-		;
-		break;
-	    default:
-		this.jj_la1[0] = this.jj_gen;
-		break label_1;
-	    }
+	final public ScheduleEventsList read() throws ParseException {
+		ScheduleEventsList events = new ScheduleEventsList();
+		label_1: while (true) {
+			events = this.event_data(events);
+			switch (this.jj_nt.kind) {
+			case MOVE_EVENT_FLAG:
+			case MACHINE_EVENT_FLAG:
+			case IO_EVENT_FLAG:
+				;
+				break;
+			default:
+				this.jj_la1[0] = this.jj_gen;
+				break label_1;
+			}
+		}
+		label_2: while (true) {
+			switch (this.jj_nt.kind) {
+			case 9:
+				;
+				break;
+			default:
+				this.jj_la1[1] = this.jj_gen;
+				break label_2;
+			}
+			this.jj_consume_token(9);
+		}
+		this.jj_consume_token(0);
+		{
+			if (true) {
+				return events;
+			}
+		}
+		throw new Error("Missing return statement in function");
 	}
-	label_2: while (true) {
-	    switch (this.jj_nt.kind) {
-	    case 9:
-		;
-		break;
-	    default:
-		this.jj_la1[1] = this.jj_gen;
-		break label_2;
-	    }
-	    this.jj_consume_token(9);
-	}
-	this.jj_consume_token(0);
-	{
-	    if (true) {
-		return events;
-	    }
-	}
-	throw new Error("Missing return statement in function");
-    }
 
-    /** Reinitialise. */
-    public void ReInit(final java.io.InputStream stream) {
-	this.ReInit(stream, null);
-    }
+	/** Reinitialise. */
+	public void ReInit(final java.io.InputStream stream) {
+		this.ReInit(stream, null);
+	}
 
-    /** Reinitialise. */
-    public void ReInit(final java.io.InputStream stream, final String encoding) {
-	try {
-	    this.jj_input_stream.ReInit(stream, encoding, 1, 1);
-	} catch (java.io.UnsupportedEncodingException e) {
-	    throw new RuntimeException(e);
+	/** Reinitialise. */
+	public void ReInit(final java.io.InputStream stream, final String encoding) {
+		try {
+			this.jj_input_stream.ReInit(stream, encoding, 1, 1);
+		} catch (java.io.UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+		this.token_source.ReInit(this.jj_input_stream);
+		this.token = new Token();
+		this.token.next = this.jj_nt = this.token_source.getNextToken();
+		this.jj_gen = 0;
+		for (int i = 0; i < 10; i++) {
+			this.jj_la1[i] = -1;
+		}
 	}
-	this.token_source.ReInit(this.jj_input_stream);
-	this.token = new Token();
-	this.token.next = this.jj_nt = this.token_source.getNextToken();
-	this.jj_gen = 0;
-	for (int i = 0; i < 10; i++) {
-	    this.jj_la1[i] = -1;
-	}
-    }
 
-    /** Reinitialise. */
-    public void ReInit(final java.io.Reader stream) {
-	this.jj_input_stream.ReInit(stream, 1, 1);
-	this.token_source.ReInit(this.jj_input_stream);
-	this.token = new Token();
-	this.token.next = this.jj_nt = this.token_source.getNextToken();
-	this.jj_gen = 0;
-	for (int i = 0; i < 10; i++) {
-	    this.jj_la1[i] = -1;
+	/** Reinitialise. */
+	public void ReInit(final java.io.Reader stream) {
+		this.jj_input_stream.ReInit(stream, 1, 1);
+		this.token_source.ReInit(this.jj_input_stream);
+		this.token = new Token();
+		this.token.next = this.jj_nt = this.token_source.getNextToken();
+		this.jj_gen = 0;
+		for (int i = 0; i < 10; i++) {
+			this.jj_la1[i] = -1;
+		}
 	}
-    }
 
-    /** Reinitialise. */
-    public void ReInit(final ScheduleParserTokenManager tm) {
-	this.token_source = tm;
-	this.token = new Token();
-	this.token.next = this.jj_nt = this.token_source.getNextToken();
-	this.jj_gen = 0;
-	for (int i = 0; i < 10; i++) {
-	    this.jj_la1[i] = -1;
+	/** Reinitialise. */
+	public void ReInit(final ScheduleParserTokenManager tm) {
+		this.token_source = tm;
+		this.token = new Token();
+		this.token.next = this.jj_nt = this.token_source.getNextToken();
+		this.jj_gen = 0;
+		for (int i = 0; i < 10; i++) {
+			this.jj_la1[i] = -1;
+		}
 	}
-    }
 
-    final public ScheduleMachineDataList schedule_data() throws ParseException {
-	ScheduleMachineDataList data = new ScheduleMachineDataList();
-	label_6: while (true) {
-	    this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
-	    data = this.machine_data(data);
-	    switch (this.jj_nt.kind) {
-	    case WHITESPACE:
-		;
-		break;
-	    default:
-		this.jj_la1[6] = this.jj_gen;
-		break label_6;
-	    }
+	final public ScheduleMachineDataList schedule_data() throws ParseException {
+		ScheduleMachineDataList data = new ScheduleMachineDataList();
+		label_6: while (true) {
+			this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+			data = this.machine_data(data);
+			switch (this.jj_nt.kind) {
+			case WHITESPACE:
+				;
+				break;
+			default:
+				this.jj_la1[6] = this.jj_gen;
+				break label_6;
+			}
+		}
+		{
+			if (true) {
+				return data;
+			}
+		}
+		throw new Error("Missing return statement in function");
 	}
-	{
-	    if (true) {
-		return data;
-	    }
-	}
-	throw new Error("Missing return statement in function");
-    }
 
 }

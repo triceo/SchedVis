@@ -40,69 +40,69 @@ import cz.muni.fi.spc.SchedVis.ui.common.JBorderedPanel;
  */
 public class MainFrame extends JFrame {
 
-    /**
+	/**
      * 
      */
-    private static final long serialVersionUID = 6652856626507094021L;
-    private static GroupsPanel groupsPanel = new GroupsPanel(
+	private static final long serialVersionUID = 6652856626507094021L;
+	private static GroupsPanel groupsPanel = new GroupsPanel(
 	    "Show following groups:");
-    private static ScheduleTree tree = ScheduleTree.getInstance();
+	private static ScheduleTree tree = ScheduleTree.getInstance();
 
-    /**
-     * Create the GUI and show it. For thread safety, this method should be
-     * invoked from the event-dispatching thread.
-     */
-    public MainFrame() {
-	// Create and set up the window.
-	this.setTitle("SchedVis");
-	this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	/**
+	 * Create the GUI and show it. For thread safety, this method should be
+	 * invoked from the event-dispatching thread.
+	 */
+	public MainFrame() {
+		// Create and set up the window.
+		this.setTitle("SchedVis");
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-	// Create and set up the content pane.
-	this.setJMenuBar(new MainMenu(this));
-	final Container pane = this.createContentPane();
-	this.setContentPane(pane);
+		// Create and set up the content pane.
+		this.setJMenuBar(new MainMenu(this));
+		final Container pane = this.createContentPane();
+		this.setContentPane(pane);
 
-	// Display the window.
-	this.setMinimumSize(pane.getPreferredSize());
-    }
+		// Display the window.
+		this.setMinimumSize(pane.getPreferredSize());
+	}
 
-    public Container createContentPane() {
-	// get right panel
-	final JPanel schedulePanel = new JPanel();
-	schedulePanel.setLayout(new BorderLayout());
-	// get slider
-	final JPanel sPanel = new SliderPanel();
-	schedulePanel.add(sPanel, BorderLayout.PAGE_END);
-	schedulePanel.setMinimumSize(sPanel.getPreferredSize());
-	// get machine detail
-	final JPanel detailPane = new JPanel();
-	detailPane.add(new JLabel("Here goes future machine detail."));
-	schedulePanel.add(detailPane, BorderLayout.PAGE_START);
-	// get scrolling pane with a tree
-	final JScrollPane pane = new JScrollPane(MainFrame.tree);
-	pane.setWheelScrollingEnabled(true);
-	schedulePanel.add(pane, BorderLayout.CENTER);
+	public Container createContentPane() {
+		// get right panel
+		final JPanel schedulePanel = new JPanel();
+		schedulePanel.setLayout(new BorderLayout());
+		// get slider
+		final JPanel sPanel = new SliderPanel();
+		schedulePanel.add(sPanel, BorderLayout.PAGE_END);
+		schedulePanel.setMinimumSize(sPanel.getPreferredSize());
+		// get machine detail
+		final JPanel detailPane = new JPanel();
+		detailPane.add(new JLabel("Here goes future machine detail."));
+		schedulePanel.add(detailPane, BorderLayout.PAGE_START);
+		// get scrolling pane with a tree
+		final JScrollPane pane = new JScrollPane(MainFrame.tree);
+		pane.setWheelScrollingEnabled(true);
+		schedulePanel.add(pane, BorderLayout.CENTER);
 
-	// get left panel
-	final JPanel leftPanel = new JPanel();
-	// left stats sub-panel
-	leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.PAGE_AXIS));
-	final JPanel statsPanel = new JBorderedPanel("Statistics");
-	// get panel with group picker
-	leftPanel.add(statsPanel);
-	leftPanel.add(MainFrame.groupsPanel);
+		// get left panel
+		final JPanel leftPanel = new JPanel();
+		// left stats sub-panel
+		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.PAGE_AXIS));
+		final JPanel statsPanel = new JBorderedPanel("Statistics");
+		// get panel with group picker
+		leftPanel.add(statsPanel);
+		leftPanel.add(MainFrame.groupsPanel);
 
-	// Create a split pane with the two scroll panes in it.
-	final JSplitPane splitPane = new JSplitPane(
-		JSplitPane.HORIZONTAL_SPLIT, leftPanel, schedulePanel);
-	splitPane.setOneTouchExpandable(true);
-	return splitPane;
-    }
+		// Create a split pane with the two scroll panes in it.
+		final JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+		    leftPanel, schedulePanel);
+		splitPane.setOneTouchExpandable(true);
+		return splitPane;
+	}
 
-    public void update() {
-	MainFrame.groupsPanel.update();
-	this.pack();
-	this.repaint();
-    }
+	public void update() {
+		MainFrame.groupsPanel.update();
+		this.pack();
+		this.repaint();
+	}
 
 }

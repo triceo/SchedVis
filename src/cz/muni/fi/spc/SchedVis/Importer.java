@@ -59,239 +59,229 @@ import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleParser;
  */
 public class Importer extends SwingWorker<Void, Void> {
 
-    private final File machinesFile;
-    private final Integer machinesLineCount;
-    private final File dataFile;
-    private final Integer dataLineCount;
+	private final File machinesFile;
+	private final Integer machinesLineCount;
+	private final File dataFile;
+	private final Integer dataLineCount;
 
-    private Integer parsedLines = 0;
-    private Integer totalLines = 0;
+	private Integer parsedLines = 0;
+	private Integer totalLines = 0;
 
-    private boolean result = false;
+	private boolean result = false;
 
-    private final Map<String, Machine> machines = new HashMap<String, Machine>();
+	private final Map<String, Machine> machines = new HashMap<String, Machine>();
 
-    public Importer(final File machinesFile, final File dataFile) {
-	this.machinesFile = machinesFile;
-	this.machinesLineCount = this.countLines(machinesFile);
-	this.dataFile = dataFile;
-	this.dataLineCount = this.countLines(dataFile);
-    }
-
-    private Integer countLines(final File file) {
-	try {
-	    final LineNumberReader reader = new LineNumberReader(
-		    new FileReader(file));
-	    Integer count = 0;
-	    while (reader.readLine() != null) {
-		count++;
-	    }
-	    return count;
-	} catch (final FileNotFoundException e) {
-	    return 0;
-	} catch (final IOException e) {
-	    return 0;
+	public Importer(final File machinesFile, final File dataFile) {
+		this.machinesFile = machinesFile;
+		this.machinesLineCount = this.countLines(machinesFile);
+		this.dataFile = dataFile;
+		this.dataLineCount = this.countLines(dataFile);
 	}
-    }
 
-    @Override
-    public Void doInBackground() {
-	if (!this.machinesFile.canRead() || !this.dataFile.canRead()) {
-	    return null;
-	}
-	try {
-	    this.parseMachines(new BufferedReader(new FileReader(
-		    this.machinesFile)));
-	    this
-	    .parseDataSet(new BufferedReader(new FileReader(
-		    this.dataFile)));
-	} catch (final FileNotFoundException e) {
-	    return null;
-	} catch (cz.muni.fi.spc.SchedVis.parsers.ParseException e) {
-	    return null;
-	}
-	this.result = true;
-	return null;
-    }
-
-    /**
-     * @todo Remove this once second-level caching works fine.
-     * 
-     * @param name
-     * @return
-     */
-    private Machine getMachine(final String name) {
-	if (!this.machines.containsKey(name)) {
-	    this.machines.put(name, Machine.getWithName(name));
-	}
-	return this.machines.get(name);
-    }
-
-    public boolean isSuccess() {
-	return this.result;
-    }
-
-    public void nextLineParsed() {
-	this.parsedLines++;
-	final Double progress = (this.parsedLines * 100)
-	/ (double) (this.totalLines + 1);
-	if (progress > 100) {
-	    this.setProgress(100);
-	} else if (progress < 0) {
-	    this.setProgress(0);
-	} else {
-	    this.setProgress(progress.intValue());
-	}
-    }
-
-    /**
-     * Parse the data set and insert its data into database.
-     * 
-     * @param reader
-     * @throws ParseException
-     * @todo Somehow make jobs a table of its own.
-     * @todo Somehow make assigned-CPUs a table if its own.
-     */
-    private void parseDataSet(final BufferedReader reader)
-    throws cz.muni.fi.spc.SchedVis.parsers.ParseException {
-	this.setProgress(0);
-	final Map<String, Integer> eventTypes = new HashMap<String, Integer>();
-	eventTypes.put("job-arrival", EventType.EVENT_JOB_ARRIVAL);
-	eventTypes.put("job-execution-start",
-		EventType.EVENT_JOB_EXECUTION_START);
-	eventTypes.put("job-cancel", EventType.EVENT_JOB_CANCEL);
-	eventTypes.put("good-move", EventType.EVENT_JOB_MOVE_GOOD);
-	eventTypes.put("bad-move", EventType.EVENT_JOB_MOVE_BAD);
-	eventTypes.put("machine-failure", EventType.EVENT_MACHINE_FAILURE);
-	eventTypes.put("machine-failure-move-good",
-		EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD);
-	eventTypes.put("machine-failure-move-bad",
-		EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD);
-	eventTypes.put("machine-restart", EventType.EVENT_MACHINE_RESTART);
-	eventTypes.put("machine-restart-move-good",
-		EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD);
-	eventTypes.put("machine-restart-move-bad",
-		EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD);
-	final Iterator<Map.Entry<String, Integer>> eventTypeIterator = eventTypes
-	.entrySet().iterator();
-	final List<EventType> etl = new Vector<EventType>();
-	while (eventTypeIterator.hasNext()) {
-	    final EventType et = new EventType();
-	    final Map.Entry<String, Integer> item = eventTypeIterator.next();
-	    et.setId(item.getValue());
-	    et.setName(item.getKey());
-	    etl.add(et);
-	}
-	Database.persist(etl);
-	// parse data set
-	this.parsedLines = 0;
-	this.totalLines = this.dataLineCount;
-	final ScheduleParser parser = new ScheduleParser(reader);
-	parser.setImporter(this);
-	final List<ScheduleEvent> events = parser.read();
-	// fill the event's table
-	final Integer totalEvents = events.size();
-	Integer lineId = 0;
-	Integer eventId = 0;
-	final List<BaseEntity> bel = new Vector<BaseEntity>();
-	for (final ScheduleEvent event : events) {
-	    lineId++;
-	    eventId++;
-	    final Event evt = new Event();
-	    evt.setType(Database.getEntityManager().find(EventType.class,
-		    eventTypes.get(event.getName())));
-	    evt.setClock(event.getClock());
-	    if (event instanceof EventIsJobRelated) {
-		evt.setJob(((EventIsJobRelated) event).getJob());
-	    }
-	    if (event instanceof EventIsMachineRelated) {
-		evt.setSourceMachine(this
-			.getMachine(((EventIsMachineRelated) event)
-				.getMachine()));
-		if (event instanceof ScheduleEventMove) {
-		    evt.setTargetMachine(this
-			    .getMachine(((ScheduleEventMove) event)
-				    .getTargetMachine()));
+	private Integer countLines(final File file) {
+		try {
+			final LineNumberReader reader = new LineNumberReader(new FileReader(file));
+			Integer count = 0;
+			while (reader.readLine() != null) {
+				count++;
+			}
+			return count;
+		} catch (final FileNotFoundException e) {
+			return 0;
+		} catch (final IOException e) {
+			return 0;
 		}
-	    }
-	    bel.add(evt);
-	    if (event instanceof EventHasData) {
-		final List<ScheduleMachineData> data = ((EventHasData) event)
-		.getData();
-		for (final ScheduleMachineData machine : data) {
-		    eventId++;
-		    for (final ScheduleJobData job : machine.getJobs()) {
-			final Event evt2 = new Event();
-			evt2.setClock(event.getClock());
-			evt2.setSourceMachine(this.getMachine(machine
-				.getMachineId()));
-			evt2.setNeededCPUs(job.getNeededCPUs());
-			evt2.setAssignedCPUs(job.getAssignedCPUs());
-			evt2.setNeededPlatform(job.getArch());
-			evt2.setNeededRAM(job.getNeededMemory());
-			evt2.setNeededHDD(job.getNeededSpace());
-			evt2.setDeadline(job.getDeadline());
-			evt2.setExpectedStart(job.starts());
-			evt2.setExpectedEnd(job.ends());
-			evt2.setJob(job.getId());
-			evt2.setParent(evt);
-			bel.add(evt2);
-		    }
-		}
-	    }
-	    // update progress
-	    final Double progress = (((lineId * 100) / (double) totalEvents) / 2) + 50;
-	    this.setProgress(progress.intValue());
-	    if (bel.size() > 2000) { // persist some items
-		Database.persist(bel);
-		bel.clear();
-	    }
 	}
-	Database.persist(bel);
-    }
 
-    /**
-     * Parse the machines' input file, each line of which looks like this:
-     * "${NAME};${CPUs};${SPEED};${PLATFORM};${OS};${RAM};${HDD}" Where: ${NAME}
-     * is the name of the machine, ${CPUs} is the number of processors inside,
-     * ${SPEED} is the total cumulative speed of those CPUs (in MIPS),
-     * ${PLATFORM} is the architecture that the machine uses, ${OS} is the
-     * operating system the machine runs, ${RAM} is the amount of RAM available
-     * in the machine (in MBs) and ${HDD} is the amount of hard drive space
-     * available (in MBs)
-     * 
-     * @param reader
-     * @throws ParseException
-     */
-    private void parseMachines(final BufferedReader reader)
+	@Override
+	public Void doInBackground() {
+		if (!this.machinesFile.canRead() || !this.dataFile.canRead()) {
+			return null;
+		}
+		try {
+			this.parseMachines(new BufferedReader(new FileReader(this.machinesFile)));
+			this.parseDataSet(new BufferedReader(new FileReader(this.dataFile)));
+		} catch (final FileNotFoundException e) {
+			return null;
+		} catch (cz.muni.fi.spc.SchedVis.parsers.ParseException e) {
+			return null;
+		}
+		this.result = true;
+		return null;
+	}
+
+	/**
+	 * @todo Remove this once second-level caching works fine.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	private Machine getMachine(final String name) {
+		if (!this.machines.containsKey(name)) {
+			this.machines.put(name, Machine.getWithName(name));
+		}
+		return this.machines.get(name);
+	}
+
+	public boolean isSuccess() {
+		return this.result;
+	}
+
+	public void nextLineParsed() {
+		this.parsedLines++;
+		final Double progress = (this.parsedLines * 100)
+		    / (double) (this.totalLines + 1);
+		if (progress > 100) {
+			this.setProgress(100);
+		} else if (progress < 0) {
+			this.setProgress(0);
+		} else {
+			this.setProgress(progress.intValue());
+		}
+	}
+
+	/**
+	 * Parse the data set and insert its data into database.
+	 * 
+	 * @param reader
+	 * @throws ParseException
+	 * @todo Somehow make jobs a table of its own.
+	 * @todo Somehow make assigned-CPUs a table if its own.
+	 */
+	private void parseDataSet(final BufferedReader reader)
 	    throws cz.muni.fi.spc.SchedVis.parsers.ParseException {
-	// ready the parser
-	this.parsedLines = 0;
-	this.totalLines = this.machinesLineCount;
-	final MachinesParser parser = new MachinesParser(reader);
-	parser.setImporter(this);
-	final List<MachineData> machines = parser.read();
-	// fill the machines' table
-	final Integer totalMachines = machines.size();
-	Integer machineId = 0;
-	final List<Machine> machinesList = new Vector<Machine>();
-	for (final MachineData machine : machines) {
-	    machineId++;
-	    // persist data
-	    final Machine mcn = new Machine();
-	    mcn.setName(machine.getName());
-	    mcn.setCPUs(machine.getCPUCount());
-	    mcn.setSpeed(machine.getSpeed());
-	    mcn.setOS(machine.getOperatingSystem());
-	    mcn.setPlatform(machine.getArchitecture());
-	    mcn.setHDD(machine.getSpace());
-	    mcn.setRAM(machine.getMemory());
-	    machinesList.add(mcn);
-	    // update progress
-	    final Double progress = ((machineId * 100) / (double) totalMachines) / 2;
-	    this.setProgress(progress.intValue());
+		this.setProgress(0);
+		final Map<String, Integer> eventTypes = new HashMap<String, Integer>();
+		eventTypes.put("job-arrival", EventType.EVENT_JOB_ARRIVAL);
+		eventTypes.put("job-execution-start", EventType.EVENT_JOB_EXECUTION_START);
+		eventTypes.put("job-cancel", EventType.EVENT_JOB_CANCEL);
+		eventTypes.put("good-move", EventType.EVENT_JOB_MOVE_GOOD);
+		eventTypes.put("bad-move", EventType.EVENT_JOB_MOVE_BAD);
+		eventTypes.put("machine-failure", EventType.EVENT_MACHINE_FAILURE);
+		eventTypes.put("machine-failure-move-good",
+		    EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD);
+		eventTypes.put("machine-failure-move-bad",
+		    EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD);
+		eventTypes.put("machine-restart", EventType.EVENT_MACHINE_RESTART);
+		eventTypes.put("machine-restart-move-good",
+		    EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD);
+		eventTypes.put("machine-restart-move-bad",
+		    EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD);
+		final Iterator<Map.Entry<String, Integer>> eventTypeIterator = eventTypes
+		    .entrySet().iterator();
+		final List<EventType> etl = new Vector<EventType>();
+		while (eventTypeIterator.hasNext()) {
+			final EventType et = new EventType();
+			final Map.Entry<String, Integer> item = eventTypeIterator.next();
+			et.setId(item.getValue());
+			et.setName(item.getKey());
+			etl.add(et);
+		}
+		Database.persist(etl);
+		// parse data set
+		this.parsedLines = 0;
+		this.totalLines = this.dataLineCount;
+		final ScheduleParser parser = new ScheduleParser(reader);
+		parser.setImporter(this);
+		final List<ScheduleEvent> events = parser.read();
+		// fill the event's table
+		final Integer totalEvents = events.size();
+		Integer lineId = 0;
+		Integer eventId = 0;
+		final List<BaseEntity> bel = new Vector<BaseEntity>();
+		for (final ScheduleEvent event : events) {
+			lineId++;
+			eventId++;
+			final Event evt = new Event();
+			evt.setType(Database.getEntityManager().find(EventType.class,
+			    eventTypes.get(event.getName())));
+			evt.setClock(event.getClock());
+			if (event instanceof EventIsJobRelated) {
+				evt.setJob(((EventIsJobRelated) event).getJob());
+			}
+			if (event instanceof EventIsMachineRelated) {
+				evt.setSourceMachine(this.getMachine(((EventIsMachineRelated) event)
+				    .getMachine()));
+				if (event instanceof ScheduleEventMove) {
+					evt.setTargetMachine(this.getMachine(((ScheduleEventMove) event)
+					    .getTargetMachine()));
+				}
+			}
+			bel.add(evt);
+			if (event instanceof EventHasData) {
+				final List<ScheduleMachineData> data = ((EventHasData) event).getData();
+				for (final ScheduleMachineData machine : data) {
+					eventId++;
+					for (final ScheduleJobData job : machine.getJobs()) {
+						final Event evt2 = new Event();
+						evt2.setClock(event.getClock());
+						evt2.setSourceMachine(this.getMachine(machine.getMachineId()));
+						evt2.setNeededCPUs(job.getNeededCPUs());
+						evt2.setAssignedCPUs(job.getAssignedCPUs());
+						evt2.setNeededPlatform(job.getArch());
+						evt2.setNeededRAM(job.getNeededMemory());
+						evt2.setNeededHDD(job.getNeededSpace());
+						evt2.setDeadline(job.getDeadline());
+						evt2.setExpectedStart(job.starts());
+						evt2.setExpectedEnd(job.ends());
+						evt2.setJob(job.getId());
+						evt2.setParent(evt);
+						bel.add(evt2);
+					}
+				}
+			}
+			// update progress
+			final Double progress = (((lineId * 100) / (double) totalEvents) / 2) + 50;
+			this.setProgress(progress.intValue());
+			if (bel.size() > 2000) { // persist some items
+				Database.persist(bel);
+				bel.clear();
+			}
+		}
+		Database.persist(bel);
 	}
-	Database.persist(machinesList);
-    }
+
+	/**
+	 * Parse the machines' input file, each line of which looks like this:
+	 * "${NAME};${CPUs};${SPEED};${PLATFORM};${OS};${RAM};${HDD}" Where: ${NAME}
+	 * is the name of the machine, ${CPUs} is the number of processors inside,
+	 * ${SPEED} is the total cumulative speed of those CPUs (in MIPS), ${PLATFORM}
+	 * is the architecture that the machine uses, ${OS} is the operating system
+	 * the machine runs, ${RAM} is the amount of RAM available in the machine (in
+	 * MBs) and ${HDD} is the amount of hard drive space available (in MBs)
+	 * 
+	 * @param reader
+	 * @throws ParseException
+	 */
+	private void parseMachines(final BufferedReader reader)
+	    throws cz.muni.fi.spc.SchedVis.parsers.ParseException {
+		// ready the parser
+		this.parsedLines = 0;
+		this.totalLines = this.machinesLineCount;
+		final MachinesParser parser = new MachinesParser(reader);
+		parser.setImporter(this);
+		final List<MachineData> machines = parser.read();
+		// fill the machines' table
+		final Integer totalMachines = machines.size();
+		Integer machineId = 0;
+		final List<Machine> machinesList = new Vector<Machine>();
+		for (final MachineData machine : machines) {
+			machineId++;
+			// persist data
+			final Machine mcn = new Machine();
+			mcn.setName(machine.getName());
+			mcn.setCPUs(machine.getCPUCount());
+			mcn.setSpeed(machine.getSpeed());
+			mcn.setOS(machine.getOperatingSystem());
+			mcn.setPlatform(machine.getArchitecture());
+			mcn.setHDD(machine.getSpace());
+			mcn.setRAM(machine.getMemory());
+			machinesList.add(mcn);
+			// update progress
+			final Double progress = ((machineId * 100) / (double) totalMachines) / 2;
+			this.setProgress(progress.intValue());
+		}
+		Database.persist(machinesList);
+	}
 
 }

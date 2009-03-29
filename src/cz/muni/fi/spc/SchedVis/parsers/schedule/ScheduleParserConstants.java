@@ -24,32 +24,31 @@ package cz.muni.fi.spc.SchedVis.parsers.schedule;
  */
 public interface ScheduleParserConstants {
 
-    /** End of File. */
-    int EOF = 0;
-    /** RegularExpression Id. */
-    int CONSTANT = 1;
-    /** RegularExpression Id. */
-    int CONSTANT_LIST = 2;
-    /** RegularExpression Id. */
-    int DIGIT = 3;
-    /** RegularExpression Id. */
-    int STRING = 4;
-    /** RegularExpression Id. */
-    int WHITESPACE = 5;
-    /** RegularExpression Id. */
-    int MOVE_EVENT_FLAG = 6;
-    /** RegularExpression Id. */
-    int MACHINE_EVENT_FLAG = 7;
-    /** RegularExpression Id. */
-    int IO_EVENT_FLAG = 8;
+	/** End of File. */
+	int EOF = 0;
+	/** RegularExpression Id. */
+	int CONSTANT = 1;
+	/** RegularExpression Id. */
+	int CONSTANT_LIST = 2;
+	/** RegularExpression Id. */
+	int DIGIT = 3;
+	/** RegularExpression Id. */
+	int STRING = 4;
+	/** RegularExpression Id. */
+	int WHITESPACE = 5;
+	/** RegularExpression Id. */
+	int MOVE_EVENT_FLAG = 6;
+	/** RegularExpression Id. */
+	int MACHINE_EVENT_FLAG = 7;
+	/** RegularExpression Id. */
+	int IO_EVENT_FLAG = 8;
 
-    /** Lexical state. */
-    int DEFAULT = 0;
+	/** Lexical state. */
+	int DEFAULT = 0;
 
-    /** Literal token values. */
-    String[] tokenImage = { "<EOF>", "<CONSTANT>", "<CONSTANT_LIST>",
-	    "<DIGIT>", "<STRING>", "<WHITESPACE>", "<MOVE_EVENT_FLAG>",
-	    "<MACHINE_EVENT_FLAG>", "<IO_EVENT_FLAG>", "\"\\n\"", "\"<\"",
-	    "\"|\"", "\">\"", "\";\"", };
+	/** Literal token values. */
+	String[] tokenImage = { "<EOF>", "<CONSTANT>", "<CONSTANT_LIST>", "<DIGIT>",
+	    "<STRING>", "<WHITESPACE>", "<MOVE_EVENT_FLAG>", "<MACHINE_EVENT_FLAG>",
+	    "<IO_EVENT_FLAG>", "\"\\n\"", "\"<\"", "\"|\"", "\">\"", "\";\"", };
 
 }

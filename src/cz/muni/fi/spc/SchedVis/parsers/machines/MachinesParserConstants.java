@@ -24,20 +24,20 @@ package cz.muni.fi.spc.SchedVis.parsers.machines;
  */
 public interface MachinesParserConstants {
 
-    /** End of File. */
-    int EOF = 0;
-    /** RegularExpression Id. */
-    int CONSTANT = 1;
-    /** RegularExpression Id. */
-    int DIGIT = 2;
-    /** RegularExpression Id. */
-    int STRING = 3;
+	/** End of File. */
+	int EOF = 0;
+	/** RegularExpression Id. */
+	int CONSTANT = 1;
+	/** RegularExpression Id. */
+	int DIGIT = 2;
+	/** RegularExpression Id. */
+	int STRING = 3;
 
-    /** Lexical state. */
-    int DEFAULT = 0;
+	/** Lexical state. */
+	int DEFAULT = 0;
 
-    /** Literal token values. */
-    String[] tokenImage = { "<EOF>", "<CONSTANT>", "<DIGIT>", "<STRING>",
+	/** Literal token values. */
+	String[] tokenImage = { "<EOF>", "<CONSTANT>", "<DIGIT>", "<STRING>",
 	    "\"\\n\"", "\";\"", };
 
 }

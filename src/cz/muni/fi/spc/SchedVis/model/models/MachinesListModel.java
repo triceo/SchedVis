@@ -31,28 +31,28 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
  */
 public class MachinesListModel extends DefaultListModel {
 
-    /**
+	/**
      * 
      */
-    private static final long serialVersionUID = 7269134473621539118L;
+	private static final long serialVersionUID = 7269134473621539118L;
 
-    private final Integer groupId;
+	private final Integer groupId;
 
-    /**
+	/**
      * 
      */
-    public MachinesListModel(final Integer groupId,
+	public MachinesListModel(final Integer groupId,
 	    final ListDataListener listener) {
-	this.groupId = groupId;
-	this.update();
-	this.addListDataListener(listener);
-    }
-
-    public void update() {
-	this.removeAllElements();
-	for (final Machine item : Machine.getAll(this.groupId)) {
-	    this.addElement(item.getName());
+		this.groupId = groupId;
+		this.update();
+		this.addListDataListener(listener);
 	}
-    }
+
+	public void update() {
+		this.removeAllElements();
+		for (final Machine item : Machine.getAll(this.groupId)) {
+			this.addElement(item.getName());
+		}
+	}
 
 }

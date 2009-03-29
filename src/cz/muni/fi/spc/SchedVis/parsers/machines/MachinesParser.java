@@ -24,286 +24,283 @@ import cz.muni.fi.spc.SchedVis.parsers.SimpleCharStream;
 import cz.muni.fi.spc.SchedVis.parsers.Token;
 
 public class MachinesParser extends Parser implements MachinesParserConstants {
-    public static void main(final String args[]) throws ParseException {
-	try {
-	    MachinesParser parser = new MachinesParser(System.in);
-	    MachinesList machines = parser.read();
-	    System.out.println("Successfully read " + machines.size()
-		    + " machines!");
-	} catch (Exception e) {
-	    System.out.println("NOK.");
-	    System.out.println(e.getMessage());
-	} catch (Error e) {
-	    System.out.println("Oops.");
-	    System.out.println(e.getMessage());
-	}
-    }
-
-    /** Generated Token Manager. */
-    public MachinesParserTokenManager token_source;
-
-    SimpleCharStream jj_input_stream;
-
-    /** Current token. */
-    public Token token;
-    /** Next token. */
-    public Token jj_nt;
-    private int jj_gen;
-    final private int[] jj_la1 = new int[2];
-    static private int[] jj_la1_0;
-    static {
-	MachinesParser.jj_la1_init_0();
-    }
-
-    private static void jj_la1_init_0() {
-	MachinesParser.jj_la1_0 = new int[] { 0x8, 0x10, };
-    }
-
-    private final java.util.List jj_expentries = new java.util.ArrayList();
-    private int[] jj_expentry;
-
-    private int jj_kind = -1;
-
-    /** Constructor with InputStream. */
-    public MachinesParser(final java.io.InputStream stream) {
-	this(stream, null);
-    }
-
-    /** Constructor with InputStream and supplied encoding */
-    public MachinesParser(final java.io.InputStream stream,
-	    final String encoding) {
-	try {
-	    this.jj_input_stream = new SimpleCharStream(stream, encoding, 1, 1);
-	} catch (java.io.UnsupportedEncodingException e) {
-	    throw new RuntimeException(e);
-	}
-	this.token_source = new MachinesParserTokenManager(this.jj_input_stream);
-	this.token = new Token();
-	this.token.next = this.jj_nt = this.token_source.getNextToken();
-	this.jj_gen = 0;
-	for (int i = 0; i < 2; i++) {
-	    this.jj_la1[i] = -1;
-	}
-    }
-
-    /** Constructor. */
-    public MachinesParser(final java.io.Reader stream) {
-	this.jj_input_stream = new SimpleCharStream(stream, 1, 1);
-	this.token_source = new MachinesParserTokenManager(this.jj_input_stream);
-	this.token = new Token();
-	this.token.next = this.jj_nt = this.token_source.getNextToken();
-	this.jj_gen = 0;
-	for (int i = 0; i < 2; i++) {
-	    this.jj_la1[i] = -1;
-	}
-    }
-
-    /** Constructor with generated Token Manager. */
-    public MachinesParser(final MachinesParserTokenManager tm) {
-	this.token_source = tm;
-	this.token = new Token();
-	this.token.next = this.jj_nt = this.token_source.getNextToken();
-	this.jj_gen = 0;
-	for (int i = 0; i < 2; i++) {
-	    this.jj_la1[i] = -1;
-	}
-    }
-
-    /** Disable tracing. */
-    final public void disable_tracing() {
-    }
-
-    /** Enable tracing. */
-    final public void enable_tracing() {
-    }
-
-    /** Generate ParseException. */
-    public ParseException generateParseException() {
-	this.jj_expentries.clear();
-	boolean[] la1tokens = new boolean[6];
-	if (this.jj_kind >= 0) {
-	    la1tokens[this.jj_kind] = true;
-	    this.jj_kind = -1;
-	}
-	for (int i = 0; i < 2; i++) {
-	    if (this.jj_la1[i] == this.jj_gen) {
-		for (int j = 0; j < 32; j++) {
-		    if ((MachinesParser.jj_la1_0[i] & (1 << j)) != 0) {
-			la1tokens[j] = true;
-		    }
+	public static void main(final String args[]) throws ParseException {
+		try {
+			MachinesParser parser = new MachinesParser(System.in);
+			MachinesList machines = parser.read();
+			System.out.println("Successfully read " + machines.size() + " machines!");
+		} catch (Exception e) {
+			System.out.println("NOK.");
+			System.out.println(e.getMessage());
+		} catch (Error e) {
+			System.out.println("Oops.");
+			System.out.println(e.getMessage());
 		}
-	    }
 	}
-	for (int i = 0; i < 6; i++) {
-	    if (la1tokens[i]) {
-		this.jj_expentry = new int[1];
-		this.jj_expentry[0] = i;
-		this.jj_expentries.add(this.jj_expentry);
-	    }
-	}
-	int[][] exptokseq = new int[this.jj_expentries.size()][];
-	for (int i = 0; i < this.jj_expentries.size(); i++) {
-	    exptokseq[i] = (int[]) this.jj_expentries.get(i);
-	}
-	return new ParseException(this.token, exptokseq,
-		MachinesParserConstants.tokenImage);
-    }
 
-    /** Get the next Token. */
-    final public Token getNextToken() {
-	if ((this.token = this.jj_nt).next != null) {
-	    this.jj_nt = this.jj_nt.next;
-	} else {
-	    this.jj_nt = this.jj_nt.next = this.token_source.getNextToken();
-	}
-	this.jj_gen++;
-	return this.token;
-    }
+	/** Generated Token Manager. */
+	public MachinesParserTokenManager token_source;
 
-    /** Get the specific Token. */
-    final public Token getToken(final int index) {
-	Token t = this.token;
-	for (int i = 0; i < index; i++) {
-	    if (t.next != null) {
-		t = t.next;
-	    } else {
-		t = t.next = this.token_source.getNextToken();
-	    }
-	}
-	return t;
-    }
+	SimpleCharStream jj_input_stream;
 
-    private Token jj_consume_token(final int kind) throws ParseException {
-	Token oldToken = this.token;
-	if ((this.token = this.jj_nt).next != null) {
-	    this.jj_nt = this.jj_nt.next;
-	} else {
-	    this.jj_nt = this.jj_nt.next = this.token_source.getNextToken();
+	/** Current token. */
+	public Token token;
+	/** Next token. */
+	public Token jj_nt;
+	private int jj_gen;
+	final private int[] jj_la1 = new int[2];
+	static private int[] jj_la1_0;
+	static {
+		MachinesParser.jj_la1_init_0();
 	}
-	if (this.token.kind == kind) {
-	    this.jj_gen++;
-	    return this.token;
-	}
-	this.jj_nt = this.token;
-	this.token = oldToken;
-	this.jj_kind = kind;
-	throw this.generateParseException();
-    }
 
-    final public MachinesList machine_data(final MachinesList machines)
+	private static void jj_la1_init_0() {
+		MachinesParser.jj_la1_0 = new int[] { 0x8, 0x10, };
+	}
+
+	private final java.util.List jj_expentries = new java.util.ArrayList();
+	private int[] jj_expentry;
+
+	private int jj_kind = -1;
+
+	/** Constructor with InputStream. */
+	public MachinesParser(final java.io.InputStream stream) {
+		this(stream, null);
+	}
+
+	/** Constructor with InputStream and supplied encoding */
+	public MachinesParser(final java.io.InputStream stream, final String encoding) {
+		try {
+			this.jj_input_stream = new SimpleCharStream(stream, encoding, 1, 1);
+		} catch (java.io.UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+		this.token_source = new MachinesParserTokenManager(this.jj_input_stream);
+		this.token = new Token();
+		this.token.next = this.jj_nt = this.token_source.getNextToken();
+		this.jj_gen = 0;
+		for (int i = 0; i < 2; i++) {
+			this.jj_la1[i] = -1;
+		}
+	}
+
+	/** Constructor. */
+	public MachinesParser(final java.io.Reader stream) {
+		this.jj_input_stream = new SimpleCharStream(stream, 1, 1);
+		this.token_source = new MachinesParserTokenManager(this.jj_input_stream);
+		this.token = new Token();
+		this.token.next = this.jj_nt = this.token_source.getNextToken();
+		this.jj_gen = 0;
+		for (int i = 0; i < 2; i++) {
+			this.jj_la1[i] = -1;
+		}
+	}
+
+	/** Constructor with generated Token Manager. */
+	public MachinesParser(final MachinesParserTokenManager tm) {
+		this.token_source = tm;
+		this.token = new Token();
+		this.token.next = this.jj_nt = this.token_source.getNextToken();
+		this.jj_gen = 0;
+		for (int i = 0; i < 2; i++) {
+			this.jj_la1[i] = -1;
+		}
+	}
+
+	/** Disable tracing. */
+	final public void disable_tracing() {
+	}
+
+	/** Enable tracing. */
+	final public void enable_tracing() {
+	}
+
+	/** Generate ParseException. */
+	public ParseException generateParseException() {
+		this.jj_expentries.clear();
+		boolean[] la1tokens = new boolean[6];
+		if (this.jj_kind >= 0) {
+			la1tokens[this.jj_kind] = true;
+			this.jj_kind = -1;
+		}
+		for (int i = 0; i < 2; i++) {
+			if (this.jj_la1[i] == this.jj_gen) {
+				for (int j = 0; j < 32; j++) {
+					if ((MachinesParser.jj_la1_0[i] & (1 << j)) != 0) {
+						la1tokens[j] = true;
+					}
+				}
+			}
+		}
+		for (int i = 0; i < 6; i++) {
+			if (la1tokens[i]) {
+				this.jj_expentry = new int[1];
+				this.jj_expentry[0] = i;
+				this.jj_expentries.add(this.jj_expentry);
+			}
+		}
+		int[][] exptokseq = new int[this.jj_expentries.size()][];
+		for (int i = 0; i < this.jj_expentries.size(); i++) {
+			exptokseq[i] = (int[]) this.jj_expentries.get(i);
+		}
+		return new ParseException(this.token, exptokseq,
+		    MachinesParserConstants.tokenImage);
+	}
+
+	/** Get the next Token. */
+	final public Token getNextToken() {
+		if ((this.token = this.jj_nt).next != null) {
+			this.jj_nt = this.jj_nt.next;
+		} else {
+			this.jj_nt = this.jj_nt.next = this.token_source.getNextToken();
+		}
+		this.jj_gen++;
+		return this.token;
+	}
+
+	/** Get the specific Token. */
+	final public Token getToken(final int index) {
+		Token t = this.token;
+		for (int i = 0; i < index; i++) {
+			if (t.next != null) {
+				t = t.next;
+			} else {
+				t = t.next = this.token_source.getNextToken();
+			}
+		}
+		return t;
+	}
+
+	private Token jj_consume_token(final int kind) throws ParseException {
+		Token oldToken = this.token;
+		if ((this.token = this.jj_nt).next != null) {
+			this.jj_nt = this.jj_nt.next;
+		} else {
+			this.jj_nt = this.jj_nt.next = this.token_source.getNextToken();
+		}
+		if (this.token.kind == kind) {
+			this.jj_gen++;
+			return this.token;
+		}
+		this.jj_nt = this.token;
+		this.token = oldToken;
+		this.jj_kind = kind;
+		throw this.generateParseException();
+	}
+
+	final public MachinesList machine_data(final MachinesList machines)
 	    throws ParseException {
-	if (this.getImporter() != null) {
-	    this.getImporter().nextLineParsed();
+		if (this.getImporter() != null) {
+			this.getImporter().nextLineParsed();
+		}
+		Token name;
+		Token numCPUs;
+		Token speed;
+		Token arch;
+		Token os;
+		Token mem;
+		Token space;
+		name = this.jj_consume_token(MachinesParserConstants.STRING);
+		this.jj_consume_token(5);
+		numCPUs = this.jj_consume_token(MachinesParserConstants.CONSTANT);
+		this.jj_consume_token(5);
+		speed = this.jj_consume_token(MachinesParserConstants.CONSTANT);
+		this.jj_consume_token(5);
+		arch = this.jj_consume_token(MachinesParserConstants.STRING);
+		this.jj_consume_token(5);
+		os = this.jj_consume_token(MachinesParserConstants.STRING);
+		this.jj_consume_token(5);
+		mem = this.jj_consume_token(MachinesParserConstants.CONSTANT);
+		this.jj_consume_token(5);
+		space = this.jj_consume_token(MachinesParserConstants.CONSTANT);
+		this.jj_consume_token(4);
+		machines.add(new MachineData(name, numCPUs, speed, arch, os, mem, space));
+		if (this.getImporter() != null) {
+			this.getImporter().nextLineParsed();
+		}
+		{
+			if (true) {
+				return machines;
+			}
+		}
+		throw new Error("Missing return statement in function");
 	}
-	Token name;
-	Token numCPUs;
-	Token speed;
-	Token arch;
-	Token os;
-	Token mem;
-	Token space;
-	name = this.jj_consume_token(MachinesParserConstants.STRING);
-	this.jj_consume_token(5);
-	numCPUs = this.jj_consume_token(MachinesParserConstants.CONSTANT);
-	this.jj_consume_token(5);
-	speed = this.jj_consume_token(MachinesParserConstants.CONSTANT);
-	this.jj_consume_token(5);
-	arch = this.jj_consume_token(MachinesParserConstants.STRING);
-	this.jj_consume_token(5);
-	os = this.jj_consume_token(MachinesParserConstants.STRING);
-	this.jj_consume_token(5);
-	mem = this.jj_consume_token(MachinesParserConstants.CONSTANT);
-	this.jj_consume_token(5);
-	space = this.jj_consume_token(MachinesParserConstants.CONSTANT);
-	this.jj_consume_token(4);
-	machines
-		.add(new MachineData(name, numCPUs, speed, arch, os, mem, space));
-	if (this.getImporter() != null) {
-	    this.getImporter().nextLineParsed();
-	}
-	{
-	    if (true) {
-		return machines;
-	    }
-	}
-	throw new Error("Missing return statement in function");
-    }
 
-    final public MachinesList read() throws ParseException {
-	MachinesList machines = new MachinesList();
-	label_1: while (true) {
-	    machines = this.machine_data(machines);
-	    switch (this.jj_nt.kind) {
-	    case STRING:
-		;
-		break;
-	    default:
-		this.jj_la1[0] = this.jj_gen;
-		break label_1;
-	    }
+	final public MachinesList read() throws ParseException {
+		MachinesList machines = new MachinesList();
+		label_1: while (true) {
+			machines = this.machine_data(machines);
+			switch (this.jj_nt.kind) {
+			case STRING:
+				;
+				break;
+			default:
+				this.jj_la1[0] = this.jj_gen;
+				break label_1;
+			}
+		}
+		label_2: while (true) {
+			switch (this.jj_nt.kind) {
+			case 4:
+				;
+				break;
+			default:
+				this.jj_la1[1] = this.jj_gen;
+				break label_2;
+			}
+			this.jj_consume_token(4);
+		}
+		this.jj_consume_token(0);
+		{
+			if (true) {
+				return machines;
+			}
+		}
+		throw new Error("Missing return statement in function");
 	}
-	label_2: while (true) {
-	    switch (this.jj_nt.kind) {
-	    case 4:
-		;
-		break;
-	    default:
-		this.jj_la1[1] = this.jj_gen;
-		break label_2;
-	    }
-	    this.jj_consume_token(4);
-	}
-	this.jj_consume_token(0);
-	{
-	    if (true) {
-		return machines;
-	    }
-	}
-	throw new Error("Missing return statement in function");
-    }
 
-    /** Reinitialise. */
-    public void ReInit(final java.io.InputStream stream) {
-	this.ReInit(stream, null);
-    }
+	/** Reinitialise. */
+	public void ReInit(final java.io.InputStream stream) {
+		this.ReInit(stream, null);
+	}
 
-    /** Reinitialise. */
-    public void ReInit(final java.io.InputStream stream, final String encoding) {
-	try {
-	    this.jj_input_stream.ReInit(stream, encoding, 1, 1);
-	} catch (java.io.UnsupportedEncodingException e) {
-	    throw new RuntimeException(e);
+	/** Reinitialise. */
+	public void ReInit(final java.io.InputStream stream, final String encoding) {
+		try {
+			this.jj_input_stream.ReInit(stream, encoding, 1, 1);
+		} catch (java.io.UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+		this.token_source.ReInit(this.jj_input_stream);
+		this.token = new Token();
+		this.token.next = this.jj_nt = this.token_source.getNextToken();
+		this.jj_gen = 0;
+		for (int i = 0; i < 2; i++) {
+			this.jj_la1[i] = -1;
+		}
 	}
-	this.token_source.ReInit(this.jj_input_stream);
-	this.token = new Token();
-	this.token.next = this.jj_nt = this.token_source.getNextToken();
-	this.jj_gen = 0;
-	for (int i = 0; i < 2; i++) {
-	    this.jj_la1[i] = -1;
-	}
-    }
 
-    /** Reinitialise. */
-    public void ReInit(final java.io.Reader stream) {
-	this.jj_input_stream.ReInit(stream, 1, 1);
-	this.token_source.ReInit(this.jj_input_stream);
-	this.token = new Token();
-	this.token.next = this.jj_nt = this.token_source.getNextToken();
-	this.jj_gen = 0;
-	for (int i = 0; i < 2; i++) {
-	    this.jj_la1[i] = -1;
+	/** Reinitialise. */
+	public void ReInit(final java.io.Reader stream) {
+		this.jj_input_stream.ReInit(stream, 1, 1);
+		this.token_source.ReInit(this.jj_input_stream);
+		this.token = new Token();
+		this.token.next = this.jj_nt = this.token_source.getNextToken();
+		this.jj_gen = 0;
+		for (int i = 0; i < 2; i++) {
+			this.jj_la1[i] = -1;
+		}
 	}
-    }
 
-    /** Reinitialise. */
-    public void ReInit(final MachinesParserTokenManager tm) {
-	this.token_source = tm;
-	this.token = new Token();
-	this.token.next = this.jj_nt = this.token_source.getNextToken();
-	this.jj_gen = 0;
-	for (int i = 0; i < 2; i++) {
-	    this.jj_la1[i] = -1;
+	/** Reinitialise. */
+	public void ReInit(final MachinesParserTokenManager tm) {
+		this.token_source = tm;
+		this.token = new Token();
+		this.token.next = this.jj_nt = this.token_source.getNextToken();
+		this.jj_gen = 0;
+		for (int i = 0; i < 2; i++) {
+			this.jj_la1[i] = -1;
+		}
 	}
-    }
 
 }

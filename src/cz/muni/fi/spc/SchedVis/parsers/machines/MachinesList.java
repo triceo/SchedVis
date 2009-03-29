@@ -31,9 +31,9 @@ import java.util.Vector;
  */
 public final class MachinesList extends Vector<MachineData> {
 
-    /**
+	/**
      * 
      */
-    private static final long serialVersionUID = -2637457384823887767L;
+	private static final long serialVersionUID = -2637457384823887767L;
 
 }
