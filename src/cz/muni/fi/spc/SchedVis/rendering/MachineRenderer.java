@@ -343,9 +343,13 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	 * @return
 	 */
 	private int getZero() {
-		return Math.round(Math.abs(Math.min(this.events.get(0).getExpectedStart()
-		    - this.clock, 0))
-		    * MachineRenderer.NUM_PIXELS_PER_TICK);
+		try {
+			return Math.round(Math.abs(Math.min(this.events.get(0).getExpectedStart()
+			    - this.clock, 0))
+			    * MachineRenderer.NUM_PIXELS_PER_TICK);
+		} catch (Exception e) {
+			return 0;
+		}
 	}
 
 }
