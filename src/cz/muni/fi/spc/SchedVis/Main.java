@@ -53,20 +53,54 @@ public final class Main implements PropertyChangeListener {
 
 	private static MainFrame frame;
 
+	/**
+	 * Number of finished renderers. Used for calculating caching progress.
+	 */
 	private static Integer doneRenderers = 0;
+	/**
+	 * Total number of renderers available. Used for calculating caching progress.
+	 */
 	private static Integer totalRenderers = 0;
-	private static Integer queuedRenderers = 0;
+	/**
+	 * Hash codes of renderers that are in the queue. Used for calculating caching
+	 * progress.
+	 */
+	private static Set<Integer> queuedRenderers = new HashSet<Integer>();
 
+	/**
+	 * How many threads at most should be executing at the same time.
+	 */
 	private static final Integer MAX_RENDERER_THREADS = 32;
-	private static final Integer MAX_QUEUED_RENDERERS = Main.MAX_RENDERER_THREADS * 4;
+	/**
+	 * How many renderers should be ready to be executed when some other renderer
+	 * finishes. If this number is set too low, it will be increased
+	 * automatically.
+	 */
+	private static Integer MAX_QUEUED_RENDERERS = Main.MAX_RENDERER_THREADS * 2;
 
+	/**
+	 * Time in nanoseconds when we last reported progress of caching.
+	 */
 	private static Long lastReportTime;
 
 	private static Logger logger = Logger.getLogger(Main.class);
 
+	/**
+	 * When the caching started. In nanoseconds.
+	 */
 	private static Double startProcessingTime;
 
+	/**
+	 * Stores few latest processing times. This is used to calculate the estimated
+	 * time remaining to finish caching.
+	 */
 	private static Queue<Double> lastProcessingTimes = new LinkedList<Double>();
+
+	/**
+	 * When was the queue of renderers lenghtened last time. Lenghtening the queue
+	 * prevents the thread pool from running under its limits.
+	 */
+	private static Long lastDoubledQueueLength = new Long(0);
 
 	/**
 	 * Estimate a remaining time that a job will take.
@@ -168,15 +202,16 @@ public final class Main implements PropertyChangeListener {
 		Integer initialRenderers = 0;
 		for (Integer clock : ticks) {
 			for (Machine m : machines) {
-				e.submit(new MachineRenderer(m, clock, true, Main.main));
-				Main.queuedRenderers++;
-				if (Main.queuedRenderers > Main.MAX_QUEUED_RENDERERS) {
+				MachineRenderer mr = new MachineRenderer(m, clock, true, Main.main);
+				e.submit(mr);
+				Main.queuedRenderers.add(mr.hashCode());
+				if (Main.queuedRenderers.size() > Main.MAX_QUEUED_RENDERERS) {
 					try {
 						Main.logger.debug("Enqueued "
-						    + (Main.queuedRenderers - initialRenderers)
+						    + (Main.queuedRenderers.size() - initialRenderers)
 						    + " more renderers.");
 						Main.main.wait();
-						initialRenderers = Main.queuedRenderers;
+						initialRenderers = Main.queuedRenderers.size();
 					} catch (InterruptedException ex) {
 						// do nothing
 					}
@@ -186,8 +221,11 @@ public final class Main implements PropertyChangeListener {
 
 		System.out
 		    .println("Please wait while the rest of the schedules are being rendered...");
+		System.out
+		    .println("(If it's not doing anything for a while, it's safe to terminate the process.)");
+		System.out.println("");
 		e.shutdown();
-		while (!e.isTerminated()) {
+		while (Main.queuedRenderers.size() > 0) {
 			try {
 				Main.main.wait();
 			} catch (InterruptedException ex) {
@@ -257,13 +295,32 @@ public final class Main implements PropertyChangeListener {
 	@Override
 	public synchronized void propertyChange(final PropertyChangeEvent evt) {
 		Double leastPossibleQueueLength = (Main.MAX_QUEUED_RENDERERS - Main.MAX_RENDERER_THREADS) * 0.5;
-		if (Main.queuedRenderers < leastPossibleQueueLength) {
+		if (Main.queuedRenderers.size() < leastPossibleQueueLength) {
 			// wake up the main thread to add some more renderers to the queue
 			this.notifyAll();
+			if (Main.queuedRenderers.size() == 0) {
+				// no need to run through this whole method when there are no renderers
+				return;
+			}
 		}
-		if (((MachineRenderer) evt.getSource()).isDone()) {
+		Double criticallyLowQueueLength = leastPossibleQueueLength / 5;
+		if (Main.queuedRenderers.size() < criticallyLowQueueLength) {
+			// should the queue not be long enough, work harder to enlarge it
+			if ((System.nanoTime() - Main.lastDoubledQueueLength) > 2000000000) {
+				Main.logger.warn("Doubling renderer queue length.");
+				Main.MAX_QUEUED_RENDERERS = Main.MAX_QUEUED_RENDERERS * 2;
+				// but only once every two seconds.
+				Main.lastDoubledQueueLength = System.nanoTime();
+			}
+		}
+		MachineRenderer m = (MachineRenderer) evt.getSource();
+		if (m.isDone() && !m.isCancelled()) {
+			if (!Main.queuedRenderers.remove(m.hashCode())) {
+				// if the renderer is already removed, don't show progress information
+				// for it
+				return;
+			}
 			Main.doneRenderers++;
-			Main.queuedRenderers--;
 			Integer perMille = Main.totalRenderers / 1000;
 			if (Main.doneRenderers % perMille == 0) {
 				Long timeItTook = (System.nanoTime() - Main.lastReportTime);
@@ -285,11 +342,5 @@ public final class Main implements PropertyChangeListener {
 				        .sprintf(timeLeft / 1000.0 / 1000.0 / 1000.0) + "s more.");
 			}
 		}
-		if (Main.queuedRenderers == 0) {
-			// notify the main thread that there are no renderers left
-			Main.logger.debug("Waking main thread with no more renderers.");
-			this.notifyAll();
-		}
 	}
-
 }
