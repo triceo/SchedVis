@@ -136,14 +136,11 @@ public final class Main implements PropertyChangeListener {
 	}
 
 	public static void main(final String[] args) {
-		if (args.length < 1) {
+		if (args.length != 1) {
 			Main.printUsageAndExit();
 		}
 		if ("run".equals(args[0]) || "cache".equals(args[0])) {
-			if (args.length != 2) {
-				Main.printUsageAndExit();
-			}
-			File dbFile = new File(args[1]);
+			File dbFile = Configuration.getDatabaseFile();
 			if (dbFile.exists()) {
 				Database.use(dbFile.getAbsolutePath());
 			} else {
@@ -157,17 +154,19 @@ public final class Main implements PropertyChangeListener {
 				Main.main.cache();
 			}
 		} else {
-			if (args.length != 4) {
-				Main.printUsageAndExit();
-			}
-			File machinesFile = new File(args[1]);
+			File machinesFile = Configuration.getMachinesFile();
 			if (!machinesFile.exists()) {
 				System.out.print("Machines file " + machinesFile.getAbsolutePath()
 				    + " cannot be found! ");
 				Main.printUsageAndExit();
 			}
-			File dataFile = new File(args[2]);
-			File dbFile = new File(args[3]);
+			File dataFile = Configuration.getEventsFile();
+			if (!dataFile.exists()) {
+				System.out.print("Machines file " + dataFile.getAbsolutePath()
+				    + " cannot be found! ");
+				Main.printUsageAndExit();
+			}
+			File dbFile = Configuration.getDatabaseFile();
 			Database.use(dbFile.getAbsolutePath());
 			Main.main.importData(new Importer(machinesFile, dataFile));
 		}
@@ -175,10 +174,9 @@ public final class Main implements PropertyChangeListener {
 
 	public static void printUsageAndExit() {
 		System.out.println("Please choose one of the operations available: ");
-		System.out
-		    .println(" ant import -Dmachines=<machineFileName> -Devents=<datasetFileName> -Ddatabase=<databaseName>");
-		System.out.println(" ant cache -Ddatabase=<databaseFileName>");
-		System.out.println(" ant run -Ddatabase=<databaseFileName>");
+		System.out.println(" ant import");
+		System.out.println(" ant cache");
+		System.out.println(" ant run");
 		System.exit(1);
 	}
 

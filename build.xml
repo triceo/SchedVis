@@ -58,16 +58,12 @@
 		<java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true">
 			<sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
 			<arg value="run" />
-      <arg value="${database}" />
 		</java>
   </target>
   <target name="import" description="Import data into a database.">
     <java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true">
       <sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
       <arg value="import" />
-      <arg value="${machines}" />
-      <arg value="${events}" />
-      <arg value="${database}" />
     </java>
   </target>
   <target name="cache" description="Render the schedules prior to executing the program.">
@@ -75,7 +71,6 @@
     	<!--jvmarg value="-Xloggc:garbage_collector.log" /-->
       <sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
       <arg value="cache" />
-      <arg value="${database}" />
     </java>
   </target>
 </project>
