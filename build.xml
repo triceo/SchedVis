@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="SchedVis" default="run" basedir=".">
+	<property file="config.properties" />
   <property name="dir.bin" value="./bin" />
-  <property name="dir.tmp" value="../tmp" />
+  <property name="dir.tmp" value="${folders.temp}" />
 	<property name="dir.build" value="./build" />
   <property name="dir.src" value="./src" />
 	<property name="dir.lib" value="./lib" />

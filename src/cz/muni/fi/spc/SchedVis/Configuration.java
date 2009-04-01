@@ -46,6 +46,11 @@ public class Configuration {
 		}
 	}
 
+	public static File getTempFolder() {
+		return new File(Configuration.getProperties().getProperty("folders.temp",
+		    System.getProperty("java.io.tempdir"))).getAbsoluteFile();
+	}
+
 	private final Properties p = new Properties();
 
 	private Configuration() throws IOException {

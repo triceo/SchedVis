@@ -40,6 +40,7 @@ import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 
+import cz.muni.fi.spc.SchedVis.Configuration;
 import cz.muni.fi.spc.SchedVis.model.Database;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
@@ -293,7 +294,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	private String getFilename() {
 		String id = "0000000000" + this.m.getId();
 		String id2 = "0000000000" + this.clock;
-		return "../tmp/schedvis-" + MachineRenderer.instanceId + "-"
+		return Configuration.getTempFolder() + System.getProperty("file.separator")
+		    + MachineRenderer.instanceId + "-"
 		    + id.substring(id.length() - 10, id.length()) + "-"
 		    + id2.substring(id2.length() - 10, id2.length()) + ".gif";
 	}
