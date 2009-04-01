@@ -69,8 +69,14 @@ public final class Main implements PropertyChangeListener {
 
 	/**
 	 * How many threads at most should be executing at the same time.
+	 * 
+	 * The coefficient has been determined by experiment to provide the best
+	 * results. When threads block on IO operations, some other threads can be
+	 * executed. Thus the number of threads exceeding the total number of cores is
+	 * not a problem and provides a performance increase..
 	 */
-	private static final Integer MAX_RENDERER_THREADS = 32;
+	private static final Integer MAX_RENDERER_THREADS = Configuration
+	    .getNumberOfCPUCores() * 4;
 	/**
 	 * How many renderers should be ready to be executed when some other renderer
 	 * finishes. If this number is set too low, it will be increased
@@ -305,7 +311,7 @@ public final class Main implements PropertyChangeListener {
 		if (Main.queuedRenderers.size() < criticallyLowQueueLength) {
 			// should the queue not be long enough, work harder to enlarge it
 			if ((System.nanoTime() - Main.lastDoubledQueueLength) > 2000000000) {
-				Main.logger.warn("Doubling renderer queue length.");
+				Main.logger.info("Doubling renderer queue length.");
 				Main.MAX_QUEUED_RENDERERS = Main.MAX_QUEUED_RENDERERS * 2;
 				// but only once every two seconds.
 				Main.lastDoubledQueueLength = System.nanoTime();

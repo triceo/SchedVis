@@ -38,6 +38,11 @@ public class Configuration {
 		    "machines.txt")).getAbsoluteFile();
 	}
 
+	public static Integer getNumberOfCPUCores() {
+		return Math.max(Integer.valueOf(Configuration.getProperties().getProperty(
+		    "system.num_cores", "1")), 1);
+	}
+
 	protected static Properties getProperties() {
 		try {
 			return Configuration.getInstance().p;
