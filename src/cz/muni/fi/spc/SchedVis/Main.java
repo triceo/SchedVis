@@ -334,7 +334,7 @@ public final class Main implements PropertyChangeListener {
 				Double timeLeft = Main.countProgress(Double.valueOf(timeItTook),
 				    percentage, perMille, 25);
 				System.out.println(new PrintfFormat("%.2f").sprintf(percentage * 100)
-				    + " % ("
+				    + " % ("
 				    + (Main.doneRenderers)
 				    + "/"
 				    + Main.totalRenderers
