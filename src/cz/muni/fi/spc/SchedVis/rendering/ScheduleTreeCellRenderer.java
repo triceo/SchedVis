@@ -31,6 +31,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import cz.muni.fi.spc.SchedVis.Configuration;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
@@ -45,6 +46,8 @@ import cz.muni.fi.spc.SchedVis.ui.MachinePanel;
 public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 
 	private static ExecutorService e = Executors.newCachedThreadPool();
+	private static ExecutorService fe = Executors
+	    .newFixedThreadPool(Configuration.getNumberOfCPUCores() * 4);
 
 	/**
      * 
@@ -65,7 +68,7 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 	private JPanel getMachine(final Machine item) {
 		try {
 			MachineRenderer mr = new MachineRenderer(item, TimelineSliderModel
-			    .getInstance().getValue(), false, null);
+			    .getInstance().getValue(), ScheduleTreeCellRenderer.fe);
 			ScheduleTreeCellRenderer.e.submit(mr);
 			final MachinePanel pane = new MachinePanel();
 			pane.setToolTipText("Machine: " + item.getName() + ", time: "

@@ -78,11 +78,21 @@ public final class Main implements PropertyChangeListener {
 	private static final Integer MAX_RENDERER_THREADS = Configuration
 	    .getNumberOfCPUCores() * 4;
 	/**
+	 * How many threads at most should be executing that write images to files.
+	 * 
+	 * The coefficient has been determined by experiment to provide the best
+	 * results. When threads block on IO operations, some other threads can be
+	 * executed. Thus the number of threads exceeding the total number of cores is
+	 * not a problem and provides a performance increase..
+	 */
+	private static final Integer MAX_FILE_WRITER_THREADS = Configuration
+	    .getNumberOfCPUCores() * 2;
+	/**
 	 * How many renderers should be ready to be executed when some other renderer
 	 * finishes. If this number is set too low, it will be increased
 	 * automatically.
 	 */
-	private static Integer MAX_QUEUED_RENDERERS = Main.MAX_RENDERER_THREADS * 2;
+	private static Integer MAX_QUEUED_RENDERERS = Main.MAX_RENDERER_THREADS * 4;
 
 	/**
 	 * Time in nanoseconds when we last reported progress of caching.
@@ -193,7 +203,9 @@ public final class Main implements PropertyChangeListener {
 	}
 
 	private synchronized void cache() {
-		ExecutorService e = Executors.newFixedThreadPool(Main.MAX_RENDERER_THREADS);
+		ExecutorService e = Executors.newCachedThreadPool();
+		ExecutorService fe = Executors
+		    .newFixedThreadPool(Main.MAX_FILE_WRITER_THREADS);
 
 		System.out.println("Gathering data for rendering...");
 		Set<Machine> machines = new HashSet<Machine>(Machine.getAllGroupless());
@@ -206,7 +218,7 @@ public final class Main implements PropertyChangeListener {
 		Integer initialRenderers = 0;
 		for (Integer clock : ticks) {
 			for (Machine m : machines) {
-				MachineRenderer mr = new MachineRenderer(m, clock, true, Main.main);
+				MachineRenderer mr = new MachineRenderer(m, clock, fe, true, Main.main);
 				e.submit(mr);
 				Main.queuedRenderers.add(mr.hashCode());
 				if (Main.queuedRenderers.size() > Main.MAX_QUEUED_RENDERERS) {

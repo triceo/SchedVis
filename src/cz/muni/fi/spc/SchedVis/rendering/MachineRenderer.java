@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
@@ -111,11 +112,25 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 
 	private final Map<String, Integer[]> sets = new HashMap<String, Integer[]>();
 
+	private final ExecutorService fileSaver;
+
 	public MachineRenderer(final Machine m, final Integer clock,
-	    final boolean isCaching, final PropertyChangeListener l) {
+	    final ExecutorService fileSaver) {
+		this(m, clock, fileSaver, false, null);
+	}
+
+	public MachineRenderer(final Machine m, final Integer clock,
+	    final ExecutorService fileSaver, final boolean isCaching) {
+		this(m, clock, fileSaver, isCaching, null);
+	}
+
+	public MachineRenderer(final Machine m, final Integer clock,
+	    final ExecutorService fileSaver, final boolean isCaching,
+	    final PropertyChangeListener l) {
 		this.m = m;
 		this.clock = clock;
 		this.isCaching = isCaching;
+		this.fileSaver = fileSaver;
 		if (l != null) {
 			this.addPropertyChangeListener(l);
 		}
@@ -175,21 +190,14 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		BufferedImage img = null;
 		if (!f.exists()) {
 			img = this.actuallyDraw();
-			try {
-				ImageIO.write(img, "gif", f);
-			} catch (IOException e) {
-				MachineRenderer.logger.warn("Won't cache machine " + this.m.getId()
-				    + "@" + this.clock + ". Failed to write into a file "
-				    + f.getAbsolutePath() + ".");
-			}
+			this.fileSaver.submit(new MachineFileWriter(img, f));
 		} else if (!this.isCaching) {
-			MachineRenderer.logger.debug("3");
 			try {
 				img = ImageIO.read(f);
 			} catch (IOException e) {
 				MachineRenderer.logger.warn("Cannot read cache for machine "
 				    + this.m.getId() + "@" + this.clock
-				    + ". Failed to write into a file " + f.getAbsolutePath() + ".");
+				    + ". Failed to read from a file " + f.getAbsolutePath() + ".");
 				img = this.actuallyDraw();
 			}
 		}
