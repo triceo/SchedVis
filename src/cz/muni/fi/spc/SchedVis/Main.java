@@ -30,6 +30,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -237,8 +238,6 @@ public final class Main implements PropertyChangeListener {
 
 		System.out
 		    .println("Please wait while the rest of the schedules are being rendered...");
-		System.out
-		    .println("(If it's not doing anything for a while, it's safe to terminate the process.)");
 		System.out.println("");
 		e.shutdown();
 		while (Main.queuedRenderers.size() > 0) {
@@ -246,6 +245,17 @@ public final class Main implements PropertyChangeListener {
 				Main.main.wait();
 			} catch (InterruptedException ex) {
 				// do nothing
+			}
+		}
+		fe.shutdown();
+		boolean restart = true;
+		while (restart) {
+			try {
+				System.out
+				    .println("Flushing rest of the images to the hard drive. This operation can take quite some time.");
+				restart = !fe.awaitTermination(1, TimeUnit.MINUTES);
+			} catch (InterruptedException ex) {
+				restart = true;
 			}
 		}
 
