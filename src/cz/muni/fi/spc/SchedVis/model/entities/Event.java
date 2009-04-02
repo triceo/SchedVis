@@ -52,7 +52,7 @@ public class Event extends BaseEntity {
 		EntityManager em = Database.newEntityManager();
 		final List<Integer> l = ((Session) em.getDelegate())
 		    .createSQLQuery(
-		        "SELECT DISTINCT clock FROM Event WHERE parent_FK IS NOT NULL ORDER BY clock ASC")
+		        "SELECT DISTINCT clock FROM Event WHERE parent_FK IS NULL ORDER BY clock ASC")
 		    .list();
 		em.close();
 		return l;
