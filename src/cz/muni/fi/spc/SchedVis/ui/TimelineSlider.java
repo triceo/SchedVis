@@ -107,6 +107,8 @@ public class TimelineSlider extends JSlider {
 
 	private void specialize() {
 		this.setPaintTicks(true);
+		this.setPaintLabels(true);
+		this.setPaintTrack(true);
 	}
 
 }

@@ -47,6 +47,16 @@ import cz.muni.fi.spc.SchedVis.model.Database;
 @Entity
 public class Event extends BaseEntity {
 
+	public static boolean existsClock(final Integer clock) {
+		EntityManager em = Database.newEntityManager();
+		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
+		crit.add(Restrictions.eq("clock", clock));
+		crit.setMaxResults(1);
+		Event evt = (Event) crit.uniqueResult();
+		em.close();
+		return (evt != null);
+	}
+
 	@SuppressWarnings("unchecked")
 	public static List<Integer> getAllTicks() {
 		EntityManager em = Database.newEntityManager();

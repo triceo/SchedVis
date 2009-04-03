@@ -109,21 +109,16 @@ public class SliderPanel extends JPanel implements ChangeListener,
 			if (this.tlsm.getValue() <= 1) {
 				return;
 			}
-			Integer value;
-			try {
-				value = Event.getPrevious(this.tlsm.getValue()).getClock();
-				if (this.tlsm.getValue() != Event.getNext(value).getClock()) {
-					this.tlsm.setValue(value);
-				}
-			} catch (NullPointerException ex) {
-				return;
+			Integer value = this.tlsm.getValue();
+			if (!Event.existsClock(value)) {
+				this.tlsm.setValue(Event.getPrevious(value).getClock());
 			}
-			if (value == this.tlsm.getMinimum()) {
+			if (value.equals(this.tlsm.getMinimum())) {
 				this.btnPrev.setEnabled(false);
 				this.btnStart.setEnabled(false);
 				this.btnNext.setEnabled(true);
 				this.btnEnd.setEnabled(true);
-			} else if (value == this.tlsm.getMaximum()) {
+			} else if (value.equals(this.tlsm.getMaximum())) {
 				this.btnPrev.setEnabled(true);
 				this.btnStart.setEnabled(true);
 				this.btnNext.setEnabled(false);
