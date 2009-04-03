@@ -20,11 +20,12 @@
  */
 package cz.muni.fi.spc.SchedVis.model.entities;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -44,11 +45,11 @@ import cz.muni.fi.spc.SchedVis.model.Database;
 public class MachineGroup extends BaseEntity {
 
 	@SuppressWarnings("unchecked")
-	public static List<MachineGroup> getAll() {
+	public static Set<MachineGroup> getAll() {
 		EntityManager em = Database.newEntityManager();
 		final Criteria crit = BaseEntity.getCriteria(em, MachineGroup.class, true);
 		crit.addOrder(Order.asc("name"));
-		List<MachineGroup> l = crit.list();
+		Set<MachineGroup> l = new HashSet<MachineGroup>(crit.list());
 		em.close();
 		return l;
 	}
@@ -89,7 +90,7 @@ public class MachineGroup extends BaseEntity {
 		return this.id;
 	}
 
-	@OneToMany(mappedBy = "group")
+	@OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
 	public Set<Machine> getMachines() {
 		return this.machines;
 	}

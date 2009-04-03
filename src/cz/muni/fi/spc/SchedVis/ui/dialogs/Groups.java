@@ -10,6 +10,7 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.persistence.EntityManager;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -24,6 +25,7 @@ import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import cz.muni.fi.spc.SchedVis.Main;
 import cz.muni.fi.spc.SchedVis.model.Database;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
@@ -233,7 +235,8 @@ public class Groups extends JDialog implements ActionListener,
 
 	public void actionPerformed(final ActionEvent e) {
 		final String command = e.getActionCommand();
-		Database.getEntityManager().getTransaction().begin();
+		EntityManager em = Database.newEntityManager();
+		em.getTransaction().begin();
 		if (command.equals(Groups.COMMAND__CREATE_NEW_GROUP)) {
 			final String text = this.newGroupName.getText().trim();
 			if (text.length() == 0) {
@@ -259,6 +262,7 @@ public class Groups extends JDialog implements ActionListener,
 			    .getWithName((String) this.availableGroupsList.getSelectedItem());
 			for (final Machine m : Machine.getAll(mg.getId())) {
 				m.setGroup(null);
+				Database.merge(m);
 			}
 			Database.remove(mg);
 			if (!Database.getEntityManager().contains(mg)) {
@@ -278,26 +282,29 @@ public class Groups extends JDialog implements ActionListener,
 				JOptionPane.showMessageDialog(this, "Cannot delete a group.");
 			}
 		} else if (command.equals(Groups.COMMAND__ADD_MACHINE_TO_GROUP)) {
+			final MachineGroup ge = MachineGroup
+			    .getWithName(((String) this.availableGroupsList.getSelectedItem()));
 			for (final Object machineName : this.availableMachinesList
 			    .getSelectedValues()) {
-				final MachineGroup ge = MachineGroup
-				    .getWithName(((String) this.availableGroupsList.getSelectedItem()));
-				Machine.getWithName((String) machineName).setGroup(ge);
+				Machine m = Machine.getWithName((String) machineName);
+				m.setGroup(ge);
+				Database.merge(m);
 			}
-			this.availableMachinesList.update();
-			this.groupedMachinesList.update();
 		} else if (command.equals(Groups.COMMAND__REMOVE_MACHINE_FROM_GROUP)) {
 			for (final Object machineName : this.groupedMachinesList
 			    .getSelectedValues()) {
 				final Machine me = Machine.getWithName((String) machineName);
 				me.setGroup(null);
+				Database.merge(me);
 			}
-			this.availableMachinesList.update();
-			this.groupedMachinesList.update();
 		} else if (command.equals(Groups.COMMAND__CLOSE_DIALOG)) {
 			this.setVisible(false);
 		}
-		Database.getEntityManager().getTransaction().commit();
+		em.getTransaction().commit();
+		em.close();
+		this.availableMachinesList.update();
+		this.groupedMachinesList.update();
+		Main.update();
 	}
 
 	public void contentsChanged(final ListDataEvent e) {

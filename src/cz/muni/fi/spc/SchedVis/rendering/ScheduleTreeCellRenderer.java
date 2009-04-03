@@ -31,6 +31,8 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import org.hibernate.LazyInitializationException;
+
 import cz.muni.fi.spc.SchedVis.Configuration;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
@@ -59,8 +61,12 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 		if (item == null) {
 			target.add(new JLabel("Ungrouped Machines"));
 		} else {
-			target.add(new JLabel("Group '" + item.getName() + "' of "
-			    + item.getMachines().size() + " machines."));
+			try {
+				target.add(new JLabel("Group '" + item.getName() + "' of "
+				    + item.getMachines().size() + " machines."));
+			} catch (LazyInitializationException ex) {
+				target.add(new JLabel("Group '" + item.getName() + "' of 0 machines."));
+			}
 		}
 		return target;
 	}

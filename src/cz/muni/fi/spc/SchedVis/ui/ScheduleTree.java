@@ -50,10 +50,11 @@ public class ScheduleTree extends JTree {
 	 */
 	private ScheduleTree() {
 		super();
+		this.setExpandsSelectedPaths(true);
+		this.setShowsRootHandles(true);
 		this.setCellRenderer(new ScheduleTreeCellRenderer());
 		this.setEditable(false);
 		this.setRootVisible(false);
 		this.setModel(ScheduleTreeModel.getInstance());
 	}
-
 }

@@ -63,6 +63,26 @@ public class Database {
 		return (Session) Database.getEntityManager().getDelegate();
 	}
 
+	public static void merge(final BaseEntity e) {
+		final List<BaseEntity> list = new Vector<BaseEntity>();
+		list.add(e);
+		Database.merge(list);
+	}
+
+	public static synchronized void merge(final Collection<? extends BaseEntity> c) {
+		boolean endTransaction = false;
+		if (!Database.getEntityManager().getTransaction().isActive()) {
+			Database.getEntityManager().getTransaction().begin();
+			endTransaction = true;
+		}
+		for (final BaseEntity e : c) {
+			Database.getEntityManager().merge(e);
+		}
+		if (endTransaction) {
+			Database.getEntityManager().getTransaction().commit();
+		}
+	}
+
 	public static EntityManager newEntityManager() {
 		return Database.factory.createEntityManager();
 	}
