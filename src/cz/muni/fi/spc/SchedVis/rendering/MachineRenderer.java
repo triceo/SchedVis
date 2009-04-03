@@ -56,37 +56,40 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	 * Holds the machine whose schedule is currently being rendered.
 	 */
 	private final Machine m;
-
 	/**
 	 * Holds a name of the database so that the cached schedule images from
 	 * different databases don't interfere.
 	 */
 	private static final String instanceId = new File(Database.getName())
 	    .getName();
-
 	/**
 	 * Holds the position on the timeline that is currently being rendered.
 	 */
 	private final Integer clock;
-
 	/**
 	 * How many pixels shall one CPU of a machine occupy on the y axis of the
 	 * schedule.
 	 */
 	private static final Integer NUM_PIXELS_PER_CPU = 5;
-
 	/**
 	 * How many pixels shall be used per a single tick on the x axis of the
 	 * schedule.
 	 */
 	private static final Float NUM_PIXELS_PER_TICK = new Float(0.1);
 	/**
+	 * How many pixels should be left in the left of the schedule for jobs that
+	 * were supposed to be executed before the current clock.
+	 */
+	private static final Integer OVERFLOW_WIDTH = Math.round(Event
+	    .getMaxJobSpan()
+	    * MachineRenderer.NUM_PIXELS_PER_TICK) / 10;
+	/**
 	 * Total length of the x axis of the schedule. If you need to change it,
 	 * please change the input values, not the equation.
 	 */
 	private static final Integer LINE_WIDTH = Math.round(Event.getMaxJobSpan()
-	    * MachineRenderer.NUM_PIXELS_PER_TICK);
-
+	    * MachineRenderer.NUM_PIXELS_PER_TICK)
+	    + MachineRenderer.OVERFLOW_WIDTH;
 	/**
 	 * Colors that are available for the jobs. This array can be extended at will
 	 * and the color-picking code will adjust to it.
@@ -166,11 +169,10 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 			g.setColor(Color.WHITE);
 			g.drawString(this.m.getName() + " (off-line)", 1, 9);
 		}
-		int zeroPos = this.getZero();
-		if (zeroPos > 0) {
-			g.drawLine(zeroPos, 0, zeroPos, this.m.getCPUs()
-			    * MachineRenderer.NUM_PIXELS_PER_CPU);
-		}
+		// draw a line in a place where "zero" (current clock) is.
+		g.drawLine(MachineRenderer.OVERFLOW_WIDTH, 0,
+		    MachineRenderer.OVERFLOW_WIDTH, this.m.getCPUs()
+		        * MachineRenderer.NUM_PIXELS_PER_CPU);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		MachineRenderer.logger.debug(this.m.getName() + "@" + this.clock
 		    + " finished rendering. Took " + time + " seconds.");
@@ -248,7 +250,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 				// now draw
 				final int jobStartX = this.getStartingPosition(evt);
 				if (jobStartX < 0) {
-					MachineRenderer.logger.warn("Machine " + this.m.getName() + " at "
+					// might be ok, but might also be bad. so inform.
+					MachineRenderer.logger.info("Machine " + this.m.getName() + " at "
 					    + this.clock + " is drawing " + jobStartX
 					    + " before its boundary.");
 				}
@@ -267,6 +270,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 				g.drawString(evt.getJob().toString(), jobStartX + 2, ltY + jobHgt - 2);
 				int rightBoundary = jobStartX + jobLength - MachineRenderer.LINE_WIDTH;
 				if (rightBoundary > 0) {
+					// always bad. warn.
 					MachineRenderer.logger.warn("Machine " + this.m.getName() + " at "
 					    + this.clock + " is drawing " + rightBoundary
 					    + " over its boundary.");
@@ -338,27 +342,11 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	 */
 	private int getStartingPosition(final Event evt) {
 		try {
-			return Math.round((evt.getExpectedStart() - this.events.get(0)
-			    .getExpectedStart())
-			    * MachineRenderer.NUM_PIXELS_PER_TICK);
+			return Math.round((evt.getExpectedStart() - this.clock)
+			    * MachineRenderer.NUM_PIXELS_PER_TICK)
+			    + MachineRenderer.OVERFLOW_WIDTH;
 		} catch (final NullPointerException e) {
-			return 0;
-		}
-	}
-
-	/**
-	 * Get the position of the current clock on the timeline being rendered.
-	 * 
-	 * 
-	 * @return
-	 */
-	private int getZero() {
-		try {
-			return Math.round(Math.abs(Math.min(this.events.get(0).getExpectedStart()
-			    - this.clock, 0))
-			    * MachineRenderer.NUM_PIXELS_PER_TICK);
-		} catch (Exception e) {
-			return 0;
+			return MachineRenderer.OVERFLOW_WIDTH;
 		}
 	}
 
