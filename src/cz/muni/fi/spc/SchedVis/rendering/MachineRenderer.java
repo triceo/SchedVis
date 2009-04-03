@@ -82,7 +82,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	 */
 	private static final Integer OVERFLOW_WIDTH = Math.round(Event
 	    .getMaxJobSpan()
-	    * MachineRenderer.NUM_PIXELS_PER_TICK) / 10;
+	    * MachineRenderer.NUM_PIXELS_PER_TICK) / 8;
 	/**
 	 * Total length of the x axis of the schedule. If you need to change it,
 	 * please change the input values, not the equation.
@@ -164,10 +164,10 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 		this.drawJobs(g);
 		if (isActive) {
 			g.setColor(Color.BLACK);
-			g.drawString(this.m.getName(), 1, 9);
+			g.drawString(this.m.getName() + "@" + this.clock, 1, 9);
 		} else {
 			g.setColor(Color.WHITE);
-			g.drawString(this.m.getName() + " (off-line)", 1, 9);
+			g.drawString(this.m.getName() + "@" + this.clock + " (off-line)", 1, 9);
 		}
 		// draw a line in a place where "zero" (current clock) is.
 		g.drawLine(MachineRenderer.OVERFLOW_WIDTH, 0,
@@ -265,7 +265,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 					// job with no deadlines
 					g.setColor(this.getJobColor(evt.getJob()));
 				}
-				g.fillRect(jobStartX, ltY, jobLength, jobHgt);
+				g.fill3DRect(jobStartX, ltY, jobLength, jobHgt, true);
 				g.setColor(Color.BLACK);
 				g.drawString(evt.getJob().toString(), jobStartX + 2, ltY + jobHgt - 2);
 				int rightBoundary = jobStartX + jobLength - MachineRenderer.LINE_WIDTH;
