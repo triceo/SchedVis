@@ -32,9 +32,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-
 import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.model.Database;
@@ -273,18 +270,6 @@ public final class Main implements PropertyChangeListener {
 	 * @param args
 	 */
 	private void gui() {
-		try {
-			// Set System L&F
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (final UnsupportedLookAndFeelException e) {
-			// handle exception
-		} catch (final ClassNotFoundException e) {
-			// handle exception
-		} catch (final InstantiationException e) {
-			// handle exception
-		} catch (final IllegalAccessException e) {
-			// handle exception
-		}
 		// Schedule a job for the event-dispatching thread:
 		// creating and showing this application's GUI.
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
