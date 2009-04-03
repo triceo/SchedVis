@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
@@ -116,6 +117,10 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	private final Map<String, Integer[]> sets = new HashMap<String, Integer[]>();
 
 	private final ExecutorService fileSaver;
+
+	private static final Map<Integer, Color> jobsToColors = new HashMap<Integer, Color>();
+
+	private static final Random rand = new Random();
 
 	public MachineRenderer(final Machine m, final Integer clock,
 	    final ExecutorService fileSaver) {
@@ -267,7 +272,8 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 				}
 				g.fill3DRect(jobStartX, ltY, jobLength, jobHgt, true);
 				g.setColor(Color.BLACK);
-				g.drawString(evt.getJob().toString(), jobStartX + 2, ltY + jobHgt - 2);
+				g.drawString(evt.getJob().toString(), Math.max(jobStartX + 2, 2), ltY
+				    + jobHgt - 2);
 				int rightBoundary = jobStartX + jobLength - MachineRenderer.LINE_WIDTH;
 				if (rightBoundary > 0) {
 					// always bad. warn.
@@ -320,8 +326,13 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	 * @return A color that shall be used for that job. May be ignored when the
 	 *         job is overdue.
 	 */
-	private Color getJobColor(final Integer jobId) {
-		return MachineRenderer.colors[jobId % MachineRenderer.colors.length];
+	private synchronized Color getJobColor(final Integer jobId) {
+		if (!MachineRenderer.jobsToColors.containsKey(jobId)) {
+			Integer random = MachineRenderer.rand
+			    .nextInt(MachineRenderer.colors.length);
+			MachineRenderer.jobsToColors.put(jobId, MachineRenderer.colors[random]);
+		}
+		return MachineRenderer.jobsToColors.get(jobId);
 	}
 
 	private int getJobLength(final Event evt) {
