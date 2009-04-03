@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
+import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 import cz.muni.fi.spc.SchedVis.ui.common.JBorderedPanel;
 
 /**
@@ -44,8 +45,6 @@ public class MainFrame extends JFrame {
      * 
      */
 	private static final long serialVersionUID = 6652856626507094021L;
-	private static GroupsPanel groupsPanel = new GroupsPanel(
-	    "Show following groups:");
 	private static ScheduleTree tree = ScheduleTree.getInstance();
 
 	/**
@@ -90,7 +89,6 @@ public class MainFrame extends JFrame {
 		final JPanel statsPanel = new JBorderedPanel("Statistics");
 		// get panel with group picker
 		leftPanel.add(statsPanel);
-		leftPanel.add(MainFrame.groupsPanel);
 
 		// Create a split pane with the two scroll panes in it.
 		final JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
@@ -100,7 +98,7 @@ public class MainFrame extends JFrame {
 	}
 
 	public void update() {
-		MainFrame.groupsPanel.update();
+		ScheduleTreeModel.getInstance().regroup();
 		this.pack();
 		this.repaint();
 	}

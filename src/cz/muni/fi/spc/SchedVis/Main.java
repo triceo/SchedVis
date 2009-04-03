@@ -194,12 +194,6 @@ public final class Main implements PropertyChangeListener {
 		System.exit(1);
 	}
 
-	public static void update() {
-		if (Main.frame != null) {
-			Main.frame.update();
-		}
-	}
-
 	private synchronized void cache() {
 		ExecutorService e = Executors.newCachedThreadPool();
 		ExecutorService fe = Executors

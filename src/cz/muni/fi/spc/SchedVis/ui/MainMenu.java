@@ -112,7 +112,7 @@ public class MainMenu extends JMenuBar implements ActionListener {
 		} else if (command.equals(MainMenu.ACTION_MANAGE_GROUPS)) {
 			final Groups dialog = new Groups(this.frame, true);
 			dialog.setVisible(true);
-			Main.update();
+			Main.getFrame().update();
 		}
 	}
 

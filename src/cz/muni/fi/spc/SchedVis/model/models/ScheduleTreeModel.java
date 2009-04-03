@@ -20,14 +20,10 @@
  */
 package cz.muni.fi.spc.SchedVis.model.models;
 
-import java.util.AbstractSet;
-import java.util.Enumeration;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
-import cz.muni.fi.spc.SchedVis.model.BaseEntity;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 
@@ -103,30 +99,8 @@ public class ScheduleTreeModel extends DefaultTreeModel {
 	 * @param visibleGroups
 	 */
 	@SuppressWarnings( { "unchecked" })
-	public void regroup(final AbstractSet<Integer> visibleGroups) {
+	public void regroup() {
 		final DefaultMutableTreeNode root = ScheduleTreeModel.getTree();
-		if (!visibleGroups.isEmpty()) {
-			Enumeration<DefaultMutableTreeNode> e = root.children();
-			while (e.hasMoreElements()) {
-				final DefaultMutableTreeNode node = e.nextElement();
-				boolean isInSet = false;
-				if (node.getUserObject() instanceof BaseEntity) {
-					if (visibleGroups.contains(((MachineGroup) node.getUserObject())
-					    .getId())) {
-						isInSet = true;
-					}
-				} else {
-					if (visibleGroups.contains(Integer
-					    .valueOf(ScheduleTreeModel.ID_UNGROUPED))) {
-						isInSet = true;
-					}
-				}
-				if (!isInSet) {
-					this.removeNodeFromParent(node);
-					e = root.children();
-				}
-			}
-		}
 		this.setRoot(root);
 	}
 
