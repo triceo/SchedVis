@@ -73,7 +73,7 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	 * How many pixels shall one CPU of a machine occupy on the y axis of the
 	 * schedule.
 	 */
-	private static final Integer NUM_PIXELS_PER_CPU = 4;
+	private static final Integer NUM_PIXELS_PER_CPU = 5;
 
 	/**
 	 * How many pixels shall be used per a single tick on the x axis of the
