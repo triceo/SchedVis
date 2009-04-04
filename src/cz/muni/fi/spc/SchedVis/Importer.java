@@ -1,19 +1,18 @@
 /*
-    This file is part of SchedVis.
-
-    SchedVis is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    SchedVis is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with SchedVis.  If not, see <http://www.gnu.org/licenses/>.
-
+ * This file is part of SchedVis.
+ * 
+ * SchedVis is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * SchedVis is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with SchedVis. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * 
@@ -39,6 +38,7 @@ import cz.muni.fi.spc.SchedVis.model.Database;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.EventType;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
+import cz.muni.fi.spc.SchedVis.parsers.ParseException;
 import cz.muni.fi.spc.SchedVis.parsers.machines.MachineData;
 import cz.muni.fi.spc.SchedVis.parsers.machines.MachinesParser;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.EventHasData;
@@ -148,8 +148,7 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * @todo Somehow make jobs a table of its own.
 	 * @todo Somehow make assigned-CPUs a table if its own.
 	 */
-	private void parseDataSet(final BufferedReader reader)
-	    throws cz.muni.fi.spc.SchedVis.parsers.ParseException {
+	private void parseDataSet(final BufferedReader reader) throws ParseException {
 		this.setProgress(0);
 		final Map<String, Integer> eventTypes = new HashMap<String, Integer>();
 		eventTypes.put("job-arrival", EventType.EVENT_JOB_ARRIVAL);
@@ -253,8 +252,7 @@ public class Importer extends SwingWorker<Void, Void> {
 	 * @param reader
 	 * @throws ParseException
 	 */
-	private void parseMachines(final BufferedReader reader)
-	    throws cz.muni.fi.spc.SchedVis.parsers.ParseException {
+	private void parseMachines(final BufferedReader reader) throws ParseException {
 		// ready the parser
 		this.parsedLines = 0;
 		this.totalLines = this.machinesLineCount;
