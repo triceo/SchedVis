@@ -83,25 +83,6 @@ public class MainMenu extends JMenuBar implements ActionListener {
 		menuItem.setActionCommand(MainMenu.ACTION_MANAGE_GROUPS);
 		menuItem.addActionListener(this);
 		menu.add(menuItem);
-
-		// Build the first menu.
-		menu = new JMenu("Help");
-		menu.setMnemonic(KeyEvent.VK_H);
-		menu.getAccessibleContext().setAccessibleDescription(
-		    "The classical support options.");
-		this.add(menu);
-
-		menuItem = new JMenuItem("Help contents...", KeyEvent.VK_H);
-		menuItem.getAccessibleContext().setAccessibleDescription(
-		    "Shows a help dialog.");
-		menu.add(menuItem);
-
-		menu.addSeparator();
-
-		menuItem = new JMenuItem("About SchedViz...", KeyEvent.VK_A);
-		menuItem.getAccessibleContext().setAccessibleDescription(
-		    "Shows an about screen.");
-		menu.add(menuItem);
 	}
 
 	public void actionPerformed(final ActionEvent event) {
