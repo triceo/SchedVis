@@ -195,7 +195,7 @@ public final class Main implements PropertyChangeListener {
 	}
 
 	private synchronized void cache() {
-		ExecutorService e = Executors.newCachedThreadPool();
+		ExecutorService e = Executors.newFixedThreadPool(Main.MAX_RENDERER_THREADS);
 		ExecutorService fe = Executors
 		    .newFixedThreadPool(Main.MAX_FILE_WRITER_THREADS);
 
