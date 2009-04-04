@@ -56,7 +56,7 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
      */
 	private static final long serialVersionUID = -5148385915562957149L;
 
-	private JPanel getGroup(final MachineGroup item, final boolean showDetailed) {
+	private JPanel getGroup(final MachineGroup item) {
 		GroupPanel target = new GroupPanel();
 		if (item == null) {
 			target.add(new JLabel("Ungrouped Machines"));
@@ -92,8 +92,8 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 		}
 	}
 
-	private JPanel getNoGroup(final boolean showDetailed) {
-		return this.getGroup(null, showDetailed);
+	private JPanel getNoGroup() {
+		return this.getGroup(null);
 	}
 
 	@Override
@@ -104,10 +104,10 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 		if (userObject instanceof Machine) { // is a machine
 			return this.getMachine((Machine) userObject);
 		} else if (userObject instanceof MachineGroup) { // is a group
-			return this.getGroup((MachineGroup) userObject, expanded);
+			return this.getGroup((MachineGroup) userObject);
 		} else if (ScheduleTreeModel.ID_UNGROUPED.equals(userObject)) { // "ungrouped"
 			// group
-			return this.getNoGroup(expanded);
+			return this.getNoGroup();
 		} else {
 			final JPanel p = new JPanel();
 			p.add(new JLabel("Unknown object!"));

@@ -30,7 +30,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -74,17 +73,7 @@ public final class Main implements PropertyChangeListener {
 	 * not a problem and provides a performance increase..
 	 */
 	private static final Integer MAX_RENDERER_THREADS = Configuration
-	    .getNumberOfCPUCores() * 4;
-	/**
-	 * How many threads at most should be executing that write images to files.
-	 * 
-	 * The coefficient has been determined by experiment to provide the best
-	 * results. When threads block on IO operations, some other threads can be
-	 * executed. Thus the number of threads exceeding the total number of cores is
-	 * not a problem and provides a performance increase..
-	 */
-	private static final Integer MAX_FILE_WRITER_THREADS = Configuration
-	    .getNumberOfCPUCores() * 2;
+	    .getNumberOfCPUCores() * 8;
 	/**
 	 * How many renderers should be ready to be executed when some other renderer
 	 * finishes. If this number is set too low, it will be increased
@@ -196,8 +185,6 @@ public final class Main implements PropertyChangeListener {
 
 	private synchronized void cache() {
 		ExecutorService e = Executors.newFixedThreadPool(Main.MAX_RENDERER_THREADS);
-		ExecutorService fe = Executors
-		    .newFixedThreadPool(Main.MAX_FILE_WRITER_THREADS);
 
 		System.out.println("Gathering data for rendering...");
 		Set<Machine> machines = new HashSet<Machine>(Machine.getAllGroupless());
@@ -210,7 +197,7 @@ public final class Main implements PropertyChangeListener {
 		Integer initialRenderers = 0;
 		for (Integer clock : ticks) {
 			for (Machine m : machines) {
-				MachineRenderer mr = new MachineRenderer(m, clock, fe, true, Main.main);
+				MachineRenderer mr = new MachineRenderer(m, clock, e, true, Main.main);
 				e.submit(mr);
 				Main.queuedRenderers.add(mr.hashCode());
 				if (Main.queuedRenderers.size() > Main.MAX_QUEUED_RENDERERS) {
@@ -236,17 +223,6 @@ public final class Main implements PropertyChangeListener {
 				Main.main.wait();
 			} catch (InterruptedException ex) {
 				// do nothing
-			}
-		}
-		fe.shutdown();
-		boolean restart = true;
-		while (restart) {
-			try {
-				System.out
-				    .println("Flushing rest of the images to the hard drive. This operation can take quite some time.");
-				restart = !fe.awaitTermination(1, TimeUnit.MINUTES);
-			} catch (InterruptedException ex) {
-				restart = true;
 			}
 		}
 
