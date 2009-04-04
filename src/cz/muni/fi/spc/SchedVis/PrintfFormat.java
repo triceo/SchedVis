@@ -1925,9 +1925,8 @@ public class PrintfFormat {
 		private String printEFormat(final double x) {
 			if (this.conversionCharacter == 'e') {
 				return this.eFormatString(x, 'e');
-			} else {
-				return this.eFormatString(x, 'E');
 			}
+			return this.eFormatString(x, 'E');
 		}
 
 		/**
@@ -2964,20 +2963,19 @@ public class PrintfFormat {
 						this.precisionSet = true;
 					}
 					return;
-				} else {
-					while (this.pos < this.fmt.length()) {
-						char c = this.fmt.charAt(this.pos);
-						if (Character.isDigit(c)) {
-							this.pos++;
-						} else {
-							break;
-						}
+				}
+				while (this.pos < this.fmt.length()) {
+					char c = this.fmt.charAt(this.pos);
+					if (Character.isDigit(c)) {
+						this.pos++;
+					} else {
+						break;
 					}
-					if (this.pos > firstPos + 1) {
-						String sz = this.fmt.substring(firstPos + 1, this.pos);
-						this.precision = Integer.parseInt(sz);
-						this.precisionSet = true;
-					}
+				}
+				if (this.pos > firstPos + 1) {
+					String sz = this.fmt.substring(firstPos + 1, this.pos);
+					this.precision = Integer.parseInt(sz);
+					this.precisionSet = true;
 				}
 			}
 		}
@@ -3207,7 +3205,7 @@ public class PrintfFormat {
 		char c = 0;
 		StringBuffer sb = new StringBuffer();
 		while (e.hasMoreElements()) {
-			cs = (ConversionSpecification) e.nextElement();
+			cs = e.nextElement();
 			c = cs.getConversionCharacter();
 			if (c == '\0') {
 				sb.append(cs.getLiteral());
@@ -3233,7 +3231,7 @@ public class PrintfFormat {
 		char c = 0;
 		StringBuffer sb = new StringBuffer();
 		while (e.hasMoreElements()) {
-			cs = (ConversionSpecification) e.nextElement();
+			cs = e.nextElement();
 			c = cs.getConversionCharacter();
 			if (c == '\0') {
 				sb.append(cs.getLiteral());
@@ -3261,7 +3259,7 @@ public class PrintfFormat {
 		char c = 0;
 		StringBuffer sb = new StringBuffer();
 		while (e.hasMoreElements()) {
-			cs = (ConversionSpecification) e.nextElement();
+			cs = e.nextElement();
 			c = cs.getConversionCharacter();
 			if (c == '\0') {
 				sb.append(cs.getLiteral());
@@ -3289,7 +3287,7 @@ public class PrintfFormat {
 		char c = 0;
 		StringBuffer sb = new StringBuffer();
 		while (e.hasMoreElements()) {
-			cs = (ConversionSpecification) e.nextElement();
+			cs = e.nextElement();
 			c = cs.getConversionCharacter();
 			if (c == '\0') {
 				sb.append(cs.getLiteral());
@@ -3321,7 +3319,7 @@ public class PrintfFormat {
 		char c = 0;
 		StringBuffer sb = new StringBuffer();
 		while (e.hasMoreElements()) {
-			cs = (ConversionSpecification) e.nextElement();
+			cs = e.nextElement();
 			c = cs.getConversionCharacter();
 			if (c == '\0') {
 				sb.append(cs.getLiteral());
@@ -3367,7 +3365,7 @@ public class PrintfFormat {
 		int i = 0;
 		StringBuffer sb = new StringBuffer();
 		while (e.hasMoreElements()) {
-			cs = (ConversionSpecification) e.nextElement();
+			cs = e.nextElement();
 			c = cs.getConversionCharacter();
 			if (c == '\0') {
 				sb.append(cs.getLiteral());
@@ -3436,7 +3434,7 @@ public class PrintfFormat {
 		char c = 0;
 		StringBuffer sb = new StringBuffer();
 		while (e.hasMoreElements()) {
-			cs = (ConversionSpecification) e.nextElement();
+			cs = e.nextElement();
 			c = cs.getConversionCharacter();
 			if (c == '\0') {
 				sb.append(cs.getLiteral());

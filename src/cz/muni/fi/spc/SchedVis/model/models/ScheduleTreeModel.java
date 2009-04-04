@@ -27,19 +27,24 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 
 /**
+ * A model for the tree of machine schedules. It is a singleton, as the tree is
+ * also only one.
+ * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
 public class ScheduleTreeModel extends DefaultTreeModel {
 
-	/**
-     * 
-     */
 	private static final long serialVersionUID = -5555189641185105899L;
 	private static ScheduleTreeModel model;
 
 	public static final Integer ID_UNGROUPED = -1;
 
+	/**
+	 * Get the only instance of this class.
+	 * 
+	 * @return The instance.
+	 */
 	public static ScheduleTreeModel getInstance() {
 		if (ScheduleTreeModel.model == null) {
 			ScheduleTreeModel.model = new ScheduleTreeModel(ScheduleTreeModel
@@ -48,6 +53,11 @@ public class ScheduleTreeModel extends DefaultTreeModel {
 		return ScheduleTreeModel.model;
 	}
 
+	/**
+	 * Get the complete tree of all the groups and machines.
+	 * 
+	 * @return The root node of the tree.
+	 */
 	private static DefaultMutableTreeNode getTree() {
 		final DefaultMutableTreeNode root = new DefaultMutableTreeNode();
 		for (final MachineGroup item : MachineGroup.getAll()) {
@@ -68,38 +78,22 @@ public class ScheduleTreeModel extends DefaultTreeModel {
 		return root;
 	}
 
-	private ScheduleTreeModel() {
-		super(new DefaultMutableTreeNode());
-		this.specialize();
-	}
-
 	/**
+	 * Class constructor.
+	 * 
 	 * @param root
+	 *          What to fill the model with.
 	 */
 	private ScheduleTreeModel(final TreeNode root) {
 		super(root);
-		this.specialize();
 	}
 
 	/**
-	 * @param root
-	 * @param asksAllowsChildren
-	 */
-	private ScheduleTreeModel(final TreeNode root,
-	    final boolean asksAllowsChildren) {
-		super(root, asksAllowsChildren);
-		this.specialize();
-	}
-
-	/**
-	 * Update the tree model.
+	 * Refresh the tree model on the screen.
 	 */
 	public void regroup() {
 		final DefaultMutableTreeNode root = ScheduleTreeModel.getTree();
 		this.setRoot(root);
-	}
-
-	private void specialize() {
 	}
 
 }

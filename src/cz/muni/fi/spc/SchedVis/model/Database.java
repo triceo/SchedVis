@@ -19,7 +19,6 @@
  */
 package cz.muni.fi.spc.SchedVis.model;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -30,10 +29,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.hibernate.Session;
+import cz.muni.fi.spc.SchedVis.Configuration;
 
 /**
- * Integrate Hibernate as a handler of all the implemented database operations.
+ * Integrate Hibernate (through JPA) as a handler of all the implemented
+ * database operations.
  * 
  * It is a singleton because we will never need more than one model.
  * 
@@ -42,32 +42,52 @@ import org.hibernate.Session;
  */
 public class Database {
 
-	private static final Map<String, EntityManager> ems = new HashMap<String, EntityManager>();
-
 	private static EntityManagerFactory factory;
 
 	private static EntityManager currentEM;
 
 	private static String currentName;
 
+	/**
+	 * Returns the current "root" entity manager, ie. the one the
+	 * EntityManagerFactory was created with.
+	 * 
+	 * Client code should close no entity managers received using this method.
+	 * 
+	 * @return The EntityManager.
+	 */
 	public static EntityManager getEntityManager() {
 		return Database.currentEM;
 	}
 
+	/**
+	 * Return the name of the currently used SQL database.
+	 * 
+	 * @return Name of the database.
+	 */
 	public static String getName() {
 		return Database.currentName;
 	}
 
-	public static Session getSession() {
-		return (Session) Database.getEntityManager().getDelegate();
-	}
-
+	/**
+	 * Call JPA merge() on a single entity.
+	 * 
+	 * @param e
+	 *          The entity.
+	 */
 	public static void merge(final BaseEntity e) {
 		final List<BaseEntity> list = new Vector<BaseEntity>();
 		list.add(e);
 		Database.merge(list);
 	}
 
+	/**
+	 * Call JPA merge() on a bunch of entities, resulting in them all being merged
+	 * inside a transaction.
+	 * 
+	 * @param c
+	 *          A collection of entities to merge.
+	 */
 	public static synchronized void merge(final Collection<? extends BaseEntity> c) {
 		boolean endTransaction = false;
 		if (!Database.getEntityManager().getTransaction().isActive()) {
@@ -82,16 +102,35 @@ public class Database {
 		}
 	}
 
+	/**
+	 * Request a brand new entity mananger to be used for some unit of work. The
+	 * calling code is responsible for closing this entity manager.
+	 * 
+	 * @return A new entity manager.
+	 */
 	public static EntityManager newEntityManager() {
 		return Database.factory.createEntityManager();
 	}
 
+	/**
+	 * Call JPA persist() on a single entity.
+	 * 
+	 * @param e
+	 *          The entity.
+	 */
 	public static void persist(final BaseEntity e) {
 		final List<BaseEntity> list = new Vector<BaseEntity>();
 		list.add(e);
 		Database.persist(list);
 	}
 
+	/**
+	 * Call JPA persist() on a bunch of entities, resulting in them all being
+	 * persisted inside a transaction.
+	 * 
+	 * @param c
+	 *          A collection of entities to persist.
+	 */
 	public static synchronized void persist(
 	    final Collection<? extends BaseEntity> c) {
 		boolean endTransaction = false;
@@ -107,12 +146,25 @@ public class Database {
 		}
 	}
 
+	/**
+	 * Call JPA remove() on a single entity.
+	 * 
+	 * @param e
+	 *          The entity.
+	 */
 	public static void remove(final BaseEntity e) {
 		final List<BaseEntity> list = new Vector<BaseEntity>();
 		list.add(e);
 		Database.remove(list);
 	}
 
+	/**
+	 * Call JPA remove() on a bunch of entities, resulting in them all being
+	 * removed inside a transaction.
+	 * 
+	 * @param c
+	 *          A collection of entities to remove.
+	 */
 	public static synchronized void remove(final Collection<BaseEntity> c) {
 		boolean endTransaction = false;
 		if (!Database.getEntityManager().getTransaction().isActive()) {
@@ -127,30 +179,21 @@ public class Database {
 		}
 	}
 
-	public static boolean use(final String name) {
-		synchronized (Database.ems) {
-			if (!Database.ems.containsKey(name)) {
-				final Map<String, String> map = new HashMap<String, String>();
-				map.put("hibernate.connection.url", "jdbc:sqlite:/"
-				    + new File(name).getAbsolutePath());
-				Database.factory = Persistence.createEntityManagerFactory("SchedVis",
-				    map);
-				Database.ems.put(name, Database.factory.createEntityManager());
-			}
-		}
-		Database.currentName = name;
-		Database.currentEM = Database.ems.get(name);
-		return true;
-	}
-
-	private Database() {
-
-	}
-
-	@Override
-	public void finalize() {
-		for (final EntityManager em : Database.ems.values()) {
-			em.close();
+	/**
+	 * Creates the appropriate entity manager factory and a "root" entity manager.
+	 * 
+	 * Calling this method more than once has no effect.
+	 */
+	public static synchronized void use() {
+		if (Database.currentEM == null) {
+			final Map<String, String> map = new HashMap<String, String>();
+			map.put("hibernate.connection.url", "jdbc:sqlite:/"
+			    + Configuration.getDatabaseFile().getAbsolutePath());
+			Database.factory = Persistence
+			    .createEntityManagerFactory("SchedVis", map);
+			Database.currentName = Configuration.getDatabaseFile().getName();
+			Database.currentEM = Database.factory.createEntityManager();
 		}
 	}
+
 }

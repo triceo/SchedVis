@@ -23,68 +23,22 @@ import javax.swing.BoundedRangeModel;
 import javax.swing.JSlider;
 
 /**
+ * The slider on the timeline.
+ * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
 public class TimelineSlider extends JSlider {
 
-	/**
-     * 
-     */
 	private static final long serialVersionUID = -8327074009782836875L;
 
 	/**
-     * 
-     */
+	 * The constructor.
+	 */
 	public TimelineSlider() {
-		this.specialize();
-	}
-
-	/**
-	 * @param arg0
-	 */
-	public TimelineSlider(final BoundedRangeModel arg0) {
-		super(arg0);
-		this.specialize();
-	}
-
-	/**
-	 * @param arg0
-	 */
-	public TimelineSlider(final int arg0) {
-		super(arg0);
-		this.specialize();
-	}
-
-	/**
-	 * @param arg0
-	 * @param arg1
-	 */
-	public TimelineSlider(final int arg0, final int arg1) {
-		super(arg0, arg1);
-		this.specialize();
-	}
-
-	/**
-	 * @param arg0
-	 * @param arg1
-	 * @param arg2
-	 */
-	public TimelineSlider(final int arg0, final int arg1, final int arg2) {
-		super(arg0, arg1, arg2);
-		this.specialize();
-	}
-
-	/**
-	 * @param arg0
-	 * @param arg1
-	 * @param arg2
-	 * @param arg3
-	 */
-	public TimelineSlider(final int arg0, final int arg1, final int arg2,
-	    final int arg3) {
-		super(arg0, arg1, arg2, arg3);
-		this.specialize();
+		this.setPaintTicks(true);
+		this.setPaintLabels(true);
+		this.setPaintTrack(true);
 	}
 
 	private int calcMajorTickSpacing() {
@@ -97,17 +51,14 @@ public class TimelineSlider extends JSlider {
 		return valueCount / 50;
 	}
 
+	/**
+	 * Set the model of this slider.
+	 */
 	@Override
 	public void setModel(final BoundedRangeModel model) {
 		super.setModel(model);
 		this.setMajorTickSpacing(this.calcMajorTickSpacing());
 		this.setMinorTickSpacing(this.calcMinorTickSpacing());
-	}
-
-	private void specialize() {
-		this.setPaintTicks(true);
-		this.setPaintLabels(true);
-		this.setPaintTrack(true);
 	}
 
 }

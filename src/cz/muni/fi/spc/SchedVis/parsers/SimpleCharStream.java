@@ -256,9 +256,8 @@ public class SimpleCharStream {
 			    this.available - this.maxNextCharInd)) == -1) {
 				this.inputStream.close();
 				throw new java.io.IOException();
-			} else {
-				this.maxNextCharInd += i;
 			}
+			this.maxNextCharInd += i;
 			return;
 		} catch (java.io.IOException e) {
 			--this.bufpos;
@@ -305,11 +304,10 @@ public class SimpleCharStream {
 		if (this.bufpos >= this.tokenBegin) {
 			return new String(this.buffer, this.tokenBegin, this.bufpos
 			    - this.tokenBegin + 1);
-		} else {
-			return new String(this.buffer, this.tokenBegin, this.bufsize
-			    - this.tokenBegin)
-			    + new String(this.buffer, 0, this.bufpos + 1);
 		}
+		return new String(this.buffer, this.tokenBegin, this.bufsize
+		    - this.tokenBegin)
+		    + new String(this.buffer, 0, this.bufpos + 1);
 	}
 
 	/**
@@ -338,7 +336,7 @@ public class SimpleCharStream {
 		return ret;
 	}
 
-	protected int getTabSize(final int i) {
+	protected int getTabSize() {
 		return this.tabSize;
 	}
 

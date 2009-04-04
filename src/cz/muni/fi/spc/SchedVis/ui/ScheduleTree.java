@@ -25,6 +25,9 @@ import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 import cz.muni.fi.spc.SchedVis.rendering.ScheduleTreeCellRenderer;
 
 /**
+ * The tree to display schedules in. It is a singleton, no more instances
+ * needed.
+ * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
@@ -32,11 +35,13 @@ public class ScheduleTree extends JTree {
 
 	private static ScheduleTree tree = null;
 
-	/**
-     * 
-     */
 	private static final long serialVersionUID = -5619978578879924763L;
 
+	/**
+	 * Get the only instance of the class.
+	 * 
+	 * @return The tree.
+	 */
 	public static ScheduleTree getInstance() {
 		if (ScheduleTree.tree == null) {
 			ScheduleTree.tree = new ScheduleTree();
@@ -45,7 +50,7 @@ public class ScheduleTree extends JTree {
 	}
 
 	/**
-	 * @param newModel
+	 * The constructor.
 	 */
 	private ScheduleTree() {
 		super();

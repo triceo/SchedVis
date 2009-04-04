@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -47,10 +46,26 @@ import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 
 /**
+ * This class knows how to render schedule for a machine into an image and how
+ * to save it to a file, if necessary.
+ * 
+ * This class uses some terms that need explanation:
+ * <dl>
+ * <dt>Caching</dt>
+ * <dd>Name for the state of this class when it is run from a command line,
+ * doing nothing but pre-generating schedule images. In this case, some
+ * optimizations are performed so that no unnecessary operations are performed.</dd>
+ * <dt>Delayed file saving</dt>
+ * <dd>Happens when the schedule image has been rendered. In order not to block
+ * other possible threads in rendering, the slow operation of saving a file is
+ * "out-sourced" to another thread and the rendered image is returned
+ * immediately.</dd>
+ * </dl>
+ * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public final class MachineRenderer extends SwingWorker<Image, Void> {
+public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 
 	/**
 	 * Holds the machine whose schedule is currently being rendered.
@@ -82,14 +97,14 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	 */
 	private static final Integer OVERFLOW_WIDTH = Math.round(Event
 	    .getMaxJobSpan()
-	    * MachineRenderer.NUM_PIXELS_PER_TICK) / 8;
+	    * ScheduleRenderer.NUM_PIXELS_PER_TICK) / 8;
 	/**
 	 * Total length of the x axis of the schedule. If you need to change it,
 	 * please change the input values, not the equation.
 	 */
 	private static final Integer LINE_WIDTH = Math.round(Event.getMaxJobSpan()
-	    * MachineRenderer.NUM_PIXELS_PER_TICK)
-	    + MachineRenderer.OVERFLOW_WIDTH;
+	    * ScheduleRenderer.NUM_PIXELS_PER_TICK)
+	    + ScheduleRenderer.OVERFLOW_WIDTH;
 	/**
 	 * Colors that are available for the jobs. This array can be extended at will
 	 * and the color-picking code will adjust to it.
@@ -107,31 +122,86 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	 */
 	private static Font font = new Font("Monospaced", Font.PLAIN, 9);
 
+	/**
+	 * Whether or not this renderer is caching.
+	 */
 	private final boolean isCaching;
 
-	private List<Event> events;
+	/**
+	 * Holds events in a currently rendered schedule. Stored for performance
+	 * reasons.
+	 */
+	private Set<Event> events;
 
-	private static Logger logger = Logger.getLogger(MachineRenderer.class);
+	private static Logger logger = Logger.getLogger(ScheduleRenderer.class);
 
+	/**
+	 * Micro-optimization. Holds the parsed values of assigned CPUs.
+	 */
 	private final Map<String, Integer[]> sets = new HashMap<String, Integer[]>();
 
+	/**
+	 * The executor service used for delayed file saving.
+	 */
 	private final ExecutorService fileSaver;
 
+	/**
+	 * Holds colors for different jobs, so that they persist and are the same over
+	 * the whole application runtime.
+	 */
 	private static final Map<Integer, Color> jobsToColors = new HashMap<Integer, Color>();
-
+	/**
+	 * Random for assigning job colors.
+	 */
 	private static final Random rand = new Random();
 
-	public MachineRenderer(final Machine m, final Integer clock,
+	/**
+	 * Class constructor that disables caching and does not report progress.
+	 * 
+	 * @param m
+	 *          Machine to render.
+	 * @param clock
+	 *          A point in time in which we want the schedule rendered.
+	 * @param fileSaver
+	 *          Executor service used for delayed file saving.
+	 */
+	public ScheduleRenderer(final Machine m, final Integer clock,
 	    final ExecutorService fileSaver) {
 		this(m, clock, fileSaver, false, null);
 	}
 
-	public MachineRenderer(final Machine m, final Integer clock,
+	/**
+	 * Class constructor that does not report progress.
+	 * 
+	 * @param m
+	 *          Machine to render.
+	 * @param clock
+	 *          A point in time in which we want the schedule rendered.
+	 * @param fileSaver
+	 *          Executor service used for delayed file saving.
+	 * @param isCaching
+	 *          Whether or not this instance should be caching.
+	 */
+	public ScheduleRenderer(final Machine m, final Integer clock,
 	    final ExecutorService fileSaver, final boolean isCaching) {
 		this(m, clock, fileSaver, isCaching, null);
 	}
 
-	public MachineRenderer(final Machine m, final Integer clock,
+	/**
+	 * Class constructor.
+	 * 
+	 * @param m
+	 *          Machine to render.
+	 * @param clock
+	 *          A point in time in which we want the schedule rendered.
+	 * @param fileSaver
+	 *          Executor service used for delayed file saving.
+	 * @param isCaching
+	 *          Whether or not this instance should be caching.
+	 * @param l
+	 *          A listener to report progress to.
+	 */
+	public ScheduleRenderer(final Machine m, final Integer clock,
 	    final ExecutorService fileSaver, final boolean isCaching,
 	    final PropertyChangeListener l) {
 		this.m = m;
@@ -152,12 +222,12 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	private BufferedImage actuallyDraw() {
 		Double time = Double.valueOf(System.nanoTime());
 		this.events = Machine.getLatestSchedule(this.m, this.clock);
-		final BufferedImage img = new BufferedImage(MachineRenderer.LINE_WIDTH,
-		    this.m.getCPUs() * MachineRenderer.NUM_PIXELS_PER_CPU,
+		final BufferedImage img = new BufferedImage(ScheduleRenderer.LINE_WIDTH,
+		    this.m.getCPUs() * ScheduleRenderer.NUM_PIXELS_PER_CPU,
 		    BufferedImage.TYPE_INT_RGB);
 		final Graphics2D g = (Graphics2D) img.getGraphics();
 		this.fineTuneGraphics(g);
-		g.setFont(MachineRenderer.font);
+		g.setFont(ScheduleRenderer.font);
 		boolean isActive = Machine.isActive(this.m, this.clock);
 		if (isActive) {
 			g.setColor(Color.WHITE);
@@ -174,11 +244,11 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 			g.drawString(this.m.getName() + "@" + this.clock + " (off-line)", 1, 9);
 		}
 		// draw a line in a place where "zero" (current clock) is.
-		g.drawLine(MachineRenderer.OVERFLOW_WIDTH, 0,
-		    MachineRenderer.OVERFLOW_WIDTH, this.m.getCPUs()
-		        * MachineRenderer.NUM_PIXELS_PER_CPU);
+		g.drawLine(ScheduleRenderer.OVERFLOW_WIDTH, 0,
+		    ScheduleRenderer.OVERFLOW_WIDTH, this.m.getCPUs()
+		        * ScheduleRenderer.NUM_PIXELS_PER_CPU);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		MachineRenderer.logger.debug(this.m.getName() + "@" + this.clock
+		ScheduleRenderer.logger.debug(this.m.getName() + "@" + this.clock
 		    + " finished rendering. Took " + time + " seconds.");
 		return img;
 	}
@@ -201,23 +271,20 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 			try {
 				img = ImageIO.read(f);
 			} catch (IOException e) {
-				MachineRenderer.logger.warn("Cannot read cache for machine "
+				ScheduleRenderer.logger.warn("Cannot read cache for machine "
 				    + this.m.getId() + "@" + this.clock
 				    + ". Failed to read from a file " + f.getAbsolutePath() + ".");
 				img = this.actuallyDraw();
 			}
 		}
-		if (!this.isCaching) {
-			return img;
-		} else {
-			return null;
-		}
+		return img;
 	}
 
 	/**
 	 * Takes machine schedule data and renders them.
 	 * 
-	 * @param img
+	 * @param g
+	 *          The graphics in question.
 	 * @todo Produces unclear job boundaries, probably because of rounding.
 	 */
 	private void drawJobs(final Graphics2D g) {
@@ -255,13 +322,13 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 				final int jobStartX = this.getStartingPosition(evt);
 				if (jobStartX < 0) {
 					// might be ok, but might also be bad. so inform.
-					MachineRenderer.logger.info("Machine " + this.m.getName() + " at "
+					ScheduleRenderer.logger.info("Machine " + this.m.getName() + " at "
 					    + this.clock + " is drawing " + jobStartX
 					    + " before its boundary.");
 				}
 				final int jobLength = this.getJobLength(evt);
-				final int ltY = crntCPU * MachineRenderer.NUM_PIXELS_PER_CPU;
-				final int jobHgt = numCPUs * MachineRenderer.NUM_PIXELS_PER_CPU;
+				final int ltY = crntCPU * ScheduleRenderer.NUM_PIXELS_PER_CPU;
+				final int jobHgt = numCPUs * ScheduleRenderer.NUM_PIXELS_PER_CPU;
 				if ((evt.getDeadline() > -1) && (evt.getDeadline() < this.clock)) {
 					// the job has a deadline and has missed it
 					g.setColor(Color.RED);
@@ -273,10 +340,10 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 				g.setColor(Color.BLACK);
 				g.drawString(evt.getJob().toString(), Math.max(jobStartX + 2, 2), ltY
 				    + jobHgt - 2);
-				int rightBoundary = jobStartX + jobLength - MachineRenderer.LINE_WIDTH;
+				int rightBoundary = jobStartX + jobLength - ScheduleRenderer.LINE_WIDTH;
 				if (rightBoundary > 0) {
 					// always bad. warn.
-					MachineRenderer.logger.warn("Machine " + this.m.getName() + " at "
+					ScheduleRenderer.logger.warn("Machine " + this.m.getName() + " at "
 					    + this.clock + " is drawing " + rightBoundary
 					    + " over its boundary.");
 				}
@@ -285,9 +352,11 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	}
 
 	/**
-	 * Update the graphics object so that it performs better.
+	 * Tweaks the graphics object so that it performs better. Probably just a
+	 * micro-optimization.
 	 * 
 	 * @param g
+	 *          The graphics in question.
 	 */
 	private void fineTuneGraphics(final Graphics2D g) {
 		g.setRenderingHint(RenderingHints.KEY_RENDERING,
@@ -309,12 +378,10 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	 * @todo Make the max length of the id unlimited.
 	 */
 	private String getFilename() {
-		String id = "0000000000" + this.m.getId();
-		String id2 = "0000000000" + this.clock;
+		String id = "0000000000" + this.clock;
 		return Configuration.getTempFolder() + System.getProperty("file.separator")
-		    + MachineRenderer.instanceId + "-"
-		    + id.substring(id.length() - 10, id.length()) + "-"
-		    + id2.substring(id2.length() - 10, id2.length()) + ".gif";
+		    + ScheduleRenderer.instanceId + "-" + this.m.getName() + "-"
+		    + id.substring(id.length() - 10, id.length()) + ".gif";
 	}
 
 	/**
@@ -322,22 +389,30 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	 * painted.
 	 * 
 	 * @param jobId
-	 * @return A color that shall be used for that job. May be ignored when the
-	 *         job is overdue.
+	 * @return A color that shall be used for that job. May be ignored when we
+	 *         need to use another color for a job, indicating some special state
+	 *         the job is in.
 	 */
 	private synchronized Color getJobColor(final Integer jobId) {
-		if (!MachineRenderer.jobsToColors.containsKey(jobId)) {
-			Integer random = MachineRenderer.rand
-			    .nextInt(MachineRenderer.colors.length);
-			MachineRenderer.jobsToColors.put(jobId, MachineRenderer.colors[random]);
+		if (!ScheduleRenderer.jobsToColors.containsKey(jobId)) {
+			Integer random = ScheduleRenderer.rand
+			    .nextInt(ScheduleRenderer.colors.length);
+			ScheduleRenderer.jobsToColors.put(jobId, ScheduleRenderer.colors[random]);
 		}
-		return MachineRenderer.jobsToColors.get(jobId);
+		return ScheduleRenderer.jobsToColors.get(jobId);
 	}
 
+	/**
+	 * Calculate the length of a job on the screen.
+	 * 
+	 * @param evt
+	 *          The job in question.
+	 * @return Length in pixels.
+	 */
 	private int getJobLength(final Event evt) {
 		try {
 			return Math.round((evt.getExpectedEnd() - evt.getExpectedStart())
-			    * MachineRenderer.NUM_PIXELS_PER_TICK);
+			    * ScheduleRenderer.NUM_PIXELS_PER_TICK);
 		} catch (final NullPointerException e) {
 			return 0;
 		}
@@ -353,10 +428,10 @@ public final class MachineRenderer extends SwingWorker<Image, Void> {
 	private int getStartingPosition(final Event evt) {
 		try {
 			return Math.round((evt.getExpectedStart() - this.clock)
-			    * MachineRenderer.NUM_PIXELS_PER_TICK)
-			    + MachineRenderer.OVERFLOW_WIDTH;
+			    * ScheduleRenderer.NUM_PIXELS_PER_TICK)
+			    + ScheduleRenderer.OVERFLOW_WIDTH;
 		} catch (final NullPointerException e) {
-			return MachineRenderer.OVERFLOW_WIDTH;
+			return ScheduleRenderer.OVERFLOW_WIDTH;
 		}
 	}
 

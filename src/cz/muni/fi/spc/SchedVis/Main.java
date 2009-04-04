@@ -24,7 +24,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -35,7 +34,7 @@ import org.apache.log4j.Logger;
 import cz.muni.fi.spc.SchedVis.model.Database;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
-import cz.muni.fi.spc.SchedVis.rendering.MachineRenderer;
+import cz.muni.fi.spc.SchedVis.rendering.ScheduleRenderer;
 import cz.muni.fi.spc.SchedVis.ui.MainFrame;
 
 /**
@@ -69,7 +68,10 @@ public final class Main implements PropertyChangeListener {
 	 * The coefficient has been determined by experiment to provide the best
 	 * results. When threads block on IO operations, some other threads can be
 	 * executed. Thus the number of threads exceeding the total number of cores is
-	 * not a problem and provides a performance increase..
+	 * not a problem and provides a performance increase.
+	 * 
+	 * Should the program perform inefficiently in your use case, feel free to
+	 * tweak this setting.
 	 */
 	private static final Integer MAX_RENDERER_THREADS = Configuration
 	    .getNumberOfCPUCores() * 8;
@@ -133,10 +135,32 @@ public final class Main implements PropertyChangeListener {
 		    * averageTime;
 	}
 
+	/**
+	 * Get the main Swing frame. Useful for refreshing the whole GUI.
+	 * 
+	 * @return Main Swing UI frame.
+	 */
 	public static MainFrame getFrame() {
 		return Main.frame;
 	}
 
+	/**
+	 * Main method for the application. Checks input parameters, passes control
+	 * to other parts of this class.
+	 * 
+	 * @param args
+	 *          The program expects only one argument - the action to execute.
+	 *          Available actions are:
+	 *          <dl>
+	 *          <dt>run</dt>
+	 *          <dd>To launch the GUI.</dd>
+	 *          <dt>import</dt>
+	 *          <dd>To parse data set into the SQL database.</dd>
+	 *          <dt>cache</dt>
+	 *          <dd>To pre-generate all the schedule images.
+	 *          <dd>
+	 *          </dl>
+	 */
 	public static void main(final String[] args) {
 		if (args.length != 1) {
 			Main.printUsageAndExit();
@@ -144,10 +168,10 @@ public final class Main implements PropertyChangeListener {
 		if ("run".equals(args[0]) || "cache".equals(args[0])) {
 			File dbFile = Configuration.getDatabaseFile();
 			if (dbFile.exists()) {
-				Database.use(dbFile.getAbsolutePath());
+				Database.use();
 			} else {
 				System.out.print("Database file " + dbFile.getAbsolutePath()
-				    + "cannot be found! ");
+				    + " cannot be found! ");
 				Main.printUsageAndExit();
 			}
 			if ("run".equals(args[0])) {
@@ -168,12 +192,14 @@ public final class Main implements PropertyChangeListener {
 				    + " cannot be found! ");
 				Main.printUsageAndExit();
 			}
-			File dbFile = Configuration.getDatabaseFile();
-			Database.use(dbFile.getAbsolutePath());
+			Database.use();
 			Main.main.importData(new Importer(machinesFile, dataFile));
 		}
 	}
 
+	/**
+	 * Prints insctructions on how to use the program and exits.
+	 */
 	public static void printUsageAndExit() {
 		System.out.println("Please choose one of the operations available: ");
 		System.out.println(" ant import");
@@ -182,21 +208,31 @@ public final class Main implements PropertyChangeListener {
 		System.exit(1);
 	}
 
+	/**
+	 * Launches a process of pre-generating schedule images so that they are
+	 * available later for the GUI.
+	 * 
+	 * A rendering pipeline is opened and filled, at which point the thread waits
+	 * for the renderer to wake it when the pipeline is getting empty. When woken
+	 * up, the thread adds more tasks to the pipeline, waits and so on until all
+	 * the schedules are rendered.
+	 * 
+	 * The renderer wakes the thread through a listener that this class set on
+	 * renderer's progress property.
+	 */
 	private synchronized void cache() {
-		ExecutorService e = Executors.newFixedThreadPool(Main.MAX_RENDERER_THREADS);
-
 		System.out.println("Gathering data for rendering...");
 		Set<Machine> machines = new HashSet<Machine>(Machine.getAllGroupless());
-
 		System.out.println("Submitting schedules for rendering...");
 		Main.startProcessingTime = Double.valueOf(System.nanoTime());
 		Main.lastReportTime = Main.startProcessingTime.longValue();
-		List<Integer> ticks = Event.getAllTicks();
+		Set<Integer> ticks = Event.getAllTicks();
 		Main.totalRenderers = ticks.size() * machines.size();
 		Integer initialRenderers = 0;
+		ExecutorService e = Executors.newFixedThreadPool(Main.MAX_RENDERER_THREADS);
 		for (Integer clock : ticks) {
 			for (Machine m : machines) {
-				MachineRenderer mr = new MachineRenderer(m, clock, e, true, Main.main);
+				ScheduleRenderer mr = new ScheduleRenderer(m, clock, e, true, Main.main);
 				e.submit(mr);
 				Main.queuedRenderers.add(mr.hashCode());
 				if (Main.queuedRenderers.size() > Main.MAX_QUEUED_RENDERERS) {
@@ -249,6 +285,13 @@ public final class Main implements PropertyChangeListener {
 		});
 	}
 
+	/**
+	 * Launches the process of importing data from the data set to the SQL
+	 * database.
+	 * 
+	 * @param i
+	 *          The importer that handles the actual work.
+	 */
 	private void importData(final Importer i) {
 		System.out.println("Importing specified data.");
 		System.out.println("");
@@ -272,6 +315,11 @@ public final class Main implements PropertyChangeListener {
 		}
 	}
 
+	/**
+	 * A method to handle changes in the progress of caching schedules. Its main
+	 * task is to wake the main thread when the rendering queue is running empty
+	 * and to report the progress.
+	 */
 	@Override
 	public synchronized void propertyChange(final PropertyChangeEvent evt) {
 		Double leastPossibleQueueLength = (Main.MAX_QUEUED_RENDERERS - Main.MAX_RENDERER_THREADS) * 0.5;
@@ -293,7 +341,7 @@ public final class Main implements PropertyChangeListener {
 				Main.lastDoubledQueueLength = System.nanoTime();
 			}
 		}
-		MachineRenderer m = (MachineRenderer) evt.getSource();
+		ScheduleRenderer m = (ScheduleRenderer) evt.getSource();
 		if (m.isDone() && !m.isCancelled()) {
 			if (!Main.queuedRenderers.remove(m.hashCode())) {
 				// if the renderer is already removed, don't show progress information

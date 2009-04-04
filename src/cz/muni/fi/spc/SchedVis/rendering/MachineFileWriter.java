@@ -29,7 +29,10 @@ import javax.swing.SwingWorker;
 import org.apache.log4j.Logger;
 
 /**
- * @author triceo
+ * A class whose only purpose is to write an image to a file. It is used for
+ * delayed writing of just-rendered schedule images.
+ * 
+ * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
 public class MachineFileWriter extends SwingWorker<Void, Void> {
@@ -39,11 +42,22 @@ public class MachineFileWriter extends SwingWorker<Void, Void> {
 	private final static Logger logger = Logger
 	    .getLogger(MachineFileWriter.class);
 
+	/**
+	 * Class constructor.
+	 * 
+	 * @param img
+	 *          Image to write.
+	 * @param f
+	 *          File to write the image in.
+	 */
 	public MachineFileWriter(final BufferedImage img, final File f) {
 		this.img = img;
 		this.f = f;
 	}
 
+	/**
+	 * This is where the writing happens.
+	 */
 	@Override
 	protected Void doInBackground() throws Exception {
 		try {

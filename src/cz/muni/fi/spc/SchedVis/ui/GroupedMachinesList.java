@@ -25,19 +25,22 @@ import javax.swing.event.ListSelectionListener;
 import cz.muni.fi.spc.SchedVis.model.models.MachinesListModel;
 
 /**
- * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
+ * The list of machines in the groups dialog.
  * 
+ * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
 public class GroupedMachinesList extends JList {
 
-	/**
-     * 
-     */
 	private static final long serialVersionUID = 157627105166533902L;
 
 	/**
-     * 
-     */
+	 * Class constructor.
+	 * 
+	 * @param groupId
+	 *          Which machines should show. Null means "ungrouped machines."
+	 * @param owner
+	 *          Who should listen on changes to selection.
+	 */
 	public GroupedMachinesList(final Integer groupId,
 	    final ListSelectionListener owner) {
 		this.setModel(new MachinesListModel(groupId, null));
@@ -45,6 +48,9 @@ public class GroupedMachinesList extends JList {
 		this.addListSelectionListener(owner);
 	}
 
+	/**
+	 * Refresh the list on screen.
+	 */
 	public void update() {
 		final MachinesListModel model = (MachinesListModel) this.getModel();
 		model.update();

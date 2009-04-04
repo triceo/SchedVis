@@ -30,7 +30,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
-import cz.muni.fi.spc.SchedVis.ui.common.JBorderedPanel;
 
 /**
  * MainFrame class for SchedVis' user interface.
@@ -96,6 +95,9 @@ public class MainFrame extends JFrame {
 		return splitPane;
 	}
 
+	/**
+	 * Refresh the UI on the screen.
+	 */
 	public void update() {
 		ScheduleTreeModel.getInstance().regroup();
 		this.pack();

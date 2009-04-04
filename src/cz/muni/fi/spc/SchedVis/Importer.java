@@ -51,13 +51,13 @@ import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleMachineData;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleParser;
 
 /**
- * A tool to import data from specific files into the SQLite database used by
- * this application.
+ * A tool to import data from specific files into the SQL database used by this
+ * application.
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class Importer extends SwingWorker<Void, Void> {
+public final class Importer extends SwingWorker<Void, Void> {
 
 	private final File machinesFile;
 	private final Integer machinesLineCount;
@@ -69,8 +69,14 @@ public class Importer extends SwingWorker<Void, Void> {
 
 	private boolean result = false;
 
-	private final Map<String, Machine> machines = new HashMap<String, Machine>();
-
+	/**
+	 * A constructor to the class.
+	 * 
+	 * @param machinesFile
+	 *          A file to read the list of available machines from.
+	 * @param dataFile
+	 *          A file to read the list of events from.
+	 */
 	public Importer(final File machinesFile, final File dataFile) {
 		this.machinesFile = machinesFile;
 		this.machinesLineCount = this.countLines(machinesFile);
@@ -78,6 +84,13 @@ public class Importer extends SwingWorker<Void, Void> {
 		this.dataLineCount = this.countLines(dataFile);
 	}
 
+	/**
+	 * Calculate the number of lines in a given file.
+	 * 
+	 * @param file
+	 *          The file to count the lines in.
+	 * @return Number of lines in a file.
+	 */
 	private Integer countLines(final File file) {
 		try {
 			final LineNumberReader reader = new LineNumberReader(new FileReader(file));
@@ -93,6 +106,10 @@ public class Importer extends SwingWorker<Void, Void> {
 		}
 	}
 
+	/**
+	 * The method that is executed when this SwingWorker is executed. Handles all
+	 * the reading, parsing and storing in the database of all the required data.
+	 */
 	@Override
 	public Void doInBackground() {
 		if (!this.machinesFile.canRead() || !this.dataFile.canRead()) {
@@ -111,22 +128,17 @@ public class Importer extends SwingWorker<Void, Void> {
 	}
 
 	/**
-	 * @todo Remove this once second-level caching works fine.
+	 * Whether or not the task finished and succeeded.
 	 * 
-	 * @param name
-	 * @return
+	 * @return True when the task is over and successful, false otherwise.
 	 */
-	private Machine getMachine(final String name) {
-		if (!this.machines.containsKey(name)) {
-			this.machines.put(name, Machine.getWithName(name));
-		}
-		return this.machines.get(name);
-	}
-
 	public boolean isSuccess() {
-		return this.result;
+		return this.isDone() && this.result;
 	}
 
+	/**
+	 * Update progress of the overall task when the next line has been parsed.
+	 */
 	public void nextLineParsed() {
 		this.parsedLines++;
 		final Double progress = (this.parsedLines * 100)
@@ -141,12 +153,14 @@ public class Importer extends SwingWorker<Void, Void> {
 	}
 
 	/**
-	 * Parse the data set and insert its data into database.
+	 * Parse the available events and insert the data into database, each line of
+	 * which looks as defined in the grammar.
 	 * 
 	 * @param reader
+	 *          Reader pointing to the data set to parse.
 	 * @throws ParseException
-	 * @todo Somehow make jobs a table of its own.
-	 * @todo Somehow make assigned-CPUs a table if its own.
+	 *           When, for some reason, the file cannot be parsed. Might indicate
+	 *           a syntax error or, less possibly, JavaCC bug.
 	 */
 	private void parseDataSet(final BufferedReader reader) throws ParseException {
 		this.setProgress(0);
@@ -199,10 +213,10 @@ public class Importer extends SwingWorker<Void, Void> {
 				evt.setJob(((EventIsJobRelated) event).getJob());
 			}
 			if (event instanceof EventIsMachineRelated) {
-				evt.setSourceMachine(this.getMachine(((EventIsMachineRelated) event)
-				    .getMachine()));
+				evt.setSourceMachine(Machine
+				    .getWithName(((EventIsMachineRelated) event).getMachine()));
 				if (event instanceof ScheduleEventMove) {
-					evt.setTargetMachine(this.getMachine(((ScheduleEventMove) event)
+					evt.setTargetMachine(Machine.getWithName(((ScheduleEventMove) event)
 					    .getTargetMachine()));
 				}
 			}
@@ -214,7 +228,7 @@ public class Importer extends SwingWorker<Void, Void> {
 					for (final ScheduleJobData job : machine.getJobs()) {
 						final Event evt2 = new Event();
 						evt2.setClock(event.getClock());
-						evt2.setSourceMachine(this.getMachine(machine.getMachineId()));
+						evt2.setSourceMachine(Machine.getWithName(machine.getMachineId()));
 						evt2.setNeededCPUs(job.getNeededCPUs());
 						evt2.setAssignedCPUs(job.getAssignedCPUs());
 						evt2.setNeededPlatform(job.getArch());
@@ -241,16 +255,14 @@ public class Importer extends SwingWorker<Void, Void> {
 	}
 
 	/**
-	 * Parse the machines' input file, each line of which looks like this:
-	 * "${NAME};${CPUs};${SPEED};${PLATFORM};${OS};${RAM};${HDD}" Where: ${NAME}
-	 * is the name of the machine, ${CPUs} is the number of processors inside,
-	 * ${SPEED} is the total cumulative speed of those CPUs (in MIPS), ${PLATFORM}
-	 * is the architecture that the machine uses, ${OS} is the operating system
-	 * the machine runs, ${RAM} is the amount of RAM available in the machine (in
-	 * MBs) and ${HDD} is the amount of hard drive space available (in MBs)
+	 * Parse the machines' input file, each line of which looks as defined in the
+	 * grammar.
 	 * 
 	 * @param reader
+	 *          Reader pointing to the data set to parse.
 	 * @throws ParseException
+	 *           When, for some reason, the file cannot be parsed. Might indicate
+	 *           a syntax error or, less possibly, JavaCC bug.
 	 */
 	private void parseMachines(final BufferedReader reader) throws ParseException {
 		// ready the parser

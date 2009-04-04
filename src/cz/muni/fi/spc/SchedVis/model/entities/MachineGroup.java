@@ -29,6 +29,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 import org.hibernate.Criteria;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
@@ -36,12 +38,30 @@ import cz.muni.fi.spc.SchedVis.model.BaseEntity;
 import cz.muni.fi.spc.SchedVis.model.Database;
 
 /**
- * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
+ * JPA Entity that represents a group of machines.
  * 
+ * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class MachineGroup extends BaseEntity {
 
+	/**
+	 * Get machine group with a given ID.
+	 * 
+	 * @param id
+	 *          The id in question.
+	 * @return The machine.
+	 */
+	public static MachineGroup get(final Integer id) {
+		return Database.getEntityManager().find(MachineGroup.class, id);
+	}
+
+	/**
+	 * Get all the machine groups.
+	 * 
+	 * @return The machine groups.
+	 */
 	@SuppressWarnings("unchecked")
 	public static Set<MachineGroup> getAll() {
 		final Criteria crit = BaseEntity.getCriteria(Database.getEntityManager(),
@@ -50,14 +70,13 @@ public class MachineGroup extends BaseEntity {
 		return new HashSet<MachineGroup>(crit.list());
 	}
 
-	public static MachineGroup getWithId(final Integer id) {
-		final Criteria crit = BaseEntity.getCriteria(Database.getEntityManager(),
-		    MachineGroup.class, true);
-		crit.add(Restrictions.idEq(id));
-		crit.setMaxResults(1);
-		return (MachineGroup) crit.uniqueResult();
-	}
-
+	/**
+	 * Get machine group with a given name.
+	 * 
+	 * @param name
+	 *          The machine name in question.
+	 * @return The machine.
+	 */
 	public static MachineGroup getWithName(final String name) {
 		final Criteria crit = BaseEntity.getCriteria(Database.getEntityManager(),
 		    MachineGroup.class, true);
@@ -72,6 +91,12 @@ public class MachineGroup extends BaseEntity {
 
 	private Set<Machine> machines;
 
+	/**
+	 * Add a machine to the group.
+	 * 
+	 * @param me
+	 *          The machine.
+	 */
 	public void addMachine(final Machine me) {
 		this.machines.add(me);
 	}
@@ -82,6 +107,14 @@ public class MachineGroup extends BaseEntity {
 		return this.id;
 	}
 
+	/**
+	 * Get all machines in a group.
+	 * 
+	 * The eager fetching is there because lazy fetching caused various runtime
+	 * problems with Hibernate.
+	 * 
+	 * @return The machines.
+	 */
 	@OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
 	public Set<Machine> getMachines() {
 		return this.machines;
@@ -91,6 +124,12 @@ public class MachineGroup extends BaseEntity {
 		return this.name;
 	}
 
+	/**
+	 * Remove machine from the group.
+	 * 
+	 * @param me
+	 *          The machine.
+	 */
 	public void removeMachine(final Machine me) {
 		this.machines.remove(me);
 	}

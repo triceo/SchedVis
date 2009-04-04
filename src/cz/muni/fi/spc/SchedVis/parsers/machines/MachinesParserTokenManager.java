@@ -66,7 +66,7 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 		Token matchedToken;
 		int curPos = 0;
 
-		EOFLoop: for (;;) {
+		for (;;) {
 			try {
 				this.curChar = this.input_stream.BeginToken();
 			} catch (java.io.IOException e) {
@@ -106,8 +106,8 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 				this.input_stream.backup(1);
 				error_after = curPos <= 1 ? "" : this.input_stream.GetImage();
 			}
-			throw new TokenMgrError(EOFSeen, this.curLexState, error_line,
-			    error_column, error_after, this.curChar, TokenMgrError.LEXICAL_ERROR);
+			throw new TokenMgrError(EOFSeen, error_line, error_column, error_after,
+			    this.curChar, TokenMgrError.LEXICAL_ERROR);
 		}
 	}
 
@@ -293,9 +293,8 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 			throw new TokenMgrError("Error: Ignoring invalid lexical state : "
 			    + lexState + ". State unchanged.",
 			    TokenMgrError.INVALID_LEXICAL_STATE);
-		} else {
-			this.curLexState = lexState;
 		}
+		this.curLexState = lexState;
 	}
 
 }

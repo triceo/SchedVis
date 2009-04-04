@@ -44,9 +44,6 @@ import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
 public class SliderPanel extends JPanel implements ChangeListener,
     ActionListener {
 
-	/**
-     * 
-     */
 	private static final long serialVersionUID = 6091479520934383104L;
 	private TimelineSliderModel tlsm = null;
 	private final JButton btnStart = new JButton("|<");
@@ -55,8 +52,8 @@ public class SliderPanel extends JPanel implements ChangeListener,
 	private final JButton btnNext = new JButton(">");
 
 	/**
-     * 
-     */
+	 * The constructor.
+	 */
 	public SliderPanel() {
 		this.setLayout(new BorderLayout());
 		// left-side buttons
@@ -86,6 +83,9 @@ public class SliderPanel extends JPanel implements ChangeListener,
 		}
 	}
 
+	/**
+	 * Listens to actions on the timeline buttons.
+	 */
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 		final Object src = e.getSource();
@@ -102,6 +102,9 @@ public class SliderPanel extends JPanel implements ChangeListener,
 		}
 	}
 
+	/**
+	 * Listens to changes on the timeline slider.
+	 */
 	public void stateChanged(final ChangeEvent e) {
 		final Object src = e.getSource();
 		if (src.equals(this.tlsm)) {
@@ -109,7 +112,7 @@ public class SliderPanel extends JPanel implements ChangeListener,
 				return;
 			}
 			Integer value = this.tlsm.getValue();
-			if (!Event.existsClock(value)) {
+			if (!Event.existsTick(value)) {
 				this.tlsm.setValue(Event.getPrevious(value).getClock());
 			}
 			if (value.equals(this.tlsm.getMinimum())) {

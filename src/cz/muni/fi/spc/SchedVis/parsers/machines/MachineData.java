@@ -46,7 +46,7 @@ public class MachineData {
 		this.arch = arch.toString();
 		this.os = os.toString();
 		this.memory = new Integer(mem.toString());
-		this.space = new Integer(speed.toString());
+		this.space = new Integer(space.toString());
 	}
 
 	public String getArchitecture() {

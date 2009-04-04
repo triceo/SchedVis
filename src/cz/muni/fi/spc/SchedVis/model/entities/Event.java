@@ -33,6 +33,8 @@ import javax.persistence.OneToOne;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
@@ -40,13 +42,26 @@ import cz.muni.fi.spc.SchedVis.model.BaseEntity;
 import cz.muni.fi.spc.SchedVis.model.Database;
 
 /**
- * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
+ * JPA Entity that represents a single event.
  * 
+ * One parameter of particular interest is "clock", which is a tick on the
+ * timeline of the schedule. The whole application renders schedule snapshots in
+ * time based on this parameter.
+ * 
+ * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.NONE)
 public class Event extends BaseEntity {
 
-	public static boolean existsClock(final Integer clock) {
+	/**
+	 * Whether or not there exists an event with a given clock value.
+	 * 
+	 * @param clock
+	 *          The clock value in question.
+	 * @return True if such clock exists, false otherwise.
+	 */
+	public static boolean existsTick(final Integer clock) {
 		EntityManager em = Database.newEntityManager();
 		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
 		crit.add(Restrictions.eq("clock", clock));
@@ -56,17 +71,27 @@ public class Event extends BaseEntity {
 		return (evt != null);
 	}
 
+	/**
+	 * Get all existing values of the "clock" column.
+	 * 
+	 * @return All the existing ticks.
+	 */
 	@SuppressWarnings("unchecked")
-	public static List<Integer> getAllTicks() {
+	public static Set<Integer> getAllTicks() {
 		EntityManager em = Database.newEntityManager();
 		final List<Integer> l = ((Session) em.getDelegate())
 		    .createSQLQuery(
 		        "SELECT DISTINCT clock FROM Event WHERE parent_FK IS NULL ORDER BY clock ASC")
 		    .list();
 		em.close();
-		return l;
+		return new HashSet<Integer>(l);
 	}
 
+	/**
+	 * Get first event on the timeline.
+	 * 
+	 * @return The event.
+	 */
 	public static Event getFirst() {
 		EntityManager em = Database.newEntityManager();
 		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
@@ -78,6 +103,11 @@ public class Event extends BaseEntity {
 		return evt;
 	}
 
+	/**
+	 * Get the last event on the timeline.
+	 * 
+	 * @return The event.
+	 */
 	public static Event getLast() {
 		EntityManager em = Database.newEntityManager();
 		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
@@ -89,6 +119,11 @@ public class Event extends BaseEntity {
 		return evt;
 	}
 
+	/**
+	 * Get the maximum length of a job.
+	 * 
+	 * @return The length in ticks.
+	 */
 	@SuppressWarnings("unchecked")
 	public static Integer getMaxJobSpan() {
 		EntityManager em = Database.newEntityManager();
@@ -100,6 +135,13 @@ public class Event extends BaseEntity {
 		return l.get(0);
 	}
 
+	/**
+	 * Get the event that immediately follows the specified event.
+	 * 
+	 * @param eventId
+	 *          ID of the event in question.
+	 * @return The next event.
+	 */
 	public static Event getNext(final Integer eventId) {
 		EntityManager em = Database.newEntityManager();
 		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
@@ -112,6 +154,13 @@ public class Event extends BaseEntity {
 		return evt;
 	}
 
+	/**
+	 * Get the event that immediately preceeds the specified event.
+	 * 
+	 * @param eventId
+	 *          ID of the event in question.
+	 * @return The previous event.
+	 */
 	public static Event getPrevious(final Integer eventId) {
 		EntityManager em = Database.newEntityManager();
 		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
@@ -122,15 +171,6 @@ public class Event extends BaseEntity {
 		Event evt = (Event) crit.uniqueResult();
 		em.close();
 		return evt;
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Integer getTickCount() {
-		EntityManager em = Database.newEntityManager();
-		final List<Integer> l = ((Session) em.getDelegate()).createSQLQuery(
-		    "SELECT DISTINCT clock FROM Event WHERE parent_fk IS NULL").list();
-		em.close();
-		return l.size();
 	}
 
 	private Integer id;
@@ -159,6 +199,12 @@ public class Event extends BaseEntity {
 		this.events.add(e);
 	}
 
+	/**
+	 * Get CPUs assigned to a job.
+	 * 
+	 * @return A string containing integers (numbers of assigned
+	 *         CPUs) separated by commas.
+	 */
 	public String getAssignedCPUs() {
 		return this.assignedCPUs;
 	}
@@ -167,6 +213,11 @@ public class Event extends BaseEntity {
 		return this.clock;
 	}
 
+	/**
+	 * Get deadline clock value for a job.
+	 * 
+	 * @return If this is -1, there is no deadline.
+	 */
 	public Integer getDeadline() {
 		return this.deadline;
 	}

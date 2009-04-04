@@ -27,18 +27,27 @@ import org.apache.log4j.Logger;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 
 /**
- * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
+ * A model for the slider that specifies which time will the schedules be
+ * rendered at.
  * 
+ * It is a singleton as the slider is also only one.
+ * 
+ * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
 public class TimelineSliderModel extends DefaultBoundedRangeModel {
 
-	/**
-     * 
-     */
 	private static final long serialVersionUID = -8706999823450177356L;
 
 	private static TimelineSliderModel model = null;
 
+	/**
+	 * Get the only instance of the class.
+	 * 
+	 * @return The instance
+	 * @throws IllegalArgumentException
+	 *           Thrown when this method was called before
+	 *           setting the listener first.
+	 */
 	public static TimelineSliderModel getInstance()
 	    throws IllegalArgumentException {
 		if (TimelineSliderModel.model == null) {
@@ -48,6 +57,14 @@ public class TimelineSliderModel extends DefaultBoundedRangeModel {
 		return TimelineSliderModel.getInstance(null);
 	}
 
+	/**
+	 * Get the only instance of the class. The listener is only set if it wasn't
+	 * set previously.
+	 * 
+	 * @param listener
+	 *          What should listen on changes to this model.
+	 * @return The instance.
+	 */
 	public static TimelineSliderModel getInstance(final ChangeListener listener) {
 		if (TimelineSliderModel.model == null) {
 			TimelineSliderModel.model = new TimelineSliderModel(listener);
@@ -59,8 +76,11 @@ public class TimelineSliderModel extends DefaultBoundedRangeModel {
 	}
 
 	/**
-     * 
-     */
+	 * Class constructor.
+	 * 
+	 * @param listener
+	 *          What should listen on changes to the model.
+	 */
 	private TimelineSliderModel(final ChangeListener listener) {
 		this.setMinimum(Event.getFirst().getClock());
 		this.setMaximum(Event.getLast().getClock());

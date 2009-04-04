@@ -54,6 +54,7 @@
 		<delete dir="${dir.bin}" />
     <delete dir="${dir.build}" />
     <delete dir="${dir.tmp}" />
+    <delete file="${files.database}" />
     <mkdir dir="${dir.tmp}" />
   </target>
 	<target name="run" description="Run the program.">

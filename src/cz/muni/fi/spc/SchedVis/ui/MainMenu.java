@@ -29,7 +29,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
 import cz.muni.fi.spc.SchedVis.Main;
-import cz.muni.fi.spc.SchedVis.ui.dialogs.Groups;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -37,9 +36,6 @@ import cz.muni.fi.spc.SchedVis.ui.dialogs.Groups;
  */
 public class MainMenu extends JMenuBar implements ActionListener {
 
-	/**
-     * 
-     */
 	private static final long serialVersionUID = -301105021169477153L;
 
 	private static String ACTION_QUIT = "quit";
@@ -85,17 +81,23 @@ public class MainMenu extends JMenuBar implements ActionListener {
 		menu.add(menuItem);
 	}
 
+	/**
+	 * Handler for the clicks on menu items.
+	 */
 	public void actionPerformed(final ActionEvent event) {
 		final String command = event.getActionCommand();
 		if (command.equals(MainMenu.ACTION_QUIT)) {
 			this.quit();
 		} else if (command.equals(MainMenu.ACTION_MANAGE_GROUPS)) {
-			final Groups dialog = new Groups(this.frame, true);
+			final GroupsDialog dialog = new GroupsDialog(this.frame, true);
 			dialog.setVisible(true);
 			Main.getFrame().update();
 		}
 	}
 
+	/**
+	 * Terminate the application.
+	 */
 	protected void quit() {
 		System.exit(0);
 	}

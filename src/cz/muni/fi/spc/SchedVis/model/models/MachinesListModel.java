@@ -25,21 +25,25 @@ import javax.swing.event.ListDataListener;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 
 /**
- * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
+ * Model for a list of machines in the groups dialog.
  * 
+ * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
 public class MachinesListModel extends DefaultListModel {
 
-	/**
-     * 
-     */
 	private static final long serialVersionUID = 7269134473621539118L;
 
 	private final Integer groupId;
 
 	/**
-     * 
-     */
+	 * Class constructor.
+	 * 
+	 * @param groupId
+	 *          Machine group holding all the machines in this model. When null,
+	 *          means "machines in no group."
+	 * @param listener
+	 *          What listens on changes to this model.
+	 */
 	public MachinesListModel(final Integer groupId,
 	    final ListDataListener listener) {
 		this.groupId = groupId;
@@ -47,6 +51,9 @@ public class MachinesListModel extends DefaultListModel {
 		this.addListDataListener(listener);
 	}
 
+	/**
+	 * Removes all items from the model and adds them back again.
+	 */
 	public void update() {
 		this.removeAllElements();
 		for (final Machine item : Machine.getAll(this.groupId)) {

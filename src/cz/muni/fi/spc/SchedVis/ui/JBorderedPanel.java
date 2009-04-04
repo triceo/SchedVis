@@ -19,20 +19,38 @@
  */
 package cz.muni.fi.spc.SchedVis.ui;
 
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 /**
- * @author triceo
+ * Implements a JPanel that has automatically assigned a border with a title.
+ * 
+ * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class GroupPanel extends JPanel {
+public class JBorderedPanel extends JPanel {
+
+	private static final long serialVersionUID = 6524759692406002367L;
 
 	/**
-     * 
-     */
-	private static final long serialVersionUID = 7130448608133564732L;
+	 * 
+	 * @param title
+	 *          A new title for the JPanel's border.
+	 */
+	public JBorderedPanel(final String title) {
+		this.addTitle(title);
+	}
 
-	public GroupPanel() {
+	/**
+	 * Perform the addition of JPanel's border and title.
+	 * 
+	 * @param title
+	 *          A new title for the JPanel's border.
+	 */
+	private void addTitle(final String title) {
+		this.setBorder(BorderFactory
+		    .createCompoundBorder(BorderFactory.createTitledBorder(title),
+		        BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 	}
 
 }

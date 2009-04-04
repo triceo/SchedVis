@@ -20,9 +20,6 @@
 package cz.muni.fi.spc.SchedVis.rendering;
 
 import java.awt.Component;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,33 +27,36 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import org.apache.log4j.Logger;
 import org.hibernate.LazyInitializationException;
 
-import cz.muni.fi.spc.SchedVis.Configuration;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
-import cz.muni.fi.spc.SchedVis.ui.GroupPanel;
 import cz.muni.fi.spc.SchedVis.ui.MachinePanel;
 
 /**
+ * Tree Cell Renderer for Swing, creating the rendering requests and receiving
+ * the rendered schedules.
+ * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
 public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 
-	private static ExecutorService e = Executors.newCachedThreadPool();
-	private static ExecutorService fe = Executors
-	    .newFixedThreadPool(Configuration.getNumberOfCPUCores() * 4);
-
-	/**
-     * 
-     */
 	private static final long serialVersionUID = -5148385915562957149L;
 
+	/**
+	 * Get the panel that represents "tree handle" for a group of machines.
+	 * 
+	 * @param item
+	 *          The group in question. If null, the group for machines in no
+	 *          explicit groups is rendered.
+	 * @return
+	 */
 	private JPanel getGroup(final MachineGroup item) {
-		GroupPanel target = new GroupPanel();
+		JPanel target = new JPanel();
 		if (item == null) {
 			target.add(new JLabel("Ungrouped Machines"));
 		} else {
@@ -70,29 +70,33 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 		return target;
 	}
 
+	/**
+	 * Get the panel with the schedule. Commands the schedule rendering
+	 * controller.
+	 * 
+	 * @param item
+	 *          Machine in question. Current clock will be retrieved from the
+	 *          model(s).
+	 * @return The panel.
+	 */
 	private JPanel getMachine(final Machine item) {
+		Integer clock = TimelineSliderModel.getInstance().getValue();
 		try {
-			MachineRenderer mr = new MachineRenderer(item, TimelineSliderModel
-			    .getInstance().getValue(), ScheduleTreeCellRenderer.fe);
-			ScheduleTreeCellRenderer.e.submit(mr);
+			ScheduleRenderingController.getInstance().render(item, clock);
 			final MachinePanel pane = new MachinePanel();
 			pane.setToolTipText("Machine: " + item.getName() + ", time: "
 			    + this.getClass());
-			pane.setImage(mr.get());
+			pane.setImage(ScheduleRenderingController.getInstance().getRendered(item,
+			    clock));
 			return pane;
-		} catch (final InterruptedException e) {
+		} catch (final Exception e) {
+			Logger.getLogger(ScheduleTreeCellRenderer.class).warn(
+			    "Machine " + item.getName() + " at tick " + clock
+			        + " failed to render.");
 			final JPanel p = new JPanel();
-			p.add(new JLabel("InterruptedEception caught!"));
-			return p;
-		} catch (final ExecutionException e) {
-			final JPanel p = new JPanel();
-			p.add(new JLabel("ExecutionException caught!"));
+			p.add(new JLabel(e.getMessage()));
 			return p;
 		}
-	}
-
-	private JPanel getNoGroup() {
-		return this.getGroup(null);
 	}
 
 	@Override
@@ -104,10 +108,11 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 			return this.getMachine((Machine) userObject);
 		} else if (userObject instanceof MachineGroup) { // is a group
 			return this.getGroup((MachineGroup) userObject);
-		} else if (ScheduleTreeModel.ID_UNGROUPED.equals(userObject)) { // "ungrouped"
-			// group
-			return this.getNoGroup();
+		} else if (ScheduleTreeModel.ID_UNGROUPED.equals(userObject)) {
+			// "ungrouped machines" group
+			return this.getGroup(null);
 		} else {
+			// should never happen
 			final JPanel p = new JPanel();
 			p.add(new JLabel("Unknown object!"));
 			return p;

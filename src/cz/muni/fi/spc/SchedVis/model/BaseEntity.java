@@ -27,17 +27,48 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
+ * The base class for all the JPA entities. Servers only as a helper.
  * 
+ * Entities have various parameters, accessed through their getters and setters.
+ * Getters and setters of the subclasses are undocumented except for the cases
+ * where they actually do anything documentable.
+ * 
+ * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public abstract class BaseEntity implements Cloneable {
 
+	/**
+	 * Get a fresh criteria query. Using this method violates JPA as it does not
+	 * support criteria queries and thus locks the application to Hibernate.
+	 * 
+	 * @param em
+	 *          The entity manager using which we should retrieve the query
+	 * @param clazz
+	 *          The class on which the Criteria query will operate.
+	 * @param cacheable
+	 *          Whether or not the query is allowed to be cached. Every query
+	 *          should set this to true, unless there is a serious reason not to.
+	 * @return New criteria query.
+	 */
 	protected static Criteria getCriteria(final EntityManager em,
 	    final Class<?> clazz, final boolean cacheable) {
-		final Criteria crit = ((Session) em.getDelegate()).createCriteria(clazz);
+		final Criteria crit = BaseEntity.getSession(em).createCriteria(clazz);
 		crit.setCacheable(cacheable);
 		return crit;
+	}
+
+	/**
+	 * Get a session associated with the given entity manager.
+	 * 
+	 * Might
+	 * violate the JPA as it returns instance of a Session, possibly a
+	 * Hibernate-only class.
+	 * 
+	 * @return Session associated with the entity manager.
+	 */
+	protected static Session getSession(final EntityManager em) {
+		return (Session) em.getDelegate();
 	}
 
 }

@@ -26,41 +26,45 @@ import java.awt.Image;
 import javax.swing.JPanel;
 
 /**
- * @author triceo
+ * A panel that shows a machine schedule.
  * 
+ * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
 public class MachinePanel extends JPanel {
-	/**
-     * 
-     */
+
 	private static final long serialVersionUID = 1407665978399872917L;
-	protected Image ci = null;
+	protected Image i = null;
 
-	public MachinePanel() {
-		super(true);
+	/**
+	 * Get the schedule image this panel holds.
+	 * 
+	 * @return The schedule.
+	 */
+	public Image getImage() {
+		return this.i;
 	}
 
-	public Image getDisplayedImage() {
-		return this.ci;
-	}
-
+	/**
+	 * Refresh the panel on the screen.
+	 */
 	@Override
 	public void paint(final Graphics g) {
-		this.update(g);
-	}
-
-	public void setImage(final Image si) {
-		this.ci = si;
-		this.setPreferredSize(new Dimension(this.ci.getWidth(null) + 1, this.ci
-		    .getHeight(null) + 1));
-	}
-
-	@Override
-	public void update(final Graphics g) {
-		if (this.ci != null) {
-			g.drawImage(this.ci, 0, 0, null);
-		} else {
-			super.update(g);
+		super.paint(g);
+		if (this.getImage() != null) {
+			g.drawImage(this.getImage(), 0, 0, null);
 		}
 	}
+
+	/**
+	 * Set the schedule image to be rendered in this panel.
+	 * 
+	 * @param i
+	 *          The schedule.
+	 */
+	public void setImage(final Image i) {
+		this.i = i;
+		this.setPreferredSize(new Dimension(this.getImage().getWidth(null) + 5,
+		    this.getImage().getHeight(null) + 5));
+	}
+
 }

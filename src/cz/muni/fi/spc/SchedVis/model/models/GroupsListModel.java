@@ -25,24 +25,32 @@ import javax.swing.event.ListDataListener;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 
 /**
+ * Model for a list of groups in the groups dialog.
+ * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
 public class GroupsListModel extends DefaultComboBoxModel {
 
 	/**
-     * 
-     */
+   * 
+   */
 	private static final long serialVersionUID = -3334519146045362529L;
 
 	/**
-     * 
-     */
+	 * Class constructor.
+	 * 
+	 * @param listener
+	 *          Who listens on changes to the model.
+	 */
 	public GroupsListModel(final ListDataListener listener) {
 		this.update();
 		this.addListDataListener(listener);
 	}
 
+	/**
+	 * Remove all data from model and add them back.
+	 */
 	public void update() {
 		this.removeAllElements();
 		this.addElement("No group");

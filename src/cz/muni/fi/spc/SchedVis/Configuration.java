@@ -25,23 +25,43 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * @author lpetrovi
+ * The class that is used to access every bit of SchedVis configuration. It is
+ * a singleton.
+ * 
+ * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class Configuration {
+public final class Configuration {
 
 	private static Configuration instance;
 
+	/**
+	 * Retrieve the file that holds the SQLite database.
+	 * 
+	 * @return A database file.
+	 */
 	public static File getDatabaseFile() {
 		return new File(Configuration.getProperties().getProperty("files.database",
 		    "Production.sqlite")).getAbsoluteFile();
 	}
 
+	/**
+	 * Retrieve the file that holds the available events.
+	 * 
+	 * @return Events file.
+	 */
 	public static File getEventsFile() {
 		return new File(Configuration.getProperties().getProperty("files.events",
 		    "Data-set.txt")).getAbsoluteFile();
 	}
 
+	/**
+	 * Retrieve the single instance of this class.
+	 * 
+	 * @return The single Configuration instance.
+	 * @throws IOException
+	 *           Thrown when the configuration file cannot be read.
+	 */
 	private static Configuration getInstance() throws IOException {
 		if (Configuration.instance == null) {
 			Configuration.instance = new Configuration();
@@ -49,16 +69,32 @@ public class Configuration {
 		return Configuration.instance;
 	}
 
+	/**
+	 * Retrieve the file that holds the available machines.
+	 * 
+	 * @return Machines file.
+	 */
 	public static File getMachinesFile() {
 		return new File(Configuration.getProperties().getProperty("files.machines",
 		    "machines.txt")).getAbsoluteFile();
 	}
 
+	/**
+	 * Retrieve the number of CPU cores that the application has available.
+	 * 
+	 * @return Number of cores, never lower than 1.
+	 */
 	public static Integer getNumberOfCPUCores() {
 		return Math.max(Integer.valueOf(Configuration.getProperties().getProperty(
 		    "system.num_cores", "1")), Runtime.getRuntime().availableProcessors());
 	}
 
+	/**
+	 * Retrieve the parsed configuration file.
+	 * 
+	 * @return The object holding all the configuration values on success, empty
+	 *         object on failure.
+	 */
 	protected static Properties getProperties() {
 		try {
 			return Configuration.getInstance().p;
@@ -67,13 +103,25 @@ public class Configuration {
 		}
 	}
 
+	/**
+	 * Retrieve the temporary folder in which the application might store its
+	 * files.
+	 * 
+	 * @return The temporary folder.
+	 */
 	public static File getTempFolder() {
 		return new File(Configuration.getProperties().getProperty("folders.temp",
-		    System.getProperty("java.io.tempdir"))).getAbsoluteFile();
+		    ".tmp")).getAbsoluteFile();
 	}
 
 	private final Properties p = new Properties();
 
+	/**
+	 * Class constructor.
+	 * 
+	 * @throws IOException
+	 *           When the configuration cannot be read.
+	 */
 	private Configuration() throws IOException {
 		try {
 			FileInputStream in = new FileInputStream("config.properties");
