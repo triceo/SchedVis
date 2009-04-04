@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -45,32 +44,26 @@ public class MachineGroup extends BaseEntity {
 
 	@SuppressWarnings("unchecked")
 	public static Set<MachineGroup> getAll() {
-		EntityManager em = Database.newEntityManager();
-		final Criteria crit = BaseEntity.getCriteria(em, MachineGroup.class, true);
+		final Criteria crit = BaseEntity.getCriteria(Database.getEntityManager(),
+		    MachineGroup.class, true);
 		crit.addOrder(Order.asc("name"));
-		Set<MachineGroup> l = new HashSet<MachineGroup>(crit.list());
-		em.close();
-		return l;
+		return new HashSet<MachineGroup>(crit.list());
 	}
 
 	public static MachineGroup getWithId(final Integer id) {
-		EntityManager em = Database.newEntityManager();
-		final Criteria crit = BaseEntity.getCriteria(em, MachineGroup.class, true);
+		final Criteria crit = BaseEntity.getCriteria(Database.getEntityManager(),
+		    MachineGroup.class, true);
 		crit.add(Restrictions.idEq(id));
 		crit.setMaxResults(1);
-		MachineGroup mg = (MachineGroup) crit.uniqueResult();
-		em.close();
-		return mg;
+		return (MachineGroup) crit.uniqueResult();
 	}
 
 	public static MachineGroup getWithName(final String name) {
-		EntityManager em = Database.newEntityManager();
-		final Criteria crit = BaseEntity.getCriteria(em, MachineGroup.class, true);
+		final Criteria crit = BaseEntity.getCriteria(Database.getEntityManager(),
+		    MachineGroup.class, true);
 		crit.add(Restrictions.eq("name", name));
 		crit.setMaxResults(1);
-		MachineGroup mg = (MachineGroup) crit.uniqueResult();
-		em.close();
-		return mg;
+		return (MachineGroup) crit.uniqueResult();
 	}
 
 	private Integer id;
