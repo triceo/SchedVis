@@ -93,12 +93,8 @@ public class ScheduleTreeModel extends DefaultTreeModel {
 	}
 
 	/**
-	 * Update the tree model so that it contains only the groups received in the
-	 * argument. Also update sub-models for these groups.
-	 * 
-	 * @param visibleGroups
+	 * Update the tree model.
 	 */
-	@SuppressWarnings( { "unchecked" })
 	public void regroup() {
 		final DefaultMutableTreeNode root = ScheduleTreeModel.getTree();
 		this.setRoot(root);
