@@ -29,7 +29,7 @@
 	
 	<target name="makejar" description="Create a jar for the SchedVis project">
     <mkdir dir="${dir.bin}" />
-		<copy file="${dir.src}/log4j.xml" todir="${dir.build}" />
+		<copy file="log4j.xml" todir="${dir.build}" />
 		<copy file="${dir.lib}/i386/sqlite_jni.dll" todir="${dir.bin}" />
     <copy todir="${dir.build}/META-INF">
     	<fileset dir="${dir.src}/META-INF" />
