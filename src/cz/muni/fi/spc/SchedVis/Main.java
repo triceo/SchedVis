@@ -74,13 +74,13 @@ public final class Main implements PropertyChangeListener {
 	 * tweak this setting.
 	 */
 	private static final Integer MAX_RENDERER_THREADS = Configuration
-	    .getNumberOfCPUCores() * 8;
+	    .getNumberOfCPUCores() * 32;
 	/**
 	 * How many renderers should be ready to be executed when some other renderer
 	 * finishes. If this number is set too low, it will be increased
 	 * automatically.
 	 */
-	private static Integer MAX_QUEUED_RENDERERS = Main.MAX_RENDERER_THREADS * 4;
+	private static Integer MAX_QUEUED_RENDERERS = Main.MAX_RENDERER_THREADS * 2;
 
 	/**
 	 * Time in nanoseconds when we last reported progress of caching.
@@ -232,7 +232,7 @@ public final class Main implements PropertyChangeListener {
 		ExecutorService e = Executors.newFixedThreadPool(Main.MAX_RENDERER_THREADS);
 		for (Integer clock : ticks) {
 			for (Machine m : machines) {
-				ScheduleRenderer mr = new ScheduleRenderer(m, clock, e, true, Main.main);
+				ScheduleRenderer mr = new ScheduleRenderer(m, clock, true, Main.main);
 				e.submit(mr);
 				Main.queuedRenderers.add(mr.hashCode());
 				if (Main.queuedRenderers.size() > Main.MAX_QUEUED_RENDERERS) {
