@@ -103,7 +103,7 @@ public class ScheduleRenderingController {
 		if (this.renderers.get(clock).containsKey(m)) {
 			return;
 		}
-		ScheduleRenderer mr = new ScheduleRenderer(m, clock);
+		ScheduleRenderer mr = new ScheduleRenderer(m, clock, this.e);
 		this.e.submit(mr);
 		map.put(m, mr);
 	}

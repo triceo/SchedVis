@@ -74,7 +74,7 @@ public final class Main implements PropertyChangeListener {
 	 * tweak this setting.
 	 */
 	private static final Integer MAX_RENDERER_THREADS = Configuration
-	    .getNumberOfCPUCores() * 32;
+	    .getNumberOfCPUCores() * 8;
 	/**
 	 * How many renderers should be ready to be executed when some other renderer
 	 * finishes. If this number is set too low, it will be increased
@@ -222,17 +222,17 @@ public final class Main implements PropertyChangeListener {
 	 */
 	private synchronized void cache() {
 		System.out.println("Gathering data for rendering...");
-		Set<Machine> machines = new HashSet<Machine>(Machine.getAllGroupless());
-		System.out.println("Submitting schedules for rendering...");
-		Main.startProcessingTime = Double.valueOf(System.nanoTime());
-		Main.lastReportTime = Main.startProcessingTime.longValue();
+		Set<Machine> machines = Machine.getAllGroupless();
 		Set<Integer> ticks = Event.getAllTicks();
 		Main.totalRenderers = ticks.size() * machines.size();
 		Integer initialRenderers = 0;
+		System.out.println("Submitting schedules for rendering...");
 		ExecutorService e = Executors.newFixedThreadPool(Main.MAX_RENDERER_THREADS);
+		Main.startProcessingTime = Double.valueOf(System.nanoTime());
+		Main.lastReportTime = Main.startProcessingTime.longValue();
 		for (Integer clock : ticks) {
 			for (Machine m : machines) {
-				ScheduleRenderer mr = new ScheduleRenderer(m, clock, true, Main.main);
+				ScheduleRenderer mr = new ScheduleRenderer(m, clock, e, true, Main.main);
 				e.submit(mr);
 				Main.queuedRenderers.add(mr.hashCode());
 				if (Main.queuedRenderers.size() > Main.MAX_QUEUED_RENDERERS) {

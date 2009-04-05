@@ -30,9 +30,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
@@ -54,6 +56,11 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
  * <dd>Name for the state of this class when it is run from a command line,
  * doing nothing but pre-generating schedule images. In this case, some
  * optimizations are performed so that no unnecessary operations are performed.</dd>
+ * <dt>Delayed file saving</dt>
+ * <dd>Happens when the schedule image has been rendered. In order not to block
+ * other possible threads in rendering, the slow operation of saving a file is
+ * "out-sourced" to another thread and the rendered image is returned
+ * immediately.</dd>
  * </dl>
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -125,7 +132,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 * Holds events in a currently rendered schedule. Stored for performance
 	 * reasons.
 	 */
-	private Set<Event> events;
+	private List<Event> events;
 
 	private static Logger logger = Logger.getLogger(ScheduleRenderer.class);
 
@@ -133,6 +140,11 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 * Micro-optimization. Holds the parsed values of assigned CPUs.
 	 */
 	private final Map<String, Integer[]> sets = new HashMap<String, Integer[]>();
+
+	/**
+	 * The executor service used for delayed file saving.
+	 */
+	private final ExecutorService fileSaver;
 
 	/**
 	 * Holds colors for different jobs, so that they persist and are the same over
@@ -151,9 +163,12 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 *          Machine to render.
 	 * @param clock
 	 *          A point in time in which we want the schedule rendered.
+	 * @param fileSaver
+	 *          Executor service used for delayed file saving.
 	 */
-	public ScheduleRenderer(final Machine m, final Integer clock) {
-		this(m, clock, false);
+	public ScheduleRenderer(final Machine m, final Integer clock,
+	    final ExecutorService fileSaver) {
+		this(m, clock, fileSaver, false, null);
 	}
 
 	/**
@@ -163,12 +178,14 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 *          Machine to render.
 	 * @param clock
 	 *          A point in time in which we want the schedule rendered.
+	 * @param fileSaver
+	 *          Executor service used for delayed file saving.
 	 * @param isCaching
 	 *          Whether or not this instance should be caching.
 	 */
 	public ScheduleRenderer(final Machine m, final Integer clock,
-	    final boolean isCaching) {
-		this(m, clock, isCaching, null);
+	    final ExecutorService fileSaver, final boolean isCaching) {
+		this(m, clock, fileSaver, isCaching, null);
 	}
 
 	/**
@@ -178,16 +195,20 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 *          Machine to render.
 	 * @param clock
 	 *          A point in time in which we want the schedule rendered.
+	 * @param fileSaver
+	 *          Executor service used for delayed file saving.
 	 * @param isCaching
 	 *          Whether or not this instance should be caching.
 	 * @param l
 	 *          A listener to report progress to.
 	 */
 	public ScheduleRenderer(final Machine m, final Integer clock,
-	    final boolean isCaching, final PropertyChangeListener l) {
+	    final ExecutorService fileSaver, final boolean isCaching,
+	    final PropertyChangeListener l) {
 		this.m = m;
 		this.clock = clock;
 		this.isCaching = isCaching;
+		this.fileSaver = fileSaver;
 		if (l != null) {
 			this.addPropertyChangeListener(l);
 		}
@@ -246,20 +267,9 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		BufferedImage img = null;
 		if (!f.exists()) {
 			img = this.actuallyDraw();
-			try {
-				ImageIO.write(img, "gif", f);
-			} catch (IOException e) {
-				ScheduleRenderer.logger.warn("Cannot write cache for machine "
-				    + this.m.getId() + "@" + this.clock + ". Failed to write a file "
-				    + f.getAbsolutePath() + ".");
-			}
+			this.fileSaver.submit(new MachineFileWriter(img, f));
 		} else if (!this.isCaching) {
 			try {
-				if (f.length() == 0) {
-					// if the file is empty, delete in and start all over again
-					f.delete();
-					return this.doInBackground();
-				}
 				img = ImageIO.read(f);
 			} catch (IOException e) {
 				ScheduleRenderer.logger.warn("Cannot read cache for machine "

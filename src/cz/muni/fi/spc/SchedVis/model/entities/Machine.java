@@ -22,6 +22,7 @@ package cz.muni.fi.spc.SchedVis.model.entities;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Vector;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
@@ -33,7 +34,6 @@ import javax.persistence.ManyToOne;
 import org.hibernate.Criteria;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Index;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
@@ -109,7 +109,7 @@ public class Machine extends BaseEntity implements Comparable<Machine> {
 	 * @return The latest schedule.
 	 */
 	@SuppressWarnings("unchecked")
-	public static Set<Event> getLatestSchedule(final Machine which,
+	public static List<Event> getLatestSchedule(final Machine which,
 	    final Integer clock) {
 		EntityManager em = Database.newEntityManager();
 		final Criteria crit = BaseEntity.getCriteria(em, Event.class, false);
@@ -121,7 +121,7 @@ public class Machine extends BaseEntity implements Comparable<Machine> {
 		final Event evt = (Event) crit.uniqueResult();
 		if (evt == null) {
 			em.close();
-			return new TreeSet<Event>();
+			return new Vector<Event>();
 		}
 		Criteria crit2 = BaseEntity.getCriteria(em, Event.class, false);
 		crit2.add(Restrictions.eq("sourceMachine", which));
@@ -129,7 +129,7 @@ public class Machine extends BaseEntity implements Comparable<Machine> {
 		crit2.addOrder(Order.asc("expectedStart"));
 		List<Event> l = crit2.list();
 		em.close();
-		return new TreeSet<Event>(l);
+		return l;
 	}
 
 	/**
@@ -243,7 +243,6 @@ public class Machine extends BaseEntity implements Comparable<Machine> {
 		return this.id;
 	}
 
-	@Index(name = "NameIndex")
 	public String getName() {
 		return this.name;
 	}
