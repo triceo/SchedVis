@@ -82,7 +82,6 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 	private JPanel getMachine(final Machine item) {
 		Integer clock = TimelineSliderModel.getInstance().getValue();
 		try {
-			ScheduleRenderingController.getInstance().render(item, clock);
 			final MachinePanel pane = new MachinePanel();
 			pane.setToolTipText("Machine: " + item.getName() + ", time: "
 			    + this.getClass());

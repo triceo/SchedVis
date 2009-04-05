@@ -73,8 +73,8 @@ public final class Main implements PropertyChangeListener {
 	 * Should the program perform inefficiently in your use case, feel free to
 	 * tweak this setting.
 	 */
-	private static final Integer MAX_RENDERER_THREADS = Configuration
-	    .getNumberOfCPUCores() * 8;
+	public static final Integer MAX_RENDERER_THREADS = Configuration
+	    .getNumberOfCPUCores() * 32;
 	/**
 	 * How many renderers should be ready to be executed when some other renderer
 	 * finishes. If this number is set too low, it will be increased

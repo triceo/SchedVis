@@ -155,5 +155,4 @@ public class SliderPanel extends JPanel implements ChangeListener,
 			}
 		}
 	}
-
 }

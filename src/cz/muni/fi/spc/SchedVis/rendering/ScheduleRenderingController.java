@@ -26,6 +26,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import cz.muni.fi.spc.SchedVis.Main;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 
 /**
@@ -53,7 +54,8 @@ public class ScheduleRenderingController {
 	/**
 	 * Executor for rendering schedules.
 	 */
-	private final ExecutorService e = Executors.newCachedThreadPool();
+	private final ExecutorService e = Executors
+	    .newFixedThreadPool(Main.MAX_RENDERER_THREADS);
 
 	/**
 	 * Requests an already rendered schedule. If none is available but the
