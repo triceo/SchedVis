@@ -26,7 +26,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import cz.muni.fi.spc.SchedVis.Configuration;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 
 /**
@@ -50,20 +49,11 @@ public class ScheduleRenderingController {
 	 * Holds active machine renderers, ie. schedules that are still rendering.
 	 */
 	private final Map<Integer, Map<Machine, ScheduleRenderer>> renderers = new HashMap<Integer, Map<Machine, ScheduleRenderer>>();
-	/**
-	 * Holds already rendered schedules.
-	 */
-	private final Map<Integer, Map<Machine, Image>> images = new HashMap<Integer, Map<Machine, Image>>();
 
 	/**
 	 * Executor for rendering schedules.
 	 */
 	private final ExecutorService e = Executors.newCachedThreadPool();
-	/**
-	 * Executor for delayed writing of the schedule image files.
-	 */
-	private final ExecutorService fe = Executors.newFixedThreadPool(Configuration
-	    .getNumberOfCPUCores() * 2);
 
 	/**
 	 * Requests an already rendered schedule. If none is available but the
@@ -78,12 +68,10 @@ public class ScheduleRenderingController {
 	 * @return The rendered schedule.
 	 */
 	public synchronized Image getRendered(final Machine m, final Integer clock) {
-		if (this.images.containsKey(clock) && this.images.get(clock).containsKey(m)) {
-			return this.images.get(clock).get(m);
-		}
 		if (!this.renderers.containsKey(clock)
 		    || !this.renderers.get(clock).containsKey(m)) {
 			this.render(m, clock);
+			return this.getRendered(m, clock); // start all over again
 		}
 		ScheduleRenderer mr = this.renderers.get(clock).get(m);
 		Image img;
@@ -95,10 +83,6 @@ public class ScheduleRenderingController {
 			return null;
 		}
 		this.renderers.get(clock).remove(m);
-		if (!this.images.containsKey(clock)) {
-			this.images.put(clock, new HashMap<Machine, Image>());
-		}
-		this.images.get(clock).put(m, img);
 		return img;
 	}
 
@@ -112,9 +96,6 @@ public class ScheduleRenderingController {
 	 *          The time in which to render the schedule.
 	 */
 	public synchronized void render(final Machine m, final Integer clock) {
-		if (this.images.containsKey(clock) && this.images.get(clock).containsKey(m)) {
-			return;
-		}
 		if (!this.renderers.containsKey(clock)) {
 			this.renderers.put(clock, new HashMap<Machine, ScheduleRenderer>());
 		}
@@ -122,7 +103,7 @@ public class ScheduleRenderingController {
 		if (this.renderers.get(clock).containsKey(m)) {
 			return;
 		}
-		ScheduleRenderer mr = new ScheduleRenderer(m, clock, this.fe);
+		ScheduleRenderer mr = new ScheduleRenderer(m, clock, this.e);
 		this.e.submit(mr);
 		map.put(m, mr);
 	}

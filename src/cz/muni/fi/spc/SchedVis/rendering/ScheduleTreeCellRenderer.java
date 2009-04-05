@@ -94,7 +94,7 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 			    "Machine " + item.getName() + " at tick " + clock
 			        + " failed to render.");
 			final JPanel p = new JPanel();
-			p.add(new JLabel(e.getMessage()));
+			p.add(new JLabel(e.toString()));
 			return p;
 		}
 	}
