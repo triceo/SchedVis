@@ -157,6 +157,11 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 */
 	private static final Random rand = new Random();
 
+	/**
+	 * How many ticks per a guiding bar should there be on the schedule.
+	 */
+	private static final Integer TICKS_PER_GUIDING_BAR = 500;
+
 	private static Map<Integer, Raster> backgroundsActive = new HashMap<Integer, Raster>();
 	private static Map<Integer, Raster> backgroundsInactive = new HashMap<Integer, Raster>();
 
@@ -395,12 +400,13 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 *         the job is in.
 	 */
 	private synchronized Color getJobColor(final Integer jobId) {
-		if (!ScheduleRenderer.jobsToColors.containsKey(jobId)) {
+		if (!ScheduleRenderer.jobsToColors.containsKey(jobId.intValue())) {
 			Integer random = ScheduleRenderer.rand
 			    .nextInt(ScheduleRenderer.colors.length);
-			ScheduleRenderer.jobsToColors.put(jobId, ScheduleRenderer.colors[random]);
+			ScheduleRenderer.jobsToColors.put(jobId.intValue(),
+			    ScheduleRenderer.colors[random]);
 		}
-		return ScheduleRenderer.jobsToColors.get(jobId);
+		return ScheduleRenderer.jobsToColors.get(jobId.intValue());
 	}
 
 	/**
@@ -438,17 +444,16 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 
 	private synchronized Raster getTemplate(final boolean isActive) {
 		boolean needsNew = false;
+		int numCPUs = this.m.getCPUs().intValue();
 		if (isActive) {
-			needsNew = !ScheduleRenderer.backgroundsActive.containsKey(this.m
-			    .getCPUs());
+			needsNew = !ScheduleRenderer.backgroundsActive.containsKey(numCPUs);
 		} else {
-			needsNew = !ScheduleRenderer.backgroundsInactive.containsKey(this.m
-			    .getCPUs());
+			needsNew = !ScheduleRenderer.backgroundsInactive.containsKey(numCPUs);
 		}
 		if (needsNew) {
-			BufferedImage img = new BufferedImage(ScheduleRenderer.LINE_WIDTH, this.m
-			    .getCPUs()
-			    * ScheduleRenderer.NUM_PIXELS_PER_CPU, BufferedImage.TYPE_INT_RGB);
+			BufferedImage img = new BufferedImage(ScheduleRenderer.LINE_WIDTH,
+			    numCPUs * ScheduleRenderer.NUM_PIXELS_PER_CPU,
+			    BufferedImage.TYPE_INT_RGB);
 			final Graphics2D g = (Graphics2D) img.getGraphics();
 			this.fineTuneGraphics(g);
 			// draw background
@@ -469,7 +474,8 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 				    ScheduleRenderer.LINE_WIDTH - 2, (cpu + 1)
 				        * ScheduleRenderer.NUM_PIXELS_PER_CPU);
 			}
-			Integer barDistance = 100;
+			Integer barDistance = Math.round(ScheduleRenderer.TICKS_PER_GUIDING_BAR
+			    * ScheduleRenderer.NUM_PIXELS_PER_TICK);
 			for (Integer bar = 0; bar < (ScheduleRenderer.LINE_WIDTH / barDistance); bar++) {
 				g.drawLine(barDistance * (bar + 1), 0, barDistance * (bar + 1), img
 				    .getHeight() - 2);
@@ -477,20 +483,18 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 			g.setColor(Color.black);
 			// draw a line in a place where "zero" (current clock) is.
 			g.drawLine(ScheduleRenderer.OVERFLOW_WIDTH, 0,
-			    ScheduleRenderer.OVERFLOW_WIDTH, this.m.getCPUs()
+			    ScheduleRenderer.OVERFLOW_WIDTH, numCPUs
 			        * ScheduleRenderer.NUM_PIXELS_PER_CPU);
 			// store the background
 			if (isActive) {
-				ScheduleRenderer.backgroundsActive.put(this.m.getCPUs(), img
-				    .getRaster());
+				ScheduleRenderer.backgroundsActive.put(numCPUs, img.getRaster());
 			} else {
-				ScheduleRenderer.backgroundsInactive.put(this.m.getCPUs(), img
-				    .getRaster());
+				ScheduleRenderer.backgroundsInactive.put(numCPUs, img.getRaster());
 			}
 		}
 		if (isActive) {
-			return ScheduleRenderer.backgroundsActive.get(this.m.getCPUs());
+			return ScheduleRenderer.backgroundsActive.get(numCPUs);
 		}
-		return ScheduleRenderer.backgroundsInactive.get(this.m.getCPUs());
+		return ScheduleRenderer.backgroundsInactive.get(numCPUs);
 	}
 }
