@@ -19,9 +19,9 @@
  */
 package cz.muni.fi.spc.SchedVis.model.entities;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
@@ -48,7 +48,7 @@ import cz.muni.fi.spc.SchedVis.model.Database;
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Machine extends BaseEntity {
+public class Machine extends BaseEntity implements Comparable<Machine> {
 
 	/**
 	 * Holds so-called "machine events" - those are events that change the state
@@ -77,7 +77,7 @@ public class Machine extends BaseEntity {
 		crit.addOrder(Order.asc("name"));
 		List<Machine> l = crit.list();
 		em.close();
-		return new HashSet<Machine>(l);
+		return new TreeSet<Machine>(l);
 	}
 
 	/**
@@ -93,7 +93,7 @@ public class Machine extends BaseEntity {
 		crit.addOrder(Order.asc("name"));
 		List<Machine> l = crit.list();
 		em.close();
-		return new HashSet<Machine>(l);
+		return new TreeSet<Machine>(l);
 	}
 
 	/**
@@ -121,7 +121,7 @@ public class Machine extends BaseEntity {
 		final Event evt = (Event) crit.uniqueResult();
 		if (evt == null) {
 			em.close();
-			return new HashSet<Event>();
+			return new TreeSet<Event>();
 		}
 		Criteria crit2 = BaseEntity.getCriteria(em, Event.class, false);
 		crit2.add(Restrictions.eq("sourceMachine", which));
@@ -129,7 +129,7 @@ public class Machine extends BaseEntity {
 		crit2.addOrder(Order.asc("expectedStart"));
 		List<Event> l = crit2.list();
 		em.close();
-		return new HashSet<Event>(l);
+		return new TreeSet<Event>(l);
 	}
 
 	/**
@@ -217,6 +217,11 @@ public class Machine extends BaseEntity {
 	private Integer speed;
 
 	private MachineGroup group;
+
+	@Override
+	public int compareTo(final Machine o) {
+		return this.getId().compareTo(o.getId());
+	}
 
 	public Integer getCPUs() {
 		return this.cpus;

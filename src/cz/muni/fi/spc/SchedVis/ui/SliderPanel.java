@@ -29,9 +29,11 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 import cz.muni.fi.spc.SchedVis.Main;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
+import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
 
 /**
@@ -135,6 +137,19 @@ public class SliderPanel extends JPanel implements ChangeListener,
 				Main.getFrame().setCursor(
 				    Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				ScheduleTree.getInstance().updateUI();
+				// update the detail pane based on the tree selection
+				try {
+					DefaultMutableTreeNode n = (DefaultMutableTreeNode) ScheduleTree
+					    .getInstance().getLastSelectedPathComponent();
+					if (n.getUserObject() instanceof Machine) {
+						Main.getFrame().updateDetail((Machine) n.getUserObject());
+					} else {
+						Main.getFrame().updateDetail(null);
+					}
+				} catch (NullPointerException ex) {
+					Main.getFrame().updateDetail(null);
+				}
+				Main.getFrame().update();
 				Main.getFrame().setCursor(
 				    Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			}

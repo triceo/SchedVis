@@ -19,8 +19,8 @@
  */
 package cz.muni.fi.spc.SchedVis.model.entities;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -67,7 +67,7 @@ public class MachineGroup extends BaseEntity {
 		final Criteria crit = BaseEntity.getCriteria(Database.getEntityManager(),
 		    MachineGroup.class, true);
 		crit.addOrder(Order.asc("name"));
-		return new HashSet<MachineGroup>(crit.list());
+		return new TreeSet<MachineGroup>(crit.list());
 	}
 
 	/**

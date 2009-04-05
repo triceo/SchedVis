@@ -21,6 +21,7 @@ package cz.muni.fi.spc.SchedVis.model.entities;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
@@ -52,7 +53,7 @@ import cz.muni.fi.spc.SchedVis.model.Database;
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.NONE)
-public class Event extends BaseEntity {
+public class Event extends BaseEntity implements Comparable<Event> {
 
 	/**
 	 * Whether or not there exists an event with a given clock value.
@@ -84,7 +85,7 @@ public class Event extends BaseEntity {
 		        "SELECT DISTINCT clock FROM Event WHERE parent_FK IS NULL ORDER BY clock ASC")
 		    .list();
 		em.close();
-		return new HashSet<Integer>(l);
+		return new TreeSet<Integer>(l);
 	}
 
 	/**
@@ -197,6 +198,11 @@ public class Event extends BaseEntity {
 
 	public void addChild(final Event e) {
 		this.events.add(e);
+	}
+
+	@Override
+	public int compareTo(final Event o) {
+		return this.getId().compareTo(o.getId());
 	}
 
 	/**

@@ -29,6 +29,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
 import cz.muni.fi.spc.SchedVis.Main;
+import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -91,6 +92,7 @@ public class MainMenu extends JMenuBar implements ActionListener {
 		} else if (command.equals(MainMenu.ACTION_MANAGE_GROUPS)) {
 			final GroupsDialog dialog = new GroupsDialog(this.frame, true);
 			dialog.setVisible(true);
+			ScheduleTreeModel.getInstance().regroup();
 			Main.getFrame().update();
 		}
 	}

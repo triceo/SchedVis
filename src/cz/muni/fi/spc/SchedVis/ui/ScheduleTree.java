@@ -19,8 +19,15 @@
  */
 package cz.muni.fi.spc.SchedVis.ui;
 
-import javax.swing.JTree;
+import java.awt.Cursor;
 
+import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+
+import cz.muni.fi.spc.SchedVis.Main;
+import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 import cz.muni.fi.spc.SchedVis.rendering.ScheduleTreeCellRenderer;
 
@@ -31,7 +38,7 @@ import cz.muni.fi.spc.SchedVis.rendering.ScheduleTreeCellRenderer;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class ScheduleTree extends JTree {
+public class ScheduleTree extends JTree implements TreeSelectionListener {
 
 	private static ScheduleTree tree = null;
 
@@ -45,6 +52,7 @@ public class ScheduleTree extends JTree {
 	public static ScheduleTree getInstance() {
 		if (ScheduleTree.tree == null) {
 			ScheduleTree.tree = new ScheduleTree();
+			ScheduleTree.tree.addTreeSelectionListener(ScheduleTree.tree);
 		}
 		return ScheduleTree.tree;
 	}
@@ -61,5 +69,23 @@ public class ScheduleTree extends JTree {
 		this.setRootVisible(false);
 		this.setOpaque(true);
 		this.setModel(ScheduleTreeModel.getInstance());
+	}
+
+	/**
+	 * Listens to changes in selection on this tree.
+	 */
+	@Override
+	public void valueChanged(final TreeSelectionEvent e) {
+		Main.getFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		Object o = ((DefaultMutableTreeNode) ScheduleTree.tree
+		    .getLastSelectedPathComponent()).getUserObject();
+		if (o instanceof Machine) {
+			Main.getFrame().updateDetail((Machine) o);
+		} else {
+			Main.getFrame().updateDetail(null);
+		}
+		Main.getFrame().update();
+		Main.getFrame()
+		    .setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 }

@@ -21,6 +21,8 @@ package cz.muni.fi.spc.SchedVis.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.util.Arrays;
+import java.util.TreeSet;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -29,7 +31,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
-import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
+import cz.muni.fi.spc.SchedVis.model.entities.Event;
+import cz.muni.fi.spc.SchedVis.model.entities.Machine;
+import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
+import cz.muni.fi.spc.SchedVis.rendering.ScheduleRenderingController;
 
 /**
  * MainFrame class for SchedVis' user interface.
@@ -44,6 +49,7 @@ public class MainFrame extends JFrame {
      */
 	private static final long serialVersionUID = 6652856626507094021L;
 	private static ScheduleTree tree = ScheduleTree.getInstance();
+	private JPanel detailPane;
 
 	/**
 	 * Create the GUI and show it. For thread safety, this method should be
@@ -72,9 +78,9 @@ public class MainFrame extends JFrame {
 		schedulePanel.add(sPanel, BorderLayout.PAGE_END);
 		schedulePanel.setMinimumSize(sPanel.getPreferredSize());
 		// get machine detail
-		final JPanel detailPane = new JPanel();
-		detailPane.add(new JLabel("Here goes future machine detail."));
-		schedulePanel.add(detailPane, BorderLayout.PAGE_START);
+		this.detailPane = new JBorderedPanel("Machine detail");
+		this.updateDetail(null);
+		schedulePanel.add(this.detailPane, BorderLayout.PAGE_START);
 		// get scrolling pane with a tree
 		final JScrollPane pane = new JScrollPane(MainFrame.tree);
 		pane.setWheelScrollingEnabled(true);
@@ -99,9 +105,48 @@ public class MainFrame extends JFrame {
 	 * Refresh the UI on the screen.
 	 */
 	public void update() {
-		ScheduleTreeModel.getInstance().regroup();
 		this.pack();
 		this.repaint();
 	}
 
+	/**
+	 * Updates the detail panel with the data about a given machine.
+	 * 
+	 * @param m
+	 *          The machine.
+	 */
+	public void updateDetail(final Machine m) {
+		this.detailPane.removeAll();
+		if (m != null) {
+			this.detailPane.setLayout(new BoxLayout(this.detailPane,
+			    BoxLayout.PAGE_AXIS));
+			Integer currentClock = TimelineSliderModel.getInstance().getValue();
+			Integer previousClock;
+			try {
+				previousClock = Event.getPrevious(currentClock).getClock();
+			} catch (NullPointerException e) {
+				previousClock = Event.getFirst().getClock();
+			}
+			Integer nextClock;
+			try {
+				nextClock = Event.getNext(currentClock).getClock();
+			} catch (NullPointerException e) {
+				nextClock = Event.getLast().getClock();
+			}
+			;
+			for (Integer clock : new TreeSet<Integer>(Arrays.asList(new Integer[] {
+			    previousClock, currentClock, nextClock }))) {
+				ScheduleRenderingController.getInstance().render(m, clock);
+				final MachinePanel pane = new MachinePanel();
+				pane.setToolTipText("Machine: " + m.getName() + ", time: "
+				    + currentClock);
+				pane.setImage(ScheduleRenderingController.getInstance().getRendered(m,
+				    clock));
+				this.detailPane.add(pane);
+			}
+		} else {
+			this.detailPane.add(new JLabel(
+			    "Click on any schedule and a machine detail will appear here."));
+		}
+	}
 }
