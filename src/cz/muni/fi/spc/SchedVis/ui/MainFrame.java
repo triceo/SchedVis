@@ -138,8 +138,7 @@ public class MainFrame extends JFrame {
 			    previousClock, currentClock, nextClock }))) {
 				ScheduleRenderingController.getInstance().render(m, clock);
 				final MachinePanel pane = new MachinePanel();
-				pane.setToolTipText("Machine: " + m.getName() + ", time: "
-				    + currentClock);
+				pane.setToolTipText("Machine: " + m.getName() + ", time: " + clock);
 				pane.setImage(ScheduleRenderingController.getInstance().getRendered(m,
 				    clock));
 				this.detailPane.add(pane);
