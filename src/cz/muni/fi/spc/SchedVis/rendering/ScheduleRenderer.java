@@ -25,6 +25,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
@@ -156,6 +157,9 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 */
 	private static final Random rand = new Random();
 
+	private static Map<Integer, Raster> backgroundsActive = new HashMap<Integer, Raster>();
+	private static Map<Integer, Raster> backgroundsInactive = new HashMap<Integer, Raster>();
+
 	/**
 	 * Class constructor that disables caching and does not report progress.
 	 * 
@@ -223,20 +227,16 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	private BufferedImage actuallyDraw() {
 		Double time = Double.valueOf(System.nanoTime());
 		this.events = Machine.getLatestSchedule(this.m, this.clock);
-		final BufferedImage img = new BufferedImage(ScheduleRenderer.LINE_WIDTH,
-		    this.m.getCPUs() * ScheduleRenderer.NUM_PIXELS_PER_CPU,
-		    BufferedImage.TYPE_INT_RGB);
-		final Graphics2D g = (Graphics2D) img.getGraphics();
-		this.fineTuneGraphics(g);
-		g.setFont(ScheduleRenderer.font);
 		boolean isActive = Machine.isActive(this.m, this.clock);
-		if (isActive) {
-			g.setColor(Color.WHITE);
-		} else {
-			g.setColor(Color.DARK_GRAY);
-		}
-		g.fillRect(0, 0, img.getWidth() - 1, img.getHeight() - 1);
+		BufferedImage img = new BufferedImage(ScheduleRenderer.LINE_WIDTH, this.m
+		    .getCPUs()
+		    * ScheduleRenderer.NUM_PIXELS_PER_CPU, BufferedImage.TYPE_INT_RGB);
+		img.setData(this.getTemplate(isActive));
+		Graphics2D g = (Graphics2D) img.getGraphics();
+		g.setFont(ScheduleRenderer.font);
+		this.fineTuneGraphics(g);
 		this.drawJobs(g);
+		// add machine info
 		if (isActive) {
 			g.setColor(Color.BLACK);
 			g.drawString(this.m.getName() + "@" + this.clock, 1, 9);
@@ -244,10 +244,6 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 			g.setColor(Color.WHITE);
 			g.drawString(this.m.getName() + "@" + this.clock + " (off-line)", 1, 9);
 		}
-		// draw a line in a place where "zero" (current clock) is.
-		g.drawLine(ScheduleRenderer.OVERFLOW_WIDTH, 0,
-		    ScheduleRenderer.OVERFLOW_WIDTH, this.m.getCPUs()
-		        * ScheduleRenderer.NUM_PIXELS_PER_CPU);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logger.debug(this.m.getName() + "@" + this.clock
 		    + " finished rendering. Took " + time + " seconds.");
@@ -440,4 +436,61 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		}
 	}
 
+	private synchronized Raster getTemplate(final boolean isActive) {
+		boolean needsNew = false;
+		if (isActive) {
+			needsNew = !ScheduleRenderer.backgroundsActive.containsKey(this.m
+			    .getCPUs());
+		} else {
+			needsNew = !ScheduleRenderer.backgroundsInactive.containsKey(this.m
+			    .getCPUs());
+		}
+		if (needsNew) {
+			BufferedImage img = new BufferedImage(ScheduleRenderer.LINE_WIDTH, this.m
+			    .getCPUs()
+			    * ScheduleRenderer.NUM_PIXELS_PER_CPU, BufferedImage.TYPE_INT_RGB);
+			final Graphics2D g = (Graphics2D) img.getGraphics();
+			this.fineTuneGraphics(g);
+			// draw background
+			if (isActive) {
+				g.setColor(Color.WHITE);
+			} else {
+				g.setColor(Color.DARK_GRAY);
+			}
+			g.fillRect(0, 0, img.getWidth() - 1, img.getHeight() - 1);
+			// draw the grid
+			if (isActive) {
+				g.setColor(Color.LIGHT_GRAY);
+			} else {
+				g.setColor(Color.GRAY);
+			}
+			for (Integer cpu = 0; cpu < (this.m.getCPUs() - 1); cpu++) {
+				g.drawLine(0, (cpu + 1) * ScheduleRenderer.NUM_PIXELS_PER_CPU,
+				    ScheduleRenderer.LINE_WIDTH - 2, (cpu + 1)
+				        * ScheduleRenderer.NUM_PIXELS_PER_CPU);
+			}
+			Integer barDistance = 100;
+			for (Integer bar = 0; bar < (ScheduleRenderer.LINE_WIDTH / barDistance); bar++) {
+				g.drawLine(barDistance * (bar + 1), 0, barDistance * (bar + 1), img
+				    .getHeight() - 2);
+			}
+			g.setColor(Color.black);
+			// draw a line in a place where "zero" (current clock) is.
+			g.drawLine(ScheduleRenderer.OVERFLOW_WIDTH, 0,
+			    ScheduleRenderer.OVERFLOW_WIDTH, this.m.getCPUs()
+			        * ScheduleRenderer.NUM_PIXELS_PER_CPU);
+			// store the background
+			if (isActive) {
+				ScheduleRenderer.backgroundsActive.put(this.m.getCPUs(), img
+				    .getRaster());
+			} else {
+				ScheduleRenderer.backgroundsInactive.put(this.m.getCPUs(), img
+				    .getRaster());
+			}
+		}
+		if (isActive) {
+			return ScheduleRenderer.backgroundsActive.get(this.m.getCPUs());
+		}
+		return ScheduleRenderer.backgroundsInactive.get(this.m.getCPUs());
+	}
 }
