@@ -26,8 +26,6 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import org.apache.log4j.Logger;
-
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
@@ -59,10 +57,9 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 			target.add(new JLabel("Ungrouped Machines"));
 		} else {
 			try {
-				target.add(new JLabel("Group '" + item.getName() + "' of "
-				    + item.getMachines().size() + " machines."));
+				target.add(new JLabel("Group '" + item.getName()));
 			} catch (NullPointerException ex) {
-				target.add(new JLabel("Group '" + item.getName() + "' of 0 machines."));
+				target.add(new JLabel("Group '" + item.getName()));
 			}
 		}
 		return target;
@@ -87,9 +84,6 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 			    clock));
 			return pane;
 		} catch (final Exception e) {
-			Logger.getLogger(ScheduleTreeCellRenderer.class).warn(
-			    "Machine " + item.getName() + " at tick " + clock
-			        + " failed to render.");
 			final JPanel p = new JPanel();
 			p.add(new JLabel(e.toString()));
 			return p;

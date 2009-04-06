@@ -79,6 +79,11 @@ public final class Configuration {
 		    "machines.txt")).getAbsoluteFile();
 	}
 
+	public static Integer getMaxImageWidth() {
+		return Integer.valueOf(Configuration.getProperties().getProperty(
+		    "graphics.max_image_width", "800"));
+	}
+
 	/**
 	 * Retrieve the number of CPU cores that the application has available.
 	 * 
@@ -87,6 +92,16 @@ public final class Configuration {
 	public static Integer getNumberOfCPUCores() {
 		return Math.max(Integer.valueOf(Configuration.getProperties().getProperty(
 		    "system.num_cores", "1")), Runtime.getRuntime().availableProcessors());
+	}
+
+	public static Integer getNumberOfPixelsPerCPU() {
+		return Integer.valueOf(Configuration.getProperties().getProperty(
+		    "graphics.pixels_per_cpu"));
+	}
+
+	public static Integer getNumberOfTicksPerGuide() {
+		return Integer.valueOf(Configuration.getProperties().getProperty(
+		    "graphics.ticks_per_guide", "5"));
 	}
 
 	/**

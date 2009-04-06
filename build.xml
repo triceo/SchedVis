@@ -58,7 +58,7 @@
     <mkdir dir="${dir.tmp}" />
   </target>
 	<target name="run" description="Run the program.">
-		<java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true">
+		<java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" maxmemory="512m">
 			<sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
 			<arg value="run" />
 		</java>

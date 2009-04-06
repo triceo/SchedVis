@@ -30,11 +30,11 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 
 import javax.imageio.ImageIO;
@@ -87,12 +87,15 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 * How many pixels shall one CPU of a machine occupy on the y axis of the
 	 * schedule.
 	 */
-	private static final Integer NUM_PIXELS_PER_CPU = 5;
+	private static final Integer NUM_PIXELS_PER_CPU = Configuration
+	    .getNumberOfPixelsPerCPU();
 	/**
 	 * How many pixels shall be used per a single tick on the x axis of the
 	 * schedule.
 	 */
-	private static final Float NUM_PIXELS_PER_TICK = new Float(0.1);
+	private static final Float NUM_PIXELS_PER_TICK = Configuration
+	    .getMaxImageWidth()
+	    / (float) Event.getMaxJobSpan();
 	/**
 	 * How many pixels should be left in the left of the schedule for jobs that
 	 * were supposed to be executed before the current clock.
@@ -160,7 +163,8 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	/**
 	 * How many ticks per a guiding bar should there be on the schedule.
 	 */
-	private static final Integer TICKS_PER_GUIDING_BAR = 500;
+	private static final Integer TICKS_PER_GUIDING_BAR = Configuration
+	    .getNumberOfTicksPerGuide();
 
 	private static Map<Integer, Raster> backgroundsActive = new HashMap<Integer, Raster>();
 	private static Map<Integer, Raster> backgroundsInactive = new HashMap<Integer, Raster>();
@@ -299,7 +303,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 			// get assigned CPUs, set will ensure they are unique and sorted
 			synchronized (this.sets) {
 				if (!this.sets.containsKey(evt.getAssignedCPUs())) {
-					final Set<Integer> assignedCPUs = new HashSet<Integer>();
+					final Set<Integer> assignedCPUs = new TreeSet<Integer>();
 					for (final String num : evt.getAssignedCPUs().split(",")) {
 						assignedCPUs.add(Integer.valueOf(num));
 					}
@@ -384,10 +388,10 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 * @todo Make the max length of the id unlimited.
 	 */
 	private String getFilename() {
-		String id = "0000000000" + this.clock;
+		String id = "000000000000000" + this.clock;
 		return Configuration.getTempFolder() + System.getProperty("file.separator")
 		    + ScheduleRenderer.instanceId + "-" + this.m.getName() + "-"
-		    + id.substring(id.length() - 10, id.length()) + ".gif";
+		    + id.substring(id.length() - 15, id.length()) + ".gif";
 	}
 
 	/**

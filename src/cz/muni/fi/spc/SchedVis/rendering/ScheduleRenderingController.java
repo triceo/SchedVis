@@ -22,9 +22,10 @@ package cz.muni.fi.spc.SchedVis.rendering;
 import java.awt.Image;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.Main;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
@@ -79,9 +80,9 @@ public class ScheduleRenderingController {
 		Image img;
 		try {
 			img = mr.get();
-		} catch (InterruptedException e) {
-			return null;
-		} catch (ExecutionException e) {
+		} catch (Exception e) {
+			Logger.getLogger(ScheduleRenderingController.class).error(
+			    "Machine " + m.getName() + " at " + clock + " caught " + e);
 			return null;
 		}
 		this.renderers.get(clock).remove(m);
