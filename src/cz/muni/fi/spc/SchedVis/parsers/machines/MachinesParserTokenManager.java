@@ -29,16 +29,16 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 	static final int[] jjnextStates = {};
 	/** Token literal values. */
 	public static final String[] jjstrLiteralImages = { "", null, null, null,
-	    "\12", "\73", };
+	    null, "\73", };
 	/** Lexer state names. */
 	public static final String[] lexStateNames = { "DEFAULT", };
 	protected SimpleCharStream input_stream;
-	private final int[] jjrounds = new int[5];
-	private final int[] jjstateSet = new int[10];
-
+	private final int[] jjrounds = new int[8];
+	private final int[] jjstateSet = new int[16];
 	protected char curChar;
 
 	int curLexState = 0;
+
 	int defaultLexState = 0;
 	int jjnewStateCnt;
 	int jjround;
@@ -143,7 +143,7 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 
 	private int jjMoveNfa_0(final int startState, int curPos) {
 		int startsAt = 0;
-		this.jjnewStateCnt = 5;
+		this.jjnewStateCnt = 8;
 		int i = 1;
 		this.jjstateSet[0] = startState;
 		int kind = 0x7fffffff;
@@ -155,38 +155,60 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 				long l = 1L << this.curChar;
 				do {
 					switch (this.jjstateSet[--i]) {
-						case 1:
+						case 0:
 							if ((0x3ff000000000000L & l) != 0L) {
+								if (kind > 2) {
+									kind = 2;
+								}
+								this.jjCheckNAdd(5);
+							} else if ((0x2400L & l) != 0L) {
 								if (kind > 1) {
 									kind = 1;
 								}
-								this.jjCheckNAdd(2);
 							} else if (this.curChar == 45) {
-								this.jjstateSet[this.jjnewStateCnt++] = 0;
+								this.jjstateSet[this.jjnewStateCnt++] = 3;
+							}
+							if (this.curChar == 13) {
+								this.jjstateSet[this.jjnewStateCnt++] = 1;
 							}
 							break;
-						case 0:
-							if ((this.curChar == 49) && (kind > 1)) {
+						case 1:
+							if ((this.curChar == 10) && (kind > 1)) {
 								kind = 1;
 							}
 							break;
 						case 2:
+							if (this.curChar == 13) {
+								this.jjstateSet[this.jjnewStateCnt++] = 1;
+							}
+							break;
+						case 3:
+							if ((this.curChar == 49) && (kind > 2)) {
+								kind = 2;
+							}
+							break;
+						case 4:
+							if (this.curChar == 45) {
+								this.jjstateSet[this.jjnewStateCnt++] = 3;
+							}
+							break;
+						case 5:
 							if ((0x3ff000000000000L & l) == 0L) {
 								break;
 							}
-							if (kind > 1) {
-								kind = 1;
+							if (kind > 2) {
+								kind = 2;
 							}
-							this.jjCheckNAdd(2);
+							this.jjCheckNAdd(5);
 							break;
-						case 4:
+						case 7:
 							if ((0x3ff000100000000L & l) == 0L) {
 								break;
 							}
-							if (kind > 3) {
-								kind = 3;
+							if (kind > 4) {
+								kind = 4;
 							}
-							this.jjstateSet[this.jjnewStateCnt++] = 4;
+							this.jjstateSet[this.jjnewStateCnt++] = 7;
 							break;
 						default:
 							break;
@@ -196,23 +218,23 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 				long l = 1L << (this.curChar & 077);
 				do {
 					switch (this.jjstateSet[--i]) {
-						case 1:
+						case 0:
 							if ((0x7fffffe07fffffeL & l) == 0L) {
 								break;
 							}
-							if (kind > 3) {
-								kind = 3;
+							if (kind > 4) {
+								kind = 4;
 							}
-							this.jjCheckNAdd(4);
+							this.jjCheckNAdd(7);
 							break;
-						case 4:
+						case 7:
 							if ((0x7fffffe87fffffeL & l) == 0L) {
 								break;
 							}
-							if (kind > 3) {
-								kind = 3;
+							if (kind > 4) {
+								kind = 4;
 							}
-							this.jjCheckNAdd(4);
+							this.jjCheckNAdd(7);
 							break;
 						default:
 							break;
@@ -232,7 +254,7 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 				kind = 0x7fffffff;
 			}
 			++curPos;
-			if ((i = this.jjnewStateCnt) == (startsAt = 5 - (this.jjnewStateCnt = startsAt))) {
+			if ((i = this.jjnewStateCnt) == (startsAt = 8 - (this.jjnewStateCnt = startsAt))) {
 				return curPos;
 			}
 			try {
@@ -245,12 +267,10 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 
 	private int jjMoveStringLiteralDfa0_0() {
 		switch (this.curChar) {
-			case 10:
-				return this.jjStopAtPos(0, 4);
 			case 59:
 				return this.jjStopAtPos(0, 5);
 			default:
-				return this.jjMoveNfa_0(1, 0);
+				return this.jjMoveNfa_0(0, 0);
 		}
 	}
 
@@ -277,7 +297,7 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 	private void ReInitRounds() {
 		int i;
 		this.jjround = 0x80000001;
-		for (i = 5; i-- > 0;) {
+		for (i = 8; i-- > 0;) {
 			this.jjrounds[i] = 0x80000000;
 		}
 	}

@@ -23,18 +23,19 @@ import cz.muni.fi.spc.SchedVis.parsers.SimpleCharStream;
 import cz.muni.fi.spc.SchedVis.parsers.Token;
 
 public class MachinesParser extends Parser implements MachinesParserConstants {
-	public static void main(final String args[]) throws ParseException {
-		try {
-			MachinesParser parser = new MachinesParser(System.in);
-			MachinesList machines = parser.read();
-			System.out.println("Successfully read " + machines.size() + " machines!");
-		} catch (Exception e) {
-			System.out.println("NOK.");
-			System.out.println(e.getMessage());
-		} catch (Error e) {
-			System.out.println("Oops.");
-			System.out.println(e.getMessage());
-		}
+	static final class JJCalls {
+		int gen;
+		Token first;
+		int arg;
+		JJCalls next;
+	}
+
+	static private final class LookaheadSuccess extends java.lang.Error {
+
+		/**
+     * 
+     */
+		private static final long serialVersionUID = 3101750162306828666L;
 	}
 
 	/** Generated Token Manager. */
@@ -44,23 +45,35 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 
 	/** Current token. */
 	public Token token;
+
 	/** Next token. */
 	public Token jj_nt;
+
+	private Token jj_scanpos, jj_lastpos;
+
+	private int jj_la;
+
 	private int jj_gen;
-	final private int[] jj_la1 = new int[2];
+
+	final private int[] jj_la1 = new int[0];
 	static private int[] jj_la1_0;
 	static {
 		MachinesParser.jj_la1_init_0();
 	}
 
 	private static void jj_la1_init_0() {
-		MachinesParser.jj_la1_0 = new int[] { 0x8, 0x10, };
+		MachinesParser.jj_la1_0 = new int[] {};
 	}
 
+	final private JJCalls[] jj_2_rtns = new JJCalls[3];
+	private boolean jj_rescan = false;
+	private int jj_gc = 0;
+	final private LookaheadSuccess jj_ls = new LookaheadSuccess();
 	private final java.util.List jj_expentries = new java.util.ArrayList();
 	private int[] jj_expentry;
-
 	private int jj_kind = -1;
+	private final int[] jj_lasttokens = new int[100];
+	private int jj_endpos;
 
 	/** Constructor with InputStream. */
 	public MachinesParser(final java.io.InputStream stream) {
@@ -78,8 +91,11 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		this.token = new Token();
 		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;
+		}
+		for (int i = 0; i < this.jj_2_rtns.length; i++) {
+			this.jj_2_rtns[i] = new JJCalls();
 		}
 	}
 
@@ -90,8 +106,11 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		this.token = new Token();
 		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;
+		}
+		for (int i = 0; i < this.jj_2_rtns.length; i++) {
+			this.jj_2_rtns[i] = new JJCalls();
 		}
 	}
 
@@ -101,8 +120,11 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		this.token = new Token();
 		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;
+		}
+		for (int i = 0; i < this.jj_2_rtns.length; i++) {
+			this.jj_2_rtns[i] = new JJCalls();
 		}
 	}
 
@@ -122,7 +144,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 			la1tokens[this.jj_kind] = true;
 			this.jj_kind = -1;
 		}
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 0; i++) {
 			if (this.jj_la1[i] == this.jj_gen) {
 				for (int j = 0; j < 32; j++) {
 					if ((MachinesParser.jj_la1_0[i] & (1 << j)) != 0) {
@@ -138,6 +160,9 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 				this.jj_expentries.add(this.jj_expentry);
 			}
 		}
+		this.jj_endpos = 0;
+		this.jj_rescan_token();
+		this.jj_add_error_token(0, 0);
 		int[][] exptokseq = new int[this.jj_expentries.size()][];
 		for (int i = 0; i < this.jj_expentries.size(); i++) {
 			exptokseq[i] = (int[]) this.jj_expentries.get(i);
@@ -170,6 +195,103 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		return t;
 	}
 
+	private boolean jj_2_1(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_1();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(0, xla);
+		}
+	}
+
+	private boolean jj_2_2(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_2();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(1, xla);
+		}
+	}
+
+	private boolean jj_2_3(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_3();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(2, xla);
+		}
+	}
+
+	private boolean jj_3_1() {
+		if (this.jj_3R_4()) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3_2() {
+		if (this.jj_scan_token(MachinesParserConstants.EOL)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3_3() {
+		if (this.jj_scan_token(MachinesParserConstants.EOL)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3R_4() {
+		if (this.jj_scan_token(MachinesParserConstants.STRING)) {
+			return true;
+		}
+		if (this.jj_scan_token(5)) {
+			return true;
+		}
+		return false;
+	}
+
+	private void jj_add_error_token(final int kind, final int pos) {
+		if (pos >= 100) {
+			return;
+		}
+		if (pos == this.jj_endpos + 1) {
+			this.jj_lasttokens[this.jj_endpos++] = kind;
+		} else if (this.jj_endpos != 0) {
+			this.jj_expentry = new int[this.jj_endpos];
+			for (int i = 0; i < this.jj_endpos; i++) {
+				this.jj_expentry[i] = this.jj_lasttokens[i];
+			}
+			jj_entries_loop: for (java.util.Iterator it = this.jj_expentries
+			    .iterator(); it.hasNext();) {
+				int[] oldentry = (int[]) (it.next());
+				if (oldentry.length == this.jj_expentry.length) {
+					for (int i = 0; i < this.jj_expentry.length; i++) {
+						if (oldentry[i] != this.jj_expentry[i]) {
+							continue jj_entries_loop;
+						}
+					}
+					this.jj_expentries.add(this.jj_expentry);
+					break jj_entries_loop;
+				}
+			}
+			if (pos != 0) {
+				this.jj_lasttokens[(this.jj_endpos = pos) - 1] = kind;
+			}
+		}
+	}
+
 	private Token jj_consume_token(final int kind) throws ParseException {
 		Token oldToken = this.token;
 		if ((this.token = this.jj_nt).next != null) {
@@ -179,12 +301,98 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		}
 		if (this.token.kind == kind) {
 			this.jj_gen++;
+			if (++this.jj_gc > 100) {
+				this.jj_gc = 0;
+				for (JJCalls c : this.jj_2_rtns) {
+					while (c != null) {
+						if (c.gen < this.jj_gen) {
+							c.first = null;
+						}
+						c = c.next;
+					}
+				}
+			}
 			return this.token;
 		}
 		this.jj_nt = this.token;
 		this.token = oldToken;
 		this.jj_kind = kind;
 		throw this.generateParseException();
+	}
+
+	private void jj_rescan_token() {
+		this.jj_rescan = true;
+		for (int i = 0; i < 3; i++) {
+			try {
+				JJCalls p = this.jj_2_rtns[i];
+				do {
+					if (p.gen > this.jj_gen) {
+						this.jj_la = p.arg;
+						this.jj_lastpos = this.jj_scanpos = p.first;
+						switch (i) {
+							case 0:
+								this.jj_3_1();
+								break;
+							case 1:
+								this.jj_3_2();
+								break;
+							case 2:
+								this.jj_3_3();
+								break;
+						}
+					}
+					p = p.next;
+				} while (p != null);
+			} catch (LookaheadSuccess ls) {
+			}
+		}
+		this.jj_rescan = false;
+	}
+
+	private void jj_save(final int index, final int xla) {
+		JJCalls p = this.jj_2_rtns[index];
+		while (p.gen > this.jj_gen) {
+			if (p.next == null) {
+				p = p.next = new JJCalls();
+				break;
+			}
+			p = p.next;
+		}
+		p.gen = this.jj_gen + xla - this.jj_la;
+		p.first = this.token;
+		p.arg = xla;
+	}
+
+	private boolean jj_scan_token(final int kind) {
+		if (this.jj_scanpos == this.jj_lastpos) {
+			this.jj_la--;
+			if (this.jj_scanpos.next == null) {
+				this.jj_lastpos = this.jj_scanpos = this.jj_scanpos.next = this.token_source
+				    .getNextToken();
+			} else {
+				this.jj_lastpos = this.jj_scanpos = this.jj_scanpos.next;
+			}
+		} else {
+			this.jj_scanpos = this.jj_scanpos.next;
+		}
+		if (this.jj_rescan) {
+			int i = 0;
+			Token tok = this.token;
+			while ((tok != null) && (tok != this.jj_scanpos)) {
+				i++;
+				tok = tok.next;
+			}
+			if (tok != null) {
+				this.jj_add_error_token(kind, i);
+			}
+		}
+		if (this.jj_scanpos.kind != kind) {
+			return true;
+		}
+		if ((this.jj_la == 0) && (this.jj_scanpos == this.jj_lastpos)) {
+			throw this.jj_ls;
+		}
+		return false;
 	}
 
 	final public MachinesList machine_data(final MachinesList machines)
@@ -212,7 +420,14 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		mem = this.jj_consume_token(MachinesParserConstants.CONSTANT);
 		this.jj_consume_token(5);
 		space = this.jj_consume_token(MachinesParserConstants.CONSTANT);
-		this.jj_consume_token(4);
+		label_3: while (true) {
+			this.jj_consume_token(MachinesParserConstants.EOL);
+			if (this.jj_2_3(2)) {
+				;
+			} else {
+				break label_3;
+			}
+		}
 		machines.add(new MachineData(name, numCPUs, speed, arch, os, mem, space));
 		if (this.getImporter() != null) {
 			this.getImporter().nextLineParsed();
@@ -229,25 +444,19 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		MachinesList machines = new MachinesList();
 		label_1: while (true) {
 			machines = this.machine_data(machines);
-			switch (this.jj_nt.kind) {
-				case STRING:
-					;
-					break;
-				default:
-					this.jj_la1[0] = this.jj_gen;
-					break label_1;
+			if (this.jj_2_1(2)) {
+				;
+			} else {
+				break label_1;
 			}
 		}
 		label_2: while (true) {
-			switch (this.jj_nt.kind) {
-				case 4:
-					;
-					break;
-				default:
-					this.jj_la1[1] = this.jj_gen;
-					break label_2;
+			if (this.jj_2_2(2)) {
+				;
+			} else {
+				break label_2;
 			}
-			this.jj_consume_token(4);
+			this.jj_consume_token(MachinesParserConstants.EOL);
 		}
 		this.jj_consume_token(0);
 		{
@@ -274,8 +483,11 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		this.token = new Token();
 		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;
+		}
+		for (int i = 0; i < this.jj_2_rtns.length; i++) {
+			this.jj_2_rtns[i] = new JJCalls();
 		}
 	}
 
@@ -286,8 +498,11 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		this.token = new Token();
 		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;
+		}
+		for (int i = 0; i < this.jj_2_rtns.length; i++) {
+			this.jj_2_rtns[i] = new JJCalls();
 		}
 	}
 
@@ -297,8 +512,11 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		this.token = new Token();
 		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;
+		}
+		for (int i = 0; i < this.jj_2_rtns.length; i++) {
+			this.jj_2_rtns[i] = new JJCalls();
 		}
 	}
 

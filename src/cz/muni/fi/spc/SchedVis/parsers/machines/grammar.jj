@@ -64,7 +64,8 @@ PARSER_END(MachinesParser)
 
 TOKEN :
 {
-    < CONSTANT: "-1" | ( <DIGIT> )+ >  /* A numeric constant. */
+    < EOL: "\r" | "\n" | "\r\n" >  /* Some kind of end of line. */
+|   < CONSTANT: "-1" | ( <DIGIT> )+ >  /* A numeric constant. */
 |   < #DIGIT: ["0" - "9"] >     /* A single number. */
 |   < STRING: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","_"," ","0"-"9"] )* > /* An allowed string. */
 }
@@ -75,7 +76,7 @@ MachinesList read() :
 }
 {
     (machines=machine_data(machines))+
-    ("\n")*
+    (<EOL>)*
     <EOF>
     {return machines;}	
 }
@@ -98,7 +99,7 @@ MachinesList machine_data(MachinesList machines) :
 	arch=<STRING> ";" 
 	os=<STRING> ";" 
 	mem=<CONSTANT> ";" 
-	space=<CONSTANT> "\n"  
+	space=<CONSTANT> (<EOL>)+
 	{
 		machines.add(new MachineData(name, numCPUs, speed, arch, os, mem, space));
         if (this.getImporter() != null) this.getImporter().nextLineParsed();
