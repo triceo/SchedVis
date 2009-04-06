@@ -23,23 +23,19 @@ import cz.muni.fi.spc.SchedVis.parsers.SimpleCharStream;
 import cz.muni.fi.spc.SchedVis.parsers.Token;
 
 public class ScheduleParser extends Parser implements ScheduleParserConstants {
-	private static void jj_la1_init_0() {
-		ScheduleParser.jj_la1_0 = new int[] { 0x1c0, 0x200, 0x20, 0x20, 0x20,
-		    0x1c0, 0x20, 0x800, 0x6, 0x2000, };
+	static final class JJCalls {
+		int gen;
+		Token first;
+		int arg;
+		JJCalls next;
 	}
 
-	public static void main(final String args[]) throws ParseException {
-		try {
-			ScheduleParser parser = new ScheduleParser(System.in);
-			ScheduleEventsList events = parser.read();
-			System.out.println("Successfully read " + events.size() + " events!");
-		} catch (Exception e) {
-			System.out.println("NOK.");
-			System.out.println(e.getMessage());
-		} catch (Error e) {
-			System.out.println("Oops.");
-			System.out.println(e.getMessage());
-		}
+	static private final class LookaheadSuccess extends java.lang.Error {
+
+		/**
+     * 
+     */
+		private static final long serialVersionUID = 2714385851914165912L;
 	}
 
 	/** Generated Token Manager. */
@@ -53,18 +49,41 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 	/** Next token. */
 	public Token jj_nt;
 
+	private Token jj_scanpos, jj_lastpos;
+
+	private int jj_la;
+
 	private int jj_gen;
 
-	final private int[] jj_la1 = new int[10];
+	final private int[] jj_la1 = new int[0];
 
 	static private int[] jj_la1_0;
 
 	static {
 		ScheduleParser.jj_la1_init_0();
 	}
+
+	private static void jj_la1_init_0() {
+		ScheduleParser.jj_la1_0 = new int[] {};
+	}
+
+	final private JJCalls[] jj_2_rtns = new JJCalls[16];
+
+	private boolean jj_rescan = false;
+
+	private int jj_gc = 0;
+
+	final private LookaheadSuccess jj_ls = new LookaheadSuccess();
+
 	private final java.util.List jj_expentries = new java.util.ArrayList();
+
 	private int[] jj_expentry;
+
 	private int jj_kind = -1;
+
+	private final int[] jj_lasttokens = new int[100];
+
+	private int jj_endpos;
 
 	/** Constructor with InputStream. */
 	public ScheduleParser(final java.io.InputStream stream) {
@@ -82,8 +101,11 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		this.token = new Token();
 		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;
+		}
+		for (int i = 0; i < this.jj_2_rtns.length; i++) {
+			this.jj_2_rtns[i] = new JJCalls();
 		}
 	}
 
@@ -94,8 +116,11 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		this.token = new Token();
 		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;
+		}
+		for (int i = 0; i < this.jj_2_rtns.length; i++) {
+			this.jj_2_rtns[i] = new JJCalls();
 		}
 	}
 
@@ -105,8 +130,11 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		this.token = new Token();
 		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;
+		}
+		for (int i = 0; i < this.jj_2_rtns.length; i++) {
+			this.jj_2_rtns[i] = new JJCalls();
 		}
 	}
 
@@ -123,71 +151,78 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		if (this.getImporter() != null) {
 			this.getImporter().nextLineParsed();
 		}
-		switch (this.jj_nt.kind) {
-			case MACHINE_EVENT_FLAG:
-				events = this.machine_event(events);
-				label_3: while (true) {
-					switch (this.jj_nt.kind) {
-						case WHITESPACE:
-							;
-							break;
-						default:
-							this.jj_la1[2] = this.jj_gen;
-							break label_3;
-					}
-					this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+		if (this.jj_2_9(2)) {
+			events = this.machine_event(events);
+			label_3: while (true) {
+				if (this.jj_2_3(2)) {
+					;
+				} else {
+					break label_3;
 				}
-				this.jj_consume_token(9);
-				{
-					if (true) {
-						return events;
-					}
+				this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+			}
+			label_4: while (true) {
+				this.jj_consume_token(ScheduleParserConstants.EOL);
+				if (this.jj_2_4(2)) {
+					;
+				} else {
+					break label_4;
 				}
-				break;
-			case MOVE_EVENT_FLAG:
-				events = this.move_event(events);
-				label_4: while (true) {
-					switch (this.jj_nt.kind) {
-						case WHITESPACE:
-							;
-							break;
-						default:
-							this.jj_la1[3] = this.jj_gen;
-							break label_4;
-					}
-					this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+			}
+			{
+				if (true) {
+					return events;
 				}
-				this.jj_consume_token(9);
-				{
-					if (true) {
-						return events;
-					}
+			}
+		} else if (this.jj_2_10(2)) {
+			events = this.move_event(events);
+			label_5: while (true) {
+				if (this.jj_2_5(2)) {
+					;
+				} else {
+					break label_5;
 				}
-				break;
-			case IO_EVENT_FLAG:
-				events = this.IO_event(events);
-				label_5: while (true) {
-					switch (this.jj_nt.kind) {
-						case WHITESPACE:
-							;
-							break;
-						default:
-							this.jj_la1[4] = this.jj_gen;
-							break label_5;
-					}
-					this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+				this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+			}
+			label_6: while (true) {
+				this.jj_consume_token(ScheduleParserConstants.EOL);
+				if (this.jj_2_6(2)) {
+					;
+				} else {
+					break label_6;
 				}
-				this.jj_consume_token(9);
-				{
-					if (true) {
-						return events;
-					}
+			}
+			{
+				if (true) {
+					return events;
 				}
-				break;
-			default:
-				this.jj_la1[5] = this.jj_gen;
-				this.jj_consume_token(-1);
-				throw new ParseException();
+			}
+		} else if (this.jj_2_11(2)) {
+			events = this.IO_event(events);
+			label_7: while (true) {
+				if (this.jj_2_7(2)) {
+					;
+				} else {
+					break label_7;
+				}
+				this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
+			}
+			label_8: while (true) {
+				this.jj_consume_token(ScheduleParserConstants.EOL);
+				if (this.jj_2_8(2)) {
+					;
+				} else {
+					break label_8;
+				}
+			}
+			{
+				if (true) {
+					return events;
+				}
+			}
+		} else {
+			this.jj_consume_token(-1);
+			throw new ParseException();
 		}
 		throw new Error("Missing return statement in function");
 	}
@@ -200,7 +235,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 			la1tokens[this.jj_kind] = true;
 			this.jj_kind = -1;
 		}
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 0; i++) {
 			if (this.jj_la1[i] == this.jj_gen) {
 				for (int j = 0; j < 32; j++) {
 					if ((ScheduleParser.jj_la1_0[i] & (1 << j)) != 0) {
@@ -216,6 +251,9 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 				this.jj_expentries.add(this.jj_expentry);
 			}
 		}
+		this.jj_endpos = 0;
+		this.jj_rescan_token();
+		this.jj_add_error_token(0, 0);
 		int[][] exptokseq = new int[this.jj_expentries.size()][];
 		for (int i = 0; i < this.jj_expentries.size(); i++) {
 			exptokseq[i] = (int[]) this.jj_expentries.get(i);
@@ -269,6 +307,405 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		throw new Error("Missing return statement in function");
 	}
 
+	private boolean jj_2_1(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_1();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(0, xla);
+		}
+	}
+
+	private boolean jj_2_10(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_10();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(9, xla);
+		}
+	}
+
+	private boolean jj_2_11(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_11();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(10, xla);
+		}
+	}
+
+	private boolean jj_2_12(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_12();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(11, xla);
+		}
+	}
+
+	private boolean jj_2_13(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_13();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(12, xla);
+		}
+	}
+
+	private boolean jj_2_14(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_14();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(13, xla);
+		}
+	}
+
+	private boolean jj_2_15(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_15();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(14, xla);
+		}
+	}
+
+	private boolean jj_2_16(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_16();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(15, xla);
+		}
+	}
+
+	private boolean jj_2_2(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_2();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(1, xla);
+		}
+	}
+
+	private boolean jj_2_3(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_3();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(2, xla);
+		}
+	}
+
+	private boolean jj_2_4(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_4();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(3, xla);
+		}
+	}
+
+	private boolean jj_2_5(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_5();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(4, xla);
+		}
+	}
+
+	private boolean jj_2_6(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_6();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(5, xla);
+		}
+	}
+
+	private boolean jj_2_7(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_7();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(6, xla);
+		}
+	}
+
+	private boolean jj_2_8(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_8();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(7, xla);
+		}
+	}
+
+	private boolean jj_2_9(final int xla) {
+		this.jj_la = xla;
+		this.jj_lastpos = this.jj_scanpos = this.token;
+		try {
+			return !this.jj_3_9();
+		} catch (LookaheadSuccess ls) {
+			return true;
+		} finally {
+			this.jj_save(8, xla);
+		}
+	}
+
+	private boolean jj_3_1() {
+		if (this.jj_3R_12()) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3_10() {
+		if (this.jj_3R_14()) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3_11() {
+		if (this.jj_3R_15()) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3_12() {
+		if (this.jj_scan_token(ScheduleParserConstants.WHITESPACE)) {
+			return true;
+		}
+		if (this.jj_3R_16()) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3_13() {
+		if (this.jj_scan_token(11)) {
+			return true;
+		}
+		if (this.jj_3R_17()) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3_14() {
+		if (this.jj_scan_token(ScheduleParserConstants.CONSTANT_LIST)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3_15() {
+		if (this.jj_scan_token(ScheduleParserConstants.CONSTANT)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3_16() {
+		if (this.jj_scan_token(13)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3_2() {
+		if (this.jj_scan_token(ScheduleParserConstants.EOL)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3_3() {
+		if (this.jj_scan_token(ScheduleParserConstants.WHITESPACE)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3_4() {
+		if (this.jj_scan_token(ScheduleParserConstants.EOL)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3_5() {
+		if (this.jj_scan_token(ScheduleParserConstants.WHITESPACE)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3_6() {
+		if (this.jj_scan_token(ScheduleParserConstants.EOL)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3_7() {
+		if (this.jj_scan_token(ScheduleParserConstants.WHITESPACE)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3_8() {
+		if (this.jj_scan_token(ScheduleParserConstants.EOL)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3_9() {
+		if (this.jj_3R_13()) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3R_12() {
+		Token xsp;
+		xsp = this.jj_scanpos;
+		if (this.jj_3_9()) {
+			this.jj_scanpos = xsp;
+			if (this.jj_3_10()) {
+				this.jj_scanpos = xsp;
+				if (this.jj_3_11()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean jj_3R_13() {
+		if (this.jj_scan_token(ScheduleParserConstants.MACHINE_EVENT_FLAG)) {
+			return true;
+		}
+		if (this.jj_scan_token(ScheduleParserConstants.WHITESPACE)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3R_14() {
+		if (this.jj_scan_token(ScheduleParserConstants.MOVE_EVENT_FLAG)) {
+			return true;
+		}
+		if (this.jj_scan_token(ScheduleParserConstants.WHITESPACE)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3R_15() {
+		if (this.jj_scan_token(ScheduleParserConstants.IO_EVENT_FLAG)) {
+			return true;
+		}
+		if (this.jj_scan_token(ScheduleParserConstants.WHITESPACE)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3R_16() {
+		if (this.jj_scan_token(10)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean jj_3R_17() {
+		if (this.jj_scan_token(ScheduleParserConstants.CONSTANT)) {
+			return true;
+		}
+		return false;
+	}
+
+	private void jj_add_error_token(final int kind, final int pos) {
+		if (pos >= 100) {
+			return;
+		}
+		if (pos == this.jj_endpos + 1) {
+			this.jj_lasttokens[this.jj_endpos++] = kind;
+		} else if (this.jj_endpos != 0) {
+			this.jj_expentry = new int[this.jj_endpos];
+			for (int i = 0; i < this.jj_endpos; i++) {
+				this.jj_expentry[i] = this.jj_lasttokens[i];
+			}
+			jj_entries_loop: for (java.util.Iterator it = this.jj_expentries
+			    .iterator(); it.hasNext();) {
+				int[] oldentry = (int[]) (it.next());
+				if (oldentry.length == this.jj_expentry.length) {
+					for (int i = 0; i < this.jj_expentry.length; i++) {
+						if (oldentry[i] != this.jj_expentry[i]) {
+							continue jj_entries_loop;
+						}
+					}
+					this.jj_expentries.add(this.jj_expentry);
+					break jj_entries_loop;
+				}
+			}
+			if (pos != 0) {
+				this.jj_lasttokens[(this.jj_endpos = pos) - 1] = kind;
+			}
+		}
+	}
+
 	private Token jj_consume_token(final int kind) throws ParseException {
 		Token oldToken = this.token;
 		if ((this.token = this.jj_nt).next != null) {
@@ -278,12 +715,137 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		}
 		if (this.token.kind == kind) {
 			this.jj_gen++;
+			if (++this.jj_gc > 100) {
+				this.jj_gc = 0;
+				for (JJCalls c : this.jj_2_rtns) {
+					while (c != null) {
+						if (c.gen < this.jj_gen) {
+							c.first = null;
+						}
+						c = c.next;
+					}
+				}
+			}
 			return this.token;
 		}
 		this.jj_nt = this.token;
 		this.token = oldToken;
 		this.jj_kind = kind;
 		throw this.generateParseException();
+	}
+
+	private void jj_rescan_token() {
+		this.jj_rescan = true;
+		for (int i = 0; i < 16; i++) {
+			try {
+				JJCalls p = this.jj_2_rtns[i];
+				do {
+					if (p.gen > this.jj_gen) {
+						this.jj_la = p.arg;
+						this.jj_lastpos = this.jj_scanpos = p.first;
+						switch (i) {
+							case 0:
+								this.jj_3_1();
+								break;
+							case 1:
+								this.jj_3_2();
+								break;
+							case 2:
+								this.jj_3_3();
+								break;
+							case 3:
+								this.jj_3_4();
+								break;
+							case 4:
+								this.jj_3_5();
+								break;
+							case 5:
+								this.jj_3_6();
+								break;
+							case 6:
+								this.jj_3_7();
+								break;
+							case 7:
+								this.jj_3_8();
+								break;
+							case 8:
+								this.jj_3_9();
+								break;
+							case 9:
+								this.jj_3_10();
+								break;
+							case 10:
+								this.jj_3_11();
+								break;
+							case 11:
+								this.jj_3_12();
+								break;
+							case 12:
+								this.jj_3_13();
+								break;
+							case 13:
+								this.jj_3_14();
+								break;
+							case 14:
+								this.jj_3_15();
+								break;
+							case 15:
+								this.jj_3_16();
+								break;
+						}
+					}
+					p = p.next;
+				} while (p != null);
+			} catch (LookaheadSuccess ls) {
+			}
+		}
+		this.jj_rescan = false;
+	}
+
+	private void jj_save(final int index, final int xla) {
+		JJCalls p = this.jj_2_rtns[index];
+		while (p.gen > this.jj_gen) {
+			if (p.next == null) {
+				p = p.next = new JJCalls();
+				break;
+			}
+			p = p.next;
+		}
+		p.gen = this.jj_gen + xla - this.jj_la;
+		p.first = this.token;
+		p.arg = xla;
+	}
+
+	private boolean jj_scan_token(final int kind) {
+		if (this.jj_scanpos == this.jj_lastpos) {
+			this.jj_la--;
+			if (this.jj_scanpos.next == null) {
+				this.jj_lastpos = this.jj_scanpos = this.jj_scanpos.next = this.token_source
+				    .getNextToken();
+			} else {
+				this.jj_lastpos = this.jj_scanpos = this.jj_scanpos.next;
+			}
+		} else {
+			this.jj_scanpos = this.jj_scanpos.next;
+		}
+		if (this.jj_rescan) {
+			int i = 0;
+			Token tok = this.token;
+			while ((tok != null) && (tok != this.jj_scanpos)) {
+				i++;
+				tok = tok.next;
+			}
+			if (tok != null) {
+				this.jj_add_error_token(kind, i);
+			}
+		}
+		if (this.jj_scanpos.kind != kind) {
+			return true;
+		}
+		if ((this.jj_la == 0) && (this.jj_scanpos == this.jj_lastpos)) {
+			throw this.jj_ls;
+		}
+		return false;
 	}
 
 	final public ScheduleJobDataList job_data(final ScheduleJobDataList list)
@@ -302,18 +864,14 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		this.jj_consume_token(13);
 		numCPUs = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
 		this.jj_consume_token(13);
-		switch (this.jj_nt.kind) {
-			case CONSTANT_LIST:
-				assignedCPUs = this
-				    .jj_consume_token(ScheduleParserConstants.CONSTANT_LIST);
-				break;
-			case CONSTANT:
-				assignedCPUs = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
-				break;
-			default:
-				this.jj_la1[8] = this.jj_gen;
-				this.jj_consume_token(-1);
-				throw new ParseException();
+		if (this.jj_2_14(2)) {
+			assignedCPUs = this
+			    .jj_consume_token(ScheduleParserConstants.CONSTANT_LIST);
+		} else if (this.jj_2_15(2)) {
+			assignedCPUs = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
+		} else {
+			this.jj_consume_token(-1);
+			throw new ParseException();
 		}
 		this.jj_consume_token(13);
 		arch = this.jj_consume_token(ScheduleParserConstants.STRING);
@@ -327,14 +885,11 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		end = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
 		this.jj_consume_token(13);
 		deadline = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
-		label_8: while (true) {
-			switch (this.jj_nt.kind) {
-				case 13:
-					;
-					break;
-				default:
-					this.jj_la1[9] = this.jj_gen;
-					break label_8;
+		label_11: while (true) {
+			if (this.jj_2_16(2)) {
+				;
+			} else {
+				break label_11;
 			}
 			this.jj_consume_token(13);
 		}
@@ -362,14 +917,11 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		Token machineId;
 		this.jj_consume_token(10);
 		machineId = this.jj_consume_token(ScheduleParserConstants.STRING);
-		label_7: while (true) {
-			switch (this.jj_nt.kind) {
-				case 11:
-					;
-					break;
-				default:
-					this.jj_la1[7] = this.jj_gen;
-					break label_7;
+		label_10: while (true) {
+			if (this.jj_2_13(2)) {
+				;
+			} else {
+				break label_10;
 			}
 			this.jj_consume_token(11);
 			data = this.job_data(data);
@@ -435,27 +987,19 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		ScheduleEventsList events = new ScheduleEventsList();
 		label_1: while (true) {
 			events = this.event_data(events);
-			switch (this.jj_nt.kind) {
-				case MOVE_EVENT_FLAG:
-				case MACHINE_EVENT_FLAG:
-				case IO_EVENT_FLAG:
-					;
-					break;
-				default:
-					this.jj_la1[0] = this.jj_gen;
-					break label_1;
+			if (this.jj_2_1(2)) {
+				;
+			} else {
+				break label_1;
 			}
 		}
 		label_2: while (true) {
-			switch (this.jj_nt.kind) {
-				case 9:
-					;
-					break;
-				default:
-					this.jj_la1[1] = this.jj_gen;
-					break label_2;
+			if (this.jj_2_2(2)) {
+				;
+			} else {
+				break label_2;
 			}
-			this.jj_consume_token(9);
+			this.jj_consume_token(ScheduleParserConstants.EOL);
 		}
 		this.jj_consume_token(0);
 		{
@@ -482,8 +1026,11 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		this.token = new Token();
 		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;
+		}
+		for (int i = 0; i < this.jj_2_rtns.length; i++) {
+			this.jj_2_rtns[i] = new JJCalls();
 		}
 	}
 
@@ -494,8 +1041,11 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		this.token = new Token();
 		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;
+		}
+		for (int i = 0; i < this.jj_2_rtns.length; i++) {
+			this.jj_2_rtns[i] = new JJCalls();
 		}
 	}
 
@@ -505,23 +1055,23 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		this.token = new Token();
 		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;
+		}
+		for (int i = 0; i < this.jj_2_rtns.length; i++) {
+			this.jj_2_rtns[i] = new JJCalls();
 		}
 	}
 
 	final public ScheduleMachineDataList schedule_data() throws ParseException {
 		ScheduleMachineDataList data = new ScheduleMachineDataList();
-		label_6: while (true) {
+		label_9: while (true) {
 			this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
 			data = this.machine_data(data);
-			switch (this.jj_nt.kind) {
-				case WHITESPACE:
-					;
-					break;
-				default:
-					this.jj_la1[6] = this.jj_gen;
-					break label_6;
+			if (this.jj_2_12(2)) {
+				;
+			} else {
+				break label_9;
 			}
 		}
 		{

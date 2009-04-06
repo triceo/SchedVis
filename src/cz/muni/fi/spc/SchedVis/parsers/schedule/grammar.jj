@@ -63,7 +63,8 @@ PARSER_END(ScheduleParser)
 
 TOKEN :
 {
-    < CONSTANT: "-1" | ( <DIGIT> )+ >  /* A numeric constant. */
+    < EOL: "\r" | "\n" | "\r\n" >  /* Some kind of end of line. */
+|   < CONSTANT: "-1" | ( <DIGIT> )+ >  /* A numeric constant. */
 |   < CONSTANT_LIST: ( <CONSTANT> ( "," <CONSTANT> )+ ) >  /* A numeric constant. */
 |   < #DIGIT: ["0" - "9"] >     /* A single number. */
 |   < STRING: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","_","0"-"9"] )* > /* An allowed string. */
@@ -82,7 +83,7 @@ ScheduleEventsList read() : {
 }
 {
   (events=event_data(events))+
-  ("\n")*
+  (<EOL>)*
   <EOF>
   {return events;}
 }
@@ -91,9 +92,9 @@ ScheduleEventsList event_data(ScheduleEventsList events) : {
   if (this.getImporter() != null) this.getImporter().nextLineParsed();
 }
 {
-  (events=machine_event(events) (<WHITESPACE>)* "\n" {return events;}
-  | events=move_event(events) (<WHITESPACE>)* "\n" {return events;}
-  | events=IO_event(events) (<WHITESPACE>)* "\n" {return events;}) 
+  (events=machine_event(events) (<WHITESPACE>)* (<EOL>)+ {return events;}
+  | events=move_event(events) (<WHITESPACE>)* (<EOL>)+ {return events;}
+  | events=IO_event(events) (<WHITESPACE>)* (<EOL>)+ {return events;}) 
 }
 
 ScheduleEventsList machine_event(ScheduleEventsList list) : {

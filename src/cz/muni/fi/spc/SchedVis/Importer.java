@@ -33,7 +33,6 @@ import java.util.Vector;
 
 import javax.swing.SwingWorker;
 
-import cz.muni.fi.spc.SchedVis.model.BaseEntity;
 import cz.muni.fi.spc.SchedVis.model.Database;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.EventType;
@@ -120,7 +119,8 @@ public final class Importer extends SwingWorker<Void, Void> {
 			this.parseDataSet(new BufferedReader(new FileReader(this.dataFile)));
 		} catch (final FileNotFoundException e) {
 			return null;
-		} catch (cz.muni.fi.spc.SchedVis.parsers.ParseException e) {
+		} catch (final ParseException e) {
+			System.out.println(e);
 			return null;
 		}
 		this.result = true;
@@ -201,7 +201,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 		final Integer totalEvents = events.size();
 		Integer lineId = 0;
 		Integer eventId = 0;
-		final List<BaseEntity> bel = new Vector<BaseEntity>();
+		Database.getEntityManager().getTransaction().begin();
 		for (final ScheduleEvent event : events) {
 			lineId++;
 			eventId++;
@@ -220,7 +220,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 					    .getTargetMachine()));
 				}
 			}
-			bel.add(evt);
+			Database.persist(evt);
 			if (event instanceof EventHasData) {
 				final List<ScheduleMachineData> data = ((EventHasData) event).getData();
 				for (final ScheduleMachineData machine : data) {
@@ -239,19 +239,23 @@ public final class Importer extends SwingWorker<Void, Void> {
 						evt2.setExpectedEnd(job.ends());
 						evt2.setJob(job.getId());
 						evt2.setParent(evt);
-						bel.add(evt2);
+						Database.persist(evt2);
 					}
 				}
 			}
 			// update progress
 			final Double progress = (((lineId * 100) / (double) totalEvents) / 2) + 50;
 			this.setProgress(progress.intValue());
-			if (bel.size() > 2000) { // persist some items
-				Database.persist(bel);
-				bel.clear();
+			if (lineId % 2000 == 0) { // persist some items
+				try {
+					Database.getEntityManager().getTransaction().commit();
+					Database.getEntityManager().getTransaction().begin();
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 			}
 		}
-		Database.persist(bel);
+		Database.getEntityManager().getTransaction().commit();
 	}
 
 	/**

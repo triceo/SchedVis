@@ -299,7 +299,7 @@ public final class Main implements PropertyChangeListener {
 		System.out.println("Processing...");
 		while (!i.isDone()) {
 			try {
-				Thread.sleep(2500);
+				Thread.sleep(5000);
 			} catch (InterruptedException e) {
 				// do nothing
 			}
