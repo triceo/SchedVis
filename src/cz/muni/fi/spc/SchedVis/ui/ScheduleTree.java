@@ -1,18 +1,17 @@
 /*
  * This file is part of SchedVis.
  * 
- * SchedVis is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * SchedVis is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * SchedVis is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * SchedVis is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with SchedVis. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * SchedVis. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * 
@@ -77,11 +76,15 @@ public class ScheduleTree extends JTree implements TreeSelectionListener {
 	@Override
 	public void valueChanged(final TreeSelectionEvent e) {
 		Main.getFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		Object o = ((DefaultMutableTreeNode) ScheduleTree.tree
-		    .getLastSelectedPathComponent()).getUserObject();
-		if (o instanceof Machine) {
-			Main.getFrame().updateDetail((Machine) o);
-		} else {
+		try {
+			Object o = ((DefaultMutableTreeNode) ScheduleTree.tree
+			    .getLastSelectedPathComponent()).getUserObject();
+			if (o instanceof Machine) {
+				Main.getFrame().updateDetail((Machine) o);
+			} else {
+				Main.getFrame().updateDetail(null);
+			}
+		} catch (NullPointerException ex) {
 			Main.getFrame().updateDetail(null);
 		}
 		Main.getFrame().update();

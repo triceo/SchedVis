@@ -1,18 +1,17 @@
 /*
  * This file is part of SchedVis.
  * 
- * SchedVis is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * SchedVis is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * SchedVis is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * SchedVis is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with SchedVis. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * SchedVis. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * 
@@ -28,7 +27,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.apache.log4j.Logger;
-import org.hibernate.LazyInitializationException;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
@@ -63,7 +61,7 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 			try {
 				target.add(new JLabel("Group '" + item.getName() + "' of "
 				    + item.getMachines().size() + " machines."));
-			} catch (LazyInitializationException ex) {
+			} catch (NullPointerException ex) {
 				target.add(new JLabel("Group '" + item.getName() + "' of 0 machines."));
 			}
 		}

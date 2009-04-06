@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -115,12 +114,9 @@ public class MachineGroup extends BaseEntity implements
 	/**
 	 * Get all machines in a group.
 	 * 
-	 * The eager fetching is there because lazy fetching caused various runtime
-	 * problems with Hibernate.
-	 * 
 	 * @return The machines.
 	 */
-	@OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "group")
 	public Set<Machine> getMachines() {
 		return this.machines;
 	}

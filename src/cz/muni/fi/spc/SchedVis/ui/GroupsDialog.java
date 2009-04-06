@@ -7,7 +7,6 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.persistence.EntityManager;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -27,22 +26,22 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 import cz.muni.fi.spc.SchedVis.model.models.GroupsListModel;
 import cz.muni.fi.spc.SchedVis.model.models.MachinesListModel;
+import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 
 /*
  * This file is part of SchedVis.
  * 
- * SchedVis is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * SchedVis is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * SchedVis is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * SchedVis is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with SchedVis. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * SchedVis. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * Creates the dialog to create and/or update machine groups.
@@ -165,8 +164,6 @@ public class GroupsDialog extends JDialog implements ActionListener,
 	 */
 	public void actionPerformed(final ActionEvent e) {
 		final String command = e.getActionCommand();
-		EntityManager em = Database.newEntityManager();
-		em.getTransaction().begin();
 		if (command.equals(GroupsDialog.COMMAND__CREATE_NEW_GROUP)) {
 			final String text = this.newGroupName.getText().trim();
 			if (text.length() == 0) {
@@ -229,9 +226,10 @@ public class GroupsDialog extends JDialog implements ActionListener,
 			}
 		} else if (command.equals(GroupsDialog.COMMAND__CLOSE_DIALOG)) {
 			this.setVisible(false);
+			// to prevent various out-of-date problems later in the UI
+			Database.merge(MachineGroup.getAll());
+			ScheduleTreeModel.getInstance().regroup();
 		}
-		em.getTransaction().commit();
-		em.close();
 		this.availableMachinesList.update();
 		this.groupedMachinesList.update();
 	}

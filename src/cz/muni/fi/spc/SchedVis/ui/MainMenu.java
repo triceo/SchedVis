@@ -1,18 +1,17 @@
 /*
  * This file is part of SchedVis.
  * 
- * SchedVis is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * SchedVis is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * SchedVis is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * SchedVis is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with SchedVis. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * SchedVis. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * 
@@ -29,7 +28,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
 import cz.muni.fi.spc.SchedVis.Main;
-import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -92,7 +90,6 @@ public class MainMenu extends JMenuBar implements ActionListener {
 		} else if (command.equals(MainMenu.ACTION_MANAGE_GROUPS)) {
 			final GroupsDialog dialog = new GroupsDialog(this.frame, true);
 			dialog.setVisible(true);
-			ScheduleTreeModel.getInstance().regroup();
 			Main.getFrame().update();
 		}
 	}
