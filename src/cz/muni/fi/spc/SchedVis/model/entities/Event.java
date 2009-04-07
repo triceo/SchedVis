@@ -1,18 +1,17 @@
 /*
  * This file is part of SchedVis.
  * 
- * SchedVis is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * SchedVis is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * SchedVis is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * SchedVis is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with SchedVis. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * SchedVis. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  */
@@ -144,11 +143,30 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	 * @return The next event.
 	 */
 	public static Event getNext(final Integer eventId) {
+		return Event.getNext(eventId, null);
+	}
+
+	/**
+	 * Get the event that immediately follows the specified event with relation to
+	 * the given machine..
+	 * 
+	 * @param eventId
+	 *          ID of the event in question.
+	 * @param m
+	 *          ID of the machine in question. If null, no machine is considered.
+	 * 
+	 * @return The next event.
+	 */
+	public static Event getNext(final Integer eventId, final Machine m) {
 		EntityManager em = Database.newEntityManager();
 		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
 		crit.addOrder(Order.asc("id"));
 		crit.add(Restrictions.isNull("parent"));
 		crit.add(Restrictions.gt("clock", eventId));
+		if (m != null) {
+			crit.add(Restrictions.or(Restrictions.eq("sourceMachine", m),
+			    Restrictions.eq("targetMachine", m)));
+		}
 		crit.setMaxResults(1);
 		Event evt = (Event) crit.uniqueResult();
 		em.close();
@@ -163,11 +181,29 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	 * @return The previous event.
 	 */
 	public static Event getPrevious(final Integer eventId) {
+		return Event.getPrevious(eventId, null);
+	}
+
+	/**
+	 * Get the event that immediately preceeds the specified event.
+	 * 
+	 * @param eventId
+	 *          ID of the event in question.
+	 * @param m
+	 *          ID of the machine in question. If null, no machine is considered.
+	 * 
+	 * @return The previous event.
+	 */
+	public static Event getPrevious(final Integer eventId, final Machine m) {
 		EntityManager em = Database.newEntityManager();
 		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
 		crit.addOrder(Order.desc("id"));
 		crit.add(Restrictions.isNull("parent"));
 		crit.add(Restrictions.lt("clock", eventId));
+		if (m != null) {
+			crit.add(Restrictions.or(Restrictions.eq("sourceMachine", m),
+			    Restrictions.eq("targetMachine", m)));
+		}
 		crit.setMaxResults(1);
 		Event evt = (Event) crit.uniqueResult();
 		em.close();
@@ -208,8 +244,8 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	/**
 	 * Get CPUs assigned to a job.
 	 * 
-	 * @return A string containing integers (numbers of assigned
-	 *         CPUs) separated by commas.
+	 * @return A string containing integers (numbers of assigned CPUs) separated
+	 *         by commas.
 	 */
 	public String getAssignedCPUs() {
 		return this.assignedCPUs;
