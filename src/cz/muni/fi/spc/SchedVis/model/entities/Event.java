@@ -248,6 +248,7 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	private String assignedCPUs;
 
 	private Set<Event> events = new HashSet<Event>();
+	private boolean bringsSchedule;
 
 	public void addChild(final Event e) {
 		this.events.add(e);
@@ -266,6 +267,10 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	 */
 	public String getAssignedCPUs() {
 		return this.assignedCPUs;
+	}
+
+	public boolean getBringsSchedule() {
+		return this.bringsSchedule;
 	}
 
 	public Integer getClock() {
@@ -351,6 +356,10 @@ public class Event extends BaseEntity implements Comparable<Event> {
 
 	public void setAssignedCPUs(final String value) {
 		this.assignedCPUs = value;
+	}
+
+	public void setBringsSchedule(final boolean value) {
+		this.bringsSchedule = value;
 	}
 
 	public void setClock(final Integer value) {

@@ -207,18 +207,13 @@ public final class Importer extends SwingWorker<Void, Void> {
 		Integer virtualClock = 0;
 		Set<Integer> startedJobs = new TreeSet<Integer>();
 		Database.getEntityManager().getTransaction().begin();
-		boolean doNotIncrease = false;
 		for (final ScheduleEvent event : events) {
 			if (!event.getClock().equals(previousClock)) {
 				/*
 				 * here goes a brand new clock. reset any counters, increase virtual
 				 * value
 				 */
-				if (doNotIncrease) {
-					doNotIncrease = false;
-				} else {
-					virtualClock++;
-				}
+				virtualClock++;
 				previousClock = event.getClock();
 				startedJobs.clear();
 			}
@@ -240,7 +235,6 @@ public final class Importer extends SwingWorker<Void, Void> {
 					 */
 					if (startedJobs.contains(evt.getJob().intValue())) {
 						virtualClock++;
-						doNotIncrease = true;
 						startedJobs.remove(evt.getJob().intValue());
 					}
 				}
@@ -254,13 +248,30 @@ public final class Importer extends SwingWorker<Void, Void> {
 					    .getTargetMachine()));
 				}
 			}
+			evt.setBringsSchedule(event instanceof EventHasData);
 			Database.persist(evt);
 			if (event instanceof EventHasData) {
 				final List<ScheduleMachineData> data = ((EventHasData) event).getData();
 				for (final ScheduleMachineData machine : data) {
 					eventId++;
+					/*
+					 * Create a "dummy" event so that we know that the given machine
+					 * posted some schedule. This is used to tell when the schedule is
+					 * empty. (A "dummy" is found but the real schedule is not.)
+					 */
+					final Event evt3 = new Event();
+					evt3.setClock(event.getClock());
+					evt3.setSourceMachine(Machine.getWithName(machine.getMachineId()));
+					evt3.setVirtualClock(evt.getVirtualClock());
+					evt3.setBringsSchedule(false);
+					evt3.setParent(evt);
+					Database.persist(evt3);
+					/*
+					 * And now post the real schedule.
+					 */
 					for (final ScheduleJobData job : machine.getJobs()) {
 						final Event evt2 = new Event();
+						evt2.setBringsSchedule(true);
 						evt2.setClock(event.getClock());
 						evt2.setVirtualClock(evt.getVirtualClock());
 						evt2.setSourceMachine(Machine.getWithName(machine.getMachineId()));

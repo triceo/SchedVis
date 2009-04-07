@@ -116,6 +116,7 @@ public class Machine extends BaseEntity implements Comparable<Machine> {
 		crit.add(Restrictions.eq("sourceMachine", which));
 		crit.add(Restrictions.le("virtualClock", clock));
 		crit.add(Restrictions.isNotNull("parent"));
+		crit.add(Restrictions.eq("bringsSchedule", false));
 		crit.addOrder(Order.desc("id"));
 		crit.setMaxResults(1);
 		final Event evt = (Event) crit.uniqueResult();
@@ -126,6 +127,7 @@ public class Machine extends BaseEntity implements Comparable<Machine> {
 		Criteria crit2 = BaseEntity.getCriteria(em, Event.class, false);
 		crit2.add(Restrictions.eq("sourceMachine", which));
 		crit2.add(Restrictions.eq("parent", evt.getParent()));
+		crit2.add(Restrictions.eq("bringsSchedule", true));
 		crit2.addOrder(Order.asc("expectedStart"));
 		List<Event> l = crit2.list();
 		em.close();
