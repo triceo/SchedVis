@@ -1,18 +1,17 @@
 /*
  * This file is part of SchedVis.
  * 
- * SchedVis is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * SchedVis is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * SchedVis is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * SchedVis is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with SchedVis. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * SchedVis. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * 
@@ -28,7 +27,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -273,21 +271,20 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		if (!f.exists()) {
 			img = this.actuallyDraw();
 			this.fileSaver.submit(new MachineFileWriter(img, f));
+			return img;
 		} else if (!this.isCaching) {
 			try {
-				if (f.length() == 0) {
-					f.delete();
-					return this.doInBackground();
-				}
-				img = ImageIO.read(f);
-			} catch (IOException e) {
+				return ImageIO.read(f);
+			} catch (Exception e) {
 				ScheduleRenderer.logger.warn("Cannot read cache for machine "
 				    + this.m.getId() + "@" + this.clock
 				    + ". Failed to read from a file " + f.getAbsolutePath() + ".");
-				img = this.actuallyDraw();
+				f.delete();
+				return this.doInBackground();
 			}
+		} else {
+			return null;
 		}
-		return img;
 	}
 
 	/**
