@@ -282,8 +282,13 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 			return img;
 		} else if (!this.isCaching) {
 			try {
-				return ImageIO.read(f);
-			} catch (Exception e) {
+				img = ImageIO.read(f);
+				if (img == null) {
+					f.delete();
+					return this.doInBackground();
+				}
+				return img;
+			} catch (Throwable e) {
 				ScheduleRenderer.logger.warn("Cannot read cache for machine "
 				    + this.m.getId() + "@" + this.virtualClock
 				    + ". Failed to read from a file " + f.getAbsolutePath() + ".");
