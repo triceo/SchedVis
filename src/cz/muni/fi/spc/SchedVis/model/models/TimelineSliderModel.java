@@ -82,8 +82,8 @@ public class TimelineSliderModel extends DefaultBoundedRangeModel {
 	 *          What should listen on changes to the model.
 	 */
 	private TimelineSliderModel(final ChangeListener listener) {
-		this.setMinimum(Event.getFirst().getClock());
-		this.setMaximum(Event.getLast().getClock());
+		this.setMinimum(Event.getFirst().getVirtualClock());
+		this.setMaximum(Event.getLast().getVirtualClock());
 		this.setValue(this.getMinimum());
 		this.addChangeListener(listener);
 	}

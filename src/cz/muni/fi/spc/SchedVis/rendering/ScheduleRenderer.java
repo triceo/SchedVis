@@ -80,7 +80,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	/**
 	 * Holds the position on the timeline that is currently being rendered.
 	 */
-	private final Integer clock;
+	private final Integer virtualClock;
 	/**
 	 * How many pixels shall one CPU of a machine occupy on the y axis of the
 	 * schedule.
@@ -167,6 +167,8 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	private static Map<Integer, Raster> backgroundsActive = new HashMap<Integer, Raster>();
 	private static Map<Integer, Raster> backgroundsInactive = new HashMap<Integer, Raster>();
 
+	private Integer clock;
+
 	/**
 	 * Class constructor that disables caching and does not report progress.
 	 * 
@@ -217,7 +219,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	    final ExecutorService fileSaver, final boolean isCaching,
 	    final PropertyChangeListener l) {
 		this.m = m;
-		this.clock = clock;
+		this.virtualClock = clock;
 		this.isCaching = isCaching;
 		this.fileSaver = fileSaver;
 		if (l != null) {
@@ -233,8 +235,14 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 */
 	private BufferedImage actuallyDraw() {
 		Double time = Double.valueOf(System.nanoTime());
-		this.events = Machine.getLatestSchedule(this.m, this.clock);
-		boolean isActive = Machine.isActive(this.m, this.clock);
+		try {
+			this.clock = Event.getLastWithVirtualClock(this.virtualClock).getClock();
+		} catch (Exception e) {
+			e.printStackTrace();
+			this.clock = Event.getLastWithVirtualClock(1).getClock();
+		}
+		this.events = Machine.getLatestSchedule(this.m, this.virtualClock);
+		boolean isActive = Machine.isActive(this.m, this.virtualClock);
 		BufferedImage img = new BufferedImage(ScheduleRenderer.LINE_WIDTH, this.m
 		    .getCPUs()
 		    * ScheduleRenderer.NUM_PIXELS_PER_CPU, BufferedImage.TYPE_INT_RGB);
@@ -252,7 +260,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 			g.drawString(this.m.getName() + "@" + this.clock + " (off-line)", 1, 9);
 		}
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logger.debug(this.m.getName() + "@" + this.clock
+		ScheduleRenderer.logger.debug(this.m.getName() + "@" + this.virtualClock
 		    + " finished rendering. Took " + time + " seconds.");
 		return img;
 	}
@@ -277,7 +285,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 				return ImageIO.read(f);
 			} catch (Exception e) {
 				ScheduleRenderer.logger.warn("Cannot read cache for machine "
-				    + this.m.getId() + "@" + this.clock
+				    + this.m.getId() + "@" + this.virtualClock
 				    + ". Failed to read from a file " + f.getAbsolutePath() + ".");
 				f.delete();
 				return this.doInBackground();
@@ -330,7 +338,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 				if (jobStartX < 0) {
 					// might be ok, but might also be bad. so inform.
 					ScheduleRenderer.logger.info("Machine " + this.m.getName() + " at "
-					    + this.clock + " is drawing " + jobStartX
+					    + this.virtualClock + " is drawing " + jobStartX
 					    + " before its boundary.");
 				}
 				final int jobLength = this.getJobLength(evt);
@@ -351,7 +359,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 				if (rightBoundary > 0) {
 					// always bad. warn.
 					ScheduleRenderer.logger.warn("Machine " + this.m.getName() + " at "
-					    + this.clock + " is drawing " + rightBoundary
+					    + this.virtualClock + " is drawing " + rightBoundary
 					    + " over its boundary.");
 				}
 			}
@@ -385,7 +393,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 * @todo Make the max length of the id unlimited.
 	 */
 	private String getFilename() {
-		String id = "000000000000000" + this.clock;
+		String id = "000000000000000" + this.virtualClock;
 		return Configuration.getTempFolder() + System.getProperty("file.separator")
 		    + ScheduleRenderer.instanceId + "-" + this.m.getName() + "-"
 		    + id.substring(id.length() - 15, id.length()) + ".gif";

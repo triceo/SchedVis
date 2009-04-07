@@ -114,7 +114,7 @@ public class Machine extends BaseEntity implements Comparable<Machine> {
 		EntityManager em = Database.newEntityManager();
 		final Criteria crit = BaseEntity.getCriteria(em, Event.class, false);
 		crit.add(Restrictions.eq("sourceMachine", which));
-		crit.add(Restrictions.le("clock", clock));
+		crit.add(Restrictions.le("virtualClock", clock));
 		crit.add(Restrictions.isNotNull("parent"));
 		crit.addOrder(Order.desc("id"));
 		crit.setMaxResults(1);
@@ -188,8 +188,8 @@ public class Machine extends BaseEntity implements Comparable<Machine> {
 		final Criteria crit = BaseEntity.getCriteria(em, Event.class, false);
 		crit.add(Restrictions.in("type", Machine.machineEvents));
 		crit.add(Restrictions.eq("sourceMachine", m));
-		crit.add(Restrictions.lt("clock", clock));
-		crit.addOrder(Order.desc("clock"));
+		crit.add(Restrictions.lt("virtualClock", clock));
+		crit.addOrder(Order.desc("id"));
 		crit.setMaxResults(1);
 		Event e = (Event) crit.uniqueResult();
 		em.close();

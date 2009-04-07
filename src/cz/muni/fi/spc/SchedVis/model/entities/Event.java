@@ -64,7 +64,7 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	public static boolean existsTick(final Integer clock) {
 		EntityManager em = Database.newEntityManager();
 		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
-		crit.add(Restrictions.eq("clock", clock));
+		crit.add(Restrictions.eq("virtualClock", clock));
 		crit.setMaxResults(1);
 		Event evt = (Event) crit.uniqueResult();
 		em.close();
@@ -81,7 +81,7 @@ public class Event extends BaseEntity implements Comparable<Event> {
 		EntityManager em = Database.newEntityManager();
 		final List<Integer> l = ((Session) em.getDelegate())
 		    .createSQLQuery(
-		        "SELECT DISTINCT clock FROM Event WHERE parent_FK IS NULL ORDER BY clock ASC")
+		        "SELECT DISTINCT virtualClock FROM Event WHERE parent_FK IS NULL ORDER BY clock ASC")
 		    .list();
 		em.close();
 		return new TreeSet<Integer>(l);
@@ -95,7 +95,7 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	public static Event getFirst() {
 		EntityManager em = Database.newEntityManager();
 		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
-		crit.addOrder(Order.asc("clock"));
+		crit.addOrder(Order.asc("id"));
 		crit.add(Restrictions.isNull("parent"));
 		crit.setMaxResults(1);
 		Event evt = (Event) crit.uniqueResult();
@@ -111,8 +111,26 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	public static Event getLast() {
 		EntityManager em = Database.newEntityManager();
 		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
-		crit.addOrder(Order.desc("clock"));
+		crit.addOrder(Order.desc("id"));
 		crit.add(Restrictions.isNull("parent"));
+		crit.setMaxResults(1);
+		Event evt = (Event) crit.uniqueResult();
+		em.close();
+		return evt;
+	}
+
+	/**
+	 * Retrieve last event with a given virtual clock id.
+	 * 
+	 * @param virtualClockId
+	 *          The id of the virtual clock in question.
+	 * @return The event type.
+	 */
+	public static Event getLastWithVirtualClock(final Integer virtualClockId) {
+		EntityManager em = Database.newEntityManager();
+		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
+		crit.addOrder(Order.desc("id"));
+		crit.add(Restrictions.eq("virtualClock", virtualClockId));
 		crit.setMaxResults(1);
 		Event evt = (Event) crit.uniqueResult();
 		em.close();
@@ -161,8 +179,7 @@ public class Event extends BaseEntity implements Comparable<Event> {
 		EntityManager em = Database.newEntityManager();
 		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
 		crit.addOrder(Order.asc("id"));
-		crit.add(Restrictions.isNull("parent"));
-		crit.add(Restrictions.gt("clock", eventId));
+		crit.add(Restrictions.gt("virtualClock", eventId));
 		if (m != null) {
 			crit.add(Restrictions.or(Restrictions.eq("sourceMachine", m),
 			    Restrictions.eq("targetMachine", m)));
@@ -198,8 +215,7 @@ public class Event extends BaseEntity implements Comparable<Event> {
 		EntityManager em = Database.newEntityManager();
 		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
 		crit.addOrder(Order.desc("id"));
-		crit.add(Restrictions.isNull("parent"));
-		crit.add(Restrictions.lt("clock", eventId));
+		crit.add(Restrictions.lt("virtualClock", eventId));
 		if (m != null) {
 			crit.add(Restrictions.or(Restrictions.eq("sourceMachine", m),
 			    Restrictions.eq("targetMachine", m)));
@@ -215,6 +231,7 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	private Machine srcMachine;
 	private Machine dstMachine;
 	private Integer clock;
+	private Integer virtualClock;
 	private Integer deadline;
 	private Integer expectedEnd;
 	private Integer expectedStart;
@@ -324,6 +341,10 @@ public class Event extends BaseEntity implements Comparable<Event> {
 		return this.eventType;
 	}
 
+	public Integer getVirtualClock() {
+		return this.virtualClock;
+	}
+
 	public void removeChild(final Event e) {
 		this.events.remove(e);
 	}
@@ -390,6 +411,10 @@ public class Event extends BaseEntity implements Comparable<Event> {
 
 	public void setType(final EventType type) {
 		this.eventType = type;
+	}
+
+	public void setVirtualClock(final Integer value) {
+		this.virtualClock = value;
 	}
 
 }

@@ -37,7 +37,6 @@ public class TimelineSlider extends JSlider {
 	 */
 	public TimelineSlider() {
 		this.setPaintTicks(true);
-		this.setPaintLabels(true);
 		this.setPaintTrack(true);
 	}
 

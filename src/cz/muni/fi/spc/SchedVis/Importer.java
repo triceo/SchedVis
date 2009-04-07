@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import javax.swing.SwingWorker;
@@ -201,17 +203,49 @@ public final class Importer extends SwingWorker<Void, Void> {
 		final Integer totalEvents = events.size();
 		Integer lineId = 0;
 		Integer eventId = 0;
+		Integer previousClock = -1;
+		Integer virtualClock = 0;
+		Set<Integer> startedJobs = new TreeSet<Integer>();
 		Database.getEntityManager().getTransaction().begin();
+		boolean doNotIncrease = false;
 		for (final ScheduleEvent event : events) {
+			if (!event.getClock().equals(previousClock)) {
+				/*
+				 * here goes a brand new clock. reset any counters, increase virtual
+				 * value
+				 */
+				if (doNotIncrease) {
+					doNotIncrease = false;
+				} else {
+					virtualClock++;
+				}
+				previousClock = event.getClock();
+				startedJobs.clear();
+			}
 			lineId++;
 			eventId++;
 			final Event evt = new Event();
-			evt.setType(Database.getEntityManager().find(EventType.class,
-			    eventTypes.get(event.getName())));
+			evt.setType(EventType.get(eventTypes.get(event.getName())));
 			evt.setClock(event.getClock());
 			if (event instanceof EventIsJobRelated) {
 				evt.setJob(((EventIsJobRelated) event).getJob());
+				if (event.getName().equals("job-arrival")) {
+					// if in this clock a new job arrives, remember it
+					startedJobs.add(evt.getJob().intValue());
+				} else if (event.getName().equals("job-execution-start")) {
+					/*
+					 * if in the same clock the newly arrived job is executed, increase
+					 * the virtual clock. this way, we extend the schedule to show this
+					 * rather important change.
+					 */
+					if (startedJobs.contains(evt.getJob().intValue())) {
+						virtualClock++;
+						doNotIncrease = true;
+						startedJobs.remove(evt.getJob().intValue());
+					}
+				}
 			}
+			evt.setVirtualClock(virtualClock);
 			if (event instanceof EventIsMachineRelated) {
 				evt.setSourceMachine(Machine
 				    .getWithName(((EventIsMachineRelated) event).getMachine()));
@@ -228,6 +262,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 					for (final ScheduleJobData job : machine.getJobs()) {
 						final Event evt2 = new Event();
 						evt2.setClock(event.getClock());
+						evt2.setVirtualClock(evt.getVirtualClock());
 						evt2.setSourceMachine(Machine.getWithName(machine.getMachineId()));
 						evt2.setNeededCPUs(job.getNeededCPUs());
 						evt2.setAssignedCPUs(job.getAssignedCPUs());

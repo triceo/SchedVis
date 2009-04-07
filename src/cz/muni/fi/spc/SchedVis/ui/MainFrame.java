@@ -122,22 +122,20 @@ public class MainFrame extends JFrame {
 			Integer currentClock = TimelineSliderModel.getInstance().getValue();
 			Integer previousClock;
 			try {
-				previousClock = Event.getPrevious(currentClock, m).getClock();
+				previousClock = Event.getPrevious(currentClock, m).getVirtualClock();
 			} catch (NullPointerException e) {
-				previousClock = Event.getFirst().getClock();
+				previousClock = Event.getFirst().getVirtualClock();
 			}
 			Integer nextClock;
 			try {
-				nextClock = Event.getNext(currentClock, m).getClock();
+				nextClock = Event.getNext(currentClock, m).getVirtualClock();
 			} catch (NullPointerException e) {
-				nextClock = Event.getLast().getClock();
+				nextClock = Event.getLast().getVirtualClock();
 			}
-			;
 			for (Integer clock : new TreeSet<Integer>(Arrays.asList(new Integer[] {
 			    previousClock, currentClock, nextClock }))) {
 				ScheduleRenderingController.getInstance().render(m, clock);
 				final MachinePanel pane = new MachinePanel();
-				pane.setToolTipText("Machine: " + m.getName() + ", time: " + clock);
 				pane.setImage(ScheduleRenderingController.getInstance().getRendered(m,
 				    clock));
 				this.detailPane.add(pane);
