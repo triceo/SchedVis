@@ -21,6 +21,7 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Index;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
 import cz.muni.fi.spc.SchedVis.model.Database;
@@ -72,6 +73,7 @@ public class EventType extends BaseEntity {
 		return this.id;
 	}
 
+	@Index(name = "etnIndex")
 	public String getName() {
 		return this.name;
 	}

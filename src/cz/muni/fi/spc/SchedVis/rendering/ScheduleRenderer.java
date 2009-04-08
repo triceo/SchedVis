@@ -25,42 +25,24 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
-import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.ExecutorService;
 
-import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.Configuration;
-import cz.muni.fi.spc.SchedVis.model.Database;
+import cz.muni.fi.spc.SchedVis.PrintfFormat;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 
 /**
- * This class knows how to render schedule for a machine into an image and how
- * to save it to a file, if necessary.
- * 
- * This class uses some terms that need explanation:
- * <dl>
- * <dt>Caching</dt>
- * <dd>Name for the state of this class when it is run from a command line,
- * doing nothing but pre-generating schedule images. In this case, some
- * optimizations are performed so that no unnecessary operations are performed.</dd>
- * <dt>Delayed file saving</dt>
- * <dd>Happens when the schedule image has been rendered. In order not to block
- * other possible threads in rendering, the slow operation of saving a file is
- * "out-sourced" to another thread and the rendered image is returned
- * immediately.</dd>
- * </dl>
+ * This class knows how to render schedule for a machine into an image.
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
@@ -71,12 +53,6 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 * Holds the machine whose schedule is currently being rendered.
 	 */
 	private final Machine m;
-	/**
-	 * Holds a name of the database so that the cached schedule images from
-	 * different databases don't interfere.
-	 */
-	private static final String instanceId = new File(Database.getName())
-	    .getName();
 	/**
 	 * Holds the position on the timeline that is currently being rendered.
 	 */
@@ -126,11 +102,6 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	private static Font font = new Font("Monospaced", Font.PLAIN, 9);
 
 	/**
-	 * Whether or not this renderer is caching.
-	 */
-	private final boolean isCaching;
-
-	/**
 	 * Holds events in a currently rendered schedule. Stored for performance
 	 * reasons.
 	 */
@@ -142,11 +113,6 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 * Micro-optimization. Holds the parsed values of assigned CPUs.
 	 */
 	private final Map<String, Integer[]> sets = new HashMap<String, Integer[]>();
-
-	/**
-	 * The executor service used for delayed file saving.
-	 */
-	private final ExecutorService fileSaver;
 
 	/**
 	 * Holds colors for different jobs, so that they persist and are the same over
@@ -170,79 +136,51 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	private Integer clock;
 
 	/**
-	 * Class constructor that disables caching and does not report progress.
-	 * 
-	 * @param m
-	 *          Machine to render.
-	 * @param clock
-	 *          A point in time in which we want the schedule rendered.
-	 * @param fileSaver
-	 *          Executor service used for delayed file saving.
-	 */
-	public ScheduleRenderer(final Machine m, final Integer clock,
-	    final ExecutorService fileSaver) {
-		this(m, clock, fileSaver, false, null);
-	}
-
-	/**
-	 * Class constructor that does not report progress.
-	 * 
-	 * @param m
-	 *          Machine to render.
-	 * @param clock
-	 *          A point in time in which we want the schedule rendered.
-	 * @param fileSaver
-	 *          Executor service used for delayed file saving.
-	 * @param isCaching
-	 *          Whether or not this instance should be caching.
-	 */
-	public ScheduleRenderer(final Machine m, final Integer clock,
-	    final ExecutorService fileSaver, final boolean isCaching) {
-		this(m, clock, fileSaver, isCaching, null);
-	}
-
-	/**
 	 * Class constructor.
 	 * 
 	 * @param m
 	 *          Machine to render.
 	 * @param clock
 	 *          A point in time in which we want the schedule rendered.
-	 * @param fileSaver
-	 *          Executor service used for delayed file saving.
-	 * @param isCaching
-	 *          Whether or not this instance should be caching.
-	 * @param l
-	 *          A listener to report progress to.
 	 */
-	public ScheduleRenderer(final Machine m, final Integer clock,
-	    final ExecutorService fileSaver, final boolean isCaching,
-	    final PropertyChangeListener l) {
+	public ScheduleRenderer(final Machine m, final Integer clock) {
 		this.m = m;
 		this.virtualClock = clock;
-		this.isCaching = isCaching;
-		this.fileSaver = fileSaver;
-		if (l != null) {
-			this.addPropertyChangeListener(l);
-		}
 	}
 
 	/**
 	 * Performs the actual drawing of the machine schedule. Draws a frame and
 	 * calls another method to perform drawing of jobs.
 	 * 
-	 * @return
+	 * @return The rendered image.
 	 */
-	private BufferedImage actuallyDraw() {
-		Double time = Double.valueOf(System.nanoTime());
+	@Override
+	public Image doInBackground() {
+		Double globalTime = Double.valueOf(System.nanoTime());
+		Double time = globalTime;
 		try {
 			this.clock = Event.getLastWithVirtualClock(this.virtualClock).getClock();
 		} catch (Exception e) {
 			e.printStackTrace();
 			this.clock = Event.getLastWithVirtualClock(1).getClock();
 		}
+		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
+		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
+		    + this.virtualClock + " finished getting clock. Took %.5f seconds.")
+		    .sprintf(time));
+		time = Double.valueOf(System.nanoTime());
 		this.events = Machine.getLatestSchedule(this.m, this.virtualClock);
+		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
+		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
+		    + this.virtualClock + " finished getting schedule. Took %.5f seconds.")
+		    .sprintf(time));
+		time = Double.valueOf(System.nanoTime());
 		boolean isActive = Machine.isActive(this.m, this.virtualClock);
+		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
+		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
+		    + this.virtualClock + " finished getting activity. Took %.5f seconds.")
+		    .sprintf(time));
+		time = Double.valueOf(System.nanoTime());
 		BufferedImage img = new BufferedImage(ScheduleRenderer.LINE_WIDTH, this.m
 		    .getCPUs()
 		    * ScheduleRenderer.NUM_PIXELS_PER_CPU, BufferedImage.TYPE_INT_RGB);
@@ -262,42 +200,10 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logger.debug(this.m.getName() + "@" + this.virtualClock
 		    + " finished rendering. Took " + time + " seconds.");
+		time = (System.nanoTime() - globalTime) / 1000 / 1000 / 1000;
+		ScheduleRenderer.logger.debug(this.m.getName() + "@" + this.virtualClock
+		    + " finished. Took " + time + " seconds.");
 		return img;
-	}
-
-	/**
-	 * Background task to render the images used for machine schedules.
-	 * 
-	 * The logic in this method tries to cache rendered images whenever possible.
-	 * If a cache file is not found, image is rendered and, if possible, cached so
-	 * that it needs not be rendered next time.
-	 */
-	@Override
-	public Image doInBackground() {
-		File f = new File(this.getFilename()).getAbsoluteFile();
-		BufferedImage img = null;
-		if (!f.exists()) {
-			img = this.actuallyDraw();
-			this.fileSaver.submit(new MachineFileWriter(img, f));
-			return img;
-		} else if (!this.isCaching) {
-			try {
-				img = ImageIO.read(f);
-				if (img == null) {
-					f.delete();
-					return this.doInBackground();
-				}
-				return img;
-			} catch (Throwable e) {
-				ScheduleRenderer.logger.warn("Cannot read cache for machine "
-				    + this.m.getId() + "@" + this.virtualClock
-				    + ". Failed to read from a file " + f.getAbsolutePath() + ".");
-				f.delete();
-				return this.doInBackground();
-			}
-		} else {
-			return null;
-		}
 	}
 
 	/**
@@ -308,6 +214,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 * @todo Produces unclear job boundaries, probably because of rounding.
 	 */
 	private void drawJobs(final Graphics2D g) {
+		Double time = Double.valueOf(System.nanoTime());
 		// render jobs in a schedule, one by one
 		for (final Event evt : this.events) {
 			// get assigned CPUs, set will ensure they are unique and sorted
@@ -369,6 +276,10 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 				}
 			}
 		}
+		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
+		ScheduleRenderer.logger.info(new PrintfFormat(this.m.getName() + "@"
+		    + this.virtualClock + " finished drawing jobs. Took %.5f seconds.")
+		    .sprintf(time));
 	}
 
 	/**
@@ -389,19 +300,6 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		    RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 		    RenderingHints.VALUE_ANTIALIAS_OFF);
-	}
-
-	/**
-	 * Get filename for the cache file.
-	 * 
-	 * @return The file name.
-	 * @todo Make the max length of the id unlimited.
-	 */
-	private String getFilename() {
-		String id = "000000000000000" + this.virtualClock;
-		return Configuration.getTempFolder() + System.getProperty("file.separator")
-		    + ScheduleRenderer.instanceId + "-" + this.m.getName() + "-"
-		    + id.substring(id.length() - 15, id.length()) + ".gif";
 	}
 
 	/**

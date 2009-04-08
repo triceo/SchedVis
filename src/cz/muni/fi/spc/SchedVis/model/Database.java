@@ -189,6 +189,14 @@ public class Database {
 			final Map<String, String> map = new HashMap<String, String>();
 			map.put("hibernate.connection.url", "jdbc:sqlite:/"
 			    + Configuration.getDatabaseFile().getAbsolutePath());
+			if (!Configuration.getDatabaseFile().exists()) {
+				/**
+				 * Create the schema when the file does not exists. This makes sure that
+				 * Hibernate creates indices, which it won't when hbm2ddl.auto was set
+				 * to update.
+				 */
+				map.put("hibernate.hbm2ddl.auto", "create");
+			}
 			Database.factory = Persistence
 			    .createEntityManagerFactory("SchedVis", map);
 			Database.currentName = Configuration.getDatabaseFile().getName();

@@ -22,7 +22,6 @@ package cz.muni.fi.spc.SchedVis.model.entities;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.Vector;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
@@ -34,7 +33,10 @@ import javax.persistence.ManyToOne;
 import org.hibernate.Criteria;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Index;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
@@ -111,26 +113,20 @@ public class Machine extends BaseEntity implements Comparable<Machine> {
 	@SuppressWarnings("unchecked")
 	public static List<Event> getLatestSchedule(final Machine which,
 	    final Integer clock) {
-		EntityManager em = Database.newEntityManager();
-		final Criteria crit = BaseEntity.getCriteria(em, Event.class, false);
+		// create a subquery
+		final DetachedCriteria crit = DetachedCriteria.forClass(Event.class);
 		crit.add(Restrictions.eq("sourceMachine", which));
 		crit.add(Restrictions.le("virtualClock", clock));
 		crit.add(Restrictions.isNotNull("parent"));
 		crit.add(Restrictions.eq("bringsSchedule", false));
-		crit.addOrder(Order.desc("id"));
-		crit.setMaxResults(1);
-		final Event evt = (Event) crit.uniqueResult();
-		if (evt == null) {
-			em.close();
-			return new Vector<Event>();
-		}
-		Criteria crit2 = BaseEntity.getCriteria(em, Event.class, false);
+		crit.setProjection(Property.forName("parent").max());
+		// launch a query
+		Criteria crit2 = BaseEntity.getCriteria(Database.getEntityManager(),
+		    Event.class, false);
 		crit2.add(Restrictions.eq("sourceMachine", which));
-		crit2.add(Restrictions.eq("parent", evt.getParent()));
+		crit2.add(Property.forName("parent").eq(crit));
 		crit2.add(Restrictions.eq("bringsSchedule", true));
-		crit2.addOrder(Order.asc("expectedStart"));
 		List<Event> l = crit2.list();
-		em.close();
 		return l;
 	}
 
@@ -186,15 +182,14 @@ public class Machine extends BaseEntity implements Comparable<Machine> {
 				    EventType.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) };
 			}
 		}
-		EntityManager em = Database.newEntityManager();
-		final Criteria crit = BaseEntity.getCriteria(em, Event.class, false);
+		final Criteria crit = BaseEntity.getCriteria(Database.getEntityManager(),
+		    Event.class, false);
 		crit.add(Restrictions.in("type", Machine.machineEvents));
 		crit.add(Restrictions.eq("sourceMachine", m));
 		crit.add(Restrictions.lt("virtualClock", clock));
 		crit.addOrder(Order.desc("id"));
 		crit.setMaxResults(1);
 		Event e = (Event) crit.uniqueResult();
-		em.close();
 		try {
 			Integer id = e.getType().getId();
 			if ((id.equals(EventType.EVENT_MACHINE_FAILURE))
@@ -245,6 +240,7 @@ public class Machine extends BaseEntity implements Comparable<Machine> {
 		return this.id;
 	}
 
+	@Index(name = "mnIndex")
 	public String getName() {
 		return this.name;
 	}

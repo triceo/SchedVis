@@ -29,6 +29,7 @@ import javax.persistence.OneToMany;
 import org.hibernate.Criteria;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Index;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
@@ -121,6 +122,7 @@ public class MachineGroup extends BaseEntity implements
 		return this.machines;
 	}
 
+	@Index(name = "mgnIndex")
 	public String getName() {
 		return this.name;
 	}

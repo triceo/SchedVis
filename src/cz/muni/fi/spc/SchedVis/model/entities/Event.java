@@ -35,6 +35,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Index;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
@@ -269,6 +270,7 @@ public class Event extends BaseEntity implements Comparable<Event> {
 		return this.assignedCPUs;
 	}
 
+	@Index(name = "bsIndex")
 	public boolean getBringsSchedule() {
 		return this.bringsSchedule;
 	}
@@ -326,12 +328,14 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	}
 
 	@ManyToOne
+	@Index(name = "pIndex")
 	@JoinColumn(name = "parent_fk")
 	public Event getParent() {
 		return this.parent;
 	}
 
 	@OneToOne
+	@Index(name = "mIndex")
 	public Machine getSourceMachine() {
 		return this.srcMachine;
 	}
@@ -342,10 +346,12 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	}
 
 	@ManyToOne
+	@Index(name = "tIndex")
 	public EventType getType() {
 		return this.eventType;
 	}
 
+	@Index(name = "cIndex")
 	public Integer getVirtualClock() {
 		return this.virtualClock;
 	}

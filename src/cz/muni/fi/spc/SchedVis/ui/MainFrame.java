@@ -101,14 +101,6 @@ public class MainFrame extends JFrame {
 	}
 
 	/**
-	 * Refresh the UI on the screen.
-	 */
-	public void update() {
-		this.pack();
-		this.repaint();
-	}
-
-	/**
 	 * Updates the detail panel with the data about a given machine.
 	 * 
 	 * @param m

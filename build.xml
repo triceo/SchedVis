@@ -69,11 +69,11 @@
       <arg value="import" />
     </java>
   </target>
-  <target name="cache" description="Render the schedules prior to executing the program.">
+  <target name="benchmark" description="Render the schedules prior to executing the program.">
     <java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" maxmemory="256m">
-    	<!--jvmarg value="-Xloggc:garbage_collector.log" /-->
+      <!--jvmarg value="-Xloggc:garbage_collector.log" /-->
       <sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
-      <arg value="cache" />
+      <arg value="benchmark" />
     </java>
   </target>
 </project>

@@ -27,7 +27,6 @@ import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
-import cz.muni.fi.spc.SchedVis.Main;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 
 /**
@@ -55,8 +54,7 @@ public class ScheduleRenderingController {
 	/**
 	 * Executor for rendering schedules.
 	 */
-	private final ExecutorService e = Executors
-	    .newFixedThreadPool(Main.MAX_RENDERER_THREADS);
+	private final ExecutorService e = Executors.newFixedThreadPool(1);
 
 	/**
 	 * Requests an already rendered schedule. If none is available but the
@@ -106,7 +104,7 @@ public class ScheduleRenderingController {
 		if (this.renderers.get(clock).containsKey(m)) {
 			return;
 		}
-		ScheduleRenderer mr = new ScheduleRenderer(m, clock, this.e);
+		ScheduleRenderer mr = new ScheduleRenderer(m, clock);
 		this.e.submit(mr);
 		map.put(m, mr);
 	}

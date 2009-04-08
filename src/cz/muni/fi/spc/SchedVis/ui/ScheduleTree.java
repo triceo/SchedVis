@@ -87,7 +87,6 @@ public class ScheduleTree extends JTree implements TreeSelectionListener {
 		} catch (NullPointerException ex) {
 			Main.getFrame().updateDetail(null);
 		}
-		Main.getFrame().update();
 		Main.getFrame()
 		    .setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}

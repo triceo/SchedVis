@@ -151,7 +151,6 @@ public class SliderPanel extends JPanel implements ChangeListener,
 				} catch (NullPointerException ex) {
 					Main.getFrame().updateDetail(null);
 				}
-				Main.getFrame().update();
 				Main.getFrame().setCursor(
 				    Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			}
