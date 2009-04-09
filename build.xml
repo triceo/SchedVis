@@ -2,7 +2,6 @@
 <project name="SchedVis" default="run" basedir=".">
 	<property file="config.properties" />
   <property name="dir.bin" value="./bin" />
-  <property name="dir.tmp" value="${folders.temp}" />
 	<property name="dir.build" value="./build" />
   <property name="dir.src" value="./src" />
 	<property name="dir.lib" value="./lib" />
@@ -53,9 +52,7 @@
 	<target name="clean" description="Restore the distribution to its default state.">
 		<delete dir="${dir.bin}" />
     <delete dir="${dir.build}" />
-    <delete dir="${dir.tmp}" />
     <delete file="${files.database}" />
-    <mkdir dir="${dir.tmp}" />
   </target>
 	<target name="run" description="Run the program.">
 		<java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" maxmemory="512m">
