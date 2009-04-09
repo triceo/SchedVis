@@ -74,16 +74,18 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 * How many pixels should be left in the left of the schedule for jobs that
 	 * were supposed to be executed before the current clock.
 	 */
-	private static final Integer OVERFLOW_WIDTH = Math.round(Event
-	    .getMaxJobSpan()
-	    * ScheduleRenderer.NUM_PIXELS_PER_TICK) / 8;
+	private static final Integer OVERFLOW_WIDTH = Double
+	    .valueOf(
+	        Math
+	            .floor((Event.getMaxJobSpan() * ScheduleRenderer.NUM_PIXELS_PER_TICK) / 8))
+	    .intValue();
 	/**
 	 * Total length of the x axis of the schedule. If you need to change it,
 	 * please change the input values, not the equation.
 	 */
-	private static final Integer LINE_WIDTH = Math.round(Event.getMaxJobSpan()
-	    * ScheduleRenderer.NUM_PIXELS_PER_TICK)
-	    + ScheduleRenderer.OVERFLOW_WIDTH;
+	private static final Integer LINE_WIDTH = Double.valueOf(
+	    Math.floor((Event.getMaxJobSpan() * ScheduleRenderer.NUM_PIXELS_PER_TICK)
+	        + ScheduleRenderer.OVERFLOW_WIDTH)).intValue();
 	/**
 	 * Colors that are available for the jobs. This array can be extended at will
 	 * and the color-picking code will adjust to it.
@@ -330,8 +332,9 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 */
 	private int getJobLength(final Event evt) {
 		try {
-			return Math.round((evt.getExpectedEnd() - evt.getExpectedStart())
-			    * ScheduleRenderer.NUM_PIXELS_PER_TICK);
+			return Double.valueOf(
+			    Math.floor((evt.getExpectedEnd() - evt.getExpectedStart())
+			        * ScheduleRenderer.NUM_PIXELS_PER_TICK)).intValue();
 		} catch (final NullPointerException e) {
 			return 0;
 		}
@@ -346,9 +349,10 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 */
 	private int getStartingPosition(final Event evt) {
 		try {
-			return Math.round((evt.getExpectedStart() - this.clock)
-			    * ScheduleRenderer.NUM_PIXELS_PER_TICK)
-			    + ScheduleRenderer.OVERFLOW_WIDTH;
+			return Double.valueOf(
+			    Math.floor((evt.getExpectedStart() - this.clock)
+			        * ScheduleRenderer.NUM_PIXELS_PER_TICK)
+			        + ScheduleRenderer.OVERFLOW_WIDTH).intValue();
 		} catch (final NullPointerException e) {
 			return ScheduleRenderer.OVERFLOW_WIDTH;
 		}
