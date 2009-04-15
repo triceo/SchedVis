@@ -30,15 +30,15 @@ import cz.muni.fi.spc.SchedVis.parsers.Token;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class ScheduleMachineData {
+public final class ScheduleMachineData {
 
-	private final String machineId;
+	private final char[] machineId;
 	private final List<ScheduleJobData> jobs;
 
 	public ScheduleMachineData(final Token machineId,
 	    final List<ScheduleJobData> data) {
 		this.jobs = data;
-		this.machineId = machineId.toString();
+		this.machineId = machineId.toString().toCharArray();
 	}
 
 	public List<ScheduleJobData> getJobs() {
@@ -46,6 +46,6 @@ public class ScheduleMachineData {
 	}
 
 	public String getMachineId() {
-		return this.machineId;
+		return String.valueOf(this.machineId);
 	}
 }

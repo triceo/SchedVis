@@ -17,7 +17,7 @@
 /**
  * Provides Hibernate integration for SchedVis.
  */
-package cz.muni.fi.spc.SchedVis.model;
+package cz.muni.fi.spc.SchedVis.util;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import cz.muni.fi.spc.SchedVis.Configuration;
+import cz.muni.fi.spc.SchedVis.model.BaseEntity;
 
 /**
  * Integrate Hibernate (through JPA) as a handler of all the implemented
@@ -40,7 +40,7 @@ import cz.muni.fi.spc.SchedVis.Configuration;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class Database {
+public final class Database {
 
 	private static EntityManagerFactory factory;
 
@@ -100,16 +100,6 @@ public class Database {
 		if (endTransaction) {
 			Database.getEntityManager().getTransaction().commit();
 		}
-	}
-
-	/**
-	 * Request a brand new entity mananger to be used for some unit of work. The
-	 * calling code is responsible for closing this entity manager.
-	 * 
-	 * @return A new entity manager.
-	 */
-	public static EntityManager newEntityManager() {
-		return Database.factory.createEntityManager();
 	}
 
 	/**

@@ -18,6 +18,8 @@
  */
 package cz.muni.fi.spc.SchedVis.model.entities;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -27,14 +29,12 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 import org.hibernate.Criteria;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
-import cz.muni.fi.spc.SchedVis.model.Database;
+import cz.muni.fi.spc.SchedVis.util.Database;
 
 /**
  * JPA Entity that represents a group of machines.
@@ -42,9 +42,11 @@ import cz.muni.fi.spc.SchedVis.model.Database;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class MachineGroup extends BaseEntity implements
+public final class MachineGroup extends BaseEntity implements
     Comparable<MachineGroup> {
+
+	private static final Map<Integer, MachineGroup> byId = new HashMap<Integer, MachineGroup>();
+	private static final Map<String, MachineGroup> byName = new HashMap<String, MachineGroup>();
 
 	/**
 	 * Get machine group with a given ID.
@@ -54,7 +56,15 @@ public class MachineGroup extends BaseEntity implements
 	 * @return The machine.
 	 */
 	public static MachineGroup get(final Integer id) {
-		return Database.getEntityManager().find(MachineGroup.class, id);
+		if (!MachineGroup.byId.containsKey(id)) {
+			MachineGroup.byId.put(id, Database.getEntityManager().find(
+			    MachineGroup.class, id));
+		}
+		MachineGroup m = MachineGroup.byId.get(id);
+		if (!MachineGroup.byName.containsKey(m.getName())) {
+			MachineGroup.byName.put(m.getName(), m);
+		}
+		return m;
 	}
 
 	/**
@@ -64,10 +74,16 @@ public class MachineGroup extends BaseEntity implements
 	 */
 	@SuppressWarnings("unchecked")
 	public static Set<MachineGroup> getAll() {
-		final Criteria crit = BaseEntity.getCriteria(Database.getEntityManager(),
-		    MachineGroup.class, true);
+		final Criteria crit = BaseEntity.getCriteria(MachineGroup.class);
 		crit.addOrder(Order.asc("name"));
 		return new TreeSet<MachineGroup>(crit.list());
+	}
+
+	private static MachineGroup getWithName(final String name) {
+		final Criteria crit = BaseEntity.getCriteria(MachineGroup.class);
+		crit.add(Restrictions.eq("name", name));
+		crit.setMaxResults(1);
+		return (MachineGroup) crit.uniqueResult();
 	}
 
 	/**
@@ -75,14 +91,29 @@ public class MachineGroup extends BaseEntity implements
 	 * 
 	 * @param name
 	 *          The machine name in question.
+	 * @param cache
+	 *          Whether or not to use the entity cache.
 	 * @return The machine.
 	 */
-	public static MachineGroup getWithName(final String name) {
-		final Criteria crit = BaseEntity.getCriteria(Database.getEntityManager(),
-		    MachineGroup.class, true);
-		crit.add(Restrictions.eq("name", name));
-		crit.setMaxResults(1);
-		return (MachineGroup) crit.uniqueResult();
+	public static MachineGroup getWithName(final String name, final boolean cache) {
+		if (!cache) {
+			return MachineGroup.getWithName(name);
+		}
+		if (!MachineGroup.byName.containsKey(name)) {
+			final Criteria crit = BaseEntity.getCriteria(MachineGroup.class);
+			crit.add(Restrictions.eq("name", name));
+			crit.setMaxResults(1);
+			MachineGroup mg = MachineGroup.getWithName(name);
+			if (mg == null) {
+				return null;
+			}
+			MachineGroup.byName.put(name, mg);
+		}
+		MachineGroup m = MachineGroup.byName.get(name);
+		if ((m != null) && !MachineGroup.byId.containsKey(m.getId())) {
+			MachineGroup.byId.put(m.getId(), m);
+		}
+		return m;
 	}
 
 	private Integer id;

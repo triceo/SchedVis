@@ -23,7 +23,7 @@ package cz.muni.fi.spc.SchedVis.parsers;
  * contain only ASCII characters (without unicode processing).
  */
 
-public class SimpleCharStream {
+public final class SimpleCharStream {
 	/** Whether parser is static. */
 	public static final boolean staticFlag = false;
 	int bufsize;

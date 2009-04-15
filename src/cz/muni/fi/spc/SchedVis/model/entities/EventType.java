@@ -16,15 +16,16 @@
  */
 package cz.muni.fi.spc.SchedVis.model.entities;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
-import cz.muni.fi.spc.SchedVis.model.Database;
+import cz.muni.fi.spc.SchedVis.util.Database;
 
 /**
  * JPA Entity that represents type of an event.
@@ -32,8 +33,7 @@ import cz.muni.fi.spc.SchedVis.model.Database;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class EventType extends BaseEntity {
+public final class EventType extends BaseEntity {
 
 	public static Integer EVENT_JOB_ARRIVAL = 1;
 	public static Integer EVENT_JOB_EXECUTION_START = 2;
@@ -46,6 +46,9 @@ public class EventType extends BaseEntity {
 	public static Integer EVENT_MACHINE_RESTART_JOB_MOVE_BAD = 9;
 	public static Integer EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD = 10;
 	public static Integer EVENT_MACHINE_FAILURE_JOB_MOVE_BAD = 11;
+	public static Integer EVENT_JOB_COMPLETION = 12;
+
+	private static final Map<Integer, EventType> byId = new HashMap<Integer, EventType>();
 
 	/**
 	 * Retrieve event type with a given id.
@@ -54,8 +57,12 @@ public class EventType extends BaseEntity {
 	 *          The id of the event type in question.
 	 * @return The event type.
 	 */
-	public static EventType get(final Integer eventTypeId) {
-		return Database.getEntityManager().find(EventType.class, eventTypeId);
+	public static synchronized EventType get(final int eventTypeId) {
+		if (!EventType.byId.containsKey(eventTypeId)) {
+			EventType.byId.put(eventTypeId, Database.getEntityManager().find(
+			    EventType.class, eventTypeId));
+		}
+		return EventType.byId.get(eventTypeId);
 	}
 
 	private String name;

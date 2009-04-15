@@ -24,87 +24,87 @@ import cz.muni.fi.spc.SchedVis.parsers.Token;
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
-public class ScheduleJobData {
+public final class ScheduleJobData {
 
-	private Integer id;
-	private Integer neededCPUs;
-	private Integer neededMemory;
-	private Integer neededSpace;
-	private Integer startClock;
-	private Integer endClock;
-	private Integer deadline;
-	private String architecture;
-	private String assignedCPUs;
+	private int id;
+	private int neededCPUs;
+	private int neededMemory;
+	private int neededSpace;
+	private int startClock;
+	private int endClock;
+	private int deadline;
+	private char[] architecture;
+	private char[] assignedCPUs;
 
 	public void assignCPUs(final Token assignedCPUs) {
-		this.assignedCPUs = assignedCPUs.toString();
+		this.assignedCPUs = assignedCPUs.toString().toCharArray();
 	}
 
-	public Integer ends() {
+	public int ends() {
 		return this.endClock;
 	}
 
 	public String getArch() {
-		return this.architecture;
+		return String.valueOf(this.architecture);
 	}
 
 	public String getAssignedCPUs() {
-		return this.assignedCPUs;
+		return String.valueOf(this.assignedCPUs);
 	}
 
-	public Integer getDeadline() {
+	public int getDeadline() {
 		return this.deadline;
 	}
 
-	public Integer getId() {
+	public int getId() {
 		return this.id;
 	}
 
-	public Integer getNeededCPUs() {
+	public int getNeededCPUs() {
 		return this.neededCPUs;
 	}
 
-	public Integer getNeededMemory() {
+	public int getNeededMemory() {
 		return this.neededMemory;
 	}
 
-	public Integer getNeededSpace() {
+	public int getNeededSpace() {
 		return this.neededSpace;
 	}
 
 	public void setArch(final Token arch) {
-		this.architecture = arch.toString();
+		this.architecture = arch.toString().toCharArray();
 	}
 
 	public void setDeadline(final Token clock) {
-		this.deadline = new Integer(clock.toString());
+		this.deadline = Integer.valueOf(clock.toString()).intValue();
 	}
 
 	public void setEnds(final Token clock) {
-		this.endClock = new Integer(clock.toString());
+		this.endClock = Integer.valueOf(clock.toString()).intValue();
 	}
 
 	public void setId(final Token jobId) {
-		this.id = new Integer(jobId.toString());
+		this.id = Integer.valueOf(jobId.toString()).intValue();
 	}
 
 	public void setNeedsCPUs(final Token neededCPUs) {
-		this.neededCPUs = new Integer(neededCPUs.toString());
+		this.neededCPUs = Integer.valueOf(neededCPUs.toString()).intValue();
 	}
 
 	public void setNeedsMemory(final Token memory) {
-		this.neededMemory = new Integer(memory.toString());
+		this.neededMemory = Integer.valueOf(memory.toString()).intValue();
 	}
 
 	public void setNeedsSpace(final Token space) {
-		this.neededSpace = new Integer(space.toString());
+		this.neededSpace = Integer.valueOf(space.toString()).intValue();
 	}
 
 	public void setStarts(final Token clock) {
-		this.startClock = new Integer(clock.toString());
+		this.startClock = Integer.valueOf(clock.toString()).intValue();
 	}
 
-	public Integer starts() {
+	public int starts() {
 		return this.startClock;
 	}
 }

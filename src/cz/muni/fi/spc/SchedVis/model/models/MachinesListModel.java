@@ -29,7 +29,7 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
-public class MachinesListModel extends DefaultListModel {
+public final class MachinesListModel extends DefaultListModel {
 
 	private static final long serialVersionUID = 7269134473621539118L;
 

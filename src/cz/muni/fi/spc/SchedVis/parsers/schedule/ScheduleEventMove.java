@@ -27,38 +27,43 @@ import cz.muni.fi.spc.SchedVis.parsers.Token;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class ScheduleEventMove extends ScheduleEvent implements EventHasData,
-    EventIsJobRelated, EventIsMachineRelated {
+public final class ScheduleEventMove extends ScheduleEvent implements
+    EventHasData, EventIsJobRelated, EventIsMachineRelated {
 
-	private final Integer jobId;
-	private final String srcMachine;
-	private final String dstMachine;
+	private final int jobId;
+	private final char[] srcMachine;
+	private final char[] dstMachine;
 	private final List<ScheduleMachineData> data;
 
 	public ScheduleEventMove(final Token event, final Token clock,
 	    final Token jobId, final Token srcMachine, final Token dstMachine,
 	    final List<ScheduleMachineData> data) {
 		super(event, clock);
-		this.jobId = new Integer(jobId.toString());
-		this.srcMachine = srcMachine.toString();
-		this.dstMachine = dstMachine.toString();
+		this.jobId = Integer.valueOf(jobId.toString()).intValue();
+		this.srcMachine = srcMachine.toString().toCharArray();
+		this.dstMachine = dstMachine.toString().toCharArray();
 		this.data = data;
+	}
+
+	@Override
+	public void clear() {
+		this.data.clear();
 	}
 
 	public List<ScheduleMachineData> getData() {
 		return this.data;
 	}
 
-	public Integer getJob() {
+	public int getJob() {
 		return this.jobId;
 	}
 
 	public String getMachine() {
-		return this.srcMachine;
+		return String.valueOf(this.srcMachine);
 	}
 
 	public String getTargetMachine() {
-		return this.dstMachine;
+		return String.valueOf(this.dstMachine);
 	}
 
 }

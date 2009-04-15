@@ -30,7 +30,7 @@ import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class GroupsListModel extends DefaultComboBoxModel {
+public final class GroupsListModel extends DefaultComboBoxModel {
 
 	/**
    * 

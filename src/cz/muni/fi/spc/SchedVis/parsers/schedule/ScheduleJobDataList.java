@@ -28,7 +28,7 @@ import java.util.Vector;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class ScheduleJobDataList extends Vector<ScheduleJobData> {
+public final class ScheduleJobDataList extends Vector<ScheduleJobData> {
 
 	/**
      * 

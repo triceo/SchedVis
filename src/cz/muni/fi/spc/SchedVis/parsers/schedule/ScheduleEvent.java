@@ -28,22 +28,27 @@ import cz.muni.fi.spc.SchedVis.parsers.Token;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class ScheduleEvent {
+public abstract class ScheduleEvent {
 
-	private final String event;
-	private final Integer clock;
+	private final char[] event;
+	private final int clock;
 
 	public ScheduleEvent(final Token event, final Token clock) {
-		this.event = event.toString();
-		this.clock = new Integer(clock.toString());
+		this.event = event.toString().toCharArray();
+		this.clock = Integer.valueOf(clock.toString()).intValue();
 	}
 
-	public Integer getClock() {
+	/**
+	 * Call after the data are processed so that we can clear some memory.
+	 */
+	public abstract void clear();
+
+	public int getClock() {
 		return this.clock;
 	}
 
 	public String getName() {
-		return this.event;
+		return String.valueOf(this.event);
 	}
 
 }

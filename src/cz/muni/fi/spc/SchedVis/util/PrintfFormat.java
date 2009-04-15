@@ -28,7 +28,7 @@
 /*
  * Cleaned up and updated by Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
-package cz.muni.fi.spc.SchedVis;
+package cz.muni.fi.spc.SchedVis.util;
 
 import java.text.DecimalFormatSymbols;
 import java.util.Enumeration;
@@ -442,7 +442,7 @@ import java.util.Vector;
  *              formatting of -0.0f
  *              round up/down when last digits are 50000...
  */
-public class PrintfFormat {
+public final class PrintfFormat {
 	/**
 	 *<p>
 	 * ConversionSpecification allows the formatting of a single primitive or

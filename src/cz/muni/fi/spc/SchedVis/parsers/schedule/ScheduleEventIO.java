@@ -27,24 +27,29 @@ import cz.muni.fi.spc.SchedVis.parsers.Token;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class ScheduleEventIO extends ScheduleEvent implements EventHasData,
-    EventIsJobRelated {
+public final class ScheduleEventIO extends ScheduleEvent implements
+    EventHasData, EventIsJobRelated {
 
-	private final Integer jobId;
+	private final int jobId;
 	private final List<ScheduleMachineData> data;
 
 	public ScheduleEventIO(final Token event, final Token clock,
 	    final Token jobId, final List<ScheduleMachineData> data) {
 		super(event, clock);
-		this.jobId = new Integer(jobId.toString());
+		this.jobId = Integer.valueOf(jobId.toString()).intValue();
 		this.data = data;
+	}
+
+	@Override
+	public void clear() {
+		this.data.clear();
 	}
 
 	public List<ScheduleMachineData> getData() {
 		return this.data;
 	}
 
-	public Integer getJob() {
+	public int getJob() {
 		return this.jobId;
 	}
 

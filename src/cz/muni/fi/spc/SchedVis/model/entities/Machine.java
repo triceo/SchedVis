@@ -1,46 +1,46 @@
 /*
  * This file is part of SchedVis.
  * 
- * SchedVis is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * SchedVis is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * SchedVis is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * SchedVis is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with SchedVis. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * SchedVis. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * 
  */
 package cz.muni.fi.spc.SchedVis.model.entities;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Vector;
 
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import org.hibernate.Criteria;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
-import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
-import cz.muni.fi.spc.SchedVis.model.Database;
+import cz.muni.fi.spc.SchedVis.util.Database;
 
 /**
  * JPA Entity that represents a machine.
@@ -49,8 +49,7 @@ import cz.muni.fi.spc.SchedVis.model.Database;
  * 
  */
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Machine extends BaseEntity implements Comparable<Machine> {
+public final class Machine extends BaseEntity implements Comparable<Machine> {
 
 	/**
 	 * Holds so-called "machine events" - those are events that change the state
@@ -58,6 +57,29 @@ public class Machine extends BaseEntity implements Comparable<Machine> {
 	 * static and filled lazily when needed.
 	 */
 	private static EventType[] machineEvents = new EventType[0];
+
+	private static final Map<Integer, Machine> byId = new HashMap<Integer, Machine>();
+	private static final Map<String, Machine> byName = new HashMap<String, Machine>();
+
+	private static PreparedStatement s;
+
+	/**
+	 * Retrieve machine with a given ID.
+	 * 
+	 * @param id
+	 *          The ID in question.
+	 * @return The machine.
+	 */
+	public synchronized static Machine get(final int id) {
+		if (!Machine.byId.containsKey(id)) {
+			Machine.byId.put(id, Database.getEntityManager().find(Machine.class, id));
+		}
+		Machine m = Machine.byId.get(id);
+		if (!Machine.byName.containsKey(m.getName())) {
+			Machine.byName.put(m.getName(), m);
+		}
+		return m;
+	}
 
 	/**
 	 * Retrieve all the machines in a given group.
@@ -69,17 +91,14 @@ public class Machine extends BaseEntity implements Comparable<Machine> {
 	 */
 	@SuppressWarnings("unchecked")
 	public static Set<Machine> getAll(final Integer groupId) {
-		EntityManager em = Database.newEntityManager();
-		final Criteria crit = BaseEntity.getCriteria(em, Machine.class, true);
+		final Criteria crit = BaseEntity.getCriteria(Machine.class);
 		if (groupId != null) {
 			crit.add(Restrictions.eq("group", MachineGroup.get(groupId)));
 		} else {
 			crit.add(Restrictions.isNull("group"));
 		}
 		crit.addOrder(Order.asc("name"));
-		List<Machine> l = crit.list();
-		em.close();
-		return new TreeSet<Machine>(l);
+		return new TreeSet<Machine>(crit.list());
 	}
 
 	/**
@@ -90,55 +109,54 @@ public class Machine extends BaseEntity implements Comparable<Machine> {
 	 */
 	@SuppressWarnings("unchecked")
 	public static Set<Machine> getAllGroupless() {
-		EntityManager em = Database.newEntityManager();
-		final Criteria crit = BaseEntity.getCriteria(em, Machine.class, true);
+		final Criteria crit = BaseEntity.getCriteria(Machine.class);
 		crit.addOrder(Order.asc("name"));
-		List<Machine> l = crit.list();
-		em.close();
-		return new TreeSet<Machine>(l);
+		return new TreeSet<Machine>(crit.list());
 	}
 
-	/**
-	 * Get the latest schedule for the machine.
-	 * 
-	 * This method forbids query caching, because there are vast amounts of events
-	 * and only a finite memory.
-	 * 
-	 * @param which
-	 *          A machine in question.
-	 * @param clock
-	 *          Consider schedule changes with clock value less or equal to this.
-	 * @return The latest schedule.
-	 */
-	@SuppressWarnings("unchecked")
 	public static List<Event> getLatestSchedule(final Machine which,
 	    final Integer clock) {
-		// create a subquery
-		final DetachedCriteria crit = DetachedCriteria.forClass(Event.class);
-		crit.add(Restrictions.eq("sourceMachine", which));
-		crit.add(Restrictions.le("virtualClock", clock));
-		crit.add(Restrictions.isNotNull("parent"));
-		crit.add(Restrictions.eq("bringsSchedule", false));
-		crit.setProjection(Property.forName("parent").max());
-		// launch a query
-		Criteria crit2 = BaseEntity.getCriteria(Database.getEntityManager(),
-		    Event.class, false);
-		crit2.add(Restrictions.eq("sourceMachine", which));
-		crit2.add(Property.forName("parent").eq(crit));
-		crit2.add(Restrictions.eq("bringsSchedule", true));
-		List<Event> l = crit2.list();
-		return l;
+		try {
+			if (Machine.s == null) {
+				String query = "SELECT id, assignedCPUs, deadline, job, jobHint, expectedStart, expectedEnd, bringsSchedule FROM Event WHERE sourceMachine_id = ? AND parent_fk = (SELECT max(parent_fk) FROM Event WHERE parent_fk IS NOT NULL AND bringsSchedule = 0 AND sourceMachine_id = ? AND virtualClock <= ?)";
+				Machine.s = BaseEntity.getConnection(Database.getEntityManager())
+				    .prepareStatement(query);
+			}
+			Machine.s.setInt(1, which.getId().intValue());
+			Machine.s.setInt(2, which.getId().intValue());
+			Machine.s.setInt(3, clock);
+			ResultSet rs = Machine.s.executeQuery();
+			List<Event> evts = new Vector<Event>();
+			while (rs.next()) {
+				Event evt = new Event();
+				evt.setId(rs.getInt(1));
+				evt.setAssignedCPUs(rs.getString(2));
+				evt.setDeadline(rs.getInt(3));
+				evt.setJob(rs.getInt(4));
+				evt.setJobHint(rs.getInt(5));
+				evt.setExpectedStart(rs.getInt(6));
+				evt.setExpectedEnd(rs.getInt(7));
+				if (rs.getInt(8) == 1) {
+					evt.setBringsSchedule(true);
+				} else {
+					evt.setBringsSchedule(false);
+				}
+				evts.add(evt);
+			}
+			rs.close();
+			Machine.s.clearParameters();
+			return evts;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return new Vector<Event>();
+		}
 	}
 
-	/**
-	 * Retrieve machine with a given ID.
-	 * 
-	 * @param id
-	 *          The ID in question.
-	 * @return The machine.
-	 */
-	public static Machine getWithId(final Integer id) {
-		return Database.getEntityManager().find(Machine.class, id);
+	private static Machine getWithName(final String name) {
+		final Criteria crit = BaseEntity.getCriteria(Machine.class);
+		crit.add(Restrictions.eq("name", name));
+		crit.setMaxResults(1);
+		return (Machine) crit.uniqueResult();
 	}
 
 	/**
@@ -146,15 +164,26 @@ public class Machine extends BaseEntity implements Comparable<Machine> {
 	 * 
 	 * @param name
 	 *          The name in question.
+	 * @param cache
+	 *          Whether or not to use the entity cache.
 	 * @return The machine.
 	 */
-	public static Machine getWithName(final String name) {
-		EntityManager em = Database.newEntityManager();
-		final Criteria crit = BaseEntity.getCriteria(em, Machine.class, true);
-		crit.add(Restrictions.eq("name", name));
-		crit.setMaxResults(1);
-		Machine m = (Machine) crit.uniqueResult();
-		em.close();
+	public synchronized static Machine getWithName(final String name,
+	    final boolean cache) {
+		if (!cache) {
+			return Machine.getWithName(name);
+		}
+		if (!Machine.byName.containsKey(name)) {
+			Machine m = Machine.getWithName(name);
+			if (m == null) {
+				return null;
+			}
+			Machine.byName.put(name, m);
+		}
+		Machine m = Machine.byName.get(name);
+		if (!Machine.byId.containsKey(m.getId())) {
+			Machine.byId.put(m.getId(), m);
+		}
 		return m;
 	}
 
@@ -182,26 +211,22 @@ public class Machine extends BaseEntity implements Comparable<Machine> {
 				    EventType.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) };
 			}
 		}
-		final Criteria crit = BaseEntity.getCriteria(Database.getEntityManager(),
-		    Event.class, false);
+		final Criteria crit = BaseEntity.getCriteria(Event.class);
 		crit.add(Restrictions.in("type", Machine.machineEvents));
-		crit.add(Restrictions.eq("sourceMachine", m));
 		crit.add(Restrictions.lt("virtualClock", clock));
 		crit.addOrder(Order.desc("id"));
 		crit.setMaxResults(1);
 		Event e = (Event) crit.uniqueResult();
-		try {
-			Integer id = e.getType().getId();
-			if ((id.equals(EventType.EVENT_MACHINE_FAILURE))
-			    || (id.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD))
-			    || (id.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD))) {
-				return false;
-			}
-			return true;
-		} catch (NullPointerException ex) {
-			// when no such event is found, the machine is active.
+		if (e == null) {
 			return true;
 		}
+		Integer id = e.getType().getId();
+		if ((id.equals(EventType.EVENT_MACHINE_FAILURE))
+		    || (id.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD))
+		    || (id.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD))) {
+			return false;
+		}
+		return true;
 	}
 
 	private String os;

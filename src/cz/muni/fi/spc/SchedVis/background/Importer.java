@@ -17,7 +17,7 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis;
+package cz.muni.fi.spc.SchedVis.background;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,7 +25,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +37,6 @@ import java.util.Vector;
 
 import javax.swing.SwingWorker;
 
-import cz.muni.fi.spc.SchedVis.model.Database;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.EventType;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
@@ -46,10 +47,12 @@ import cz.muni.fi.spc.SchedVis.parsers.schedule.EventHasData;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.EventIsJobRelated;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.EventIsMachineRelated;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleEvent;
+import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleEventIO;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleEventMove;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleJobData;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleMachineData;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleParser;
+import cz.muni.fi.spc.SchedVis.util.Database;
 
 /**
  * A tool to import data from specific files into the SQL database used by this
@@ -61,14 +64,18 @@ import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleParser;
 public final class Importer extends SwingWorker<Void, Void> {
 
 	private final File machinesFile;
+
 	private final Integer machinesLineCount;
 	private final File dataFile;
 	private final Integer dataLineCount;
-
 	private Integer parsedLines = 0;
-	private Integer totalLines = 0;
 
+	private Integer totalLines = 0;
 	private boolean result = false;
+
+	private final Map<Integer, Event> allJobs = new HashMap<Integer, Event>();
+
+	private final Map<String, String[]> CPUstatus = new HashMap<String, String[]>();
 
 	/**
 	 * A constructor to the class.
@@ -182,6 +189,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 		    EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD);
 		eventTypes.put("machine-restart-move-bad",
 		    EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD);
+		eventTypes.put("job-completion", EventType.EVENT_JOB_COMPLETION);
 		final Iterator<Map.Entry<String, Integer>> eventTypeIterator = eventTypes
 		    .entrySet().iterator();
 		final List<EventType> etl = new Vector<EventType>();
@@ -193,115 +201,141 @@ public final class Importer extends SwingWorker<Void, Void> {
 			etl.add(et);
 		}
 		Database.persist(etl);
-		// parse data set
-		this.parsedLines = 0;
-		this.totalLines = this.dataLineCount;
-		final ScheduleParser parser = new ScheduleParser(reader);
-		parser.setImporter(this);
-		final List<ScheduleEvent> events = parser.read();
-		// fill the event's table
-		final Integer totalEvents = events.size();
-		Integer lineId = 0;
-		Integer eventId = 0;
-		Integer previousClock = -1;
-		Integer virtualClock = 0;
-		Set<Integer> startedJobs = new TreeSet<Integer>();
-		Database.getEntityManager().getTransaction().begin();
-		for (final ScheduleEvent event : events) {
-			if (!event.getClock().equals(previousClock)) {
-				/*
-				 * here goes a brand new clock. reset any counters, increase virtual
-				 * value
-				 */
-				virtualClock++;
-				previousClock = event.getClock();
-				startedJobs.clear();
-			}
-			lineId++;
-			eventId++;
-			final Event evt = new Event();
-			evt.setType(EventType.get(eventTypes.get(event.getName())));
-			evt.setClock(event.getClock());
-			if (event instanceof EventIsJobRelated) {
-				evt.setJob(((EventIsJobRelated) event).getJob());
-				if (event.getName().equals("job-arrival")) {
-					// if in this clock a new job arrives, remember it
-					startedJobs.add(evt.getJob().intValue());
-				} else if (event.getName().equals("job-execution-start")) {
+		try {
+			// parse data set
+			this.parsedLines = 0;
+			this.totalLines = this.dataLineCount;
+			final ScheduleParser parser = new ScheduleParser(reader);
+			parser.setImporter(this);
+			final List<ScheduleEvent> events = parser.read();
+			// fill the event's table
+			final Integer totalEvents = events.size();
+			Integer lineId = 0;
+			Integer eventId = 0;
+			Integer previousClock = -1;
+			Integer virtualClock = 0;
+			Set<Integer> startedJobs = new TreeSet<Integer>();
+			Database.getEntityManager().getTransaction().begin();
+			for (final ScheduleEvent event : events) {
+				if (!previousClock.equals(Integer.valueOf(event.getClock()))) {
 					/*
-					 * if in the same clock the newly arrived job is executed, increase
-					 * the virtual clock. this way, we extend the schedule to show this
-					 * rather important change.
+					 * here goes a brand new clock. reset any counters, increase virtual
+					 * value
 					 */
-					if (startedJobs.contains(evt.getJob().intValue())) {
-						virtualClock++;
-						startedJobs.remove(evt.getJob().intValue());
+					virtualClock++;
+					previousClock = event.getClock();
+					startedJobs.clear();
+				}
+				lineId++;
+				eventId++;
+				final Event evt = new Event();
+				evt.setType(EventType.get(eventTypes.get(event.getName())));
+				evt.setClock(event.getClock());
+				Integer jobHint = Event.JOB_HINT_NONE;
+				String usedCPUs = null;
+				if (event instanceof EventIsJobRelated) {
+					evt.setJob(((EventIsJobRelated) event).getJob());
+					if (event.getName().equals("job-arrival")) {
+						// if in this clock a new job arrives, remember it
+						startedJobs.add(evt.getJob().intValue());
+						jobHint = Event.JOB_HINT_ARRIVAL;
+					} else if (event.getName().equals("job-execution-start")) {
+						usedCPUs = this.processUsedCPUs((ScheduleEventIO) event);
+						/*
+						 * if in the same clock the newly arrived job is executed, increase
+						 * the virtual clock. this way, we extend the schedule to show this
+						 * rather important change.
+						 */
+						if (startedJobs.contains(evt.getJob().intValue())) {
+							virtualClock++;
+							startedJobs.remove(evt.getJob().intValue());
+						}
+					} else if (event.getName().equals("good-move")
+					    || event.getName().equals("machine-failure-move-good")
+					    || event.getName().equals("machine-restart-move-good")) {
+						jobHint = Event.JOB_HINT_MOVE_OK;
+					} else if (event.getName().equals("bad-move")
+					    || event.getName().equals("machine-failure-move-bad")
+					    || event.getName().equals("machine-restart-move-bad")) {
+						jobHint = Event.JOB_HINT_MOVE_NOK;
+					} else if (event.getName().equals("job-completion")) {
+						usedCPUs = this.processUsedCPUs((ScheduleEventIO) event);
 					}
 				}
-			}
-			evt.setVirtualClock(virtualClock);
-			if (event instanceof EventIsMachineRelated) {
-				evt.setSourceMachine(Machine
-				    .getWithName(((EventIsMachineRelated) event).getMachine()));
-				if (event instanceof ScheduleEventMove) {
-					evt.setTargetMachine(Machine.getWithName(((ScheduleEventMove) event)
-					    .getTargetMachine()));
-				}
-			}
-			evt.setBringsSchedule(event instanceof EventHasData);
-			Database.persist(evt);
-			if (event instanceof EventHasData) {
-				final List<ScheduleMachineData> data = ((EventHasData) event).getData();
-				for (final ScheduleMachineData machine : data) {
-					eventId++;
-					/*
-					 * Create a "dummy" event so that we know that the given machine
-					 * posted some schedule. This is used to tell when the schedule is
-					 * empty. (A "dummy" is found but the real schedule is not.)
-					 */
-					final Event evt3 = new Event();
-					evt3.setClock(event.getClock());
-					evt3.setSourceMachine(Machine.getWithName(machine.getMachineId()));
-					evt3.setVirtualClock(evt.getVirtualClock());
-					evt3.setBringsSchedule(false);
-					evt3.setParent(evt);
-					Database.persist(evt3);
-					/*
-					 * And now post the real schedule.
-					 */
-					for (final ScheduleJobData job : machine.getJobs()) {
-						final Event evt2 = new Event();
-						evt2.setBringsSchedule(true);
-						evt2.setClock(event.getClock());
-						evt2.setVirtualClock(evt.getVirtualClock());
-						evt2.setSourceMachine(Machine.getWithName(machine.getMachineId()));
-						evt2.setNeededCPUs(job.getNeededCPUs());
-						evt2.setAssignedCPUs(job.getAssignedCPUs());
-						evt2.setNeededPlatform(job.getArch());
-						evt2.setNeededRAM(job.getNeededMemory());
-						evt2.setNeededHDD(job.getNeededSpace());
-						evt2.setDeadline(job.getDeadline());
-						evt2.setExpectedStart(job.starts());
-						evt2.setExpectedEnd(job.ends());
-						evt2.setJob(job.getId());
-						evt2.setParent(evt);
-						Database.persist(evt2);
+				evt.setVirtualClock(virtualClock);
+				if (event instanceof EventIsMachineRelated) {
+					evt.setSourceMachine(Machine
+					    .getWithName(((EventIsMachineRelated) event).getMachine(), true));
+					if (event instanceof ScheduleEventMove) {
+						evt.setTargetMachine(Machine
+						    .getWithName(((ScheduleEventMove) event).getTargetMachine(), true));
 					}
 				}
-			}
-			// update progress
-			final Double progress = (((lineId * 100) / (double) totalEvents) / 2) + 50;
-			this.setProgress(progress.intValue());
-			if (lineId % 2000 == 0) { // persist some items
-				try {
-					Database.getEntityManager().getTransaction().commit();
-					Database.getEntityManager().getTransaction().begin();
-				} catch (Throwable e) {
-					e.printStackTrace();
+				evt.setBringsSchedule(event instanceof EventHasData);
+				Database.persist(evt);
+				if (event instanceof EventHasData) {
+					for (final ScheduleMachineData machine : ((EventHasData) event)
+					    .getData()) {
+						eventId++;
+						/*
+						 * And now post the real schedule.
+						 */
+						for (final ScheduleJobData job : machine.getJobs()) {
+							final Event evt2 = new Event();
+							evt2.setBringsSchedule(true);
+							evt2.setClock(event.getClock());
+							evt2.setVirtualClock(evt.getVirtualClock());
+							evt2
+							    .setSourceMachine(Machine.getWithName(machine.getMachineId(), true));
+							evt2.setNeededCPUs(job.getNeededCPUs());
+							evt2.setAssignedCPUs(job.getAssignedCPUs());
+							evt2.setNeededPlatform(job.getArch());
+							evt2.setNeededRAM(job.getNeededMemory());
+							evt2.setNeededHDD(job.getNeededSpace());
+							evt2.setDeadline(job.getDeadline());
+							evt2.setExpectedStart(job.starts());
+							evt2.setExpectedEnd(job.ends());
+							evt2.setJob(job.getId());
+							evt2.setParent(evt);
+							if (job.getId() == ((EventIsJobRelated) event).getJob()) {
+								evt2.setJobHint(jobHint);
+							}
+							this.allJobs.put(job.getId(), evt2);
+							Database.persist(evt2);
+						}
+						/*
+						 * Create a "dummy" event so that we know that the given machine
+						 * posted some schedule. This is used to tell when the schedule is
+						 * empty. (A "dummy" is found but the real schedule is not.)
+						 */
+						final Event evt3 = new Event();
+						evt3.setClock(event.getClock());
+						evt3.setSourceMachine(Machine.getWithName(machine.getMachineId(), true));
+						evt3.setVirtualClock(evt.getVirtualClock());
+						evt3.setAssignedCPUs(usedCPUs);
+						evt3.setBringsSchedule(false);
+						evt3.setParent(evt);
+						Database.persist(evt3);
+					}
 				}
+				// update progress
+				final Double progress = (((lineId * 100) / (double) totalEvents) / 2) + 50;
+				this.setProgress(progress.intValue());
+				if (eventId % 1000 == 0) { // persist some items
+					try {
+						Database.getEntityManager().getTransaction().commit();
+						Database.getEntityManager().clear(); // save some memory
+						Database.getEntityManager().getTransaction().begin();
+					} catch (Throwable e) {
+						e.printStackTrace();
+					}
+				}
+				event.clear(); // save some more memory
 			}
+			Database.getEntityManager().getTransaction().commit();
+		} catch (Throwable t) {
+			t.printStackTrace();
 		}
-		Database.getEntityManager().getTransaction().commit();
 	}
 
 	/**
@@ -320,7 +354,13 @@ public final class Importer extends SwingWorker<Void, Void> {
 		this.totalLines = this.machinesLineCount;
 		final MachinesParser parser = new MachinesParser(reader);
 		parser.setImporter(this);
-		final List<MachineData> machines = parser.read();
+		List<MachineData> machines = null;
+		try {
+			machines = parser.read();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ParseException();
+		}
 		// fill the machines' table
 		final Integer totalMachines = machines.size();
 		Integer machineId = 0;
@@ -344,4 +384,43 @@ public final class Importer extends SwingWorker<Void, Void> {
 		Database.persist(machinesList);
 	}
 
+	private String processUsedCPUs(final ScheduleEventIO e) {
+		int jobId = e.getJob();
+		String[] jobCPUs;
+		try {
+			jobCPUs = this.allJobs.get(jobId).getAssignedCPUs().split(",");
+		} catch (Exception ex) {
+			jobCPUs = new String[] {};
+		}
+		String machineId = this.allJobs.get(jobId).getSourceMachine().getName();
+		if (e.getName().equals("job-execution-start")) {
+			// execution starting
+			if (!this.CPUstatus.containsKey(jobId)) {
+				this.CPUstatus.put(machineId, jobCPUs);
+			} else {
+				Set<String> old = new HashSet<String>(Arrays.asList(this.CPUstatus
+				    .get(machineId)));
+				old.addAll(Arrays.asList(jobCPUs));
+				this.CPUstatus.remove(machineId);
+				this.CPUstatus.put(machineId, old.toArray(new String[] {}));
+			}
+		} else {
+			// execution finished
+			Set<String> old = new TreeSet<String>(Arrays.asList(this.CPUstatus
+			    .get(machineId)));
+			old.removeAll(Arrays.asList(jobCPUs));
+			this.CPUstatus.remove(machineId);
+			this.CPUstatus.put(machineId, old.toArray(new String[] {}));
+			this.allJobs.remove(jobId);
+		}
+		StringBuilder sb = new StringBuilder();
+		String[] CPUs = this.CPUstatus.get(machineId);
+		for (int i = 0; i < CPUs.length; i++) {
+			sb.append(CPUs[i]);
+			if (i < (CPUs.length - 1)) {
+				sb.append(",");
+			}
+		}
+		return sb.toString();
+	}
 }

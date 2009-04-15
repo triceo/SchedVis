@@ -28,7 +28,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import cz.muni.fi.spc.SchedVis.Main;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
-import cz.muni.fi.spc.SchedVis.rendering.ScheduleTreeCellRenderer;
 
 /**
  * The tree to display schedules in. It is a singleton, no more instances
@@ -37,7 +36,7 @@ import cz.muni.fi.spc.SchedVis.rendering.ScheduleTreeCellRenderer;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class ScheduleTree extends JTree implements TreeSelectionListener {
+public final class ScheduleTree extends JTree implements TreeSelectionListener {
 
 	private static ScheduleTree tree = null;
 

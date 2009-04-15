@@ -16,7 +16,7 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis.rendering;
+package cz.muni.fi.spc.SchedVis.ui;
 
 import java.awt.Component;
 
@@ -30,7 +30,7 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
-import cz.muni.fi.spc.SchedVis.ui.MachinePanel;
+import cz.muni.fi.spc.SchedVis.util.ScheduleRenderingController;
 
 /**
  * Tree Cell Renderer for Swing, creating the rendering requests and receiving
@@ -39,7 +39,7 @@ import cz.muni.fi.spc.SchedVis.ui.MachinePanel;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
+public final class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 
 	private static final long serialVersionUID = -5148385915562957149L;
 
@@ -78,8 +78,7 @@ public class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 		Integer clock = TimelineSliderModel.getInstance().getValue();
 		try {
 			final MachinePanel pane = new MachinePanel();
-			pane.setImage(ScheduleRenderingController.getInstance().getRendered(item,
-			    clock));
+			pane.setImage(ScheduleRenderingController.getRendered(item, clock));
 			return pane;
 		} catch (final Exception e) {
 			final JPanel p = new JPanel();

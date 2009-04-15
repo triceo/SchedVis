@@ -11,7 +11,7 @@ import org.hibernate.dialect.function.SQLFunctionTemplate;
 import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.dialect.function.VarArgsSQLFunction;
 
-public class SQLiteDialect extends Dialect {
+public final class SQLiteDialect extends Dialect {
 	public SQLiteDialect() {
 		this.registerColumnType(Types.BIT, "integer");
 		this.registerColumnType(Types.TINYINT, "tinyint");

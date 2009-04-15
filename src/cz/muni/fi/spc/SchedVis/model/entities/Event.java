@@ -17,13 +17,14 @@
  */
 package cz.muni.fi.spc.SchedVis.model.entities;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -33,14 +34,13 @@ import javax.persistence.OneToOne;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
+import org.hibernate.annotations.Table;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
-import cz.muni.fi.spc.SchedVis.model.Database;
+import cz.muni.fi.spc.SchedVis.util.Database;
 
 /**
  * JPA Entity that represents a single event.
@@ -52,9 +52,19 @@ import cz.muni.fi.spc.SchedVis.model.Database;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.NONE)
-public class Event extends BaseEntity implements Comparable<Event> {
+@Table(appliesTo = "Event", indexes = { @Index(name = "multiIndex", columnNames = {
+    "sourceMachine_id", "parent_fk" }) })
+public final class Event extends BaseEntity implements Comparable<Event> {
 
+	public static final Integer JOB_HINT_NONE = 0;
+	public static final Integer JOB_HINT_MOVE_OK = 1;
+	public static final Integer JOB_HINT_MOVE_NOK = 2;
+	public static final Integer JOB_HINT_ARRIVAL = 3;
+
+	private static final Map<Integer, Integer> clocksByVirtualClock = new HashMap<Integer, Integer>();
+
+	private static Event firstEvent = null;
+	private static Event lastEvent = null;
 	/**
 	 * Whether or not there exists an event with a given clock value.
 	 * 
@@ -63,12 +73,10 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	 * @return True if such clock exists, false otherwise.
 	 */
 	public static boolean existsTick(final Integer clock) {
-		EntityManager em = Database.newEntityManager();
-		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
+		final Criteria crit = BaseEntity.getCriteria(Event.class);
 		crit.add(Restrictions.eq("virtualClock", clock));
 		crit.setMaxResults(1);
 		Event evt = (Event) crit.uniqueResult();
-		em.close();
 		return (evt != null);
 	}
 
@@ -79,13 +87,26 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	 */
 	@SuppressWarnings("unchecked")
 	public static Set<Integer> getAllTicks() {
-		EntityManager em = Database.newEntityManager();
-		final List<Integer> l = ((Session) em.getDelegate())
-		    .createSQLQuery(
-		        "SELECT DISTINCT virtualClock FROM Event WHERE parent_FK IS NULL ORDER BY clock ASC")
-		    .list();
-		em.close();
-		return new TreeSet<Integer>(l);
+		return new TreeSet<Integer>(
+		    ((Session) Database.getEntityManager().getDelegate())
+		        .createSQLQuery(
+		            "SELECT DISTINCT virtualClock FROM Event WHERE parent_FK IS NULL ORDER BY clock ASC")
+		        .list());
+	}
+
+	/**
+	 * Get all the events in a given virtual clock.
+	 * 
+	 * @param virtualClockId
+	 *          The clock in question.
+	 * @return The events.
+	 */
+	@SuppressWarnings("unchecked")
+	public static List<Event> getEventsInTick(final int virtualClockId) {
+		Criteria crit = BaseEntity.getCriteria(Event.class);
+		crit.add(Restrictions.eq("virtualClock", virtualClockId));
+		crit.add(Restrictions.isNull("parent"));
+		return crit.list();
 	}
 
 	/**
@@ -94,14 +115,14 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	 * @return The event.
 	 */
 	public static Event getFirst() {
-		EntityManager em = Database.newEntityManager();
-		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
-		crit.addOrder(Order.asc("id"));
-		crit.add(Restrictions.isNull("parent"));
-		crit.setMaxResults(1);
-		Event evt = (Event) crit.uniqueResult();
-		em.close();
-		return evt;
+		if (Event.firstEvent == null) {
+			final Criteria crit = BaseEntity.getCriteria(Event.class);
+			crit.addOrder(Order.asc("id"));
+			crit.add(Restrictions.isNull("parent"));
+			crit.setMaxResults(1);
+			Event.firstEvent = (Event) crit.uniqueResult();
+		}
+		return Event.firstEvent;
 	}
 
 	/**
@@ -110,32 +131,38 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	 * @return The event.
 	 */
 	public static Event getLast() {
-		EntityManager em = Database.newEntityManager();
-		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
-		crit.addOrder(Order.desc("id"));
-		crit.add(Restrictions.isNull("parent"));
-		crit.setMaxResults(1);
-		Event evt = (Event) crit.uniqueResult();
-		em.close();
-		return evt;
+		if (Event.lastEvent == null) {
+			final Criteria crit = BaseEntity.getCriteria(Event.class);
+			crit.addOrder(Order.desc("id"));
+			crit.add(Restrictions.isNull("parent"));
+			crit.setMaxResults(1);
+			Event.lastEvent = (Event) crit.uniqueResult();
+		}
+		return Event.lastEvent;
 	}
 
 	/**
-	 * Retrieve last event with a given virtual clock id.
+	 * Retrieve last clock with a given virtual clock id.
 	 * 
 	 * @param virtualClockId
 	 *          The id of the virtual clock in question.
-	 * @return The event type.
+	 * @return The clock value.
 	 */
-	public static Event getLastWithVirtualClock(final Integer virtualClockId) {
-		EntityManager em = Database.newEntityManager();
-		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
-		crit.addOrder(Order.desc("id"));
-		crit.add(Restrictions.eq("virtualClock", virtualClockId));
-		crit.setMaxResults(1);
-		Event evt = (Event) crit.uniqueResult();
-		em.close();
-		return evt;
+	public static Integer getLastWithVirtualClock(final int virtualClockId) {
+		if (!Event.clocksByVirtualClock.containsKey(virtualClockId)) {
+			final Criteria crit = BaseEntity.getCriteria(Event.class);
+			crit.addOrder(Order.desc("id"));
+			crit.add(Restrictions.eq("virtualClock", virtualClockId));
+			crit.setMaxResults(1);
+			Event evt = (Event) crit.uniqueResult();
+			if (evt == null) {
+				Event.clocksByVirtualClock.put(virtualClockId, Event
+				    .getLastWithVirtualClock(1));
+			} else {
+				Event.clocksByVirtualClock.put(virtualClockId, evt.getClock());
+			}
+		}
+		return Event.clocksByVirtualClock.get(virtualClockId);
 	}
 
 	/**
@@ -143,15 +170,11 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	 * 
 	 * @return The length in ticks.
 	 */
-	@SuppressWarnings("unchecked")
 	public static Integer getMaxJobSpan() {
-		EntityManager em = Database.newEntityManager();
-		final List<Integer> l = ((Session) em.getDelegate())
+		return (Integer) ((Session) Database.getEntityManager().getDelegate())
 		    .createSQLQuery(
 		        "SELECT max(expectedEnd - clock) AS s FROM Event GROUP BY parent_fk, sourceMachine_id ORDER BY s DESC LIMIT 1")
-		    .list();
-		em.close();
-		return l.get(0);
+		    .list().get(0);
 	}
 
 	/**
@@ -177,8 +200,7 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	 * @return The next event.
 	 */
 	public static Event getNext(final Integer eventId, final Machine m) {
-		EntityManager em = Database.newEntityManager();
-		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
+		final Criteria crit = BaseEntity.getCriteria(Event.class);
 		crit.addOrder(Order.asc("id"));
 		crit.add(Restrictions.gt("virtualClock", eventId));
 		if (m != null) {
@@ -187,7 +209,9 @@ public class Event extends BaseEntity implements Comparable<Event> {
 		}
 		crit.setMaxResults(1);
 		Event evt = (Event) crit.uniqueResult();
-		em.close();
+		if (evt == null) {
+			return Event.getLast();
+		}
 		return evt;
 	}
 
@@ -213,8 +237,7 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	 * @return The previous event.
 	 */
 	public static Event getPrevious(final Integer eventId, final Machine m) {
-		EntityManager em = Database.newEntityManager();
-		final Criteria crit = BaseEntity.getCriteria(em, Event.class, true);
+		final Criteria crit = BaseEntity.getCriteria(Event.class);
 		crit.addOrder(Order.desc("id"));
 		crit.add(Restrictions.lt("virtualClock", eventId));
 		if (m != null) {
@@ -223,7 +246,9 @@ public class Event extends BaseEntity implements Comparable<Event> {
 		}
 		crit.setMaxResults(1);
 		Event evt = (Event) crit.uniqueResult();
-		em.close();
+		if (evt == null) {
+			return Event.getFirst();
+		}
 		return evt;
 	}
 
@@ -238,6 +263,7 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	private Integer expectedStart;
 	private Integer job;
 	private Integer neededCPUs;
+
 	private Integer neededHDD;
 
 	private Integer neededRAM;
@@ -247,9 +273,10 @@ public class Event extends BaseEntity implements Comparable<Event> {
 	private Event parent;
 
 	private String assignedCPUs;
-
 	private Set<Event> events = new HashSet<Event>();
-	private boolean bringsSchedule;
+	private boolean bringsSchedule = false;
+
+	private Integer jobHint = Event.JOB_HINT_NONE;
 
 	public void addChild(final Event e) {
 		this.events.add(e);
@@ -270,7 +297,6 @@ public class Event extends BaseEntity implements Comparable<Event> {
 		return this.assignedCPUs;
 	}
 
-	@Index(name = "bsIndex")
 	public boolean getBringsSchedule() {
 		return this.bringsSchedule;
 	}
@@ -309,6 +335,16 @@ public class Event extends BaseEntity implements Comparable<Event> {
 
 	public Integer getJob() {
 		return this.job;
+	}
+
+	/**
+	 * A "hint" to the renderer as to how to render the job. There is a
+	 * "just arrived" hint, a "moved good" hint and a "moved bad" hint.
+	 * 
+	 * @return The hint.
+	 */
+	public Integer getJobHint() {
+		return this.jobHint;
 	}
 
 	public Integer getNeededCPUs() {
@@ -351,7 +387,7 @@ public class Event extends BaseEntity implements Comparable<Event> {
 		return this.eventType;
 	}
 
-	@Index(name = "cIndex")
+	@Index(name = "vIndex")
 	public Integer getVirtualClock() {
 		return this.virtualClock;
 	}
@@ -394,6 +430,10 @@ public class Event extends BaseEntity implements Comparable<Event> {
 
 	public void setJob(final Integer value) {
 		this.job = value;
+	}
+
+	public void setJobHint(final Integer value) {
+		this.jobHint = value;
 	}
 
 	public void setNeededCPUs(final Integer value) {

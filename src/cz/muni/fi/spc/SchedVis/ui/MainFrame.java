@@ -20,6 +20,7 @@ package cz.muni.fi.spc.SchedVis.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.util.Arrays;
 import java.util.TreeSet;
 
@@ -33,7 +34,7 @@ import javax.swing.JSplitPane;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
-import cz.muni.fi.spc.SchedVis.rendering.ScheduleRenderingController;
+import cz.muni.fi.spc.SchedVis.util.ScheduleRenderingController;
 
 /**
  * MainFrame class for SchedVis' user interface.
@@ -41,7 +42,7 @@ import cz.muni.fi.spc.SchedVis.rendering.ScheduleRenderingController;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class MainFrame extends JFrame {
+public final class MainFrame extends JFrame {
 
 	/**
      * 
@@ -65,7 +66,7 @@ public class MainFrame extends JFrame {
 		this.setContentPane(pane);
 
 		// Display the window.
-		this.setMinimumSize(pane.getPreferredSize());
+		this.setMinimumSize(new Dimension(800, 600));
 	}
 
 	public Container createContentPane() {
@@ -79,19 +80,28 @@ public class MainFrame extends JFrame {
 		// get machine detail
 		this.detailPane = new JBorderedPanel("Machine detail");
 		this.updateDetail(null);
-		schedulePanel.add(this.detailPane, BorderLayout.PAGE_START);
 		// get scrolling pane with a tree
-		final JScrollPane pane = new JScrollPane(MainFrame.tree);
+		JPanel spanel = new JPanel();
+		spanel.setLayout(new BorderLayout());
+		final JScrollPane pane = new JScrollPane(spanel);
+		spanel.add(this.detailPane, BorderLayout.PAGE_START);
+		JPanel schpanel = new JBorderedPanel("Complete schedule");
+		schpanel.setLayout(new BorderLayout());
+		schpanel.add(MainFrame.tree, BorderLayout.CENTER);
+		spanel.add(schpanel, BorderLayout.CENTER);
 		pane.setWheelScrollingEnabled(true);
 		schedulePanel.add(pane, BorderLayout.CENTER);
 
 		// get left panel
 		final JPanel leftPanel = new JPanel();
+		leftPanel.setMinimumSize(new Dimension(200, 200));
 		// left stats sub-panel
 		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.PAGE_AXIS));
-		final JPanel statsPanel = new JBorderedPanel("Statistics");
+		final JPanel statsPanel = new JBorderedPanel("Just happened");
+		statsPanel.setLayout(new BorderLayout());
+		statsPanel.add(DescriptionPane.getInstance(), BorderLayout.CENTER);
 		// get panel with group picker
-		leftPanel.add(statsPanel);
+		leftPanel.add(new JScrollPane(statsPanel));
 
 		// Create a split pane with the two scroll panes in it.
 		final JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
@@ -112,29 +122,20 @@ public class MainFrame extends JFrame {
 			this.detailPane.setLayout(new BoxLayout(this.detailPane,
 			    BoxLayout.PAGE_AXIS));
 			Integer currentClock = TimelineSliderModel.getInstance().getValue();
-			Integer previousClock;
-			try {
-				previousClock = Event.getPrevious(currentClock, m).getVirtualClock();
-			} catch (NullPointerException e) {
-				previousClock = Event.getFirst().getVirtualClock();
-			}
-			Integer nextClock;
-			try {
-				nextClock = Event.getNext(currentClock, m).getVirtualClock();
-			} catch (NullPointerException e) {
-				nextClock = Event.getLast().getVirtualClock();
-			}
+			Integer previousClock = Event.getPrevious(currentClock, m)
+			    .getVirtualClock();
+			Integer nextClock = Event.getNext(currentClock, m).getVirtualClock();
 			for (Integer clock : new TreeSet<Integer>(Arrays.asList(new Integer[] {
 			    previousClock, currentClock, nextClock }))) {
-				ScheduleRenderingController.getInstance().render(m, clock);
+				ScheduleRenderingController.render(m, clock);
 				final MachinePanel pane = new MachinePanel();
-				pane.setImage(ScheduleRenderingController.getInstance().getRendered(m,
-				    clock));
+				pane.setImage(ScheduleRenderingController.getRendered(m, clock));
 				this.detailPane.add(pane);
 			}
 		} else {
 			this.detailPane.add(new JLabel(
 			    "Click on any schedule and a machine detail will appear here."));
 		}
+		this.detailPane.updateUI();
 	}
 }

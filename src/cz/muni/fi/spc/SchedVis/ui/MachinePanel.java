@@ -30,7 +30,7 @@ import javax.swing.JPanel;
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
-public class MachinePanel extends JPanel {
+public final class MachinePanel extends JPanel {
 
 	private static final long serialVersionUID = 1407665978399872917L;
 	protected Image i = null;

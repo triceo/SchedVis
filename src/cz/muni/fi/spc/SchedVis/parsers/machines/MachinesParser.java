@@ -22,7 +22,8 @@ import cz.muni.fi.spc.SchedVis.parsers.Parser;
 import cz.muni.fi.spc.SchedVis.parsers.SimpleCharStream;
 import cz.muni.fi.spc.SchedVis.parsers.Token;
 
-public class MachinesParser extends Parser implements MachinesParserConstants {
+public final class MachinesParser extends Parser implements
+    MachinesParserConstants {
 	static final class JJCalls {
 		int gen;
 		Token first;
@@ -54,7 +55,6 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 	private int jj_la;
 
 	private int jj_gen;
-
 	final private int[] jj_la1 = new int[0];
 	static private int[] jj_la1_0;
 	static {
@@ -89,7 +89,6 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		}
 		this.token_source = new MachinesParserTokenManager(this.jj_input_stream);
 		this.token = new Token();
-		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
 		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;
@@ -104,7 +103,6 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		this.jj_input_stream = new SimpleCharStream(stream, 1, 1);
 		this.token_source = new MachinesParserTokenManager(this.jj_input_stream);
 		this.token = new Token();
-		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
 		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;
@@ -118,7 +116,6 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 	public MachinesParser(final MachinesParserTokenManager tm) {
 		this.token_source = tm;
 		this.token = new Token();
-		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
 		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;
@@ -173,10 +170,10 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 
 	/** Get the next Token. */
 	final public Token getNextToken() {
-		if ((this.token = this.jj_nt).next != null) {
-			this.jj_nt = this.jj_nt.next;
+		if (this.token.next != null) {
+			this.token = this.token.next;
 		} else {
-			this.jj_nt = this.jj_nt.next = this.token_source.getNextToken();
+			this.token = this.token.next = this.token_source.getNextToken();
 		}
 		this.jj_gen++;
 		return this.token;
@@ -293,11 +290,11 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 	}
 
 	private Token jj_consume_token(final int kind) throws ParseException {
-		Token oldToken = this.token;
-		if ((this.token = this.jj_nt).next != null) {
-			this.jj_nt = this.jj_nt.next;
+		Token oldToken;
+		if ((oldToken = this.token).next != null) {
+			this.token = this.token.next;
 		} else {
-			this.jj_nt = this.jj_nt.next = this.token_source.getNextToken();
+			this.token = this.token.next = this.token_source.getNextToken();
 		}
 		if (this.token.kind == kind) {
 			this.jj_gen++;
@@ -314,7 +311,6 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 			}
 			return this.token;
 		}
-		this.jj_nt = this.token;
 		this.token = oldToken;
 		this.jj_kind = kind;
 		throw this.generateParseException();
@@ -481,7 +477,6 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		}
 		this.token_source.ReInit(this.jj_input_stream);
 		this.token = new Token();
-		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
 		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;
@@ -496,7 +491,6 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		this.jj_input_stream.ReInit(stream, 1, 1);
 		this.token_source.ReInit(this.jj_input_stream);
 		this.token = new Token();
-		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
 		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;
@@ -510,7 +504,6 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 	public void ReInit(final MachinesParserTokenManager tm) {
 		this.token_source = tm;
 		this.token = new Token();
-		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
 		for (int i = 0; i < 0; i++) {
 			this.jj_la1[i] = -1;

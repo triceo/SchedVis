@@ -26,7 +26,7 @@ package cz.muni.fi.spc.SchedVis.parsers;
  * You can modify this class to customize your error reporting mechanisms so
  * long as you retain the public fields.
  */
-public class ParseException extends Exception {
+public final class ParseException extends Exception {
 
 	/**
      * 
@@ -192,7 +192,7 @@ public class ParseException extends Exception {
 			}
 			retval += " " + this.tokenImage[tok.kind];
 			retval += " \"";
-			retval += this.add_escapes(tok.image);
+			retval += this.add_escapes(tok.toString());
 			retval += " \"";
 			tok = tok.next;
 		}

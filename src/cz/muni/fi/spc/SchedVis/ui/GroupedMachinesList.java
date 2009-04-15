@@ -29,7 +29,7 @@ import cz.muni.fi.spc.SchedVis.model.models.MachinesListModel;
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
-public class GroupedMachinesList extends JList {
+public final class GroupedMachinesList extends JList {
 
 	private static final long serialVersionUID = 157627105166533902L;
 

@@ -28,52 +28,52 @@ import cz.muni.fi.spc.SchedVis.parsers.Token;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class MachineData {
+public final class MachineData {
 
-	private final String name;
-	private final Integer numCPUs;
-	private final Integer speed;
-	private final String arch;
-	private final String os;
-	private final Integer memory;
-	private final Integer space;
+	private final char[] name;
+	private final int numCPUs;
+	private final int speed;
+	private final char[] arch;
+	private final char[] os;
+	private final int memory;
+	private final int space;
 
 	public MachineData(final Token name, final Token numCPUs, final Token speed,
 	    final Token arch, final Token os, final Token mem, final Token space) {
-		this.name = name.toString();
-		this.numCPUs = new Integer(numCPUs.toString());
-		this.speed = new Integer(speed.toString());
-		this.arch = arch.toString();
-		this.os = os.toString();
-		this.memory = new Integer(mem.toString());
-		this.space = new Integer(space.toString());
+		this.name = name.toString().toCharArray();
+		this.numCPUs = Integer.valueOf(numCPUs.toString()).intValue();
+		this.speed = Integer.valueOf(speed.toString()).intValue();
+		this.arch = arch.toString().toCharArray();
+		this.os = os.toString().toCharArray();
+		this.memory = Integer.valueOf(mem.toString()).intValue();
+		this.space = Integer.valueOf(space.toString()).intValue();
 	}
 
 	public String getArchitecture() {
-		return this.arch;
+		return String.valueOf(this.arch);
 	}
 
-	public Integer getCPUCount() {
+	public int getCPUCount() {
 		return this.numCPUs;
 	}
 
-	public Integer getMemory() {
+	public int getMemory() {
 		return this.memory;
 	}
 
 	public String getName() {
-		return this.name;
+		return String.valueOf(this.name);
 	}
 
 	public String getOperatingSystem() {
-		return this.os;
+		return String.valueOf(this.os);
 	}
 
-	public Integer getSpace() {
+	public int getSpace() {
 		return this.space;
 	}
 
-	public Integer getSpeed() {
+	public int getSpeed() {
 		return this.speed;
 	}
 }

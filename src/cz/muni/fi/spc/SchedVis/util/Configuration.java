@@ -16,12 +16,14 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis;
+package cz.muni.fi.spc.SchedVis.util;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+
+import org.apache.log4j.Logger;
 
 /**
  * The class that is used to access every bit of SchedVis configuration. It is a
@@ -32,7 +34,7 @@ import java.util.Properties;
  */
 public final class Configuration {
 
-	private static Configuration instance;
+	private static Properties p;
 
 	/**
 	 * Retrieve the file that holds the SQLite database.
@@ -52,20 +54,6 @@ public final class Configuration {
 	public static File getEventsFile() {
 		return new File(Configuration.getProperties().getProperty("files.events",
 		    "Data-set.txt")).getAbsoluteFile();
-	}
-
-	/**
-	 * Retrieve the single instance of this class.
-	 * 
-	 * @return The single Configuration instance.
-	 * @throws IOException
-	 *           Thrown when the configuration file cannot be read.
-	 */
-	private static Configuration getInstance() throws IOException {
-		if (Configuration.instance == null) {
-			Configuration.instance = new Configuration();
-		}
-		return Configuration.instance;
 	}
 
 	/**
@@ -93,14 +81,39 @@ public final class Configuration {
 		    "system.num_cores", "1")), Runtime.getRuntime().availableProcessors());
 	}
 
+	/**
+	 * Number of pixels each CPU should take up on the y axis.
+	 * 
+	 * @return Will always be even and >= 5.
+	 */
 	public static Integer getNumberOfPixelsPerCPU() {
+		Integer minValue = 5;
+		Integer actualValue = Integer.valueOf(Configuration.getProperties()
+		    .getProperty("graphics.pixels_per_cpu", minValue.toString()));
+		if (actualValue % 2 == 0) {
+			actualValue++;
+		}
+		return Math.max(minValue, actualValue);
+	}
+
+	public static Integer getNumberOfSchedulesLookaback() {
 		return Integer.valueOf(Configuration.getProperties().getProperty(
-		    "graphics.pixels_per_cpu"));
+		    "lookahead.previous", "1"));
+	}
+
+	public static Integer getNumberOfSchedulesLookahead() {
+		return Integer.valueOf(Configuration.getProperties().getProperty(
+		    "lookahead.next", "1"));
 	}
 
 	public static Integer getNumberOfTicksPerGuide() {
 		return Integer.valueOf(Configuration.getProperties().getProperty(
 		    "graphics.ticks_per_guide", "5"));
+	}
+
+	public static Integer getPlayDelay() {
+		return Integer.valueOf(Configuration.getProperties().getProperty(
+		    "play.delay", "1000"));
 	}
 
 	/**
@@ -110,14 +123,19 @@ public final class Configuration {
 	 *         object on failure.
 	 */
 	protected static Properties getProperties() {
-		try {
-			return Configuration.getInstance().p;
-		} catch (IOException e) {
-			return new Properties();
+		if (Configuration.p == null) {
+			try {
+				FileInputStream in = new FileInputStream("config.properties");
+				Configuration.p = new Properties();
+				Configuration.p.load(in);
+			} catch (Exception e) {
+				Configuration.p = new Properties();
+				Logger.getLogger(Configuration.class).error(
+				    "Failed to load configuration file, caught: " + e + ".");
+			}
 		}
+		return Configuration.p;
 	}
-
-	private final Properties p = new Properties();
 
 	/**
 	 * Class constructor.
@@ -126,11 +144,5 @@ public final class Configuration {
 	 *           When the configuration cannot be read.
 	 */
 	private Configuration() throws IOException {
-		try {
-			FileInputStream in = new FileInputStream("config.properties");
-			this.p.load(in);
-		} catch (Exception e) {
-			throw new IOException("Problem reading config file.", e);
-		}
 	}
 }

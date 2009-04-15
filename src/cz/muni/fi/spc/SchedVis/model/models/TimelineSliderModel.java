@@ -34,7 +34,7 @@ import cz.muni.fi.spc.SchedVis.model.entities.Event;
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
-public class TimelineSliderModel extends DefaultBoundedRangeModel {
+public final class TimelineSliderModel extends DefaultBoundedRangeModel {
 
 	private static final long serialVersionUID = -8706999823450177356L;
 
@@ -50,10 +50,6 @@ public class TimelineSliderModel extends DefaultBoundedRangeModel {
 	 */
 	public static TimelineSliderModel getInstance()
 	    throws IllegalArgumentException {
-		if (TimelineSliderModel.model == null) {
-			throw new IllegalArgumentException(
-			    "You need to set a listener first time you call this method!");
-		}
 		return TimelineSliderModel.getInstance(null);
 	}
 
@@ -69,8 +65,12 @@ public class TimelineSliderModel extends DefaultBoundedRangeModel {
 		if (TimelineSliderModel.model == null) {
 			TimelineSliderModel.model = new TimelineSliderModel(listener);
 		} else if (listener != null) {
-			Logger.getLogger(TimelineSliderModel.class).warn(
-			    "Listener has already been set. This will have no effect.");
+			if (TimelineSliderModel.model.getChangeListeners().length == 0) {
+				TimelineSliderModel.model.addChangeListener(listener);
+			} else {
+				Logger.getLogger(TimelineSliderModel.class).warn(
+				    "Listener has already been set. This will have no effect.");
+			}
 		}
 		return TimelineSliderModel.model;
 	}

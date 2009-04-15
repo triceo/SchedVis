@@ -20,10 +20,20 @@
 package cz.muni.fi.spc.SchedVis;
 
 import java.io.File;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import cz.muni.fi.spc.SchedVis.model.Database;
+import cz.muni.fi.spc.SchedVis.background.Importer;
+import cz.muni.fi.spc.SchedVis.background.LookAhead;
+import cz.muni.fi.spc.SchedVis.background.Player;
+import cz.muni.fi.spc.SchedVis.background.ScheduleRenderer;
+import cz.muni.fi.spc.SchedVis.model.entities.Event;
+import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.ui.MainFrame;
+import cz.muni.fi.spc.SchedVis.util.Configuration;
+import cz.muni.fi.spc.SchedVis.util.Database;
+import cz.muni.fi.spc.SchedVis.util.ScheduleRenderingController;
 
 /**
  * The main class for the SchedVis project.
@@ -35,6 +45,40 @@ public final class Main {
 	private static final Main main = new Main();
 
 	private static MainFrame frame;
+
+	public static void benchmark() {
+		Set<Machine> machines = Machine.getAllGroupless();
+		new ScheduleRenderer(machines.toArray(new Machine[] {})[0], 1);
+		Double totalTime = 0.0;
+		ExecutorService e = Executors.newFixedThreadPool(1);
+		int clockCount = Event.getAllTicks().size() / 500;
+		Integer tickSpace = Math.max(1, Event.getAllTicks().size() / clockCount);
+		int[] clocks = new int[clockCount];
+		clocks[0] = 1;
+		for (int i = 1; i < clockCount; i++) {
+			clocks[i] = tickSpace * i;
+		}
+		for (Integer clock : clocks) {
+			Long now = System.nanoTime();
+			for (Machine m : machines) {
+				ScheduleRenderer mr = new ScheduleRenderer(m, clock);
+				e.submit(mr);
+				try {
+					mr.get();
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+			Double time = (System.nanoTime() - (double) now) / 1000 / 1000 / 1000;
+			totalTime += time;
+			System.out.println("Clock #" + clock + ": " + time);
+		}
+		System.out.println("");
+		System.out.println("Per clock: " + (totalTime / clockCount));
+		System.out.println("Per machine: "
+		    + (totalTime / clockCount / machines.size()));
+		return;
+	}
 
 	/**
 	 * Get the main Swing frame. Useful for refreshing the whole GUI.
@@ -66,7 +110,7 @@ public final class Main {
 		}
 		if ("benchmark".equals(args[0])) {
 			Database.use();
-			Benchmark.run();
+			Main.benchmark();
 			System.exit(0);
 			return;
 		} else if ("run".equals(args[0])) {
@@ -113,8 +157,22 @@ public final class Main {
 	 * @param args
 	 */
 	private void gui() {
-		// Schedule a job for the event-dispatching thread:
-		// creating and showing this application's GUI.
+		/*
+		 * Run a first batch of rendering tasks so that the caches fill themselves
+		 * up.
+		 */
+		System.out.println("Please wait while some data are being cached...");
+		Event evt = Event.getFirst();
+		for (Machine m : Machine.getAllGroupless()) {
+			ScheduleRenderingController.render(m, evt.getVirtualClock());
+		}
+		System.out.println("Done...");
+		LookAhead.submit();
+		Executors.newFixedThreadPool(1).submit(Player.getInstance());
+		/*
+		 * Schedule a job for the event-dispatching thread creating and showing this
+		 * application's GUI.
+		 */
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				Main.frame = new MainFrame();
@@ -149,6 +207,7 @@ public final class Main {
 			System.exit(0);
 		} else {
 			System.out.println("Import failed!");
+			Configuration.getDatabaseFile().deleteOnExit();
 			System.exit(1);
 		}
 	}

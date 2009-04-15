@@ -22,7 +22,8 @@ import cz.muni.fi.spc.SchedVis.parsers.Token;
 import cz.muni.fi.spc.SchedVis.parsers.TokenMgrError;
 
 /** Token Manager. */
-public class MachinesParserTokenManager implements MachinesParserConstants {
+public final class MachinesParserTokenManager implements
+    MachinesParserConstants {
 
 	/** Debug output. */
 	public java.io.PrintStream debugStream = System.out;

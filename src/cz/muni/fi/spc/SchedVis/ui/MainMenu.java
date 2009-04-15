@@ -31,7 +31,7 @@ import javax.swing.JMenuItem;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class MainMenu extends JMenuBar implements ActionListener {
+public final class MainMenu extends JMenuBar implements ActionListener {
 
 	private static final long serialVersionUID = -301105021169477153L;
 

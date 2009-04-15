@@ -21,12 +21,12 @@ import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import cz.muni.fi.spc.SchedVis.model.Database;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 import cz.muni.fi.spc.SchedVis.model.models.GroupsListModel;
 import cz.muni.fi.spc.SchedVis.model.models.MachinesListModel;
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
+import cz.muni.fi.spc.SchedVis.util.Database;
 
 /*
  * This file is part of SchedVis.
@@ -49,7 +49,7 @@ import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class GroupsDialog extends JDialog implements ActionListener,
+public final class GroupsDialog extends JDialog implements ActionListener,
     ListDataListener, ListSelectionListener {
 
 	/**
@@ -170,7 +170,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 				JOptionPane.showMessageDialog(this,
 				    "Please provide a name for the group.");
 			} else {
-				if (MachineGroup.getWithName(this.newGroupName.getText()) == null) {
+				if (MachineGroup.getWithName(this.newGroupName.getText(), false) == null) {
 					final MachineGroup entity = new MachineGroup();
 					entity.setName(this.newGroupName.getText());
 					Database.persist(entity);
@@ -185,8 +185,8 @@ public class GroupsDialog extends JDialog implements ActionListener,
 				}
 			}
 		} else if (command.equals(GroupsDialog.COMMAND__DELETE_GROUP)) {
-			final MachineGroup mg = MachineGroup
-			    .getWithName((String) this.availableGroupsList.getSelectedItem());
+			final MachineGroup mg = MachineGroup.getWithName(
+			    (String) this.availableGroupsList.getSelectedItem(), false);
 			for (final Machine m : Machine.getAll(mg.getId())) {
 				m.setGroup(null);
 				Database.merge(m);
@@ -209,18 +209,18 @@ public class GroupsDialog extends JDialog implements ActionListener,
 				JOptionPane.showMessageDialog(this, "Cannot delete a group.");
 			}
 		} else if (command.equals(GroupsDialog.COMMAND__ADD_MACHINE_TO_GROUP)) {
-			final MachineGroup ge = MachineGroup
-			    .getWithName(((String) this.availableGroupsList.getSelectedItem()));
+			final MachineGroup ge = MachineGroup.getWithName(
+			    ((String) this.availableGroupsList.getSelectedItem()), false);
 			for (final Object machineName : this.availableMachinesList
 			    .getSelectedValues()) {
-				Machine m = Machine.getWithName((String) machineName);
+				Machine m = Machine.getWithName((String) machineName, false);
 				m.setGroup(ge);
 				Database.merge(m);
 			}
 		} else if (command.equals(GroupsDialog.COMMAND__REMOVE_MACHINE_FROM_GROUP)) {
 			for (final Object machineName : this.groupedMachinesList
 			    .getSelectedValues()) {
-				final Machine me = Machine.getWithName((String) machineName);
+				final Machine me = Machine.getWithName((String) machineName, false);
 				me.setGroup(null);
 				Database.merge(me);
 			}
@@ -247,7 +247,7 @@ public class GroupsDialog extends JDialog implements ActionListener,
 				this.availableMachinesList.setEnabled(false);
 			} else {
 				final String name = (String) this.availableGroupsList.getSelectedItem();
-				final MachineGroup ge = MachineGroup.getWithName(name);
+				final MachineGroup ge = MachineGroup.getWithName(name, true);
 				this.deleteGroupButton.setEnabled(true);
 				this.groupedMachinesList.setEnabled(true);
 				this.availableMachinesList.setEnabled(true);

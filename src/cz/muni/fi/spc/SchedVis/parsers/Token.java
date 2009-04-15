@@ -22,7 +22,7 @@ package cz.muni.fi.spc.SchedVis.parsers;
  * Describes the input token stream.
  */
 
-public class Token {
+public final class Token {
 
 	public static Token newToken(final int ofKind) {
 		return Token.newToken(ofKind, null);
@@ -67,7 +67,7 @@ public class Token {
 	/**
 	 * The string image of the token.
 	 */
-	public String image;
+	public char[] image;
 
 	/**
 	 * A reference to the next regular (non-special) token from the input stream.
@@ -109,7 +109,7 @@ public class Token {
 	 */
 	public Token(final int kind, final String image) {
 		this.kind = kind;
-		this.image = image;
+		this.image = image.toCharArray();
 	}
 
 	/**
@@ -128,7 +128,7 @@ public class Token {
 	 */
 	@Override
 	public String toString() {
-		return this.image;
+		return String.valueOf(this.image);
 	}
 
 }

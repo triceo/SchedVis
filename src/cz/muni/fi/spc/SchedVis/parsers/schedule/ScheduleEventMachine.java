@@ -25,19 +25,24 @@ import cz.muni.fi.spc.SchedVis.parsers.Token;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class ScheduleEventMachine extends ScheduleEvent implements
+public final class ScheduleEventMachine extends ScheduleEvent implements
     EventIsMachineRelated {
 
-	private final String machineId;
+	private final char[] machineId;
 
 	public ScheduleEventMachine(final Token event, final Token clock,
 	    final Token machineId) {
 		super(event, clock);
-		this.machineId = machineId.toString();
+		this.machineId = machineId.toString().toCharArray();
+	}
+
+	@Override
+	public void clear() {
+		// nothing
 	}
 
 	public String getMachine() {
-		return this.machineId;
+		return String.valueOf(this.machineId);
 	}
 
 }

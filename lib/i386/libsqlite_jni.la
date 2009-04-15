@@ -22,11 +22,11 @@ age=0
 revision=0
 
 # Is this an already installed library?
-installed=no
+installed=yes
 
 # Files to dlopen/dlpreopen
 dlopen=''
 dlpreopen=''
 
 # Directory that this library needs to be installed in:
-libdir='/usr/java/default/jre/lib/i386'
+libdir='/usr/java/latest/jre/lib/i386'

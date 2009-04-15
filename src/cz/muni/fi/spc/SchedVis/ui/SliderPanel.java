@@ -26,12 +26,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import cz.muni.fi.spc.SchedVis.Main;
+import cz.muni.fi.spc.SchedVis.background.LookAhead;
+import cz.muni.fi.spc.SchedVis.background.Player;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
@@ -43,15 +46,17 @@ import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public class SliderPanel extends JPanel implements ChangeListener,
+public final class SliderPanel extends JPanel implements ChangeListener,
     ActionListener {
 
 	private static final long serialVersionUID = 6091479520934383104L;
 	private TimelineSliderModel tlsm = null;
 	private final JButton btnStart = new JButton("|<");
 	private final JButton btnEnd = new JButton(">|");
-	private final JButton btnPrev = new JButton("<");
-	private final JButton btnNext = new JButton(">");
+	private final JButton btnPlay = new JButton("|>");
+	private final JButton btnPrev = new JButton("<<");
+	private final JButton btnNext = new JButton(">>");
+	private boolean playing = false;
 
 	/**
 	 * The constructor.
@@ -74,12 +79,13 @@ public class SliderPanel extends JPanel implements ChangeListener,
 		// right-side buttons
 		final JPanel innerPane2 = new JPanel();
 		innerPane2.setLayout(new FlowLayout());
+		innerPane2.add(this.btnPlay);
 		innerPane2.add(this.btnNext);
 		innerPane2.add(this.btnEnd);
 		this.add(innerPane2, BorderLayout.LINE_END);
 		// add action listeners to buttons
 		final JButton[] buttons = new JButton[] { this.btnStart, this.btnEnd,
-		    this.btnNext, this.btnPrev };
+		    this.btnNext, this.btnPrev, this.btnPlay };
 		for (final JButton b : buttons) {
 			b.addActionListener(this);
 		}
@@ -95,13 +101,31 @@ public class SliderPanel extends JPanel implements ChangeListener,
 			this.tlsm.setValue(this.tlsm.getMaximum());
 		} else if (src.equals(this.btnStart)) {
 			this.tlsm.setValue(this.tlsm.getMinimum());
+		} else if (src.equals(this.btnPlay)) {
+			this.playing = !this.playing;
+			this.btnPlay.removeAll();
+			if (this.playing) {
+				this.btnPlay.add(new JLabel("||"));
+			} else {
+				this.btnPlay.add(new JLabel("|>"));
+			}
+			this.btnPlay.updateUI();
+			Player.getInstance().toggleStatus();
 		} else if (src.equals(this.btnNext) || src.equals(this.btnPrev)) {
 			if (src.equals(this.btnPrev)) {
-				this.tlsm.setValue(Event.getPrevious(this.tlsm.getValue())
-				    .getVirtualClock());
+				try {
+					this.tlsm.setValue(Event.getPrevious(this.tlsm.getValue())
+					    .getVirtualClock());
+				} catch (Exception ex) {
+					this.tlsm.setValue(Event.getFirst().getVirtualClock());
+				}
 			} else {
-				this.tlsm.setValue(Event.getNext(this.tlsm.getValue())
-				    .getVirtualClock());
+				try {
+					this.tlsm.setValue(Event.getNext(this.tlsm.getValue())
+					    .getVirtualClock());
+				} catch (Exception ex) {
+					this.tlsm.setValue(Event.getLast().getVirtualClock());
+				}
 			}
 		}
 	}
@@ -122,14 +146,17 @@ public class SliderPanel extends JPanel implements ChangeListener,
 			if (value.equals(this.tlsm.getMinimum())) {
 				this.btnPrev.setEnabled(false);
 				this.btnStart.setEnabled(false);
+				this.btnPlay.setEnabled(true);
 				this.btnNext.setEnabled(true);
 				this.btnEnd.setEnabled(true);
 			} else if (value.equals(this.tlsm.getMaximum())) {
 				this.btnPrev.setEnabled(true);
 				this.btnStart.setEnabled(true);
+				this.btnPlay.setEnabled(false);
 				this.btnNext.setEnabled(false);
 				this.btnEnd.setEnabled(false);
 			} else {
+				this.btnPlay.setEnabled(true);
 				this.btnPrev.setEnabled(true);
 				this.btnStart.setEnabled(true);
 				this.btnNext.setEnabled(true);
@@ -151,6 +178,8 @@ public class SliderPanel extends JPanel implements ChangeListener,
 				} catch (NullPointerException ex) {
 					Main.getFrame().updateDetail(null);
 				}
+				DescriptionPane.getInstance().updateFrame(this.tlsm.getValue());
+				LookAhead.submit();
 				Main.getFrame().setCursor(
 				    Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			}

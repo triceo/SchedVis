@@ -20,7 +20,7 @@ package cz.muni.fi.spc.SchedVis.parsers;
 
 /** Token Manager Error. */
 @SuppressWarnings("serial")
-public class TokenMgrError extends Error {
+public final class TokenMgrError extends Error {
 
 	/*
 	 * Ordinals for various reasons why an Error of this type can be thrown.
