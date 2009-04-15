@@ -1,18 +1,17 @@
 /*
  * This file is part of SchedVis.
  * 
- * SchedVis is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * SchedVis is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * SchedVis is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * SchedVis is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with SchedVis. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * SchedVis. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * 
@@ -129,7 +128,6 @@ public final class Importer extends SwingWorker<Void, Void> {
 		} catch (final FileNotFoundException e) {
 			return null;
 		} catch (final ParseException e) {
-			System.out.println(e);
 			return null;
 		}
 		this.result = true;
@@ -207,7 +205,13 @@ public final class Importer extends SwingWorker<Void, Void> {
 			this.totalLines = this.dataLineCount;
 			final ScheduleParser parser = new ScheduleParser(reader);
 			parser.setImporter(this);
-			final List<ScheduleEvent> events = parser.read();
+			final List<ScheduleEvent> events;
+			try {
+				events = parser.read();
+			} catch (Throwable e) {
+				e.printStackTrace();
+				throw new ParseException();
+			}
 			// fill the event's table
 			final Integer totalEvents = events.size();
 			Integer lineId = 0;
@@ -264,11 +268,11 @@ public final class Importer extends SwingWorker<Void, Void> {
 				}
 				evt.setVirtualClock(virtualClock);
 				if (event instanceof EventIsMachineRelated) {
-					evt.setSourceMachine(Machine
-					    .getWithName(((EventIsMachineRelated) event).getMachine(), true));
+					evt.setSourceMachine(Machine.getWithName(
+					    ((EventIsMachineRelated) event).getMachine(), true));
 					if (event instanceof ScheduleEventMove) {
-						evt.setTargetMachine(Machine
-						    .getWithName(((ScheduleEventMove) event).getTargetMachine(), true));
+						evt.setTargetMachine(Machine.getWithName(
+						    ((ScheduleEventMove) event).getTargetMachine(), true));
 					}
 				}
 				evt.setBringsSchedule(event instanceof EventHasData);
@@ -285,8 +289,8 @@ public final class Importer extends SwingWorker<Void, Void> {
 							evt2.setBringsSchedule(true);
 							evt2.setClock(event.getClock());
 							evt2.setVirtualClock(evt.getVirtualClock());
-							evt2
-							    .setSourceMachine(Machine.getWithName(machine.getMachineId(), true));
+							evt2.setSourceMachine(Machine.getWithName(machine.getMachineId(),
+							    true));
 							evt2.setNeededCPUs(job.getNeededCPUs());
 							evt2.setAssignedCPUs(job.getAssignedCPUs());
 							evt2.setNeededPlatform(job.getArch());
@@ -310,7 +314,8 @@ public final class Importer extends SwingWorker<Void, Void> {
 						 */
 						final Event evt3 = new Event();
 						evt3.setClock(event.getClock());
-						evt3.setSourceMachine(Machine.getWithName(machine.getMachineId(), true));
+						evt3.setSourceMachine(Machine.getWithName(machine.getMachineId(),
+						    true));
 						evt3.setVirtualClock(evt.getVirtualClock());
 						evt3.setAssignedCPUs(usedCPUs);
 						evt3.setBringsSchedule(false);
@@ -357,7 +362,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 		List<MachineData> machines = null;
 		try {
 			machines = parser.read();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 			throw new ParseException();
 		}

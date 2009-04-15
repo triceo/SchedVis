@@ -2,18 +2,17 @@
 /*
  * This file is part of SchedVis.
  * 
- * SchedVis is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * SchedVis is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * SchedVis is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * SchedVis is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with SchedVis. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * SchedVis. If not, see <http://www.gnu.org/licenses/>.
  */
 package cz.muni.fi.spc.SchedVis.parsers.schedule;
 
@@ -22,8 +21,7 @@ import cz.muni.fi.spc.SchedVis.parsers.Token;
 import cz.muni.fi.spc.SchedVis.parsers.TokenMgrError;
 
 /** Token Manager. */
-public final class ScheduleParserTokenManager implements
-    ScheduleParserConstants {
+public class ScheduleParserTokenManager implements ScheduleParserConstants {
 
 	/** Debug output. */
 	public java.io.PrintStream debugStream = System.out;
@@ -207,7 +205,7 @@ public final class ScheduleParserTokenManager implements
 							}
 							break;
 						case 4:
-							if ((0x3ff000000000000L & l) == 0L) {
+							if ((0x3ff100100000000L & l) == 0L) {
 								break;
 							}
 							if (kind > 5) {
@@ -219,7 +217,9 @@ public final class ScheduleParserTokenManager implements
 							if ((0x100000200L & l) == 0L) {
 								break;
 							}
-							kind = 6;
+							if (kind > 6) {
+								kind = 6;
+							}
 							this.jjCheckNAdd(5);
 							break;
 						case 10:
@@ -1115,8 +1115,9 @@ public final class ScheduleParserTokenManager implements
 			throw new TokenMgrError("Error: Ignoring invalid lexical state : "
 			    + lexState + ". State unchanged.",
 			    TokenMgrError.INVALID_LEXICAL_STATE);
+		} else {
+			this.curLexState = lexState;
 		}
-		this.curLexState = lexState;
 	}
 
 }

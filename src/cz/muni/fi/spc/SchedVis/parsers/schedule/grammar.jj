@@ -45,19 +45,6 @@ package cz.muni.fi.spc.SchedVis.parsers.schedule;
 import cz.muni.fi.spc.SchedVis.parsers.Parser;
 
 public class ScheduleParser extends Parser {
-  public static void main(String args[]) throws ParseException {
-      try {
-        ScheduleParser parser = new ScheduleParser(System.in);
-        ScheduleEventsList events = parser.read();
-        System.out.println("Successfully read " + events.size() + " events!");
-      } catch (Exception e) {
-        System.out.println("NOK.");
-        System.out.println(e.getMessage());
-      } catch (Error e) {
-        System.out.println("Oops.");
-        System.out.println(e.getMessage());
-      }
-  }
 }
 PARSER_END(ScheduleParser)
 
@@ -67,7 +54,7 @@ TOKEN :
 |   < CONSTANT: "-1" | ( <DIGIT> )+ >  /* A numeric constant. */
 |   < CONSTANT_LIST: ( <CONSTANT> ( "," <CONSTANT> )+ ) >  /* A numeric constant. */
 |   < #DIGIT: ["0" - "9"] >     /* A single number. */
-|   < STRING: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","_","0"-"9"] )* > /* An allowed string. */
+|   < STRING: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","_"," ",",","0"-"9"] )* > /* An allowed string. */
 |   < WHITESPACE: ([" ", "\t"])+ > /* An allowed whitespace. */
 }
 
