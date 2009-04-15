@@ -53,7 +53,7 @@ import cz.muni.fi.spc.SchedVis.util.Database;
  */
 @Entity
 @Table(appliesTo = "Event", indexes = { @Index(name = "multiIndex", columnNames = {
-    "sourceMachine_id", "parent_fk" }) })
+    "sourceMachine_id", "parent_fk", "virtualClock" }) })
 public final class Event extends BaseEntity implements Comparable<Event> {
 
 	public static final Integer JOB_HINT_NONE = 0;
@@ -65,6 +65,7 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 
 	private static Event firstEvent = null;
 	private static Event lastEvent = null;
+
 	/**
 	 * Whether or not there exists an event with a given clock value.
 	 * 
