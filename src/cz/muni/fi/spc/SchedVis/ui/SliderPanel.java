@@ -136,7 +136,7 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 	public void stateChanged(final ChangeEvent e) {
 		final Object src = e.getSource();
 		if (src.equals(this.tlsm)) {
-			if (this.tlsm.getValue() <= 1) {
+			if (this.tlsm.getValue() < 1) {
 				return;
 			}
 			Integer value = this.tlsm.getValue();
