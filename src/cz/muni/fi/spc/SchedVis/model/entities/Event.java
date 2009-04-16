@@ -365,14 +365,12 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	}
 
 	@ManyToOne
-	@Index(name = "pIndex")
 	@JoinColumn(name = "parent_fk")
 	public Event getParent() {
 		return this.parent;
 	}
 
 	@OneToOne
-	@Index(name = "mIndex")
 	public Machine getSourceMachine() {
 		return this.srcMachine;
 	}
@@ -388,7 +386,6 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 		return this.eventType;
 	}
 
-	@Index(name = "vIndex")
 	public Integer getVirtualClock() {
 		return this.virtualClock;
 	}
