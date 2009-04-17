@@ -1,18 +1,17 @@
 /*
  * This file is part of SchedVis.
  * 
- * SchedVis is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * SchedVis is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * SchedVis is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * SchedVis is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with SchedVis. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * SchedVis. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * 
@@ -25,7 +24,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import cz.muni.fi.spc.SchedVis.background.Importer;
-import cz.muni.fi.spc.SchedVis.background.LookAhead;
 import cz.muni.fi.spc.SchedVis.background.Player;
 import cz.muni.fi.spc.SchedVis.background.ScheduleRenderer;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
@@ -90,8 +88,8 @@ public final class Main {
 	}
 
 	/**
-	 * Main method for the application. Checks input parameters, passes control
-	 * to other parts of this class.
+	 * Main method for the application. Checks input parameters, passes control to
+	 * other parts of this class.
 	 * 
 	 * @param args
 	 *          The program expects only one argument - the action to execute.
@@ -167,7 +165,6 @@ public final class Main {
 			ScheduleRenderingController.render(m, evt.getVirtualClock());
 		}
 		System.out.println("Done...");
-		LookAhead.submit();
 		Executors.newFixedThreadPool(1).submit(Player.getInstance());
 		/*
 		 * Schedule a job for the event-dispatching thread creating and showing this

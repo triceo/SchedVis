@@ -96,16 +96,6 @@ public final class Configuration {
 		return Math.max(minValue, actualValue);
 	}
 
-	public static Integer getNumberOfSchedulesLookaback() {
-		return Integer.valueOf(Configuration.getProperties().getProperty(
-		    "lookahead.previous", "1"));
-	}
-
-	public static Integer getNumberOfSchedulesLookahead() {
-		return Integer.valueOf(Configuration.getProperties().getProperty(
-		    "lookahead.next", "1"));
-	}
-
 	public static Integer getNumberOfTicksPerGuide() {
 		return Integer.valueOf(Configuration.getProperties().getProperty(
 		    "graphics.ticks_per_guide", "5"));

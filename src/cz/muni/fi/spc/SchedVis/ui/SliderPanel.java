@@ -1,18 +1,17 @@
 /*
  * This file is part of SchedVis.
  * 
- * SchedVis is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * SchedVis is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  * 
- * SchedVis is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * SchedVis is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with SchedVis. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * SchedVis. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * 
@@ -33,7 +32,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import cz.muni.fi.spc.SchedVis.Main;
-import cz.muni.fi.spc.SchedVis.background.LookAhead;
 import cz.muni.fi.spc.SchedVis.background.Player;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
@@ -179,7 +177,6 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 					Main.getFrame().updateDetail(null);
 				}
 				DescriptionPane.getInstance().updateFrame(this.tlsm.getValue());
-				LookAhead.submit();
 				Main.getFrame().setCursor(
 				    Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			}
