@@ -82,16 +82,6 @@ public final class Configuration {
 	}
 
 	/**
-	 * Retrieve the number of CPU cores that the application has available.
-	 * 
-	 * @return Number of cores, never lower than 1.
-	 */
-	public static Integer getNumberOfCPUCores() {
-		return Math.max(Integer.valueOf(Configuration.getProperties().getProperty(
-		    "system.num_cores", "1")), Runtime.getRuntime().availableProcessors());
-	}
-
-	/**
 	 * Number of pixels each CPU should take up on the y axis.
 	 * 
 	 * @return Will always be even and >= 5.
