@@ -117,11 +117,7 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	 */
 	public static Event getFirst() {
 		if (Event.firstEvent == null) {
-			final Criteria crit = BaseEntity.getCriteria(Event.class);
-			crit.addOrder(Order.asc("id"));
-			crit.add(Restrictions.isNull("parent"));
-			crit.setMaxResults(1);
-			Event.firstEvent = (Event) crit.uniqueResult();
+			Event.firstEvent = Database.getEntityManager().find(Event.class, 1);
 		}
 		return Event.firstEvent;
 	}
