@@ -36,6 +36,8 @@ import java.util.Vector;
 
 import javax.swing.SwingWorker;
 
+import org.apache.log4j.Logger;
+
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.EventType;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
@@ -400,12 +402,22 @@ public final class Importer extends SwingWorker<Void, Void> {
 		String machineId = this.allJobs.get(jobId).getSourceMachine().getName();
 		if (e.getName().equals("job-execution-start")) {
 			// execution starting
-			if (!this.CPUstatus.containsKey(jobId)) {
+			if (!this.CPUstatus.containsKey(machineId)) {
 				this.CPUstatus.put(machineId, jobCPUs);
 			} else {
 				Set<String> old = new HashSet<String>(Arrays.asList(this.CPUstatus
 				    .get(machineId)));
-				old.addAll(Arrays.asList(jobCPUs));
+				boolean isChanged = old.addAll(Arrays.asList(jobCPUs));
+				if (!isChanged) {
+					Logger
+					    .getLogger(Importer.class)
+					    .warn(
+					        "Job execution (#"
+					            + jobId
+					            + " at "
+					            + machineId
+					            + ") didn't occupy any unused CPUs. Probably a bug in the data set.");
+				}
 				this.CPUstatus.remove(machineId);
 				this.CPUstatus.put(machineId, old.toArray(new String[] {}));
 			}
@@ -413,7 +425,17 @@ public final class Importer extends SwingWorker<Void, Void> {
 			// execution finished
 			Set<String> old = new TreeSet<String>(Arrays.asList(this.CPUstatus
 			    .get(machineId)));
-			old.removeAll(Arrays.asList(jobCPUs));
+			boolean isChanged = old.removeAll(Arrays.asList(jobCPUs));
+			if (!isChanged) {
+				Logger
+				    .getLogger(Importer.class)
+				    .warn(
+				        "Job completion (#"
+				            + jobId
+				            + " at "
+				            + machineId
+				            + ") didn't free any used CPUs. Probably a bug in the data set.");
+			}
 			this.CPUstatus.remove(machineId);
 			this.CPUstatus.put(machineId, old.toArray(new String[] {}));
 			this.allJobs.remove(jobId);
