@@ -36,6 +36,16 @@ public final class Configuration {
 
 	private static Properties p;
 
+	public static boolean createGroupPerMachine() {
+		String val = Configuration.getProperties().getProperty(
+		    "import.group_per_machine", "0");
+		if (val.equals("1")) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	/**
 	 * Retrieve the file that holds the SQLite database.
 	 * 

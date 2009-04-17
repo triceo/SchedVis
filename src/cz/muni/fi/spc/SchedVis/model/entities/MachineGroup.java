@@ -129,6 +129,9 @@ public final class MachineGroup extends BaseEntity implements
 	 *          The machine.
 	 */
 	public void addMachine(final Machine me) {
+		if (this.machines == null) {
+			this.machines = new TreeSet<Machine>();
+		}
 		this.machines.add(me);
 	}
 

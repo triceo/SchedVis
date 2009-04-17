@@ -41,6 +41,7 @@ import org.apache.log4j.Logger;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.EventType;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
+import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 import cz.muni.fi.spc.SchedVis.parsers.ParseException;
 import cz.muni.fi.spc.SchedVis.parsers.machines.MachineData;
 import cz.muni.fi.spc.SchedVis.parsers.machines.MachinesParser;
@@ -53,6 +54,7 @@ import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleEventMove;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleJobData;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleMachineData;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleParser;
+import cz.muni.fi.spc.SchedVis.util.Configuration;
 import cz.muni.fi.spc.SchedVis.util.Database;
 
 /**
@@ -388,7 +390,21 @@ public final class Importer extends SwingWorker<Void, Void> {
 			final Double progress = ((machineId * 100) / (double) totalMachines) / 2;
 			this.setProgress(progress.intValue());
 		}
-		Database.persist(machinesList);
+		try {
+			final List<MachineGroup> groupsList = new Vector<MachineGroup>();
+			if (Configuration.createGroupPerMachine()) {
+				for (Machine m : machinesList) {
+					final MachineGroup mg = new MachineGroup();
+					mg.setName("Group '" + m.getName() + "'");
+					groupsList.add(mg);
+					m.setGroup(mg);
+				}
+			}
+			Database.persist(groupsList);
+			Database.persist(machinesList);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 	}
 
 	private String processUsedCPUs(final ScheduleEventIO e) {
