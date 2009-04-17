@@ -53,7 +53,7 @@ public final class DescriptionPane extends JEditorPane {
 		return DescriptionPane.instance;
 	}
 
-	private static String setToString(final Set<String> set) {
+	private static String setToString(final Set<String> set, final String color) {
 		if (set.size() == 0) {
 			return "None.";
 		}
@@ -67,7 +67,7 @@ public final class DescriptionPane extends JEditorPane {
 				sb.append(", ");
 			}
 		}
-		return sb.toString();
+		return "<div style='color: #" + color + "'>" + sb.toString() + "</div>";
 	}
 
 	private DescriptionPane() {
@@ -136,15 +136,15 @@ public final class DescriptionPane extends JEditorPane {
 			    || type.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD)
 			    || type.equals(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD)) {
 				// good move
-				movesGood.add("#" + evt.getJob() + "("
-				    + evt.getSourceMachine().getName() + ">"
+				movesGood.add("#" + evt.getJob() + " ("
+				    + evt.getSourceMachine().getName() + " > "
 				    + evt.getTargetMachine().getName() + ")");
 			} else if (type.equals(EventType.EVENT_JOB_MOVE_BAD)
 			    || type.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD)
 			    || type.equals(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD)) {
 				// bad move
-				movesBad.add("#" + evt.getJob() + "("
-				    + evt.getSourceMachine().getName() + ">"
+				movesBad.add("#" + evt.getJob() + " ("
+				    + evt.getSourceMachine().getName() + " > "
 				    + evt.getTargetMachine().getName() + ")");
 			}
 		}
@@ -152,22 +152,22 @@ public final class DescriptionPane extends JEditorPane {
 		text = text.replaceAll("\\Q${CLOCK}\\E", Event.getLastWithVirtualClock(
 		    virtualClockId).toString());
 		text = text.replaceAll("\\Q${VIRTUALCLOCK}\\E", virtualClockId.toString());
-		text = text.replaceAll("\\Q${RESTARTS}\\E", DescriptionPane
-		    .setToString(restarts));
-		text = text.replaceAll("\\Q${FAILURES}\\E", DescriptionPane
-		    .setToString(failures));
-		text = text.replaceAll("\\Q${ARRIVALS}\\E", DescriptionPane
-		    .setToString(arrivals));
-		text = text.replaceAll("\\Q${STARTS}\\E", DescriptionPane
-		    .setToString(executions));
-		text = text.replaceAll("\\Q${COMPLETIONS}\\E", DescriptionPane
-		    .setToString(completions));
+		text = text.replaceAll("\\Q${RESTARTS}\\E", DescriptionPane.setToString(
+		    restarts, "000000"));
+		text = text.replaceAll("\\Q${FAILURES}\\E", DescriptionPane.setToString(
+		    failures, "FF0000"));
+		text = text.replaceAll("\\Q${ARRIVALS}\\E", DescriptionPane.setToString(
+		    arrivals, "00FF00"));
+		text = text.replaceAll("\\Q${STARTS}\\E", DescriptionPane.setToString(
+		    executions, "FFFF00"));
+		text = text.replaceAll("\\Q${COMPLETIONS}\\E", DescriptionPane.setToString(
+		    completions, "FF00FF"));
 		text = text.replaceAll("\\Q${CANCELLATIONS}\\E", DescriptionPane
-		    .setToString(cancellations));
-		text = text.replaceAll("\\Q${GOOD_MOVES}\\E", DescriptionPane
-		    .setToString(movesGood));
-		text = text.replaceAll("\\Q${BAD_MOVES}\\E", DescriptionPane
-		    .setToString(movesBad));
+		    .setToString(cancellations, "000000"));
+		text = text.replaceAll("\\Q${GOOD_MOVES}\\E", DescriptionPane.setToString(
+		    movesGood, "00FFFF"));
+		text = text.replaceAll("\\Q${BAD_MOVES}\\E", DescriptionPane.setToString(
+		    movesBad, "FF0000"));
 		// now fill the information we just computed
 		this.setText(text);
 	}
