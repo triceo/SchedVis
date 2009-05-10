@@ -40,6 +40,19 @@ import cz.muni.fi.spc.SchedVis.util.ScheduleRenderingController;
  */
 public final class Main {
 
+	/**
+	 * The actual class creating the GUI.
+	 * 
+	 * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
+	 * 
+	 */
+	private static final class GUI implements Runnable {
+		public void run() {
+			Main.frame = new MainFrame();
+			Main.frame.setVisible(true);
+		}
+	}
+
 	private static final Main main = new Main();
 
 	private static MainFrame frame;
@@ -177,12 +190,7 @@ public final class Main {
 		 * Schedule a job for the event-dispatching thread creating and showing this
 		 * application's GUI.
 		 */
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				Main.frame = new MainFrame();
-				Main.frame.setVisible(true);
-			}
-		});
+		javax.swing.SwingUtilities.invokeLater(new GUI());
 	}
 
 	/**

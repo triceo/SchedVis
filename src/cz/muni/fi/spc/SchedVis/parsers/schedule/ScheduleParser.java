@@ -441,18 +441,18 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 	}
 
 	/** Reinitialise. */
-	public void ReInit(final java.io.InputStream stream) {
-		this.ReInit(stream, null);
+	public void reInit(final java.io.InputStream stream) {
+		this.reInit(stream, null);
 	}
 
 	/** Reinitialise. */
-	public void ReInit(final java.io.InputStream stream, final String encoding) {
+	public void reInit(final java.io.InputStream stream, final String encoding) {
 		try {
-			this.jj_input_stream.ReInit(stream, encoding, 1, 1);
+			this.jj_input_stream.reInit(stream, encoding, 1, 1);
 		} catch (final java.io.UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
-		this.token_source.ReInit(this.jj_input_stream);
+		this.token_source.reInit(this.jj_input_stream);
 		this.token = new Token();
 		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
@@ -462,9 +462,9 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 	}
 
 	/** Reinitialise. */
-	public void ReInit(final java.io.Reader stream) {
-		this.jj_input_stream.ReInit(stream, 1, 1);
-		this.token_source.ReInit(this.jj_input_stream);
+	public void reInit(final java.io.Reader stream) {
+		this.jj_input_stream.reInit(stream, 1, 1);
+		this.token_source.reInit(this.jj_input_stream);
 		this.token = new Token();
 		this.token.next = this.jj_nt = this.token_source.getNextToken();
 		this.jj_gen = 0;
@@ -474,7 +474,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 	}
 
 	/** Reinitialise. */
-	public void ReInit(final ScheduleParserTokenManager tm) {
+	public void reInit(final ScheduleParserTokenManager tm) {
 		this.token_source = tm;
 		this.token = new Token();
 		this.token.next = this.jj_nt = this.token_source.getNextToken();

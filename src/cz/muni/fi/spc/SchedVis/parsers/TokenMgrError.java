@@ -103,7 +103,7 @@ public final class TokenMgrError extends Error {
 	 * before this error occurred curchar : the offending character Note: You can
 	 * customize the lexical error message by modifying this method.
 	 */
-	protected static String LexicalError(final boolean EOFSeen,
+	protected static String lexicalError(final boolean EOFSeen,
 	    final int errorLine, final int errorColumn, final String errorAfter,
 	    final char curChar) {
 		return ("Lexical error at line "
@@ -127,7 +127,7 @@ public final class TokenMgrError extends Error {
 	public TokenMgrError(final boolean EOFSeen, final int errorLine,
 	    final int errorColumn, final String errorAfter, final char curChar,
 	    final int reason) {
-		this(TokenMgrError.LexicalError(EOFSeen, errorLine, errorColumn,
+		this(TokenMgrError.lexicalError(EOFSeen, errorLine, errorColumn,
 		    errorAfter, curChar), reason);
 	}
 

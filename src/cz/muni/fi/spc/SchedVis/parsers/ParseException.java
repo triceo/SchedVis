@@ -37,7 +37,7 @@ public final class ParseException extends Exception {
 	 * This variable determines which constructor was used to create this object
 	 * and thereby affects the semantics of the "getMessage" method (see below).
 	 */
-	protected boolean specialConstructor;
+	private final boolean specialConstructor;
 
 	/**
 	 * This is the last token that has been consumed successfully. If this object
@@ -63,7 +63,7 @@ public final class ParseException extends Exception {
 	/**
 	 * The end of line string for this machine.
 	 */
-	protected String eol = System.getProperty("line.separator", "\n");
+	private final String eol = System.getProperty("line.separator", "\n");
 
 	/**
 	 * The following constructors are for use by you for whatever purpose you can

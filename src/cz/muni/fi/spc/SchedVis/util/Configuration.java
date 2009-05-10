@@ -125,7 +125,7 @@ public final class Configuration {
 	 * @return The object holding all the configuration values on success, empty
 	 *         object on failure.
 	 */
-	protected static Properties getProperties() {
+	protected synchronized static Properties getProperties() {
 		if (Configuration.p == null) {
 			try {
 				final FileInputStream in = new FileInputStream("config.properties");

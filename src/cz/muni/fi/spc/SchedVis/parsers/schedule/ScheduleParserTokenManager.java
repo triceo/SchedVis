@@ -37,9 +37,6 @@ public class ScheduleParserTokenManager implements ScheduleParserConstants {
 	private final int[] jjstateSet = new int[314];
 	protected char curChar;
 
-	int curLexState = 0;
-
-	int defaultLexState = 0;
 	int jjnewStateCnt;
 	int jjround;
 	int jjmatchedPos;
@@ -58,7 +55,7 @@ public class ScheduleParserTokenManager implements ScheduleParserConstants {
 	public ScheduleParserTokenManager(final SimpleCharStream stream,
 	    final int lexState) {
 		this(stream);
-		this.SwitchTo(lexState);
+		this.switchTo(lexState);
 	}
 
 	/** Get the next Token. */
@@ -68,7 +65,7 @@ public class ScheduleParserTokenManager implements ScheduleParserConstants {
 
 		for (;;) {
 			try {
-				this.curChar = this.input_stream.BeginToken();
+				this.curChar = this.input_stream.beginToken();
 			} catch (final java.io.IOException e) {
 				this.jjmatchedKind = 0;
 				matchedToken = this.jjFillToken();
@@ -94,7 +91,7 @@ public class ScheduleParserTokenManager implements ScheduleParserConstants {
 				this.input_stream.backup(1);
 			} catch (final java.io.IOException e1) {
 				EOFSeen = true;
-				error_after = curPos <= 1 ? "" : this.input_stream.GetImage();
+				error_after = curPos <= 1 ? "" : this.input_stream.getImage();
 				if ((this.curChar == '\n') || (this.curChar == '\r')) {
 					error_line++;
 					error_column = 0;
@@ -104,7 +101,7 @@ public class ScheduleParserTokenManager implements ScheduleParserConstants {
 			}
 			if (!EOFSeen) {
 				this.input_stream.backup(1);
-				error_after = curPos <= 1 ? "" : this.input_stream.GetImage();
+				error_after = curPos <= 1 ? "" : this.input_stream.getImage();
 			}
 			throw new TokenMgrError(EOFSeen, error_line, error_column, error_after,
 			    this.curChar, TokenMgrError.LEXICAL_ERROR);
@@ -125,7 +122,7 @@ public class ScheduleParserTokenManager implements ScheduleParserConstants {
 		final int beginColumn;
 		final int endColumn;
 		final String im = ScheduleParserTokenManager.jjstrLiteralImages[this.jjmatchedKind];
-		curTokenImage = (im == null) ? this.input_stream.GetImage() : im;
+		curTokenImage = (im == null) ? this.input_stream.getImage() : im;
 		beginLine = this.input_stream.getBeginLine();
 		beginColumn = this.input_stream.getBeginColumn();
 		endLine = this.input_stream.getEndLine();
@@ -166,7 +163,7 @@ public class ScheduleParserTokenManager implements ScheduleParserConstants {
 		int kind = 0x7fffffff;
 		for (;;) {
 			if (++this.jjround == 0x7fffffff) {
-				this.ReInitRounds();
+				this.reInitRounds();
 			}
 			if (this.curChar < 64) {
 				final long l = 1L << this.curChar;
@@ -1083,20 +1080,19 @@ public class ScheduleParserTokenManager implements ScheduleParserConstants {
 	}
 
 	/** Reinitialise parser. */
-	public void ReInit(final SimpleCharStream stream) {
+	public void reInit(final SimpleCharStream stream) {
 		this.jjmatchedPos = this.jjnewStateCnt = 0;
-		this.curLexState = this.defaultLexState;
 		this.input_stream = stream;
-		this.ReInitRounds();
+		this.reInitRounds();
 	}
 
 	/** Reinitialise parser. */
-	public void ReInit(final SimpleCharStream stream, final int lexState) {
-		this.ReInit(stream);
-		this.SwitchTo(lexState);
+	public void reInit(final SimpleCharStream stream, final int lexState) {
+		this.reInit(stream);
+		this.switchTo(lexState);
 	}
 
-	private void ReInitRounds() {
+	private void reInitRounds() {
 		int i;
 		this.jjround = 0x80000001;
 		for (i = 157; i-- > 0;) {
@@ -1110,13 +1106,12 @@ public class ScheduleParserTokenManager implements ScheduleParserConstants {
 	}
 
 	/** Switch to specified lex state. */
-	public void SwitchTo(final int lexState) {
+	public void switchTo(final int lexState) {
 		if ((lexState >= 1) || (lexState < 0)) {
 			throw new TokenMgrError("Error: Ignoring invalid lexical state : "
 			    + lexState + ". State unchanged.",
 			    TokenMgrError.INVALID_LEXICAL_STATE);
 		}
-		this.curLexState = lexState;
 	}
 
 }

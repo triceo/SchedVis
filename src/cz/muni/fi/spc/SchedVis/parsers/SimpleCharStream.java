@@ -18,6 +18,8 @@
  */
 package cz.muni.fi.spc.SchedVis.parsers;
 
+import java.io.Reader;
+
 /**
  * An implementation of interface CharStream, where the stream is assumed to
  * contain only ASCII characters (without unicode processing).
@@ -26,26 +28,26 @@ package cz.muni.fi.spc.SchedVis.parsers;
 public final class SimpleCharStream {
 	/** Whether parser is static. */
 	public static final boolean staticFlag = false;
-	int bufsize;
-	int available;
-	int tokenBegin;
+	private int bufsize;
+	private int available;
+	private int tokenBegin;
 	/** Position in buffer. */
 	public int bufpos = -1;
-	protected int bufline[];
-	protected int bufcolumn[];
+	private int bufline[];
+	private int bufcolumn[];
 
-	protected int column = 0;
-	protected int line = 1;
+	private int column = 0;
+	private int line = 1;
 
-	protected boolean prevCharIsCR = false;
-	protected boolean prevCharIsLF = false;
+	private boolean prevCharIsCR = false;
+	private boolean prevCharIsLF = false;
 
-	protected java.io.Reader inputStream;
+	private Reader inputStream;
 
-	protected char[] buffer;
-	protected int maxNextCharInd = 0;
-	protected int inBuf = 0;
-	protected int tabSize = 8;
+	private char[] buffer;
+	private int maxNextCharInd = 0;
+	private int inBuf = 0;
+	private int tabSize = 8;
 
 	/** Constructor. */
 	public SimpleCharStream(final java.io.InputStream dstream) {
@@ -165,7 +167,7 @@ public final class SimpleCharStream {
 	}
 
 	/** Start. */
-	public char BeginToken() throws java.io.IOException {
+	public char beginToken() throws java.io.IOException {
 		this.tokenBegin = -1;
 		final char c = this.readChar();
 		this.tokenBegin = this.bufpos;
@@ -174,13 +176,13 @@ public final class SimpleCharStream {
 	}
 
 	/** Reset buffer when finished. */
-	public void Done() {
+	public void done() {
 		this.buffer = null;
 		this.bufline = null;
 		this.bufcolumn = null;
 	}
 
-	protected void ExpandBuff(final boolean wrapAround) {
+	protected void expandBuff(final boolean wrapAround) {
 		final char[] newbuffer = new char[this.bufsize + 2048];
 		final int newbufline[] = new int[this.bufsize + 2048];
 		final int newbufcolumn[] = new int[this.bufsize + 2048];
@@ -230,7 +232,7 @@ public final class SimpleCharStream {
 		this.tokenBegin = 0;
 	}
 
-	protected void FillBuff() throws java.io.IOException {
+	protected void fillBuff() throws java.io.IOException {
 		if (this.maxNextCharInd == this.available) {
 			if (this.available == this.bufsize) {
 				if (this.tokenBegin > 2048) {
@@ -239,12 +241,12 @@ public final class SimpleCharStream {
 				} else if (this.tokenBegin < 0) {
 					this.bufpos = this.maxNextCharInd = 0;
 				} else {
-					this.ExpandBuff(false);
+					this.expandBuff(false);
 				}
 			} else if (this.available > this.tokenBegin) {
 				this.available = this.bufsize;
 			} else if ((this.tokenBegin - this.available) < 2048) {
-				this.ExpandBuff(true);
+				this.expandBuff(true);
 			} else {
 				this.available = this.tokenBegin;
 			}
@@ -300,7 +302,7 @@ public final class SimpleCharStream {
 	}
 
 	/** Get token literal value. */
-	public String GetImage() {
+	public String getImage() {
 		if (this.bufpos >= this.tokenBegin) {
 			return new String(this.buffer, this.tokenBegin, this.bufpos
 			    - this.tokenBegin + 1);
@@ -321,7 +323,7 @@ public final class SimpleCharStream {
 	}
 
 	/** Get the suffix. */
-	public char[] GetSuffix(final int len) {
+	public char[] getSuffix(final int len) {
 		final char[] ret = new char[len];
 
 		if ((this.bufpos + 1) >= len) {
@@ -353,68 +355,68 @@ public final class SimpleCharStream {
 		}
 
 		if (++this.bufpos >= this.maxNextCharInd) {
-			this.FillBuff();
+			this.fillBuff();
 		}
 
 		final char c = this.buffer[this.bufpos];
 
-		this.UpdateLineColumn(c);
+		this.updateLineColumn(c);
 		return c;
 	}
 
 	/** Reinitialise. */
-	public void ReInit(final java.io.InputStream dstream) {
-		this.ReInit(dstream, 1, 1, 4096);
+	public void reInit(final java.io.InputStream dstream) {
+		this.reInit(dstream, 1, 1, 4096);
 	}
 
 	/** Reinitialise. */
-	public void ReInit(final java.io.InputStream dstream, final int startline,
+	public void reInit(final java.io.InputStream dstream, final int startline,
 	    final int startcolumn) {
-		this.ReInit(dstream, startline, startcolumn, 4096);
+		this.reInit(dstream, startline, startcolumn, 4096);
 	}
 
 	/** Reinitialise. */
-	public void ReInit(final java.io.InputStream dstream, final int startline,
+	public void reInit(final java.io.InputStream dstream, final int startline,
 	    final int startcolumn, final int buffersize) {
-		this.ReInit(new java.io.InputStreamReader(dstream), startline, startcolumn,
+		this.reInit(new java.io.InputStreamReader(dstream), startline, startcolumn,
 		    buffersize);
 	}
 
 	/** Reinitialise. */
-	public void ReInit(final java.io.InputStream dstream, final String encoding)
+	public void reInit(final java.io.InputStream dstream, final String encoding)
 	    throws java.io.UnsupportedEncodingException {
-		this.ReInit(dstream, encoding, 1, 1, 4096);
+		this.reInit(dstream, encoding, 1, 1, 4096);
 	}
 
 	/** Reinitialise. */
-	public void ReInit(final java.io.InputStream dstream, final String encoding,
+	public void reInit(final java.io.InputStream dstream, final String encoding,
 	    final int startline, final int startcolumn)
 	    throws java.io.UnsupportedEncodingException {
-		this.ReInit(dstream, encoding, startline, startcolumn, 4096);
+		this.reInit(dstream, encoding, startline, startcolumn, 4096);
 	}
 
 	/** Reinitialise. */
-	public void ReInit(final java.io.InputStream dstream, final String encoding,
+	public void reInit(final java.io.InputStream dstream, final String encoding,
 	    final int startline, final int startcolumn, final int buffersize)
 	    throws java.io.UnsupportedEncodingException {
-		this.ReInit(encoding == null ? new java.io.InputStreamReader(dstream)
+		this.reInit(encoding == null ? new java.io.InputStreamReader(dstream)
 		    : new java.io.InputStreamReader(dstream, encoding), startline,
 		    startcolumn, buffersize);
 	}
 
 	/** Reinitialise. */
-	public void ReInit(final java.io.Reader dstream) {
-		this.ReInit(dstream, 1, 1, 4096);
+	public void reInit(final java.io.Reader dstream) {
+		this.reInit(dstream, 1, 1, 4096);
 	}
 
 	/** Reinitialise. */
-	public void ReInit(final java.io.Reader dstream, final int startline,
+	public void reInit(final java.io.Reader dstream, final int startline,
 	    final int startcolumn) {
-		this.ReInit(dstream, startline, startcolumn, 4096);
+		this.reInit(dstream, startline, startcolumn, 4096);
 	}
 
 	/** Reinitialise. */
-	public void ReInit(final java.io.Reader dstream, final int startline,
+	public void reInit(final java.io.Reader dstream, final int startline,
 	    final int startcolumn, final int buffersize) {
 		this.inputStream = dstream;
 		this.line = startline;
@@ -435,7 +437,7 @@ public final class SimpleCharStream {
 		this.tabSize = i;
 	}
 
-	protected void UpdateLineColumn(final char c) {
+	protected void updateLineColumn(final char c) {
 		this.column++;
 
 		if (this.prevCharIsLF) {

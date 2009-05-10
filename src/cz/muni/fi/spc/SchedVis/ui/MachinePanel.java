@@ -33,7 +33,7 @@ import javax.swing.JPanel;
 public final class MachinePanel extends JPanel {
 
 	private static final long serialVersionUID = 1407665978399872917L;
-	protected Image i = null;
+	private Image i = null;
 
 	/**
 	 * Get the schedule image this panel holds.

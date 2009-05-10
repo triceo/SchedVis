@@ -115,7 +115,7 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	 * 
 	 * @return The event.
 	 */
-	public static Event getFirst() {
+	public synchronized static Event getFirst() {
 		if (Event.firstEvent == null) {
 			Event.firstEvent = Database.getEntityManager().find(Event.class, 1);
 		}
@@ -127,7 +127,7 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	 * 
 	 * @return The event.
 	 */
-	public static Event getLast() {
+	public synchronized static Event getLast() {
 		if (Event.lastEvent == null) {
 			final Criteria crit = BaseEntity.getCriteria(Event.class);
 			crit.addOrder(Order.desc("id"));

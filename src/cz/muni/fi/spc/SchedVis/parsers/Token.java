@@ -18,14 +18,21 @@
  */
 package cz.muni.fi.spc.SchedVis.parsers;
 
+import java.io.Serializable;
+
 /**
  * Describes the input token stream.
  */
 
-public final class Token {
+public final class Token implements Serializable {
+
+	/**
+   * 
+   */
+	private static final long serialVersionUID = 8004994066036312693L;
 
 	public static Token newToken(final int ofKind) {
-		return Token.newToken(ofKind, null);
+		return Token.newToken(ofKind, "");
 	}
 
 	/**
@@ -41,10 +48,7 @@ public final class Token {
 	 * to the appropriate type and use sit in your lexical actions.
 	 */
 	public static Token newToken(final int ofKind, final String image) {
-		switch (ofKind) {
-			default:
-				return new Token(ofKind, image);
-		}
+		return new Token(ofKind, image);
 	}
 
 	/**
@@ -101,7 +105,7 @@ public final class Token {
 	 * Constructs a new token for the specified Image.
 	 */
 	public Token(final int kind) {
-		this(kind, null);
+		this(kind, "");
 	}
 
 	/**
