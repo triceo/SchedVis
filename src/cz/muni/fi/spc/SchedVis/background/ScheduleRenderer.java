@@ -136,9 +136,10 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	private static final Integer TICKS_PER_GUIDING_BAR = Configuration
 	    .getNumberOfTicksPerGuide();
 
-	private Integer clock;
-
-	private static final Map<Machine, Map<Integer, Boolean>> activityByClock = new HashMap<Machine, Map<Integer, Boolean>>();
+	/**
+	 * The current point in time that we are rendering.
+	 */
+	private int clock;
 
 	/**
 	 * Class constructor.
@@ -170,14 +171,14 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		    .sprintf(time));
 
 		time = Double.valueOf(System.nanoTime());
-		this.events = this.getSchedule();
+		this.events = Machine.getLatestSchedule(this.m, this.virtualClock);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
 		    + this.virtualClock + " finished getting schedule. Took %.5f seconds.")
 		    .sprintf(time));
 
 		time = Double.valueOf(System.nanoTime());
-		final boolean isActive = this.isMachineActive();
+		final boolean isActive = Machine.isActive(this.m, this.virtualClock);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
 		    + this.virtualClock + " finished getting activity. Took %.5f seconds.")
@@ -341,6 +342,13 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		    RenderingHints.VALUE_ANTIALIAS_OFF);
 	}
 
+	/**
+	 * Parse the CPUs that have been assigned to a given job.
+	 * 
+	 * @param evt
+	 *          The job in question.
+	 * @return Numbers of assigned CPUs.
+	 */
 	private Integer[] getAssignedCPUs(final Event evt) {
 		// get assigned CPUs, set will ensure they are unique and sorted
 		if ((evt.getAssignedCPUs() == null)
@@ -360,6 +368,11 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		return ScheduleRenderer.sets.get(evt.getAssignedCPUs());
 	}
 
+	/**
+	 * Get the actual clock that is assigned to the virtual clock.
+	 * 
+	 * @return The clock.
+	 */
 	private Integer getClock() {
 		return Event.getLastWithVirtualClock(this.virtualClock);
 	}
@@ -401,10 +414,6 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		    .intValue();
 	}
 
-	private synchronized List<Event> getSchedule() {
-		return Machine.getLatestSchedule(this.m, this.virtualClock);
-	}
-
 	/**
 	 * Get the starting position for the event, when being rendered on the screen.
 	 * 
@@ -422,6 +431,13 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		        + ScheduleRenderer.OVERFLOW_WIDTH).intValue();
 	}
 
+	/**
+	 * Get the background for the schedule.
+	 * 
+	 * @param isActive
+	 *          Whether the background should indicate an active machine.
+	 * @return The background image.
+	 */
 	private BufferedImage getTemplate(final boolean isActive) {
 		Double time = Double.valueOf(System.nanoTime());
 		final int numCPUs = this.m.getCPUs().intValue();
@@ -469,6 +485,15 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		return img;
 	}
 
+	/**
+	 * Get texture for the event's box.
+	 * 
+	 * @param background
+	 *          The color of the event box's background.
+	 * @param jobHint
+	 *          The type of event actually rendered.
+	 * @return The texture.
+	 */
 	private Paint getTexture(final Color background, final Integer jobHint) {
 		if ((jobHint == null) || jobHint.equals(Event.JOB_HINT_NONE)) {
 			return background;
@@ -503,16 +528,4 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		    ScheduleRenderer.NUM_PIXELS_PER_CPU));
 	}
 
-	private synchronized boolean isMachineActive() {
-		if (!ScheduleRenderer.activityByClock.containsKey(this.m)) {
-			ScheduleRenderer.activityByClock.put(this.m,
-			    new HashMap<Integer, Boolean>());
-		}
-		final Map<Integer, Boolean> map = ScheduleRenderer.activityByClock
-		    .get(this.m);
-		if (!map.containsKey(this.virtualClock)) {
-			map.put(this.virtualClock, Machine.isActive(this.m, this.virtualClock));
-		}
-		return map.get(this.virtualClock);
-	}
 }

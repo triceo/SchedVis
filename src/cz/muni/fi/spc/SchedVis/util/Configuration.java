@@ -20,7 +20,6 @@ package cz.muni.fi.spc.SchedVis.util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -41,9 +40,8 @@ public final class Configuration {
 		    "import.group_per_machine", "0");
 		if (val.equals("1")) {
 			return true;
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 	/**
@@ -76,6 +74,11 @@ public final class Configuration {
 		    "machines.txt")).getAbsoluteFile();
 	}
 
+	/**
+	 * The maximum allowed width of the schedule image.
+	 * 
+	 * @return Image width in pixels.
+	 */
 	public static Integer getMaxImageWidth() {
 		return Integer.valueOf(Configuration.getProperties().getProperty(
 		    "graphics.max_image_width", "800"));
@@ -96,11 +99,21 @@ public final class Configuration {
 		return Math.max(minValue, actualValue);
 	}
 
+	/**
+	 * The length between guiding lines on the x axis of a schedule.
+	 * 
+	 * @return Number of ticks between every two guiding lines.
+	 */
 	public static Integer getNumberOfTicksPerGuide() {
 		return Integer.valueOf(Configuration.getProperties().getProperty(
 		    "graphics.ticks_per_guide", "5"));
 	}
 
+	/**
+	 * Get the delay that the "play" function uses between frames.
+	 * 
+	 * @return A number of milliseconds to wait before showing another frame.
+	 */
 	public static Integer getPlayDelay() {
 		return Integer.valueOf(Configuration.getProperties().getProperty(
 		    "play.delay", "1000"));
@@ -127,12 +140,4 @@ public final class Configuration {
 		return Configuration.p;
 	}
 
-	/**
-	 * Class constructor.
-	 * 
-	 * @throws IOException
-	 *           When the configuration cannot be read.
-	 */
-	private Configuration() throws IOException {
-	}
 }

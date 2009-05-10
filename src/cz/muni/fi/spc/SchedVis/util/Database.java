@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
@@ -42,11 +41,7 @@ import cz.muni.fi.spc.SchedVis.model.BaseEntity;
  */
 public final class Database {
 
-	private static EntityManagerFactory factory;
-
 	private static EntityManager currentEM;
-
-	private static String currentName;
 
 	/**
 	 * Returns the current "root" entity manager, ie. the one the
@@ -58,15 +53,6 @@ public final class Database {
 	 */
 	public static EntityManager getEntityManager() {
 		return Database.currentEM;
-	}
-
-	/**
-	 * Return the name of the currently used SQL database.
-	 * 
-	 * @return Name of the database.
-	 */
-	public static String getName() {
-		return Database.currentName;
 	}
 
 	/**
@@ -187,10 +173,8 @@ public final class Database {
 				 */
 				map.put("hibernate.hbm2ddl.auto", "create");
 			}
-			Database.factory = Persistence
-			    .createEntityManagerFactory("SchedVis", map);
-			Database.currentName = Configuration.getDatabaseFile().getName();
-			Database.currentEM = Database.factory.createEntityManager();
+			Database.currentEM = Persistence.createEntityManagerFactory("SchedVis",
+			    map).createEntityManager();
 		}
 	}
 

@@ -407,6 +407,18 @@ public final class Importer extends SwingWorker<Void, Void> {
 		}
 	}
 
+	/**
+	 * Handles the currently used CPUs for a given machine.
+	 * 
+	 * The point of this method is to always keep the current CPU usage for every
+	 * machine, so that the database can contain the actual representation of the
+	 * CPU load.
+	 * 
+	 * @param e
+	 *          The event that is modifying the CPU usage of a machine.
+	 * @return Comma-delimited list of CPUs being used on a given machine after
+	 *         this event.
+	 */
 	private String processUsedCPUs(final ScheduleEventIO e) {
 		final int jobId = e.getJob();
 		String[] jobCPUs;

@@ -23,6 +23,10 @@ import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
 import cz.muni.fi.spc.SchedVis.util.Configuration;
 
 /**
+ * The class that implements the "play" functionality. It is a thread that
+ * "presses" the "Next" button on the timeline and then falls asleep and waits
+ * to be awakened later.
+ * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
@@ -31,10 +35,18 @@ public final class Player implements Runnable {
 	private static final Player p = new Player();
 	private static boolean doesPlay = false;
 
+	/**
+	 * This is a singleton.
+	 * 
+	 * @return The only available instance.
+	 */
 	public static Player getInstance() {
 		return Player.p;
 	}
 
+	/**
+	 * Continue playing.
+	 */
 	@Override
 	public void run() {
 		while (true) {
@@ -68,6 +80,9 @@ public final class Player implements Runnable {
 		}
 	}
 
+	/**
+	 * Wake the thread from its sleep.
+	 */
 	public void toggleStatus() {
 		Logger.getLogger(Player.class).debug("Waking up the player.");
 		Player.doesPlay = !Player.doesPlay;

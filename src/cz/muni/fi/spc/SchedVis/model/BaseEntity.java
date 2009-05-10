@@ -28,7 +28,7 @@ import org.hibernate.Session;
 import cz.muni.fi.spc.SchedVis.util.Database;
 
 /**
- * The base class for all the JPA entities. Servers only as a helper.
+ * The base class for all the JPA entities. Serves only as a helper.
  * 
  * Entities have various parameters, accessed through their getters and setters.
  * Getters and setters of the subclasses are undocumented except for the cases

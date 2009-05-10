@@ -44,6 +44,10 @@ public final class Main {
 
 	private static MainFrame frame;
 
+	/**
+	 * Runs some basic benchmarks. Basically renders some random schedules many,
+	 * many, many times and outputs the resulting time.
+	 */
 	public static void benchmark() {
 		final Set<Machine> machines = Machine.getAllGroupless();
 		new ScheduleRenderer(machines.toArray(new Machine[] {})[0], 1);
@@ -100,6 +104,8 @@ public final class Main {
 	 *          <dd>To launch the GUI.</dd>
 	 *          <dt>import</dt>
 	 *          <dd>To parse data set into the SQL database.</dd>
+	 *          <dt>benchmark</dt>
+	 *          <dd>To launch the benchmarking tool.</dd>
 	 *          <dd>
 	 *          </dl>
 	 */
