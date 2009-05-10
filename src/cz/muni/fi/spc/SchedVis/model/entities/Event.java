@@ -77,7 +77,7 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 		final Criteria crit = BaseEntity.getCriteria(Event.class);
 		crit.add(Restrictions.eq("virtualClock", clock));
 		crit.setMaxResults(1);
-		Event evt = (Event) crit.uniqueResult();
+		final Event evt = (Event) crit.uniqueResult();
 		return (evt != null);
 	}
 
@@ -104,7 +104,7 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	 */
 	@SuppressWarnings("unchecked")
 	public static List<Event> getEventsInTick(final int virtualClockId) {
-		Criteria crit = BaseEntity.getCriteria(Event.class);
+		final Criteria crit = BaseEntity.getCriteria(Event.class);
 		crit.add(Restrictions.eq("virtualClock", virtualClockId));
 		crit.add(Restrictions.isNull("parent"));
 		return crit.list();
@@ -151,7 +151,7 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 			crit.addOrder(Order.desc("id"));
 			crit.add(Restrictions.eq("virtualClock", virtualClockId));
 			crit.setMaxResults(1);
-			Event evt = (Event) crit.uniqueResult();
+			final Event evt = (Event) crit.uniqueResult();
 			if (evt == null) {
 				Event.clocksByVirtualClock.put(virtualClockId, Event
 				    .getLastWithVirtualClock(1));
@@ -205,7 +205,7 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 			    Restrictions.eq("targetMachine", m)));
 		}
 		crit.setMaxResults(1);
-		Event evt = (Event) crit.uniqueResult();
+		final Event evt = (Event) crit.uniqueResult();
 		if (evt == null) {
 			return Event.getLast();
 		}
@@ -242,7 +242,7 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 			    Restrictions.eq("targetMachine", m)));
 		}
 		crit.setMaxResults(1);
-		Event evt = (Event) crit.uniqueResult();
+		final Event evt = (Event) crit.uniqueResult();
 		if (evt == null) {
 			return Event.getFirst();
 		}

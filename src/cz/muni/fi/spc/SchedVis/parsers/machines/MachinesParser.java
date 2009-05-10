@@ -16,6 +16,9 @@
  */
 package cz.muni.fi.spc.SchedVis.parsers.machines;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cz.muni.fi.spc.SchedVis.parsers.ParseException;
 import cz.muni.fi.spc.SchedVis.parsers.Parser;
 import cz.muni.fi.spc.SchedVis.parsers.SimpleCharStream;
@@ -43,7 +46,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		MachinesParser.jj_la1_0 = new int[] { 0x10, 0x2, 0x2, };
 	}
 
-	private final java.util.List jj_expentries = new java.util.ArrayList();
+	private final List<int[]> jj_expentries = new ArrayList<int[]>();
 	private int[] jj_expentry;
 
 	private int jj_kind = -1;
@@ -57,7 +60,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 	public MachinesParser(final java.io.InputStream stream, final String encoding) {
 		try {
 			this.jj_input_stream = new SimpleCharStream(stream, encoding, 1, 1);
-		} catch (java.io.UnsupportedEncodingException e) {
+		} catch (final java.io.UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
 		this.token_source = new MachinesParserTokenManager(this.jj_input_stream);
@@ -103,7 +106,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 	/** Generate ParseException. */
 	public ParseException generateParseException() {
 		this.jj_expentries.clear();
-		boolean[] la1tokens = new boolean[6];
+		final boolean[] la1tokens = new boolean[6];
 		if (this.jj_kind >= 0) {
 			la1tokens[this.jj_kind] = true;
 			this.jj_kind = -1;
@@ -124,9 +127,9 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 				this.jj_expentries.add(this.jj_expentry);
 			}
 		}
-		int[][] exptokseq = new int[this.jj_expentries.size()][];
+		final int[][] exptokseq = new int[this.jj_expentries.size()][];
 		for (int i = 0; i < this.jj_expentries.size(); i++) {
-			exptokseq[i] = (int[]) this.jj_expentries.get(i);
+			exptokseq[i] = this.jj_expentries.get(i);
 		}
 		return new ParseException(this.token, exptokseq,
 		    MachinesParserConstants.tokenImage);
@@ -157,7 +160,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 	}
 
 	private Token jj_consume_token(final int kind) throws ParseException {
-		Token oldToken = this.token;
+		final Token oldToken = this.token;
 		if ((this.token = this.jj_nt).next != null) {
 			this.jj_nt = this.jj_nt.next;
 		} else {
@@ -213,12 +216,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 		if (this.getImporter() != null) {
 			this.getImporter().nextLineParsed();
 		}
-		{
-			if (true) {
-				return machines;
-			}
-		}
-		throw new Error("Missing return statement in function");
+		return machines;
 	}
 
 	final public MachinesList read() throws ParseException {
@@ -246,12 +244,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 			this.jj_consume_token(MachinesParserConstants.EOL);
 		}
 		this.jj_consume_token(0);
-		{
-			if (true) {
-				return machines;
-			}
-		}
-		throw new Error("Missing return statement in function");
+		return machines;
 	}
 
 	/** Reinitialise. */
@@ -263,7 +256,7 @@ public class MachinesParser extends Parser implements MachinesParserConstants {
 	public void ReInit(final java.io.InputStream stream, final String encoding) {
 		try {
 			this.jj_input_stream.ReInit(stream, encoding, 1, 1);
-		} catch (java.io.UnsupportedEncodingException e) {
+		} catch (final java.io.UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
 		this.token_source.ReInit(this.jj_input_stream);

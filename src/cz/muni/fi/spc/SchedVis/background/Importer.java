@@ -212,7 +212,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 			final List<ScheduleEvent> events;
 			try {
 				events = parser.read();
-			} catch (Throwable e) {
+			} catch (final Throwable e) {
 				e.printStackTrace();
 				throw new ParseException();
 			}
@@ -222,7 +222,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 			Integer eventId = 0;
 			Integer previousClock = -1;
 			Integer virtualClock = 0;
-			Set<Integer> startedJobs = new TreeSet<Integer>();
+			final Set<Integer> startedJobs = new TreeSet<Integer>();
 			Database.getEntityManager().getTransaction().begin();
 			for (final ScheduleEvent event : events) {
 				if (!previousClock.equals(Integer.valueOf(event.getClock()))) {
@@ -335,14 +335,14 @@ public final class Importer extends SwingWorker<Void, Void> {
 						Database.getEntityManager().getTransaction().commit();
 						Database.getEntityManager().clear(); // save some memory
 						Database.getEntityManager().getTransaction().begin();
-					} catch (Throwable e) {
+					} catch (final Throwable e) {
 						e.printStackTrace();
 					}
 				}
 				event.clear(); // save some more memory
 			}
 			Database.getEntityManager().getTransaction().commit();
-		} catch (Throwable t) {
+		} catch (final Throwable t) {
 			t.printStackTrace();
 		}
 	}
@@ -366,7 +366,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 		List<MachineData> machines = null;
 		try {
 			machines = parser.read();
-		} catch (Throwable e) {
+		} catch (final Throwable e) {
 			e.printStackTrace();
 			throw new ParseException();
 		}
@@ -393,7 +393,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 		try {
 			final List<MachineGroup> groupsList = new Vector<MachineGroup>();
 			if (Configuration.createGroupPerMachine()) {
-				for (Machine m : machinesList) {
+				for (final Machine m : machinesList) {
 					final MachineGroup mg = new MachineGroup();
 					mg.setName("Group '" + m.getName() + "'");
 					groupsList.add(mg);
@@ -402,28 +402,29 @@ public final class Importer extends SwingWorker<Void, Void> {
 			}
 			Database.persist(groupsList);
 			Database.persist(machinesList);
-		} catch (Throwable e) {
+		} catch (final Throwable e) {
 			e.printStackTrace();
 		}
 	}
 
 	private String processUsedCPUs(final ScheduleEventIO e) {
-		int jobId = e.getJob();
+		final int jobId = e.getJob();
 		String[] jobCPUs;
 		try {
 			jobCPUs = this.allJobs.get(jobId).getAssignedCPUs().split(",");
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			jobCPUs = new String[] {};
 		}
-		String machineId = this.allJobs.get(jobId).getSourceMachine().getName();
+		final String machineId = this.allJobs.get(jobId).getSourceMachine()
+		    .getName();
 		if (e.getName().equals("job-execution-start")) {
 			// execution starting
 			if (!this.CPUstatus.containsKey(machineId)) {
 				this.CPUstatus.put(machineId, jobCPUs);
 			} else {
-				Set<String> old = new HashSet<String>(Arrays.asList(this.CPUstatus
-				    .get(machineId)));
-				boolean isChanged = old.addAll(Arrays.asList(jobCPUs));
+				final Set<String> old = new HashSet<String>(Arrays
+				    .asList(this.CPUstatus.get(machineId)));
+				final boolean isChanged = old.addAll(Arrays.asList(jobCPUs));
 				if (!isChanged) {
 					Logger
 					    .getLogger(Importer.class)
@@ -439,9 +440,9 @@ public final class Importer extends SwingWorker<Void, Void> {
 			}
 		} else {
 			// execution finished
-			Set<String> old = new TreeSet<String>(Arrays.asList(this.CPUstatus
+			final Set<String> old = new TreeSet<String>(Arrays.asList(this.CPUstatus
 			    .get(machineId)));
-			boolean isChanged = old.removeAll(Arrays.asList(jobCPUs));
+			final boolean isChanged = old.removeAll(Arrays.asList(jobCPUs));
 			if (!isChanged) {
 				Logger
 				    .getLogger(Importer.class)
@@ -456,8 +457,8 @@ public final class Importer extends SwingWorker<Void, Void> {
 			this.CPUstatus.put(machineId, old.toArray(new String[] {}));
 			this.allJobs.remove(jobId);
 		}
-		StringBuilder sb = new StringBuilder();
-		String[] CPUs = this.CPUstatus.get(machineId);
+		final StringBuilder sb = new StringBuilder();
+		final String[] CPUs = this.CPUstatus.get(machineId);
 		for (int i = 0; i < CPUs.length; i++) {
 			sb.append(CPUs[i]);
 			if (i < (CPUs.length - 1)) {

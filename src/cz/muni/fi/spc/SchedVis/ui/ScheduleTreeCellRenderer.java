@@ -52,13 +52,13 @@ public final class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 	 * @return
 	 */
 	private JPanel getGroup(final MachineGroup item) {
-		JPanel target = new JPanel();
+		final JPanel target = new JPanel();
 		if (item == null) {
 			target.add(new JLabel("Ungrouped Machines"));
 		} else {
 			try {
 				target.add(new JLabel("Group '" + item.getName()));
-			} catch (NullPointerException ex) {
+			} catch (final NullPointerException ex) {
 				target.add(new JLabel("Group '" + item.getName()));
 			}
 		}
@@ -75,7 +75,7 @@ public final class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 	 * @return The panel.
 	 */
 	private JPanel getMachine(final Machine item) {
-		Integer clock = TimelineSliderModel.getInstance().getValue();
+		final Integer clock = TimelineSliderModel.getInstance().getValue();
 		try {
 			final MachinePanel pane = new MachinePanel();
 			pane.setImage(ScheduleRenderingController.getRendered(item, clock));

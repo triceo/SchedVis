@@ -109,7 +109,7 @@ public final class ParseException extends Exception {
 	 * version cannot be used as part of an ASCII string literal.
 	 */
 	protected String add_escapes(final String str) {
-		StringBuffer retval = new StringBuffer();
+		final StringBuffer retval = new StringBuffer();
 		char ch;
 		for (int i = 0; i < str.length(); i++) {
 			switch (str.charAt(i)) {
@@ -141,7 +141,7 @@ public final class ParseException extends Exception {
 					continue;
 				default:
 					if (((ch = str.charAt(i)) < 0x20) || (ch > 0x7e)) {
-						String s = "0000" + Integer.toString(ch, 16);
+						final String s = "0000" + Integer.toString(ch, 16);
 						retval.append("\\u" + s.substring(s.length() - 4, s.length()));
 					} else {
 						retval.append(ch);
@@ -166,13 +166,13 @@ public final class ParseException extends Exception {
 		if (!this.specialConstructor) {
 			return super.getMessage();
 		}
-		StringBuffer expected = new StringBuffer();
+		final StringBuffer expected = new StringBuffer();
 		int maxSize = 0;
-		for (int[] expectedTokenSequence : this.expectedTokenSequences) {
+		for (final int[] expectedTokenSequence : this.expectedTokenSequences) {
 			if (maxSize < expectedTokenSequence.length) {
 				maxSize = expectedTokenSequence.length;
 			}
-			for (int element : expectedTokenSequence) {
+			for (final int element : expectedTokenSequence) {
 				expected.append(this.tokenImage[element]).append(' ');
 			}
 			if (expectedTokenSequence[expectedTokenSequence.length - 1] != 0) {

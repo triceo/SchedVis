@@ -68,7 +68,7 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 		for (;;) {
 			try {
 				this.curChar = this.input_stream.BeginToken();
-			} catch (java.io.IOException e) {
+			} catch (final java.io.IOException e) {
 				this.jjmatchedKind = 0;
 				matchedToken = this.jjFillToken();
 				return matchedToken;
@@ -91,7 +91,7 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 			try {
 				this.input_stream.readChar();
 				this.input_stream.backup(1);
-			} catch (java.io.IOException e1) {
+			} catch (final java.io.IOException e1) {
 				EOFSeen = true;
 				error_after = curPos <= 1 ? "" : this.input_stream.GetImage();
 				if ((this.curChar == '\n') || (this.curChar == '\r')) {
@@ -117,7 +117,7 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 		final int endLine;
 		final int beginColumn;
 		final int endColumn;
-		String im = MachinesParserTokenManager.jjstrLiteralImages[this.jjmatchedKind];
+		final String im = MachinesParserTokenManager.jjstrLiteralImages[this.jjmatchedKind];
 		curTokenImage = (im == null) ? this.input_stream.GetImage() : im;
 		beginLine = this.input_stream.getBeginLine();
 		beginColumn = this.input_stream.getBeginColumn();
@@ -151,7 +151,7 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 				this.ReInitRounds();
 			}
 			if (this.curChar < 64) {
-				long l = 1L << this.curChar;
+				final long l = 1L << this.curChar;
 				do {
 					switch (this.jjstateSet[--i]) {
 						case 0:
@@ -214,7 +214,7 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 					}
 				} while (i != startsAt);
 			} else if (this.curChar < 128) {
-				long l = 1L << (this.curChar & 077);
+				final long l = 1L << (this.curChar & 077);
 				do {
 					switch (this.jjstateSet[--i]) {
 						case 0:
@@ -258,7 +258,7 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 			}
 			try {
 				this.curChar = this.input_stream.readChar();
-			} catch (java.io.IOException e) {
+			} catch (final java.io.IOException e) {
 				return curPos;
 			}
 		}
@@ -277,13 +277,6 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 		this.jjmatchedKind = kind;
 		this.jjmatchedPos = pos;
 		return pos + 1;
-	}
-
-	private final int jjStopStringLiteralDfa_0(final int pos, final long active0) {
-		switch (pos) {
-			default:
-				return -1;
-		}
 	}
 
 	/** Reinitialise parser. */
@@ -319,9 +312,8 @@ public class MachinesParserTokenManager implements MachinesParserConstants {
 			throw new TokenMgrError("Error: Ignoring invalid lexical state : "
 			    + lexState + ". State unchanged.",
 			    TokenMgrError.INVALID_LEXICAL_STATE);
-		} else {
-			this.curLexState = lexState;
 		}
+		this.curLexState = lexState;
 	}
 
 }

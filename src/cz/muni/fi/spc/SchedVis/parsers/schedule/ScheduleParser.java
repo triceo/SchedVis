@@ -16,6 +16,9 @@
  */
 package cz.muni.fi.spc.SchedVis.parsers.schedule;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cz.muni.fi.spc.SchedVis.parsers.ParseException;
 import cz.muni.fi.spc.SchedVis.parsers.Parser;
 import cz.muni.fi.spc.SchedVis.parsers.SimpleCharStream;
@@ -47,7 +50,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 	static {
 		ScheduleParser.jj_la1_init_0();
 	}
-	private final java.util.List jj_expentries = new java.util.ArrayList();
+	private final List<int[]> jj_expentries = new ArrayList<int[]>();
 	private int[] jj_expentry;
 	private int jj_kind = -1;
 
@@ -60,7 +63,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 	public ScheduleParser(final java.io.InputStream stream, final String encoding) {
 		try {
 			this.jj_input_stream = new SimpleCharStream(stream, encoding, 1, 1);
-		} catch (java.io.UnsupportedEncodingException e) {
+		} catch (final java.io.UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
 		this.token_source = new ScheduleParserTokenManager(this.jj_input_stream);
@@ -133,12 +136,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 							break label_4;
 					}
 				}
-				{
-					if (true) {
-						return events;
-					}
-				}
-				break;
+				return events;
 			case MOVE_EVENT_FLAG:
 				events = this.move_event(events);
 				label_5: while (true) {
@@ -163,12 +161,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 							break label_6;
 					}
 				}
-				{
-					if (true) {
-						return events;
-					}
-				}
-				break;
+				return events;
 			case IO_EVENT_FLAG:
 				events = this.IO_event(events);
 				label_7: while (true) {
@@ -193,24 +186,18 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 							break label_8;
 					}
 				}
-				{
-					if (true) {
-						return events;
-					}
-				}
-				break;
+				return events;
 			default:
 				this.jj_la1[8] = this.jj_gen;
 				this.jj_consume_token(-1);
 				throw new ParseException();
 		}
-		throw new Error("Missing return statement in function");
 	}
 
 	/** Generate ParseException. */
 	public ParseException generateParseException() {
 		this.jj_expentries.clear();
-		boolean[] la1tokens = new boolean[14];
+		final boolean[] la1tokens = new boolean[14];
 		if (this.jj_kind >= 0) {
 			la1tokens[this.jj_kind] = true;
 			this.jj_kind = -1;
@@ -231,9 +218,9 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 				this.jj_expentries.add(this.jj_expentry);
 			}
 		}
-		int[][] exptokseq = new int[this.jj_expentries.size()][];
+		final int[][] exptokseq = new int[this.jj_expentries.size()][];
 		for (int i = 0; i < this.jj_expentries.size(); i++) {
-			exptokseq[i] = (int[]) this.jj_expentries.get(i);
+			exptokseq[i] = this.jj_expentries.get(i);
 		}
 		return new ParseException(this.token, exptokseq,
 		    ScheduleParserConstants.tokenImage);
@@ -276,16 +263,11 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		job = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
 		data = this.schedule_data();
 		list.add(new ScheduleEventIO(event, clock, job, data));
-		{
-			if (true) {
-				return list;
-			}
-		}
-		throw new Error("Missing return statement in function");
+		return list;
 	}
 
 	private Token jj_consume_token(final int kind) throws ParseException {
-		Token oldToken = this.token;
+		final Token oldToken = this.token;
 		if ((this.token = this.jj_nt).next != null) {
 			this.jj_nt = this.jj_nt.next;
 		} else {
@@ -312,7 +294,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		Token start;
 		Token end;
 		Token deadline;
-		ScheduleJobData data = new ScheduleJobData();
+		final ScheduleJobData data = new ScheduleJobData();
 		job = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
 		this.jj_consume_token(13);
 		numCPUs = this.jj_consume_token(ScheduleParserConstants.CONSTANT);
@@ -363,12 +345,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		data.setEnds(end);
 		data.setDeadline(deadline);
 		list.add(data);
-		{
-			if (true) {
-				return list;
-			}
-		}
-		throw new Error("Missing return statement in function");
+		return list;
 	}
 
 	final public ScheduleMachineDataList machine_data(
@@ -391,12 +368,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		}
 		this.jj_consume_token(12);
 		list.add(new ScheduleMachineData(machineId, data));
-		{
-			if (true) {
-				return list;
-			}
-		}
-		throw new Error("Missing return statement in function");
+		return list;
 	}
 
 	final public ScheduleEventsList machine_event(final ScheduleEventsList list)
@@ -410,12 +382,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		this.jj_consume_token(ScheduleParserConstants.WHITESPACE);
 		machine = this.jj_consume_token(ScheduleParserConstants.STRING);
 		list.add(new ScheduleEventMachine(event, clock, machine));
-		{
-			if (true) {
-				return list;
-			}
-		}
-		throw new Error("Missing return statement in function");
+		return list;
 	}
 
 	final public ScheduleEventsList move_event(final ScheduleEventsList list)
@@ -439,11 +406,8 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 		list.add(new ScheduleEventMove(event, clock, job, origMachine, newMachine,
 		    data));
 		{
-			if (true) {
-				return list;
-			}
+			return list;
 		}
-		throw new Error("Missing return statement in function");
 	}
 
 	final public ScheduleEventsList read() throws ParseException {
@@ -473,12 +437,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 			this.jj_consume_token(ScheduleParserConstants.EOL);
 		}
 		this.jj_consume_token(0);
-		{
-			if (true) {
-				return events;
-			}
-		}
-		throw new Error("Missing return statement in function");
+		return events;
 	}
 
 	/** Reinitialise. */
@@ -490,7 +449,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 	public void ReInit(final java.io.InputStream stream, final String encoding) {
 		try {
 			this.jj_input_stream.ReInit(stream, encoding, 1, 1);
-		} catch (java.io.UnsupportedEncodingException e) {
+		} catch (final java.io.UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
 		this.token_source.ReInit(this.jj_input_stream);
@@ -539,12 +498,7 @@ public class ScheduleParser extends Parser implements ScheduleParserConstants {
 					break label_9;
 			}
 		}
-		{
-			if (true) {
-				return data;
-			}
-		}
-		throw new Error("Missing return statement in function");
+		return data;
 	}
 
 }

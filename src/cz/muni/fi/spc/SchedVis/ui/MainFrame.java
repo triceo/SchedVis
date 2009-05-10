@@ -81,11 +81,11 @@ public final class MainFrame extends JFrame {
 		this.detailPane = new JBorderedPanel("Machine detail");
 		this.updateDetail(null);
 		// get scrolling pane with a tree
-		JPanel spanel = new JPanel();
+		final JPanel spanel = new JPanel();
 		spanel.setLayout(new BorderLayout());
 		final JScrollPane pane = new JScrollPane(spanel);
 		spanel.add(this.detailPane, BorderLayout.PAGE_START);
-		JPanel schpanel = new JBorderedPanel("Complete schedule");
+		final JPanel schpanel = new JBorderedPanel("Complete schedule");
 		schpanel.setLayout(new BorderLayout());
 		schpanel.add(MainFrame.tree, BorderLayout.CENTER);
 		spanel.add(schpanel, BorderLayout.CENTER);
@@ -121,12 +121,13 @@ public final class MainFrame extends JFrame {
 		if (m != null) {
 			this.detailPane.setLayout(new BoxLayout(this.detailPane,
 			    BoxLayout.PAGE_AXIS));
-			Integer currentClock = TimelineSliderModel.getInstance().getValue();
-			Integer previousClock = Event.getPrevious(currentClock, m)
+			final Integer currentClock = TimelineSliderModel.getInstance().getValue();
+			final Integer previousClock = Event.getPrevious(currentClock, m)
 			    .getVirtualClock();
-			Integer nextClock = Event.getNext(currentClock, m).getVirtualClock();
-			for (Integer clock : new TreeSet<Integer>(Arrays.asList(new Integer[] {
-			    previousClock, currentClock, nextClock }))) {
+			final Integer nextClock = Event.getNext(currentClock, m)
+			    .getVirtualClock();
+			for (final Integer clock : new TreeSet<Integer>(Arrays
+			    .asList(new Integer[] { previousClock, currentClock, nextClock }))) {
 				ScheduleRenderingController.render(m, clock);
 				final MachinePanel pane = new MachinePanel();
 				pane.setImage(ScheduleRenderingController.getRendered(m, clock));

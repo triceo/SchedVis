@@ -167,7 +167,7 @@ public final class SimpleCharStream {
 	/** Start. */
 	public char BeginToken() throws java.io.IOException {
 		this.tokenBegin = -1;
-		char c = this.readChar();
+		final char c = this.readChar();
 		this.tokenBegin = this.bufpos;
 
 		return c;
@@ -181,9 +181,9 @@ public final class SimpleCharStream {
 	}
 
 	protected void ExpandBuff(final boolean wrapAround) {
-		char[] newbuffer = new char[this.bufsize + 2048];
-		int newbufline[] = new int[this.bufsize + 2048];
-		int newbufcolumn[] = new int[this.bufsize + 2048];
+		final char[] newbuffer = new char[this.bufsize + 2048];
+		final int newbufline[] = new int[this.bufsize + 2048];
+		final int newbufcolumn[] = new int[this.bufsize + 2048];
 
 		try {
 			if (wrapAround) {
@@ -221,7 +221,7 @@ public final class SimpleCharStream {
 
 				this.maxNextCharInd = (this.bufpos -= this.tokenBegin);
 			}
-		} catch (Throwable t) {
+		} catch (final Throwable t) {
 			throw new Error(t.getMessage());
 		}
 
@@ -259,7 +259,7 @@ public final class SimpleCharStream {
 			}
 			this.maxNextCharInd += i;
 			return;
-		} catch (java.io.IOException e) {
+		} catch (final java.io.IOException e) {
 			--this.bufpos;
 			this.backup(0);
 			if (this.tokenBegin == -1) {
@@ -322,7 +322,7 @@ public final class SimpleCharStream {
 
 	/** Get the suffix. */
 	public char[] GetSuffix(final int len) {
-		char[] ret = new char[len];
+		final char[] ret = new char[len];
 
 		if ((this.bufpos + 1) >= len) {
 			System.arraycopy(this.buffer, this.bufpos - len + 1, ret, 0, len);
@@ -356,7 +356,7 @@ public final class SimpleCharStream {
 			this.FillBuff();
 		}
 
-		char c = this.buffer[this.bufpos];
+		final char c = this.buffer[this.bufpos];
 
 		this.UpdateLineColumn(c);
 		return c;

@@ -37,7 +37,7 @@ public final class Configuration {
 	private static Properties p;
 
 	public static boolean createGroupPerMachine() {
-		String val = Configuration.getProperties().getProperty(
+		final String val = Configuration.getProperties().getProperty(
 		    "import.group_per_machine", "0");
 		if (val.equals("1")) {
 			return true;
@@ -87,7 +87,7 @@ public final class Configuration {
 	 * @return Will always be even and >= 5.
 	 */
 	public static Integer getNumberOfPixelsPerCPU() {
-		Integer minValue = 5;
+		final Integer minValue = 5;
 		Integer actualValue = Integer.valueOf(Configuration.getProperties()
 		    .getProperty("graphics.pixels_per_cpu", minValue.toString()));
 		if (actualValue % 2 == 0) {
@@ -115,10 +115,10 @@ public final class Configuration {
 	protected static Properties getProperties() {
 		if (Configuration.p == null) {
 			try {
-				FileInputStream in = new FileInputStream("config.properties");
+				final FileInputStream in = new FileInputStream("config.properties");
 				Configuration.p = new Properties();
 				Configuration.p.load(in);
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				Configuration.p = new Properties();
 				Logger.getLogger(Configuration.class).error(
 				    "Failed to load configuration file, caught: " + e + ".");

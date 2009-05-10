@@ -213,7 +213,7 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 			    ((String) this.availableGroupsList.getSelectedItem()), false);
 			for (final Object machineName : this.availableMachinesList
 			    .getSelectedValues()) {
-				Machine m = Machine.getWithName((String) machineName, false);
+				final Machine m = Machine.getWithName((String) machineName, false);
 				m.setGroup(ge);
 				Database.merge(m);
 			}

@@ -74,7 +74,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		if (!Machine.byId.containsKey(id)) {
 			Machine.byId.put(id, Database.getEntityManager().find(Machine.class, id));
 		}
-		Machine m = Machine.byId.get(id);
+		final Machine m = Machine.byId.get(id);
 		if (!Machine.byName.containsKey(m.getName())) {
 			Machine.byName.put(m.getName(), m);
 		}
@@ -118,17 +118,17 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	    final Integer clock) {
 		try {
 			if (Machine.s == null) {
-				String query = "SELECT id, assignedCPUs, deadline, job, jobHint, expectedStart, expectedEnd, bringsSchedule FROM Event WHERE sourceMachine_id = ? AND parent_fk = (SELECT max(parent_fk) FROM Event WHERE sourceMachine_id = ? AND parent_fk IS NOT NULL AND virtualClock <= ? AND bringsSchedule = 0)";
+				final String query = "SELECT id, assignedCPUs, deadline, job, jobHint, expectedStart, expectedEnd, bringsSchedule FROM Event WHERE sourceMachine_id = ? AND parent_fk = (SELECT max(parent_fk) FROM Event WHERE sourceMachine_id = ? AND parent_fk IS NOT NULL AND virtualClock <= ? AND bringsSchedule = 0)";
 				Machine.s = BaseEntity.getConnection(Database.getEntityManager())
 				    .prepareStatement(query);
 			}
 			Machine.s.setInt(1, which.getId().intValue());
 			Machine.s.setInt(2, which.getId().intValue());
 			Machine.s.setInt(3, clock);
-			ResultSet rs = Machine.s.executeQuery();
-			List<Event> evts = new Vector<Event>();
+			final ResultSet rs = Machine.s.executeQuery();
+			final List<Event> evts = new Vector<Event>();
 			while (rs.next()) {
-				Event evt = new Event();
+				final Event evt = new Event();
 				evt.setId(rs.getInt(1));
 				evt.setAssignedCPUs(rs.getString(2));
 				evt.setDeadline(rs.getInt(3));
@@ -146,7 +146,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 			rs.close();
 			Machine.s.clearParameters();
 			return evts;
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			e.printStackTrace();
 			return new Vector<Event>();
 		}
@@ -174,13 +174,13 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 			return Machine.getWithName(name);
 		}
 		if (!Machine.byName.containsKey(name)) {
-			Machine m = Machine.getWithName(name);
+			final Machine m = Machine.getWithName(name);
 			if (m == null) {
 				return null;
 			}
 			Machine.byName.put(name, m);
 		}
-		Machine m = Machine.byName.get(name);
+		final Machine m = Machine.byName.get(name);
 		if (!Machine.byId.containsKey(m.getId())) {
 			Machine.byId.put(m.getId(), m);
 		}
@@ -216,11 +216,11 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		crit.add(Restrictions.lt("virtualClock", clock));
 		crit.addOrder(Order.desc("id"));
 		crit.setMaxResults(1);
-		Event e = (Event) crit.uniqueResult();
+		final Event e = (Event) crit.uniqueResult();
 		if (e == null) {
 			return true;
 		}
-		Integer id = e.getType().getId();
+		final Integer id = e.getType().getId();
 		if ((id.equals(EventType.EVENT_MACHINE_FAILURE))
 		    || (id.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD))
 		    || (id.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD))) {

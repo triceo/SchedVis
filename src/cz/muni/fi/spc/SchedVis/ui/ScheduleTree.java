@@ -76,14 +76,14 @@ public final class ScheduleTree extends JTree implements TreeSelectionListener {
 	public void valueChanged(final TreeSelectionEvent e) {
 		Main.getFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		try {
-			Object o = ((DefaultMutableTreeNode) ScheduleTree.tree
+			final Object o = ((DefaultMutableTreeNode) ScheduleTree.tree
 			    .getLastSelectedPathComponent()).getUserObject();
 			if (o instanceof Machine) {
 				Main.getFrame().updateDetail((Machine) o);
 			} else {
 				Main.getFrame().updateDetail(null);
 			}
-		} catch (NullPointerException ex) {
+		} catch (final NullPointerException ex) {
 			Main.getFrame().updateDetail(null);
 		}
 		Main.getFrame()

@@ -57,8 +57,8 @@ public final class DescriptionPane extends JEditorPane {
 		if (set.size() == 0) {
 			return "None.";
 		}
-		String[] strings = set.toArray(new String[] {});
-		StringBuilder sb = new StringBuilder();
+		final String[] strings = set.toArray(new String[] {});
+		final StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < strings.length; i++) {
 			sb.append(strings[i]);
 			if (i == (strings.length - 1)) {
@@ -77,9 +77,9 @@ public final class DescriptionPane extends JEditorPane {
 
 		// read template
 		try {
-			FileReader fr = new FileReader(new File("log-template.html"));
-			BufferedReader br = new BufferedReader(fr);
-			StringBuilder sb = new StringBuilder();
+			final FileReader fr = new FileReader(new File("log-template.html"));
+			final BufferedReader br = new BufferedReader(fr);
+			final StringBuilder sb = new StringBuilder();
 			String read = "";
 			while ((read = br.readLine()) != null) {
 				sb.append(read.trim());
@@ -87,7 +87,7 @@ public final class DescriptionPane extends JEditorPane {
 			br.close();
 			fr.close();
 			DescriptionPane.template = sb.toString();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			DescriptionPane.template = "<html>Template file read problem !" + e
 			    + "</html>";
 		}
@@ -97,18 +97,18 @@ public final class DescriptionPane extends JEditorPane {
 	public void updateFrame(final Integer virtualClockId) {
 		String text = DescriptionPane.template;
 		// now process the events
-		Set<String> arrivals = new TreeSet<String>();
-		Set<String> completions = new TreeSet<String>();
-		Set<String> cancellations = new TreeSet<String>();
-		Set<String> executions = new TreeSet<String>();
-		Set<String> restarts = new TreeSet<String>();
-		Set<String> failures = new TreeSet<String>();
-		Set<String> movesGood = new TreeSet<String>();
-		Set<String> movesBad = new TreeSet<String>();
-		List<Event> evts = Collections.synchronizedList(Event
+		final Set<String> arrivals = new TreeSet<String>();
+		final Set<String> completions = new TreeSet<String>();
+		final Set<String> cancellations = new TreeSet<String>();
+		final Set<String> executions = new TreeSet<String>();
+		final Set<String> restarts = new TreeSet<String>();
+		final Set<String> failures = new TreeSet<String>();
+		final Set<String> movesGood = new TreeSet<String>();
+		final Set<String> movesBad = new TreeSet<String>();
+		final List<Event> evts = Collections.synchronizedList(Event
 		    .getEventsInTick(virtualClockId));
-		for (Event evt : evts) {
-			Integer type = evt.getType().getId();
+		for (final Event evt : evts) {
+			final Integer type = evt.getType().getId();
 			if (type.equals(EventType.EVENT_JOB_ARRIVAL)) {
 				// job arrived
 				arrivals.add("#" + evt.getJob());

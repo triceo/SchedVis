@@ -114,14 +114,14 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 				try {
 					this.tlsm.setValue(Event.getPrevious(this.tlsm.getValue())
 					    .getVirtualClock());
-				} catch (Exception ex) {
+				} catch (final Exception ex) {
 					this.tlsm.setValue(Event.getFirst().getVirtualClock());
 				}
 			} else {
 				try {
 					this.tlsm.setValue(Event.getNext(this.tlsm.getValue())
 					    .getVirtualClock());
-				} catch (Exception ex) {
+				} catch (final Exception ex) {
 					this.tlsm.setValue(Event.getLast().getVirtualClock());
 				}
 			}
@@ -137,7 +137,7 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 			if (this.tlsm.getValue() < 1) {
 				return;
 			}
-			Integer value = this.tlsm.getValue();
+			final Integer value = this.tlsm.getValue();
 			if (!Event.existsTick(value)) {
 				this.tlsm.setValue(Event.getPrevious(value).getVirtualClock());
 			}
@@ -166,14 +166,14 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 				ScheduleTree.getInstance().updateUI();
 				// update the detail pane based on the tree selection
 				try {
-					DefaultMutableTreeNode n = (DefaultMutableTreeNode) ScheduleTree
+					final DefaultMutableTreeNode n = (DefaultMutableTreeNode) ScheduleTree
 					    .getInstance().getLastSelectedPathComponent();
 					if (n.getUserObject() instanceof Machine) {
 						Main.getFrame().updateDetail((Machine) n.getUserObject());
 					} else {
 						Main.getFrame().updateDetail(null);
 					}
-				} catch (NullPointerException ex) {
+				} catch (final NullPointerException ex) {
 					Main.getFrame().updateDetail(null);
 				}
 				DescriptionPane.getInstance().updateFrame(this.tlsm.getValue());

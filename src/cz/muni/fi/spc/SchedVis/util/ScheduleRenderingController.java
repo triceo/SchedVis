@@ -65,11 +65,11 @@ public final class ScheduleRenderingController {
 		    && ScheduleRenderingController.renderers.get(clock).containsKey(m)) {
 			// we have the renderer cached
 			try {
-				Image img = ScheduleRenderingController.renderers.get(clock).get(m)
-				    .get();
+				final Image img = ScheduleRenderingController.renderers.get(clock).get(
+				    m).get();
 				ScheduleRenderingController.renderers.get(clock).remove(m);
 				return img;
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				Logger.getLogger(ScheduleRenderingController.class).error(
 				    "Machine " + m.getName() + " at " + clock + " caught " + e);
 				return null;
@@ -100,7 +100,7 @@ public final class ScheduleRenderingController {
 				ScheduleRenderingController.renderers.put(clock,
 				    new HashMap<Machine, ScheduleRenderer>());
 			}
-			ScheduleRenderer mr = new ScheduleRenderer(m, clock);
+			final ScheduleRenderer mr = new ScheduleRenderer(m, clock);
 			ScheduleRenderingController.renderers.get(clock).put(m, mr);
 		}
 		ScheduleRenderingController.e.submit(ScheduleRenderingController.renderers

@@ -45,29 +45,30 @@ public final class Main {
 	private static MainFrame frame;
 
 	public static void benchmark() {
-		Set<Machine> machines = Machine.getAllGroupless();
+		final Set<Machine> machines = Machine.getAllGroupless();
 		new ScheduleRenderer(machines.toArray(new Machine[] {})[0], 1);
 		Double totalTime = 0.0;
-		ExecutorService e = Executors.newFixedThreadPool(1);
-		int clockCount = Event.getAllTicks().size() / 500;
-		Integer tickSpace = Math.max(1, Event.getAllTicks().size() / clockCount);
-		int[] clocks = new int[clockCount];
+		final ExecutorService e = Executors.newFixedThreadPool(1);
+		final int clockCount = Event.getAllTicks().size() / 500;
+		final Integer tickSpace = Math.max(1, Event.getAllTicks().size()
+		    / clockCount);
+		final int[] clocks = new int[clockCount];
 		clocks[0] = 1;
 		for (int i = 1; i < clockCount; i++) {
 			clocks[i] = tickSpace * i;
 		}
-		for (Integer clock : clocks) {
-			Long now = System.nanoTime();
-			for (Machine m : machines) {
-				ScheduleRenderer mr = new ScheduleRenderer(m, clock);
+		for (final Integer clock : clocks) {
+			final Long now = System.nanoTime();
+			for (final Machine m : machines) {
+				final ScheduleRenderer mr = new ScheduleRenderer(m, clock);
 				e.submit(mr);
 				try {
 					mr.get();
-				} catch (Exception ex) {
+				} catch (final Exception ex) {
 					ex.printStackTrace();
 				}
 			}
-			Double time = (System.nanoTime() - (double) now) / 1000 / 1000 / 1000;
+			final Double time = (System.nanoTime() - (double) now) / 1000 / 1000 / 1000;
 			totalTime += time;
 			System.out.println("Clock #" + clock + ": " + time);
 		}
@@ -112,7 +113,7 @@ public final class Main {
 			System.exit(0);
 			return;
 		} else if ("run".equals(args[0])) {
-			File dbFile = Configuration.getDatabaseFile();
+			final File dbFile = Configuration.getDatabaseFile();
 			if (dbFile.exists()) {
 				Database.use();
 			} else {
@@ -122,13 +123,13 @@ public final class Main {
 			}
 			Main.main.gui();
 		} else {
-			File machinesFile = Configuration.getMachinesFile();
+			final File machinesFile = Configuration.getMachinesFile();
 			if (!machinesFile.exists()) {
 				System.out.print("Machines file " + machinesFile.getAbsolutePath()
 				    + " cannot be found! ");
 				Main.printUsageAndExit();
 			}
-			File dataFile = Configuration.getEventsFile();
+			final File dataFile = Configuration.getEventsFile();
 			if (!dataFile.exists()) {
 				System.out.print("Machines file " + dataFile.getAbsolutePath()
 				    + " cannot be found! ");
@@ -160,8 +161,8 @@ public final class Main {
 		 * up.
 		 */
 		System.out.println("Please wait while some data are being cached...");
-		Event evt = Event.getFirst();
-		for (Machine m : Machine.getAllGroupless()) {
+		final Event evt = Event.getFirst();
+		for (final Machine m : Machine.getAllGroupless()) {
 			ScheduleRenderingController.render(m, evt.getVirtualClock());
 		}
 		System.out.println("Done...");
@@ -193,7 +194,7 @@ public final class Main {
 		while (!i.isDone()) {
 			try {
 				Thread.sleep(5000);
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException e) {
 				// do nothing
 			}
 			System.out.println(" " + i.getProgress() + " % completed...");

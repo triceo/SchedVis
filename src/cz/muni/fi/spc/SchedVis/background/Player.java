@@ -42,7 +42,7 @@ public final class Player implements Runnable {
 				synchronized (Player.p) {
 					Player.p.wait();
 				}
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				Logger.getLogger(Player.class).warn(
 				    "Player wait interrupted, caught " + e);
 			}
@@ -52,14 +52,14 @@ public final class Player implements Runnable {
 				javax.swing.SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						TimelineSliderModel m = TimelineSliderModel.getInstance();
+						final TimelineSliderModel m = TimelineSliderModel.getInstance();
 						m.setValue(Event.getNext(m.getValue()).getVirtualClock());
 					}
 				});
 				// .. and wait
 				try {
 					Thread.sleep(Configuration.getPlayDelay());
-				} catch (Exception e) {
+				} catch (final Exception e) {
 					Logger.getLogger(Player.class).warn(
 					    "Player delay interrupted, caught " + e);
 				}

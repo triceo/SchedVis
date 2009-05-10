@@ -60,7 +60,7 @@ public final class MachineGroup extends BaseEntity implements
 			MachineGroup.byId.put(id, Database.getEntityManager().find(
 			    MachineGroup.class, id));
 		}
-		MachineGroup m = MachineGroup.byId.get(id);
+		final MachineGroup m = MachineGroup.byId.get(id);
 		if (!MachineGroup.byName.containsKey(m.getName())) {
 			MachineGroup.byName.put(m.getName(), m);
 		}
@@ -103,13 +103,13 @@ public final class MachineGroup extends BaseEntity implements
 			final Criteria crit = BaseEntity.getCriteria(MachineGroup.class);
 			crit.add(Restrictions.eq("name", name));
 			crit.setMaxResults(1);
-			MachineGroup mg = MachineGroup.getWithName(name);
+			final MachineGroup mg = MachineGroup.getWithName(name);
 			if (mg == null) {
 				return null;
 			}
 			MachineGroup.byName.put(name, mg);
 		}
-		MachineGroup m = MachineGroup.byName.get(name);
+		final MachineGroup m = MachineGroup.byName.get(name);
 		if ((m != null) && !MachineGroup.byId.containsKey(m.getId())) {
 			MachineGroup.byId.put(m.getId(), m);
 		}
