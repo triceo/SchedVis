@@ -222,11 +222,11 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	}
 
 	/**
-	 * Takes machine schedule data and renders them.
+	 * Takes machine schedule data and renders them. Please note that this method
+	 * produces unclear job boundaries, probably because of rounding.
 	 * 
 	 * @param g
 	 *          The graphics in question.
-	 * @todo Produces unclear job boundaries, probably because of rounding.
 	 */
 	private void drawJobs(final Graphics2D g) {
 		Double time = Double.valueOf(System.nanoTime());
