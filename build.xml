@@ -47,7 +47,7 @@
 	  </jar>
 	</target>
 	<target name="makedoc" description="Generate source code documentation.">
-		<javadoc source="${java.target.version}" classpathref="classpath.build" sourcepath="${dir.src}" destdir="${dir.doc}/api" use="true" windowtitle="SchedVis API">
+		<javadoc source="${java.target.version}" Use="yes" Package="yes" linksource="yes" classpathref="classpath.build" sourcepath="${dir.src}" destdir="${dir.doc}/api" use="true" encoding="UTF-8" docencoding="UTF-8" charset="UTF-8" windowtitle="SchedVis API Documentation">
 		    <tag name="todo" scope="all" description="To do:"/>
 	  </javadoc>
 	</target>
