@@ -427,8 +427,18 @@ public final class Importer extends SwingWorker<Void, Void> {
 		} catch (final Exception ex) {
 			jobCPUs = new String[] {};
 		}
-		final String machineId = this.allJobs.get(jobId).getSourceMachine()
-		    .getName();
+		String machineId = "";
+		try {
+			machineId = this.allJobs.get(jobId).getSourceMachine().getName();
+		} catch (NullPointerException ex) {
+			Logger
+			    .getLogger(Importer.class)
+			    .warn(
+			        "Job #"
+			            + jobId
+			            + " executed/completed before its arrival. Probably a bug in the data set.");
+			return "";
+		}
 		if (e.getName().equals("job-execution-start")) {
 			// execution starting
 			if (!this.CPUstatus.containsKey(machineId)) {
@@ -479,4 +489,5 @@ public final class Importer extends SwingWorker<Void, Void> {
 		}
 		return sb.toString();
 	}
+
 }
