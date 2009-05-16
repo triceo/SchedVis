@@ -95,6 +95,17 @@ public final class Importer extends SwingWorker<Void, Void> {
 		this.dataLineCount = this.countLines(dataFile);
 	}
 
+	private String convertCPUs(final String[] cpus) {
+		final StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < cpus.length; i++) {
+			sb.append(cpus[i]);
+			if (i < (cpus.length - 1)) {
+				sb.append(",");
+			}
+		}
+		return sb.toString();
+	}
+
 	/**
 	 * Calculate the number of lines in a given file.
 	 * 
@@ -239,8 +250,8 @@ public final class Importer extends SwingWorker<Void, Void> {
 				final Event evt = new Event();
 				evt.setType(EventType.get(eventTypes.get(event.getName())));
 				evt.setClock(event.getClock());
+				evt.setBringsSchedule(event instanceof EventHasData);
 				Integer jobHint = Event.JOB_HINT_NONE;
-				String usedCPUs = null;
 				if (event instanceof EventIsJobRelated) {
 					evt.setJob(((EventIsJobRelated) event).getJob());
 					if (event.getName().equals("job-arrival")) {
@@ -248,7 +259,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 						startedJobs.add(evt.getJob().intValue());
 						jobHint = Event.JOB_HINT_ARRIVAL;
 					} else if (event.getName().equals("job-execution-start")) {
-						usedCPUs = this.processUsedCPUs((ScheduleEventIO) event);
+						this.processUsedCPUs((ScheduleEventIO) event);
 						/*
 						 * if in the same clock the newly arrived job is executed, increase
 						 * the virtual clock. this way, we extend the schedule to show this
@@ -267,7 +278,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 					    || event.getName().equals("machine-restart-move-bad")) {
 						jobHint = Event.JOB_HINT_MOVE_NOK;
 					} else if (event.getName().equals("job-completion")) {
-						usedCPUs = this.processUsedCPUs((ScheduleEventIO) event);
+						this.processUsedCPUs((ScheduleEventIO) event);
 					}
 				}
 				evt.setVirtualClock(virtualClock);
@@ -279,7 +290,6 @@ public final class Importer extends SwingWorker<Void, Void> {
 						    ((ScheduleEventMove) event).getTargetMachine(), true));
 					}
 				}
-				evt.setBringsSchedule(event instanceof EventHasData);
 				Database.persist(evt);
 				if (event instanceof EventHasData) {
 					for (final ScheduleMachineData machine : ((EventHasData) event)
@@ -321,7 +331,12 @@ public final class Importer extends SwingWorker<Void, Void> {
 						evt3.setSourceMachine(Machine.getWithName(machine.getMachineId(),
 						    true));
 						evt3.setVirtualClock(evt.getVirtualClock());
-						evt3.setAssignedCPUs(usedCPUs);
+						try {
+							evt3.setAssignedCPUs(this.convertCPUs(this.CPUstatus.get(evt3
+							    .getSourceMachine().getName())));
+						} catch (NullPointerException ex) {
+							evt3.setAssignedCPUs("");
+						}
 						evt3.setBringsSchedule(false);
 						evt3.setParent(evt);
 						Database.persist(evt3);
@@ -419,7 +434,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 	 * @return Comma-delimited list of CPUs being used on a given machine after
 	 *         this event.
 	 */
-	private String processUsedCPUs(final ScheduleEventIO e) {
+	private void processUsedCPUs(final ScheduleEventIO e) {
 		final int jobId = e.getJob();
 		String[] jobCPUs;
 		try {
@@ -437,7 +452,6 @@ public final class Importer extends SwingWorker<Void, Void> {
 			        "Job #"
 			            + jobId
 			            + " executed/completed before its arrival. Probably a bug in the data set.");
-			return "";
 		}
 		if (e.getName().equals("job-execution-start")) {
 			// execution starting
@@ -477,17 +491,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 			}
 			this.CPUstatus.remove(machineId);
 			this.CPUstatus.put(machineId, old.toArray(new String[] {}));
-			this.allJobs.remove(jobId);
 		}
-		final StringBuilder sb = new StringBuilder();
-		final String[] CPUs = this.CPUstatus.get(machineId);
-		for (int i = 0; i < CPUs.length; i++) {
-			sb.append(CPUs[i]);
-			if (i < (CPUs.length - 1)) {
-				sb.append(",");
-			}
-		}
-		return sb.toString();
 	}
 
 }
