@@ -64,7 +64,7 @@ public final class DescriptionPane extends JEditorPane {
 			if (i == (strings.length - 1)) {
 				sb.append(".");
 			} else {
-				sb.append(", ");
+				sb.append(",<br/>");
 			}
 		}
 		return "<div style='color: #" + color + "'>" + sb.toString() + "</div>";
