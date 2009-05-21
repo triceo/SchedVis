@@ -253,8 +253,8 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 					final int jobStartX = this.getStartingPosition(evt);
 					if (jobStartX < 0) {
 						// might be ok, but might also be bad. so inform.
-						ScheduleRenderer.logger.info("Machine " + this.m.getName() + " at "
-						    + this.virtualClock + " is drawing " + jobStartX
+						ScheduleRenderer.logger.debug("Machine " + this.m.getName()
+						    + " at " + this.virtualClock + " is drawing " + jobStartX
 						    + " before its boundary.");
 					}
 					final int jobLength = this.getJobLength(evt);
