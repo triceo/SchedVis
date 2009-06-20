@@ -56,28 +56,28 @@ public final class ScheduleRenderingController {
 	 * 
 	 * @param m
 	 *          Machine in question.
-	 * @param clock
-	 *          The time in which to render the schedule.
+	 * @param eventId
+	 *          The event in which to render the schedule.
 	 * @return The rendered schedule.
 	 */
-	public static Image getRendered(final Machine m, final Integer clock) {
-		if (ScheduleRenderingController.renderers.containsKey(clock)
-		    && ScheduleRenderingController.renderers.get(clock).containsKey(m)) {
+	public static Image getRendered(final Machine m, final Integer eventId) {
+		if (ScheduleRenderingController.renderers.containsKey(eventId)
+		    && ScheduleRenderingController.renderers.get(eventId).containsKey(m)) {
 			// we have the renderer cached
 			try {
-				final Image img = ScheduleRenderingController.renderers.get(clock).get(
-				    m).get();
-				ScheduleRenderingController.renderers.get(clock).remove(m);
+				final Image img = ScheduleRenderingController.renderers.get(eventId)
+				    .get(m).get();
+				ScheduleRenderingController.renderers.get(eventId).remove(m);
 				return img;
 			} catch (final Exception e) {
 				Logger.getLogger(ScheduleRenderingController.class).error(
-				    "Machine " + m.getName() + " at " + clock + " caught " + e);
+				    "Machine " + m.getName() + " at " + eventId + " caught " + e);
 				return null;
 			}
 		}
 		// get the renderer
-		ScheduleRenderingController.render(m, clock);
-		return ScheduleRenderingController.getRendered(m, clock);
+		ScheduleRenderingController.render(m, eventId);
+		return ScheduleRenderingController.getRendered(m, eventId);
 	}
 
 	/**
@@ -86,24 +86,24 @@ public final class ScheduleRenderingController {
 	 * 
 	 * @param m
 	 *          Machine in question.
-	 * @param clock
-	 *          The time in which to render the schedule.
+	 * @param eventId
+	 *          The event in which to render the schedule.
 	 */
-	public static void render(final Machine m, final Integer clock) {
-		if (ScheduleRenderingController.renderers.containsKey(clock)
-		    && ScheduleRenderingController.renderers.get(clock).containsKey(m)) {
+	public static void render(final Machine m, final Integer eventId) {
+		if (ScheduleRenderingController.renderers.containsKey(eventId)
+		    && ScheduleRenderingController.renderers.get(eventId).containsKey(m)) {
 			// don't render when we already have the result
 			return;
 		}
 		synchronized (ScheduleRenderingController.renderers) {
-			if (!ScheduleRenderingController.renderers.containsKey(clock)) {
-				ScheduleRenderingController.renderers.put(clock,
+			if (!ScheduleRenderingController.renderers.containsKey(eventId)) {
+				ScheduleRenderingController.renderers.put(eventId,
 				    new HashMap<Machine, ScheduleRenderer>());
 			}
-			final ScheduleRenderer mr = new ScheduleRenderer(m, clock);
-			ScheduleRenderingController.renderers.get(clock).put(m, mr);
+			final ScheduleRenderer mr = new ScheduleRenderer(m, eventId);
+			ScheduleRenderingController.renderers.get(eventId).put(m, mr);
 		}
 		ScheduleRenderingController.e.submit(ScheduleRenderingController.renderers
-		    .get(clock).get(m));
+		    .get(eventId).get(m));
 	}
 }

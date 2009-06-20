@@ -60,7 +60,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	/**
 	 * Holds the position on the timeline that is currently being rendered.
 	 */
-	private final int virtualClock;
+	private final int renderedEventId;
 	/**
 	 * How many pixels shall one CPU of a machine occupy on the y axis of the
 	 * schedule.
@@ -146,12 +146,12 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 * 
 	 * @param m
 	 *          Machine to render.
-	 * @param clock
+	 * @param eventId
 	 *          A point in time in which we want the schedule rendered.
 	 */
-	public ScheduleRenderer(final Machine m, final Integer clock) {
+	public ScheduleRenderer(final Machine m, final Integer eventId) {
 		this.m = m;
-		this.virtualClock = clock;
+		this.renderedEventId = eventId;
 	}
 
 	/**
@@ -167,29 +167,29 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		Double time = globalTime;
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
-		    + this.virtualClock + " finished getting clock. Took %.5f seconds.")
+		    + this.renderedEventId + " finished getting clock. Took %.5f seconds.")
 		    .sprintf(time));
 
 		time = Double.valueOf(System.nanoTime());
-		this.events = Machine.getLatestSchedule(this.m, this.virtualClock);
+		this.events = Machine.getLatestSchedule(this.m, this.renderedEventId);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
-		    + this.virtualClock + " finished getting schedule. Took %.5f seconds.")
-		    .sprintf(time));
+		    + this.renderedEventId
+		    + " finished getting schedule. Took %.5f seconds.").sprintf(time));
 
 		time = Double.valueOf(System.nanoTime());
-		final boolean isActive = Machine.isActive(this.m, this.virtualClock);
+		final boolean isActive = Machine.isActive(this.m, this.renderedEventId);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
-		    + this.virtualClock + " finished getting activity. Took %.5f seconds.")
-		    .sprintf(time));
+		    + this.renderedEventId
+		    + " finished getting activity. Took %.5f seconds.").sprintf(time));
 
 		time = Double.valueOf(System.nanoTime());
 		final BufferedImage img = this.getTemplate(isActive);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
-		    + this.virtualClock + " finished getting template. Took %.5f seconds.")
-		    .sprintf(time));
+		    + this.renderedEventId
+		    + " finished getting template. Took %.5f seconds.").sprintf(time));
 
 		time = Double.valueOf(System.nanoTime());
 		final Graphics2D g = (Graphics2D) img.getGraphics();
@@ -197,8 +197,8 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		g.setFont(ScheduleRenderer.font);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
-		    + this.virtualClock + " finished getting graphics. Took %.5f seconds.")
-		    .sprintf(time));
+		    + this.renderedEventId
+		    + " finished getting graphics. Took %.5f seconds.").sprintf(time));
 
 		time = Double.valueOf(System.nanoTime());
 		this.drawJobs(g);
@@ -212,12 +212,13 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		}
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
-		    + this.virtualClock + " finished rendering. Took %.5f seconds.")
+		    + this.renderedEventId + " finished rendering. Took %.5f seconds.")
 		    .sprintf(time));
 
 		time = (System.nanoTime() - globalTime) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
-		    + this.virtualClock + " finished. Took %.5f seconds.").sprintf(time));
+		ScheduleRenderer.logger
+		    .debug(new PrintfFormat(this.m.getName() + "@" + this.renderedEventId
+		        + " finished. Took %.5f seconds.").sprintf(time));
 		return img;
 	}
 
@@ -254,7 +255,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 					if (jobStartX < 0) {
 						// might be ok, but might also be bad. so inform.
 						ScheduleRenderer.logger.debug("Machine " + this.m.getName()
-						    + " at " + this.virtualClock + " is drawing " + jobStartX
+						    + " at " + this.renderedEventId + " is drawing " + jobStartX
 						    + " before its boundary.");
 					}
 					final int jobLength = this.getJobLength(evt);
@@ -280,7 +281,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 					if (rightBoundary > 0) {
 						// always bad. warn.
 						ScheduleRenderer.logger.warn("Machine " + this.m.getName() + " at "
-						    + this.virtualClock + " is drawing " + rightBoundary
+						    + this.renderedEventId + " is drawing " + rightBoundary
 						    + " over its boundary.");
 					}
 				}
@@ -318,7 +319,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		}
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
-		    + this.virtualClock + " finished drawing jobs. Took %.5f seconds.")
+		    + this.renderedEventId + " finished drawing jobs. Took %.5f seconds.")
 		    .sprintf(time));
 	}
 
@@ -369,12 +370,12 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	}
 
 	/**
-	 * Get the actual clock that is assigned to the virtual clock.
+	 * Get the actual clock that is assigned to the event id.
 	 * 
 	 * @return The clock.
 	 */
 	private Integer getClock() {
-		return Event.getLastWithVirtualClock(this.virtualClock);
+		return Event.getClockWithEventId(this.renderedEventId);
 	}
 
 	/**
@@ -480,8 +481,8 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		// finish
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
-		    + this.virtualClock + " finished getting template. Took %.5f seconds.")
-		    .sprintf(time));
+		    + this.renderedEventId
+		    + " finished getting template. Took %.5f seconds.").sprintf(time));
 		return img;
 	}
 

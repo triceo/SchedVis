@@ -121,16 +121,14 @@ public final class MainFrame extends JFrame {
 		if (m != null) {
 			this.detailPane.setLayout(new BoxLayout(this.detailPane,
 			    BoxLayout.PAGE_AXIS));
-			final Integer currentClock = TimelineSliderModel.getInstance().getValue();
-			final Integer previousClock = Event.getPrevious(currentClock, m)
-			    .getVirtualClock();
-			final Integer nextClock = Event.getNext(currentClock, m)
-			    .getVirtualClock();
-			for (final Integer clock : new TreeSet<Integer>(Arrays
-			    .asList(new Integer[] { previousClock, currentClock, nextClock }))) {
-				ScheduleRenderingController.render(m, clock);
+			final Integer currentEvent = TimelineSliderModel.getInstance().getValue();
+			final Integer previousEvent = Event.getPrevious(currentEvent, m).getId();
+			final Integer nextEvent = Event.getNext(currentEvent, m).getId();
+			for (final Integer event : new TreeSet<Integer>(Arrays
+			    .asList(new Integer[] { previousEvent, currentEvent, nextEvent }))) {
+				ScheduleRenderingController.render(m, event);
 				final MachinePanel pane = new MachinePanel();
-				pane.setImage(ScheduleRenderingController.getRendered(m, clock));
+				pane.setImage(ScheduleRenderingController.getRendered(m, event));
 				this.detailPane.add(pane);
 			}
 		} else {

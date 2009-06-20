@@ -25,11 +25,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Vector;
 
 import javax.swing.JEditorPane;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.EventType;
+import cz.muni.fi.spc.SchedVis.util.Database;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -94,7 +96,7 @@ public final class DescriptionPane extends JEditorPane {
 		this.updateFrame(1);
 	}
 
-	public void updateFrame(final Integer virtualClockId) {
+	public void updateFrame(final Integer eventId) {
 		String text = DescriptionPane.template;
 		// now process the events
 		final Set<String> arrivals = new TreeSet<String>();
@@ -105,53 +107,68 @@ public final class DescriptionPane extends JEditorPane {
 		final Set<String> failures = new TreeSet<String>();
 		final Set<String> movesGood = new TreeSet<String>();
 		final Set<String> movesBad = new TreeSet<String>();
-		final List<Event> evts = Collections.synchronizedList(Event
-		    .getEventsInTick(virtualClockId));
+		/*
+		 * originally, there were multiple events displayed in the frame. now, there
+		 * is only one - but I decided to keep the original code in case there are
+		 * more in the future.
+		 */
+		final List<Event> evts = Collections.synchronizedList(new Vector<Event>());
+		final Event event = Database.getEntityManager().find(Event.class, eventId);
+		if (event != null) {
+			evts.add(event);
+		}
 		for (final Event evt : evts) {
-			final Integer type = evt.getType().getId();
-			if (type.equals(EventType.EVENT_JOB_ARRIVAL)) {
-				// job arrived
-				arrivals.add("#" + evt.getJob());
-			} else if (type.equals(EventType.EVENT_JOB_COMPLETION)) {
-				// job completed
-				completions.add("#" + evt.getJob());
-			} else if (type.equals(EventType.EVENT_JOB_CANCEL)) {
-				// job cancelled
-				cancellations.add("#" + evt.getJob());
-			} else if (type.equals(EventType.EVENT_JOB_EXECUTION_START)) {
-				// job started executing
-				executions.add("#" + evt.getJob());
-			} else if (type.equals(EventType.EVENT_MACHINE_RESTART)
-			    || type.equals(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD)
-			    || type.equals(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD)) {
-				// machine restart
-				restarts.add(evt.getSourceMachine().getName());
-			} else if (type.equals(EventType.EVENT_MACHINE_FAILURE)
-			    || type.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD)
-			    || type.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD)) {
-				// machine failure
-				failures.add(evt.getSourceMachine().getName());
+			Integer type;
+			try {
+				type = evt.getType().getId();
+			} catch (final NullPointerException e) {
+				type = null;
 			}
-			if (type.equals(EventType.EVENT_JOB_MOVE_GOOD)
-			    || type.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD)
-			    || type.equals(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD)) {
-				// good move
-				movesGood.add("#" + evt.getJob() + " ("
-				    + evt.getSourceMachine().getName() + " > "
-				    + evt.getTargetMachine().getName() + ")");
-			} else if (type.equals(EventType.EVENT_JOB_MOVE_BAD)
-			    || type.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD)
-			    || type.equals(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD)) {
-				// bad move
-				movesBad.add("#" + evt.getJob() + " ("
-				    + evt.getSourceMachine().getName() + " > "
-				    + evt.getTargetMachine().getName() + ")");
+			if (type != null) {
+				if (type.equals(EventType.EVENT_JOB_ARRIVAL)) {
+					// job arrived
+					arrivals.add("#" + evt.getJob());
+				} else if (type.equals(EventType.EVENT_JOB_COMPLETION)) {
+					// job completed
+					completions.add("#" + evt.getJob());
+				} else if (type.equals(EventType.EVENT_JOB_CANCEL)) {
+					// job cancelled
+					cancellations.add("#" + evt.getJob());
+				} else if (type.equals(EventType.EVENT_JOB_EXECUTION_START)) {
+					// job started executing
+					executions.add("#" + evt.getJob());
+				} else if (type.equals(EventType.EVENT_MACHINE_RESTART)
+				    || type.equals(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD)
+				    || type.equals(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD)) {
+					// machine restart
+					restarts.add(evt.getSourceMachine().getName());
+				} else if (type.equals(EventType.EVENT_MACHINE_FAILURE)
+				    || type.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD)
+				    || type.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD)) {
+					// machine failure
+					failures.add(evt.getSourceMachine().getName());
+				}
+				if (type.equals(EventType.EVENT_JOB_MOVE_GOOD)
+				    || type.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD)
+				    || type.equals(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD)) {
+					// good move
+					movesGood.add("#" + evt.getJob() + " ("
+					    + evt.getSourceMachine().getName() + " > "
+					    + evt.getTargetMachine().getName() + ")");
+				} else if (type.equals(EventType.EVENT_JOB_MOVE_BAD)
+				    || type.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD)
+				    || type.equals(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD)) {
+					// bad move
+					movesBad.add("#" + evt.getJob() + " ("
+					    + evt.getSourceMachine().getName() + " > "
+					    + evt.getTargetMachine().getName() + ")");
+				}
 			}
 		}
 		// fill some basic information
-		text = text.replaceAll("\\Q${CLOCK}\\E", Event.getLastWithVirtualClock(
-		    virtualClockId).toString());
-		text = text.replaceAll("\\Q${VIRTUALCLOCK}\\E", virtualClockId.toString());
+		text = text.replaceAll("\\Q${CLOCK}\\E", Event.getClockWithEventId(eventId)
+		    .toString());
+		text = text.replaceAll("\\Q${EVENTID}\\E", eventId.toString());
 		text = text.replaceAll("\\Q${RESTARTS}\\E", DescriptionPane.setToString(
 		    restarts, "000000"));
 		text = text.replaceAll("\\Q${FAILURES}\\E", DescriptionPane.setToString(

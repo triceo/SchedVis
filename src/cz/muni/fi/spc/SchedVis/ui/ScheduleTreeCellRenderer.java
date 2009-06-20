@@ -57,9 +57,9 @@ public final class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 			target.add(new JLabel("Ungrouped Machines"));
 		} else {
 			try {
-				target.add(new JLabel("Group '" + item.getName()));
+				target.add(new JLabel("Group '" + item.getName() + "'"));
 			} catch (final NullPointerException ex) {
-				target.add(new JLabel("Group '" + item.getName()));
+				target.add(new JLabel(ex.getMessage()));
 			}
 		}
 		return target;
@@ -70,15 +70,15 @@ public final class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 	 * controller.
 	 * 
 	 * @param item
-	 *          Machine in question. Current clock will be retrieved from the
+	 *          Machine in question. Current event will be retrieved from the
 	 *          model(s).
 	 * @return The panel.
 	 */
 	private JPanel getMachine(final Machine item) {
-		final Integer clock = TimelineSliderModel.getInstance().getValue();
+		final Integer eventId = TimelineSliderModel.getInstance().getValue();
 		try {
 			final MachinePanel pane = new MachinePanel();
-			pane.setImage(ScheduleRenderingController.getRendered(item, clock));
+			pane.setImage(ScheduleRenderingController.getRendered(item, eventId));
 			return pane;
 		} catch (final Exception e) {
 			final JPanel p = new JPanel();

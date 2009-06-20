@@ -66,18 +66,18 @@ public final class Main {
 		new ScheduleRenderer(machines.toArray(new Machine[] {})[0], 1);
 		Double totalTime = 0.0;
 		final ExecutorService e = Executors.newFixedThreadPool(1);
-		final int clockCount = Event.getAllTicks().size() / 500;
+		final int tickCount = Event.getAllTicks().size() / 500;
 		final Integer tickSpace = Math.max(1, Event.getAllTicks().size()
-		    / clockCount);
-		final int[] clocks = new int[clockCount];
-		clocks[0] = 1;
-		for (int i = 1; i < clockCount; i++) {
-			clocks[i] = tickSpace * i;
+		    / tickCount);
+		final int[] ticks = new int[tickCount];
+		ticks[0] = 1;
+		for (int i = 1; i < tickCount; i++) {
+			ticks[i] = tickSpace * i;
 		}
-		for (final Integer clock : clocks) {
+		for (final Integer tick : ticks) {
 			final Long now = System.nanoTime();
 			for (final Machine m : machines) {
-				final ScheduleRenderer mr = new ScheduleRenderer(m, clock);
+				final ScheduleRenderer mr = new ScheduleRenderer(m, tick);
 				e.submit(mr);
 				try {
 					mr.get();
@@ -87,12 +87,12 @@ public final class Main {
 			}
 			final Double time = (System.nanoTime() - (double) now) / 1000 / 1000 / 1000;
 			totalTime += time;
-			System.out.println("Clock #" + clock + ": " + time);
+			System.out.println("Event #" + tick + ": " + time);
 		}
 		System.out.println("");
-		System.out.println("Per clock: " + (totalTime / clockCount));
+		System.out.println("Per event: " + (totalTime / tickCount));
 		System.out.println("Per machine: "
-		    + (totalTime / clockCount / machines.size()));
+		    + (totalTime / tickCount / machines.size()));
 		return;
 	}
 
@@ -182,7 +182,7 @@ public final class Main {
 		System.out.println("Please wait while some data are being cached...");
 		final Event evt = Event.getFirst();
 		for (final Machine m : Machine.getAllGroupless()) {
-			ScheduleRenderingController.render(m, evt.getVirtualClock());
+			ScheduleRenderingController.render(m, evt.getId());
 		}
 		System.out.println("Done...");
 		Executors.newFixedThreadPool(1).submit(Player.getInstance());

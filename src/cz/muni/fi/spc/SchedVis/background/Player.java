@@ -65,7 +65,7 @@ public final class Player implements Runnable {
 					@Override
 					public void run() {
 						final TimelineSliderModel m = TimelineSliderModel.getInstance();
-						m.setValue(Event.getNext(m.getValue()).getVirtualClock());
+						m.setValue(Event.getNext(m.getValue()).getId());
 					}
 				});
 				// .. and wait

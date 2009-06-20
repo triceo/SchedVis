@@ -112,17 +112,15 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 		} else if (src.equals(this.btnNext) || src.equals(this.btnPrev)) {
 			if (src.equals(this.btnPrev)) {
 				try {
-					this.tlsm.setValue(Event.getPrevious(this.tlsm.getValue())
-					    .getVirtualClock());
+					this.tlsm.setValue(Event.getPrevious(this.tlsm.getValue()).getId());
 				} catch (final Exception ex) {
-					this.tlsm.setValue(Event.getFirst().getVirtualClock());
+					this.tlsm.setValue(Event.getFirst().getId());
 				}
 			} else {
 				try {
-					this.tlsm.setValue(Event.getNext(this.tlsm.getValue())
-					    .getVirtualClock());
+					this.tlsm.setValue(Event.getNext(this.tlsm.getValue()).getId());
 				} catch (final Exception ex) {
-					this.tlsm.setValue(Event.getLast().getVirtualClock());
+					this.tlsm.setValue(Event.getLast().getId());
 				}
 			}
 		}
@@ -138,8 +136,8 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 				return;
 			}
 			final Integer value = this.tlsm.getValue();
-			if (!Event.existsTick(value)) {
-				this.tlsm.setValue(Event.getPrevious(value).getVirtualClock());
+			if (!Event.exists(value)) {
+				this.tlsm.setValue(Event.getPrevious(value).getId());
 			}
 			if (value.equals(this.tlsm.getMinimum())) {
 				this.btnPrev.setEnabled(false);

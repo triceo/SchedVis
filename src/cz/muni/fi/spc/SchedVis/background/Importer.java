@@ -231,20 +231,8 @@ public final class Importer extends SwingWorker<Void, Void> {
 			final Integer totalEvents = events.size();
 			Integer lineId = 0;
 			Integer eventId = 0;
-			Integer previousClock = -1;
-			Integer virtualClock = 0;
-			final Set<Integer> startedJobs = new TreeSet<Integer>();
 			Database.getEntityManager().getTransaction().begin();
 			for (final ScheduleEvent event : events) {
-				if (!previousClock.equals(Integer.valueOf(event.getClock()))) {
-					/*
-					 * here goes a brand new clock. reset any counters, increase virtual
-					 * value
-					 */
-					virtualClock++;
-					previousClock = event.getClock();
-					startedJobs.clear();
-				}
 				lineId++;
 				eventId++;
 				final Event evt = new Event();
@@ -256,19 +244,9 @@ public final class Importer extends SwingWorker<Void, Void> {
 					evt.setJob(((EventIsJobRelated) event).getJob());
 					if (event.getName().equals("job-arrival")) {
 						// if in this clock a new job arrives, remember it
-						startedJobs.add(evt.getJob().intValue());
 						jobHint = Event.JOB_HINT_ARRIVAL;
 					} else if (event.getName().equals("job-execution-start")) {
 						this.processUsedCPUs((ScheduleEventIO) event);
-						/*
-						 * if in the same clock the newly arrived job is executed, increase
-						 * the virtual clock. this way, we extend the schedule to show this
-						 * rather important change.
-						 */
-						if (startedJobs.contains(evt.getJob().intValue())) {
-							virtualClock++;
-							startedJobs.remove(evt.getJob().intValue());
-						}
 					} else if (event.getName().equals("good-move")
 					    || event.getName().equals("machine-failure-move-good")
 					    || event.getName().equals("machine-restart-move-good")) {
@@ -281,7 +259,6 @@ public final class Importer extends SwingWorker<Void, Void> {
 						this.processUsedCPUs((ScheduleEventIO) event);
 					}
 				}
-				evt.setVirtualClock(virtualClock);
 				if (event instanceof EventIsMachineRelated) {
 					evt.setSourceMachine(Machine.getWithName(
 					    ((EventIsMachineRelated) event).getMachine(), true));
@@ -302,7 +279,6 @@ public final class Importer extends SwingWorker<Void, Void> {
 							final Event evt2 = new Event();
 							evt2.setBringsSchedule(true);
 							evt2.setClock(event.getClock());
-							evt2.setVirtualClock(evt.getVirtualClock());
 							evt2.setSourceMachine(Machine.getWithName(machine.getMachineId(),
 							    true));
 							evt2.setNeededCPUs(job.getNeededCPUs());
@@ -330,11 +306,10 @@ public final class Importer extends SwingWorker<Void, Void> {
 						evt3.setClock(event.getClock());
 						evt3.setSourceMachine(Machine.getWithName(machine.getMachineId(),
 						    true));
-						evt3.setVirtualClock(evt.getVirtualClock());
 						try {
 							evt3.setAssignedCPUs(this.convertCPUs(this.CPUstatus.get(evt3
 							    .getSourceMachine().getName())));
-						} catch (NullPointerException ex) {
+						} catch (final NullPointerException ex) {
 							evt3.setAssignedCPUs("");
 						}
 						evt3.setBringsSchedule(false);
@@ -445,7 +420,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 		String machineId = "";
 		try {
 			machineId = this.allJobs.get(jobId).getSourceMachine().getName();
-		} catch (NullPointerException ex) {
+		} catch (final NullPointerException ex) {
 			Logger
 			    .getLogger(Importer.class)
 			    .warn(
