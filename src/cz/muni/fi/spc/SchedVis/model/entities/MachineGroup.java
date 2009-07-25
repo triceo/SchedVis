@@ -29,6 +29,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 import org.hibernate.Criteria;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -42,6 +44,7 @@ import cz.muni.fi.spc.SchedVis.util.Database;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public final class MachineGroup extends BaseEntity implements
     Comparable<MachineGroup> {
 

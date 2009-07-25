@@ -35,8 +35,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import org.hibernate.Criteria;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
@@ -49,6 +52,7 @@ import cz.muni.fi.spc.SchedVis.util.Database;
  * 
  */
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public final class Machine extends BaseEntity implements Comparable<Machine> {
 
 	/**
@@ -60,8 +64,6 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 
 	private static final Map<Integer, Machine> byId = new HashMap<Integer, Machine>();
 	private static final Map<String, Machine> byName = new HashMap<String, Machine>();
-
-	private static PreparedStatement s;
 
 	/**
 	 * Retrieve machine with a given ID.
@@ -114,11 +116,11 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		return new TreeSet<Machine>(crit.list());
 	}
 
-	public static List<Event> getLatestSchedule(final Machine which,
+	public static List<Job> getLatestSchedule(final Machine which,
 	    final Integer eventId) {
 		try {
 			if (Machine.s == null) {
-				final String query = "SELECT id, assignedCPUs, deadline, job, jobHint, expectedStart, expectedEnd, bringsSchedule FROM Event WHERE sourceMachine_id = ? AND parent_fk = (SELECT max(parent_fk) FROM Event WHERE sourceMachine_id = ? AND parent_fk <= ? AND bringsSchedule = 0)";
+				final String query = "SELECT id, assignedCPUs, deadline, job, jobHint, expectedStart, expectedEnd, bringsSchedule FROM Job WHERE machine_id = ? AND parent = (SELECT max(parent) FROM Job WHERE machine_id = ? AND parent <= ?)";
 				Machine.s = BaseEntity.getConnection(Database.getEntityManager())
 				    .prepareStatement(query);
 			}
@@ -126,29 +128,29 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 			Machine.s.setInt(2, which.getId().intValue());
 			Machine.s.setInt(3, eventId);
 			final ResultSet rs = Machine.s.executeQuery();
-			final List<Event> evts = new Vector<Event>();
+			final List<Job> schedules = new Vector<Job>();
 			while (rs.next()) {
-				final Event evt = new Event();
-				evt.setId(rs.getInt(1));
-				evt.setAssignedCPUs(rs.getString(2));
-				evt.setDeadline(rs.getInt(3));
-				evt.setJob(rs.getInt(4));
-				evt.setJobHint(rs.getInt(5));
-				evt.setExpectedStart(rs.getInt(6));
-				evt.setExpectedEnd(rs.getInt(7));
+				final Job schedule = new Job();
+				schedule.setId(rs.getInt(1));
+				schedule.setAssignedCPUs(rs.getString(2));
+				schedule.setDeadline(rs.getInt(3));
+				schedule.setJob(rs.getInt(4));
+				schedule.setJobHint(rs.getInt(5));
+				schedule.setExpectedStart(rs.getInt(6));
+				schedule.setExpectedEnd(rs.getInt(7));
 				if (rs.getInt(8) == 1) {
-					evt.setBringsSchedule(true);
+					schedule.setBringsSchedule(true);
 				} else {
-					evt.setBringsSchedule(false);
+					schedule.setBringsSchedule(false);
 				}
-				evts.add(evt);
+				schedules.add(schedule);
 			}
 			rs.close();
 			Machine.s.clearParameters();
-			return evts;
+			return schedules;
 		} catch (final SQLException e) {
 			e.printStackTrace();
-			return new Vector<Event>();
+			return new Vector<Job>();
 		}
 	}
 
@@ -206,17 +208,18 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 				    EventType.get(EventType.EVENT_MACHINE_FAILURE),
 				    EventType.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
 				    EventType.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
-				    EventType.get(EventType.EVENT_MACHINE_RESTART),
-				    EventType.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD),
-				    EventType.get(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD) };
+				    EventType.get(EventType.EVENT_MACHINE_RESTART) };
 			}
 		}
 		final Criteria crit = BaseEntity.getCriteria(Event.class);
 		crit.add(Restrictions.in("type", Machine.machineEvents));
 		crit.add(Restrictions.lt("id", eventId));
-		crit.addOrder(Order.desc("id"));
-		crit.setMaxResults(1);
-		final Event e = (Event) crit.uniqueResult();
+		crit.setProjection(Projections.max("id"));
+		final Integer evtId = (Integer) crit.uniqueResult();
+		if (evtId == null) {
+			return true;
+		}
+		final Event e = Database.getEntityManager().find(Event.class, evtId);
 		if (e == null) {
 			return true;
 		}
@@ -236,9 +239,12 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	private String name;
 	private String platform;
 	private Integer ram;
+
 	private Integer speed;
 
 	private MachineGroup group;
+
+	private static PreparedStatement s;
 
 	@Override
 	public int compareTo(final Machine o) {

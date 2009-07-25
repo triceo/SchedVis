@@ -40,6 +40,7 @@ import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.EventType;
+import cz.muni.fi.spc.SchedVis.model.entities.Job;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 import cz.muni.fi.spc.SchedVis.parsers.ParseException;
@@ -76,7 +77,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 	private Integer totalLines = 0;
 	private boolean result = false;
 
-	private final Map<Integer, Event> allJobs = new HashMap<Integer, Event>();
+	private final Map<Integer, Job> allJobs = new HashMap<Integer, Job>();
 
 	private final Map<String, String[]> CPUstatus = new HashMap<String, String[]>();
 
@@ -198,10 +199,6 @@ public final class Importer extends SwingWorker<Void, Void> {
 		eventTypes.put("machine-failure-move-bad",
 		    EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD);
 		eventTypes.put("machine-restart", EventType.EVENT_MACHINE_RESTART);
-		eventTypes.put("machine-restart-move-good",
-		    EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD);
-		eventTypes.put("machine-restart-move-bad",
-		    EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD);
 		eventTypes.put("job-completion", EventType.EVENT_JOB_COMPLETION);
 		final Iterator<Map.Entry<String, Integer>> eventTypeIterator = eventTypes
 		    .entrySet().iterator();
@@ -238,7 +235,6 @@ public final class Importer extends SwingWorker<Void, Void> {
 				final Event evt = new Event();
 				evt.setType(EventType.get(eventTypes.get(event.getName())));
 				evt.setClock(event.getClock());
-				evt.setBringsSchedule(event instanceof EventHasData);
 				Integer jobHint = Event.JOB_HINT_NONE;
 				if (event instanceof EventIsJobRelated) {
 					evt.setJob(((EventIsJobRelated) event).getJob());
@@ -248,12 +244,10 @@ public final class Importer extends SwingWorker<Void, Void> {
 					} else if (event.getName().equals("job-execution-start")) {
 						this.processUsedCPUs((ScheduleEventIO) event);
 					} else if (event.getName().equals("good-move")
-					    || event.getName().equals("machine-failure-move-good")
-					    || event.getName().equals("machine-restart-move-good")) {
+					    || event.getName().equals("machine-failure-move-good")) {
 						jobHint = Event.JOB_HINT_MOVE_OK;
 					} else if (event.getName().equals("bad-move")
-					    || event.getName().equals("machine-failure-move-bad")
-					    || event.getName().equals("machine-restart-move-bad")) {
+					    || event.getName().equals("machine-failure-move-bad")) {
 						jobHint = Event.JOB_HINT_MOVE_NOK;
 					} else if (event.getName().equals("job-completion")) {
 						this.processUsedCPUs((ScheduleEventIO) event);
@@ -276,45 +270,45 @@ public final class Importer extends SwingWorker<Void, Void> {
 						 * And now post the real schedule.
 						 */
 						for (final ScheduleJobData job : machine.getJobs()) {
-							final Event evt2 = new Event();
-							evt2.setBringsSchedule(true);
-							evt2.setClock(event.getClock());
-							evt2.setSourceMachine(Machine.getWithName(machine.getMachineId(),
+							final Job schedule1 = new Job();
+							schedule1.setBringsSchedule(true);
+							schedule1.setMachine(Machine.getWithName(machine.getMachineId(),
 							    true));
-							evt2.setNeededCPUs(job.getNeededCPUs());
-							evt2.setAssignedCPUs(job.getAssignedCPUs());
-							evt2.setNeededPlatform(job.getArch());
-							evt2.setNeededRAM(job.getNeededMemory());
-							evt2.setNeededHDD(job.getNeededSpace());
-							evt2.setDeadline(job.getDeadline());
-							evt2.setExpectedStart(job.starts());
-							evt2.setExpectedEnd(job.ends());
-							evt2.setJob(job.getId());
-							evt2.setParent(evt);
+							schedule1.setNeededCPUs(job.getNeededCPUs());
+							schedule1.setAssignedCPUs(job.getAssignedCPUs());
+							schedule1.setNeededPlatform(job.getArch());
+							schedule1.setNeededRAM(job.getNeededMemory());
+							schedule1.setNeededHDD(job.getNeededSpace());
+							schedule1.setDeadline(job.getDeadline());
+							schedule1.setExpectedStart(job.starts());
+							schedule1.setExpectedEnd(job.ends());
+							schedule1.setJob(job.getId());
+							schedule1.setClock(evt.getClock());
+							schedule1.setParent(evt);
 							if (job.getId() == ((EventIsJobRelated) event).getJob()) {
-								evt2.setJobHint(jobHint);
+								schedule1.setJobHint(jobHint);
 							}
-							this.allJobs.put(job.getId(), evt2);
-							Database.persist(evt2);
+							this.allJobs.put(job.getId(), schedule1);
+							Database.persist(schedule1);
 						}
 						/*
 						 * Create a "dummy" event so that we know that the given machine
 						 * posted some schedule. This is used to tell when the schedule is
 						 * empty. (A "dummy" is found but the real schedule is not.)
 						 */
-						final Event evt3 = new Event();
-						evt3.setClock(event.getClock());
-						evt3.setSourceMachine(Machine.getWithName(machine.getMachineId(),
+						final Job schedule2 = new Job();
+						schedule2.setMachine(Machine.getWithName(machine.getMachineId(),
 						    true));
 						try {
-							evt3.setAssignedCPUs(this.convertCPUs(this.CPUstatus.get(evt3
-							    .getSourceMachine().getName())));
+							schedule2.setAssignedCPUs(this.convertCPUs(this.CPUstatus
+							    .get(schedule2.getMachine().getName())));
 						} catch (final NullPointerException ex) {
-							evt3.setAssignedCPUs("");
+							schedule2.setAssignedCPUs("");
 						}
-						evt3.setBringsSchedule(false);
-						evt3.setParent(evt);
-						Database.persist(evt3);
+						schedule2.setClock(evt.getClock());
+						schedule2.setBringsSchedule(false);
+						schedule2.setParent(evt);
+						Database.persist(schedule2);
 					}
 				}
 				// update progress
@@ -419,7 +413,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 		}
 		String machineId = "";
 		try {
-			machineId = this.allJobs.get(jobId).getSourceMachine().getName();
+			machineId = this.allJobs.get(jobId).getMachine().getName();
 		} catch (final NullPointerException ex) {
 			Logger
 			    .getLogger(Importer.class)

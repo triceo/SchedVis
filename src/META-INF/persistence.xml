@@ -6,6 +6,7 @@
     <class>cz.muni.fi.spc.SchedVis.model.entities.Machine</class>
     <class>cz.muni.fi.spc.SchedVis.model.entities.EventType</class>
     <class>cz.muni.fi.spc.SchedVis.model.entities.Event</class>
+    <class>cz.muni.fi.spc.SchedVis.model.entities.Job</class>
     <properties>
 	    <!--  DB connection -->
 	    <property name="hibernate.connection.driver_class" value="SQLite.JDBCDriver" />
@@ -13,9 +14,10 @@
 	    <!-- Some SQL-related stuff -->
 	    <property name="hibernate.show_sql" value="false" />
 	    <!-- Caching -->
-	    <property name="hibernate.cache.provider_class" value="org.hibernate.cache.HashtableCacheProvider" />
-	    <property name="hibernate.cache.use_query_cache" value="false" />
-      <property name="hibernate.cache.use_second_level_cache" value="false" />
+	    <property name="hibernate.cache.provider_class" value="org.hibernate.cache.EhCacheProvider" />
+	    <property name="hibernate.cache.use_query_cache" value="true" />
+      <property name="hibernate.cache.use_second_level_cache" value="true" />
+      <property name="hibernate.cache.use_structured_entries" value="true"/>
     </properties>
 	</persistence-unit>
 </persistence>

@@ -25,22 +25,26 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Paint;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
+import java.awt.image.IndexColorModel;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Vector;
+import java.util.Map.Entry;
 
 import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
+import cz.muni.fi.spc.SchedVis.model.entities.Job;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.util.Configuration;
 import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
@@ -73,7 +77,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 */
 	private static final Float NUM_PIXELS_PER_TICK = Configuration
 	    .getMaxImageWidth()
-	    / (float) Event.getMaxJobSpan();
+	    / (float) Job.getMaxSpan();
 	/**
 	 * How many pixels should be left in the left of the schedule for jobs that
 	 * were supposed to be executed before the current clock.
@@ -81,14 +85,14 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	private static final Integer OVERFLOW_WIDTH = Double
 	    .valueOf(
 	        Math
-	            .floor((Event.getMaxJobSpan() * ScheduleRenderer.NUM_PIXELS_PER_TICK) / 8))
+	            .floor((Job.getMaxSpan() * ScheduleRenderer.NUM_PIXELS_PER_TICK) / 8))
 	    .intValue();
 	/**
 	 * Total length of the x axis of the schedule. If you need to change it,
 	 * please change the input values, not the equation.
 	 */
 	private static final Integer LINE_WIDTH = Double.valueOf(
-	    Math.floor((Event.getMaxJobSpan() * ScheduleRenderer.NUM_PIXELS_PER_TICK)
+	    Math.floor((Job.getMaxSpan() * ScheduleRenderer.NUM_PIXELS_PER_TICK)
 	        + ScheduleRenderer.OVERFLOW_WIDTH)).intValue();
 	/**
 	 * Colors that are available for the jobs. This array can be extended at will
@@ -108,10 +112,10 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	private static final Font font = new Font("Monospaced", Font.PLAIN, 9);
 
 	/**
-	 * Holds events in a currently rendered schedule. Stored for performance
-	 * reasons.
+	 * Holds schedule events in a currently rendered schedule. Stored for
+	 * performance reasons.
 	 */
-	private List<Event> events;
+	private List<Job> events;
 
 	private static final Logger logger = Logger.getLogger(ScheduleRenderer.class);
 
@@ -141,6 +145,104 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 */
 	private int clock;
 
+	private static final HashMap<String, Map<Machine, List<Double>>> logTimes = new HashMap<String, Map<Machine, List<Double>>>();
+
+	/**
+	 * Index color model specifying 16 basic colors.
+	 */
+	private static IndexColorModel icm = new IndexColorModel(4, 16, new byte[] {
+	    (byte) 255, (byte) 255, (byte) 255, (byte) 255, (byte) 192, (byte) 128,
+	    (byte) 128, (byte) 128, (byte) 128, (byte) 0, (byte) 0, (byte) 0,
+	    (byte) 0, (byte) 0, (byte) 0, (byte) 0 }, new byte[] { (byte) 255,
+	    (byte) 255, (byte) 0, (byte) 0, (byte) 192, (byte) 128, (byte) 128,
+	    (byte) 0, (byte) 0, (byte) 255, (byte) 255, (byte) 128, (byte) 128,
+	    (byte) 0, (byte) 0, (byte) 0 }, new byte[] { (byte) 255, (byte) 0,
+	    (byte) 255, (byte) 0, (byte) 192, (byte) 128, (byte) 0, (byte) 128,
+	    (byte) 0, (byte) 255, (byte) 0, (byte) 128, (byte) 0, (byte) 255,
+	    (byte) 128, (byte) 0 });
+
+	public static void clearLogResults() {
+		ScheduleRenderer.logTimes.clear();
+	}
+
+	private static Double getAverage(final List<Double> values) {
+		Double total = 0.0;
+		for (final Double value : values) {
+			total += value;
+		}
+		return total / values.size();
+	}
+
+	private static Double getMedian(final Double[] sortedVals) {
+		final Integer numVals = sortedVals.length;
+		if (numVals % 2 == 1) {
+			return sortedVals[(numVals / 2) + 1];
+		}
+		final Double lowerBound = Math.floor(numVals / 2);
+		final Double upperBound = Math.ceil(numVals / 2);
+		return (sortedVals[lowerBound.intValue()] + sortedVals[upperBound
+		    .intValue()]) / 2;
+	}
+
+	private static void logTime(final String type, final Machine m,
+	    final Double time) {
+		if (!ScheduleRenderer.logTimes.containsKey(type)) {
+			ScheduleRenderer.logTimes.put(type, new HashMap<Machine, List<Double>>());
+		}
+		final Map<Machine, List<Double>> logMachine = ScheduleRenderer.logTimes
+		    .get(type);
+		if (!logMachine.containsKey(m)) {
+			logMachine.put(m, new Vector<Double>());
+		}
+		final List<Double> machineTimes = logMachine.get(m);
+		machineTimes.add(time);
+		ScheduleRenderer.logger.debug("Machine: " + m.getName() + ", type: " + type
+		    + ", time: " + new PrintfFormat("%.5f seconds.").sprintf(time));
+	}
+
+	public static void reportLogResults() {
+		// show globals
+		System.out
+		    .println(" task \\ time [ms] |    avg    |    min    |    mid    |    max    ");
+		System.out
+		    .println(" -----------------------------------------------------------------");
+		for (final Entry<String, Map<Machine, List<Double>>> entry : ScheduleRenderer.logTimes
+		    .entrySet()) {
+			List<Double> allValues = new Vector<Double>();
+			for (final Entry<Machine, List<Double>> perMachine : entry.getValue()
+			    .entrySet()) {
+				allValues.addAll(perMachine.getValue());
+			}
+			// sort the list
+			Double[] allValuesSorted = allValues.toArray(new Double[] {});
+			Arrays.sort(allValuesSorted);
+			allValues = Arrays.asList(allValuesSorted);
+			// remove upper and lower ${extremesPercent} % of values (the extremes)
+			final Integer extremesPercent = 1;
+			final Double extremeValueCount = (new Double(allValues.size()) / 100.0)
+			    * extremesPercent;
+			allValues = allValues.subList(extremeValueCount.intValue(), allValues
+			    .size());
+			allValues = allValues.subList(0, allValues.size()
+			    - extremeValueCount.intValue());
+			allValuesSorted = allValues.toArray(new Double[] {});
+			// tabulate results
+			System.out.println("  "
+			    + new PrintfFormat("%15s").sprintf(entry.getKey())
+			    + " | "
+			    + new PrintfFormat(" %.5f ").sprintf(ScheduleRenderer
+			        .getAverage(allValues) * 1000)
+			    + " | "
+			    + new PrintfFormat(" %.5f ").sprintf(allValuesSorted[0] * 1000)
+			    + " | "
+			    + new PrintfFormat(" %.5f ").sprintf(ScheduleRenderer
+			        .getMedian(allValuesSorted) * 1000)
+			    + " | "
+			    + new PrintfFormat(" %.5f ")
+			        .sprintf(allValuesSorted[allValuesSorted.length - 1] * 1000));
+		}
+	}
+
 	/**
 	 * Class constructor.
 	 * 
@@ -163,42 +265,24 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	@Override
 	public Image doInBackground() {
 		final Double globalTime = Double.valueOf(System.nanoTime());
-		this.clock = this.getClock();
 		Double time = globalTime;
+		this.clock = this.getClock();
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
-		    + this.renderedEventId + " finished getting clock. Took %.5f seconds.")
-		    .sprintf(time));
+		ScheduleRenderer.logTime("clock", this.m, time);
 
 		time = Double.valueOf(System.nanoTime());
 		this.events = Machine.getLatestSchedule(this.m, this.renderedEventId);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
-		    + this.renderedEventId
-		    + " finished getting schedule. Took %.5f seconds.").sprintf(time));
+		ScheduleRenderer.logTime("schedule", this.m, time);
 
 		time = Double.valueOf(System.nanoTime());
 		final boolean isActive = Machine.isActive(this.m, this.renderedEventId);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
-		    + this.renderedEventId
-		    + " finished getting activity. Took %.5f seconds.").sprintf(time));
+		ScheduleRenderer.logTime("activity", this.m, time);
 
-		time = Double.valueOf(System.nanoTime());
-		final BufferedImage img = this.getTemplate(isActive);
-		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
-		    + this.renderedEventId
-		    + " finished getting template. Took %.5f seconds.").sprintf(time));
-
-		time = Double.valueOf(System.nanoTime());
+		final Image img = this.getTemplate(isActive);
 		final Graphics2D g = (Graphics2D) img.getGraphics();
-		this.fineTuneGraphics(g);
 		g.setFont(ScheduleRenderer.font);
-		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
-		    + this.renderedEventId
-		    + " finished getting graphics. Took %.5f seconds.").sprintf(time));
 
 		time = Double.valueOf(System.nanoTime());
 		this.drawJobs(g);
@@ -211,14 +295,10 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 			g.drawString(this.m.getName() + "@" + this.clock + " (off-line)", 1, 9);
 		}
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
-		    + this.renderedEventId + " finished rendering. Took %.5f seconds.")
-		    .sprintf(time));
+		ScheduleRenderer.logTime("rendering", this.m, time);
 
 		time = (System.nanoTime() - globalTime) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logger
-		    .debug(new PrintfFormat(this.m.getName() + "@" + this.renderedEventId
-		        + " finished. Took %.5f seconds.").sprintf(time));
+		ScheduleRenderer.logTime("total", this.m, time);
 		return img;
 	}
 
@@ -230,14 +310,13 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 *          The graphics in question.
 	 */
 	private void drawJobs(final Graphics2D g) {
-		Double time = Double.valueOf(System.nanoTime());
-		for (final Event evt : this.events) {
-			if (evt.getBringsSchedule()) {
+		for (final Job schedule : this.events) {
+			if (schedule.getBringsSchedule()) {
 				// render jobs in a schedule, one by one
 				/*
 				 * isolate all the contiguous blocks of CPUs in the job and paint them.
 				 */
-				final Integer[] cpus = this.getAssignedCPUs(evt);
+				final Integer[] cpus = this.getAssignedCPUs(schedule);
 				for (int i = 0; i < cpus.length; i++) {
 					final int crntCPU = cpus[i];
 					try {
@@ -251,31 +330,32 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 					final int lastCPU = cpus[i];
 					final int numCPUs = lastCPU - crntCPU + 1;
 					// now draw
-					final int jobStartX = this.getStartingPosition(evt);
+					final int jobStartX = this.getStartingPosition(schedule);
 					if (jobStartX < 0) {
 						// might be ok, but might also be bad. so inform.
 						ScheduleRenderer.logger.debug("Machine " + this.m.getName()
 						    + " at " + this.renderedEventId + " is drawing " + jobStartX
 						    + " before its boundary.");
 					}
-					final int jobLength = this.getJobLength(evt);
+					final int jobLength = this.getJobLength(schedule);
 					final int ltY = crntCPU * ScheduleRenderer.NUM_PIXELS_PER_CPU;
 					final int jobHgt = numCPUs * ScheduleRenderer.NUM_PIXELS_PER_CPU;
-					if ((evt.getDeadline() > -1) && (evt.getDeadline() < this.clock)) {
+					if ((schedule.getDeadline() > -1)
+					    && (schedule.getDeadline() < this.clock)) {
 						// the job has a deadline and has missed it
 						g.setColor(Color.RED);
 					} else {
 						// job with no deadlines
-						g.setColor(this.getJobColor(evt.getJob()));
+						g.setColor(this.getJobColor(schedule.getJob()));
 					}
 					final Shape s = new Rectangle(jobStartX, ltY, jobLength, jobHgt);
-					g.setPaint(this.getTexture(g.getColor(), evt.getJobHint()));
+					g.setPaint(this.getTexture(g.getColor(), schedule.getJobHint()));
 					g.fill(s);
 					g.setColor(Color.BLACK);
 					g.setStroke(new BasicStroke(1));
 					g.draw(s);
-					g.drawString(evt.getJob().toString(), Math.max(jobStartX + 2, 2), ltY
-					    + jobHgt - 2);
+					g.drawString(schedule.getJob().toString(),
+					    Math.max(jobStartX + 2, 2), ltY + jobHgt - 2);
 					final int rightBoundary = jobStartX + jobLength
 					    - ScheduleRenderer.LINE_WIDTH;
 					if (rightBoundary > 0) {
@@ -287,7 +367,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 				}
 			} else {
 				// render CPU occupation
-				final Integer[] cpus = this.getAssignedCPUs(evt);
+				final Integer[] cpus = this.getAssignedCPUs(schedule);
 				if (cpus.length == 0) {
 					continue;
 				}
@@ -317,56 +397,32 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 				}
 			}
 		}
-		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
-		    + this.renderedEventId + " finished drawing jobs. Took %.5f seconds.")
-		    .sprintf(time));
-	}
-
-	/**
-	 * Tweaks the graphics object so that it performs better. Probably just a
-	 * micro-optimization.
-	 * 
-	 * @param g
-	 *          The graphics in question.
-	 */
-	private void fineTuneGraphics(final Graphics2D g) {
-		g.setRenderingHint(RenderingHints.KEY_RENDERING,
-		    RenderingHints.VALUE_RENDER_SPEED);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-		    RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-		g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING,
-		    RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,
-		    RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-		    RenderingHints.VALUE_ANTIALIAS_OFF);
 	}
 
 	/**
 	 * Parse the CPUs that have been assigned to a given job.
 	 * 
-	 * @param evt
+	 * @param schedule
 	 *          The job in question.
 	 * @return Numbers of assigned CPUs.
 	 */
-	private Integer[] getAssignedCPUs(final Event evt) {
+	private Integer[] getAssignedCPUs(final Job schedule) {
 		// get assigned CPUs, set will ensure they are unique and sorted
-		if ((evt.getAssignedCPUs() == null)
-		    || (evt.getAssignedCPUs().trim().length() == 0)) {
+		if ((schedule.getAssignedCPUs() == null)
+		    || (schedule.getAssignedCPUs().trim().length() == 0)) {
 			return new Integer[] {};
 		}
 		synchronized (ScheduleRenderer.sets) {
-			if (!ScheduleRenderer.sets.containsKey(evt.getAssignedCPUs())) {
+			if (!ScheduleRenderer.sets.containsKey(schedule.getAssignedCPUs())) {
 				final Set<Integer> assignedCPUs = new TreeSet<Integer>();
-				for (final String num : evt.getAssignedCPUs().split(",")) {
+				for (final String num : schedule.getAssignedCPUs().split(",")) {
 					assignedCPUs.add(Integer.valueOf(num));
 				}
-				ScheduleRenderer.sets.put(evt.getAssignedCPUs(), assignedCPUs
+				ScheduleRenderer.sets.put(schedule.getAssignedCPUs(), assignedCPUs
 				    .toArray(new Integer[0]));
 			}
 		}
-		return ScheduleRenderer.sets.get(evt.getAssignedCPUs());
+		return ScheduleRenderer.sets.get(schedule.getAssignedCPUs());
 	}
 
 	/**
@@ -400,13 +456,13 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	/**
 	 * Calculate the length of a job on the screen.
 	 * 
-	 * @param evt
+	 * @param schedule
 	 *          The job in question.
 	 * @return Length in pixels.
 	 */
-	private int getJobLength(final Event evt) {
-		final Integer end = evt.getExpectedEnd();
-		final Integer start = evt.getExpectedStart();
+	private int getJobLength(final Job schedule) {
+		final Integer end = schedule.getExpectedEnd();
+		final Integer start = schedule.getExpectedStart();
 		if ((end == null) || (start == null)) {
 			return 0;
 		}
@@ -418,12 +474,12 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	/**
 	 * Get the starting position for the event, when being rendered on the screen.
 	 * 
-	 * @param evt
+	 * @param schedule
 	 *          The event in question.
 	 * @return The X starting coordinate.
 	 */
-	private int getStartingPosition(final Event evt) {
-		final Integer start = evt.getExpectedStart();
+	private int getStartingPosition(final Job schedule) {
+		final Integer start = schedule.getExpectedStart();
 		if (start == null) {
 			return ScheduleRenderer.OVERFLOW_WIDTH;
 		}
@@ -439,14 +495,13 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 *          Whether the background should indicate an active machine.
 	 * @return The background image.
 	 */
-	private BufferedImage getTemplate(final boolean isActive) {
+	private Image getTemplate(final boolean isActive) {
 		Double time = Double.valueOf(System.nanoTime());
 		final int numCPUs = this.m.getCPUs().intValue();
 		final BufferedImage img = new BufferedImage(ScheduleRenderer.LINE_WIDTH,
 		    numCPUs * ScheduleRenderer.NUM_PIXELS_PER_CPU,
-		    BufferedImage.TYPE_INT_RGB);
+		    BufferedImage.TYPE_BYTE_BINARY, ScheduleRenderer.icm);
 		final Graphics2D g = (Graphics2D) img.getGraphics();
-		this.fineTuneGraphics(g);
 		// draw background
 		if (isActive) {
 			g.setColor(Color.WHITE);
@@ -472,17 +527,14 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 			g.drawLine(barDistance * (bar + 1), 0, barDistance * (bar + 1), img
 			    .getHeight() - 2);
 		}
-		g.setColor(Color.black);
+		g.setColor(Color.BLACK);
 		// draw a line in a place where "zero" (current clock) is.
 		g.drawLine(ScheduleRenderer.OVERFLOW_WIDTH, 0,
 		    ScheduleRenderer.OVERFLOW_WIDTH, numCPUs
 		        * ScheduleRenderer.NUM_PIXELS_PER_CPU);
-
 		// finish
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logger.debug(new PrintfFormat(this.m.getName() + "@"
-		    + this.renderedEventId
-		    + " finished getting template. Took %.5f seconds.").sprintf(time));
+		ScheduleRenderer.logTime("template", this.m, time);
 		return img;
 	}
 

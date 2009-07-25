@@ -22,6 +22,8 @@ import java.util.Map;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
@@ -33,6 +35,7 @@ import cz.muni.fi.spc.SchedVis.util.Database;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 public final class EventType extends BaseEntity {
 
 	public static Integer EVENT_JOB_ARRIVAL = 1;
@@ -42,8 +45,6 @@ public final class EventType extends BaseEntity {
 	public static Integer EVENT_MACHINE_FAILURE = 5;
 	public static Integer EVENT_JOB_MOVE_GOOD = 6;
 	public static Integer EVENT_JOB_MOVE_BAD = 7;
-	public static Integer EVENT_MACHINE_RESTART_JOB_MOVE_GOOD = 8;
-	public static Integer EVENT_MACHINE_RESTART_JOB_MOVE_BAD = 9;
 	public static Integer EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD = 10;
 	public static Integer EVENT_MACHINE_FAILURE_JOB_MOVE_BAD = 11;
 	public static Integer EVENT_JOB_COMPLETION = 12;

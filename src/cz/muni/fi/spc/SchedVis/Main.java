@@ -74,7 +74,14 @@ public final class Main {
 		for (int i = 1; i < tickCount; i++) {
 			ticks[i] = tickSpace * i;
 		}
+		// warmup period
+		Main.warmup();
+		System.out.println("Starting benchmark:");
+		System.out.println("");
+		// run!
+		Integer i = 0;
 		for (final Integer tick : ticks) {
+			i++;
 			final Long now = System.nanoTime();
 			for (final Machine m : machines) {
 				final ScheduleRenderer mr = new ScheduleRenderer(m, tick);
@@ -87,12 +94,16 @@ public final class Main {
 			}
 			final Double time = (System.nanoTime() - (double) now) / 1000 / 1000 / 1000;
 			totalTime += time;
-			System.out.println("Event #" + tick + ": " + time);
+			System.out.println("[" + i + "/" + tickCount + "] Rendering event #"
+			    + tick + ".");
 		}
 		System.out.println("");
-		System.out.println("Per event: " + (totalTime / tickCount));
-		System.out.println("Per machine: "
+		System.out.println("Seconds per event: " + (totalTime / tickCount));
+		System.out.println("Seconds per event and machine: "
 		    + (totalTime / tickCount / machines.size()));
+		System.out.println("");
+		System.out.println("Recorded results:");
+		ScheduleRenderer.reportLogResults();
 		return;
 	}
 
@@ -169,22 +180,22 @@ public final class Main {
 		System.exit(1);
 	}
 
+	private static void warmup() {
+		System.out.println("Warming up the caches...");
+		final Event evt = Event.getFirst();
+		for (final Machine m : Machine.getAllGroupless()) {
+			ScheduleRenderingController.getRendered(m, evt.getId());
+		}
+		ScheduleRenderer.clearLogResults();
+	}
+
 	/**
 	 * MainFrame method for the whole project.
 	 * 
 	 * @param args
 	 */
 	private void gui() {
-		/*
-		 * Run a first batch of rendering tasks so that the caches fill themselves
-		 * up.
-		 */
-		System.out.println("Please wait while some data are being cached...");
-		final Event evt = Event.getFirst();
-		for (final Machine m : Machine.getAllGroupless()) {
-			ScheduleRenderingController.render(m, evt.getId());
-		}
-		System.out.println("Done...");
+		Main.warmup();
 		Executors.newFixedThreadPool(1).submit(Player.getInstance());
 		/*
 		 * Schedule a job for the event-dispatching thread creating and showing this

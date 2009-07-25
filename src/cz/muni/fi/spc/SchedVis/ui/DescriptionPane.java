@@ -137,9 +137,7 @@ public final class DescriptionPane extends JEditorPane {
 				} else if (type.equals(EventType.EVENT_JOB_EXECUTION_START)) {
 					// job started executing
 					executions.add("#" + evt.getJob());
-				} else if (type.equals(EventType.EVENT_MACHINE_RESTART)
-				    || type.equals(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD)
-				    || type.equals(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD)) {
+				} else if (type.equals(EventType.EVENT_MACHINE_RESTART)) {
 					// machine restart
 					restarts.add(evt.getSourceMachine().getName());
 				} else if (type.equals(EventType.EVENT_MACHINE_FAILURE)
@@ -149,15 +147,13 @@ public final class DescriptionPane extends JEditorPane {
 					failures.add(evt.getSourceMachine().getName());
 				}
 				if (type.equals(EventType.EVENT_JOB_MOVE_GOOD)
-				    || type.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD)
-				    || type.equals(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_GOOD)) {
+				    || type.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD)) {
 					// good move
 					movesGood.add("#" + evt.getJob() + " ("
 					    + evt.getSourceMachine().getName() + " > "
 					    + evt.getTargetMachine().getName() + ")");
 				} else if (type.equals(EventType.EVENT_JOB_MOVE_BAD)
-				    || type.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD)
-				    || type.equals(EventType.EVENT_MACHINE_RESTART_JOB_MOVE_BAD)) {
+				    || type.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD)) {
 					// bad move
 					movesBad.add("#" + evt.getJob() + " ("
 					    + evt.getSourceMachine().getName() + " > "
