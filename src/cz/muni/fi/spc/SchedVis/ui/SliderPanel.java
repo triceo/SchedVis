@@ -36,6 +36,7 @@ import cz.muni.fi.spc.SchedVis.background.Player;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
+import cz.muni.fi.spc.SchedVis.util.Database;
 
 /**
  * Implements a timeline "widget," used to move forward or backwards on the
@@ -110,15 +111,17 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 			this.btnPlay.updateUI();
 			Player.getInstance().toggleStatus();
 		} else if (src.equals(this.btnNext) || src.equals(this.btnPrev)) {
+			Event evt = Database.getEntityManager().find(Event.class,
+			    this.tlsm.getValue());
 			if (src.equals(this.btnPrev)) {
 				try {
-					this.tlsm.setValue(Event.getPrevious(this.tlsm.getValue()).getId());
+					this.tlsm.setValue(Event.getPrevious(evt).getId());
 				} catch (final Exception ex) {
 					this.tlsm.setValue(Event.getFirst().getId());
 				}
 			} else {
 				try {
-					this.tlsm.setValue(Event.getNext(this.tlsm.getValue()).getId());
+					this.tlsm.setValue(Event.getNext(evt).getId());
 				} catch (final Exception ex) {
 					this.tlsm.setValue(Event.getLast().getId());
 				}
@@ -135,10 +138,9 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 			if (this.tlsm.getValue() < 1) {
 				return;
 			}
-			final Integer value = this.tlsm.getValue();
-			if (!Event.exists(value)) {
-				this.tlsm.setValue(Event.getPrevious(value).getId());
-			}
+			Event evt = Database.getEntityManager().find(Event.class,
+			    this.tlsm.getValue());
+			Integer value = evt.getId();
 			if (value.equals(this.tlsm.getMinimum())) {
 				this.btnPrev.setEnabled(false);
 				this.btnStart.setEnabled(false);

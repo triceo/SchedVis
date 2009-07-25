@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
 import cz.muni.fi.spc.SchedVis.util.Configuration;
+import cz.muni.fi.spc.SchedVis.util.Database;
 
 /**
  * The class that implements the "play" functionality. It is a thread that
@@ -65,7 +66,9 @@ public final class Player implements Runnable {
 					@Override
 					public void run() {
 						final TimelineSliderModel m = TimelineSliderModel.getInstance();
-						m.setValue(Event.getNext(m.getValue()).getId());
+						Event evt = Database.getEntityManager().find(Event.class,
+						    m.getValue());
+						m.setValue(Event.getNext(evt).getId());
 					}
 				});
 				// .. and wait

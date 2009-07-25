@@ -34,6 +34,7 @@ import javax.swing.JSplitPane;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
+import cz.muni.fi.spc.SchedVis.util.Database;
 import cz.muni.fi.spc.SchedVis.util.ScheduleRenderingController;
 
 /**
@@ -121,11 +122,13 @@ public final class MainFrame extends JFrame {
 		if (m != null) {
 			this.detailPane.setLayout(new BoxLayout(this.detailPane,
 			    BoxLayout.PAGE_AXIS));
-			final Integer currentEvent = TimelineSliderModel.getInstance().getValue();
+			final Event currentEvent = Database.getEntityManager().find(Event.class,
+			    TimelineSliderModel.getInstance().getValue());
 			final Integer previousEvent = Event.getPrevious(currentEvent, m).getId();
 			final Integer nextEvent = Event.getNext(currentEvent, m).getId();
 			for (final Integer event : new TreeSet<Integer>(Arrays
-			    .asList(new Integer[] { previousEvent, currentEvent, nextEvent }))) {
+			    .asList(new Integer[] { previousEvent, currentEvent.getId(),
+			        nextEvent }))) {
 				ScheduleRenderingController.render(m, event);
 				final MachinePanel pane = new MachinePanel();
 				pane.setImage(ScheduleRenderingController.getRendered(m, event));

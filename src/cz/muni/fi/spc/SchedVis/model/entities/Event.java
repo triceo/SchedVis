@@ -121,76 +121,74 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	/**
 	 * Get the event that immediately follows the specified event.
 	 * 
-	 * @param eventId
-	 *          ID of the event in question.
+	 * @param evt
+	 *          The event in question.
 	 * @return The next event.
 	 */
-	public static Event getNext(final Integer eventId) {
-		return Event.getNext(eventId, null);
+	public static Event getNext(final Event evt) {
+		return Event.getNext(evt, null);
 	}
 
 	/**
 	 * Get the event that immediately follows the specified event with relation to
 	 * the given machine.
 	 * 
-	 * @param eventId
-	 *          ID of the event in question.
+	 * @param evt
+	 *          The event in question.
 	 * @param m
 	 *          ID of the machine in question. If null, no machine is considered.
 	 * 
 	 * @return The next event.
 	 */
-	public static Event getNext(final Integer eventId, final Machine m) {
-		final Criteria crit = BaseEntity.getCriteria(Event.class);
+	public static Event getNext(final Event evt, final Machine m) {
+		final Criteria crit = BaseEntity.getCriteria(Job.class);
 		crit.addOrder(Order.asc("id"));
-		crit.add(Restrictions.gt("id", eventId));
+		crit.add(Restrictions.gt("parent", evt));
 		if (m != null) {
-			crit.add(Restrictions.or(Restrictions.eq("sourceMachine", m),
-			    Restrictions.eq("targetMachine", m)));
+			crit.add(Restrictions.eq("machine", m));
 		}
 		crit.setMaxResults(1);
-		final Event evt = (Event) crit.uniqueResult();
-		if (evt == null) {
+		final Job job = (Job) crit.uniqueResult();
+		if (job == null) {
 			return Event.getLast();
 		}
-		return evt;
+		return job.getParent();
 	}
 
 	/**
 	 * Get the event that immediately preceeds the specified event.
 	 * 
-	 * @param eventId
-	 *          ID of the event in question.
+	 * @param evt
+	 *          Event in question.
 	 * @return The previous event.
 	 */
-	public static Event getPrevious(final Integer eventId) {
-		return Event.getPrevious(eventId, null);
+	public static Event getPrevious(final Event evt) {
+		return Event.getPrevious(evt, null);
 	}
 
 	/**
 	 * Get the event that immediately preceeds the specified event.
 	 * 
-	 * @param eventId
-	 *          ID of the event in question.
+	 * @param evt
+	 *          The event in question.
 	 * @param m
 	 *          ID of the machine in question. If null, no machine is considered.
 	 * 
 	 * @return The previous event.
 	 */
-	public static Event getPrevious(final Integer eventId, final Machine m) {
-		final Criteria crit = BaseEntity.getCriteria(Event.class);
+	public static Event getPrevious(final Event evt, final Machine m) {
+		final Criteria crit = BaseEntity.getCriteria(Job.class);
 		crit.addOrder(Order.desc("id"));
-		crit.add(Restrictions.lt("id", eventId));
+		crit.add(Restrictions.lt("parent", evt));
 		if (m != null) {
-			crit.add(Restrictions.or(Restrictions.eq("sourceMachine", m),
-			    Restrictions.eq("targetMachine", m)));
+			crit.add(Restrictions.eq("machine", m));
 		}
 		crit.setMaxResults(1);
-		final Event evt = (Event) crit.uniqueResult();
-		if (evt == null) {
+		final Job job = (Job) crit.uniqueResult();
+		if (job == null) {
 			return Event.getFirst();
 		}
-		return evt;
+		return job.getParent();
 	}
 
 	private Integer id;
