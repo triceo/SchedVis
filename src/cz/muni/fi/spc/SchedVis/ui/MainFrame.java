@@ -124,11 +124,10 @@ public final class MainFrame extends JFrame {
 			    BoxLayout.PAGE_AXIS));
 			final Event currentEvent = Database.getEntityManager().find(Event.class,
 			    TimelineSliderModel.getInstance().getValue());
-			final Integer previousEvent = Event.getPrevious(currentEvent, m).getId();
-			final Integer nextEvent = Event.getNext(currentEvent, m).getId();
-			for (final Integer event : new TreeSet<Integer>(Arrays
-			    .asList(new Integer[] { previousEvent, currentEvent.getId(),
-			        nextEvent }))) {
+			final Event previousEvent = Event.getPrevious(currentEvent, m);
+			final Event nextEvent = Event.getNext(currentEvent, m);
+			for (final Event event : new TreeSet<Event>(Arrays.asList(new Event[] {
+			    previousEvent, currentEvent, nextEvent }))) {
 				ScheduleRenderingController.render(m, event);
 				final MachinePanel pane = new MachinePanel();
 				pane.setImage(ScheduleRenderingController.getRendered(m, event));

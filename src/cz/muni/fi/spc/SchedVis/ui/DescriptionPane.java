@@ -31,7 +31,6 @@ import javax.swing.JEditorPane;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.EventType;
-import cz.muni.fi.spc.SchedVis.util.Database;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
@@ -93,10 +92,10 @@ public final class DescriptionPane extends JEditorPane {
 			DescriptionPane.template = "<html>Template file read problem !" + e
 			    + "</html>";
 		}
-		this.updateFrame(1);
+		this.updateFrame(Event.getFirst());
 	}
 
-	public void updateFrame(final Integer eventId) {
+	public void updateFrame(final Event event) {
 		String text = DescriptionPane.template;
 		// now process the events
 		final Set<String> arrivals = new TreeSet<String>();
@@ -113,7 +112,6 @@ public final class DescriptionPane extends JEditorPane {
 		 * more in the future.
 		 */
 		final List<Event> evts = Collections.synchronizedList(new Vector<Event>());
-		final Event event = Database.getEntityManager().find(Event.class, eventId);
 		if (event != null) {
 			evts.add(event);
 		}
@@ -162,9 +160,8 @@ public final class DescriptionPane extends JEditorPane {
 			}
 		}
 		// fill some basic information
-		text = text.replaceAll("\\Q${CLOCK}\\E", Event.getClockWithEventId(eventId)
-		    .toString());
-		text = text.replaceAll("\\Q${EVENTID}\\E", eventId.toString());
+		text = text.replaceAll("\\Q${CLOCK}\\E", event.getClock().toString());
+		text = text.replaceAll("\\Q${EVENTID}\\E", event.getId().toString());
 		text = text.replaceAll("\\Q${RESTARTS}\\E", DescriptionPane.setToString(
 		    restarts, "000000"));
 		text = text.replaceAll("\\Q${FAILURES}\\E", DescriptionPane.setToString(

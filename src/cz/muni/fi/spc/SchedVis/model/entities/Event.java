@@ -77,21 +77,6 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	}
 
 	/**
-	 * Retrieve a clock with a given event id.
-	 * 
-	 * @param eventId
-	 *          The id of the event in question.
-	 * @return The clock value.
-	 */
-	public static Integer getClockWithEventId(final int eventId) {
-		final Event evt = Database.getEntityManager().find(Event.class, eventId);
-		if (evt == null) {
-			return Event.getClockWithEventId(1);
-		}
-		return evt.getClock();
-	}
-
-	/**
 	 * Get first event on the timeline.
 	 * 
 	 * @return The event.
@@ -189,6 +174,21 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 			return Event.getFirst();
 		}
 		return job.getParent();
+	}
+
+	/**
+	 * Retrieve a clock with a given event id.
+	 * 
+	 * @param eventId
+	 *          The id of the event in question.
+	 * @return The clock value.
+	 */
+	public static Event getWithId(final int eventId) {
+		final Event evt = Database.getEntityManager().find(Event.class, eventId);
+		if (evt == null) {
+			return Event.getWithId(1);
+		}
+		return evt;
 	}
 
 	private Integer id;

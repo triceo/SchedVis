@@ -115,15 +115,15 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 			    this.tlsm.getValue());
 			if (src.equals(this.btnPrev)) {
 				try {
-					this.tlsm.setValue(Event.getPrevious(evt).getId());
+					this.tlsm.setValue(Event.getPrevious(evt));
 				} catch (final Exception ex) {
-					this.tlsm.setValue(Event.getFirst().getId());
+					this.tlsm.setValue(Event.getFirst());
 				}
 			} else {
 				try {
-					this.tlsm.setValue(Event.getNext(evt).getId());
+					this.tlsm.setValue(Event.getNext(evt));
 				} catch (final Exception ex) {
-					this.tlsm.setValue(Event.getLast().getId());
+					this.tlsm.setValue(Event.getLast());
 				}
 			}
 		}
@@ -138,8 +138,7 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 			if (this.tlsm.getValue() < 1) {
 				return;
 			}
-			Event evt = Database.getEntityManager().find(Event.class,
-			    this.tlsm.getValue());
+			Event evt = this.tlsm.getRichValue();
 			Integer value = evt.getId();
 			if (value.equals(this.tlsm.getMinimum())) {
 				this.btnPrev.setEnabled(false);
@@ -176,7 +175,7 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 				} catch (final NullPointerException ex) {
 					Main.getFrame().updateDetail(null);
 				}
-				DescriptionPane.getInstance().updateFrame(this.tlsm.getValue());
+				DescriptionPane.getInstance().updateFrame(this.tlsm.getRichValue());
 				Main.getFrame().setCursor(
 				    Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			}

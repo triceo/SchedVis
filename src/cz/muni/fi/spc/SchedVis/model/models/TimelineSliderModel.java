@@ -40,6 +40,8 @@ public final class TimelineSliderModel extends DefaultBoundedRangeModel {
 
 	private static TimelineSliderModel model = null;
 
+	private static Event event;
+
 	/**
 	 * Get the only instance of the class.
 	 * 
@@ -84,8 +86,22 @@ public final class TimelineSliderModel extends DefaultBoundedRangeModel {
 	private TimelineSliderModel(final ChangeListener listener) {
 		this.setMinimum(Event.getFirst().getId());
 		this.setMaximum(Event.getLast().getId());
-		this.setValue(this.getMinimum());
+		this.setValue(Event.getFirst());
 		this.addChangeListener(listener);
+	}
+
+	public Event getRichValue() {
+		return TimelineSliderModel.event;
+	}
+
+	public void setValue(final Event evt) {
+		super.setValue(evt.getId());
+		TimelineSliderModel.event = evt;
+	}
+
+	@Override
+	public void setValue(final int value) {
+		this.setValue(Event.getWithId(value));
 	}
 
 }

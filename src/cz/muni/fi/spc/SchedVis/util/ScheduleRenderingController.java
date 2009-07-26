@@ -27,6 +27,7 @@ import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.background.ScheduleRenderer;
+import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 
 /**
@@ -56,28 +57,29 @@ public final class ScheduleRenderingController {
 	 * 
 	 * @param m
 	 *          Machine in question.
-	 * @param eventId
+	 * @param evt
 	 *          The event in which to render the schedule.
 	 * @return The rendered schedule.
 	 */
-	public static Image getRendered(final Machine m, final Integer eventId) {
-		if (ScheduleRenderingController.renderers.containsKey(eventId)
-		    && ScheduleRenderingController.renderers.get(eventId).containsKey(m)) {
+	public static Image getRendered(final Machine m, final Event evt) {
+		if (ScheduleRenderingController.renderers.containsKey(evt.getId())
+		    && ScheduleRenderingController.renderers.get(evt.getId())
+		        .containsKey(m)) {
 			// we have the renderer cached
 			try {
-				final Image img = ScheduleRenderingController.renderers.get(eventId)
-				    .get(m).get();
-				ScheduleRenderingController.renderers.get(eventId).remove(m);
+				final Image img = ScheduleRenderingController.renderers
+				    .get(evt.getId()).get(m).get();
+				ScheduleRenderingController.renderers.get(evt.getId()).remove(m);
 				return img;
 			} catch (final Exception e) {
 				Logger.getLogger(ScheduleRenderingController.class).error(
-				    "Machine " + m.getName() + " at " + eventId + " caught " + e);
+				    "Machine " + m.getName() + " at " + evt.getId() + " caught " + e);
 				return null;
 			}
 		}
 		// get the renderer
-		ScheduleRenderingController.render(m, eventId);
-		return ScheduleRenderingController.getRendered(m, eventId);
+		ScheduleRenderingController.render(m, evt);
+		return ScheduleRenderingController.getRendered(m, evt);
 	}
 
 	/**
@@ -86,24 +88,25 @@ public final class ScheduleRenderingController {
 	 * 
 	 * @param m
 	 *          Machine in question.
-	 * @param eventId
+	 * @param evt
 	 *          The event in which to render the schedule.
 	 */
-	public static void render(final Machine m, final Integer eventId) {
-		if (ScheduleRenderingController.renderers.containsKey(eventId)
-		    && ScheduleRenderingController.renderers.get(eventId).containsKey(m)) {
+	public static void render(final Machine m, final Event evt) {
+		if (ScheduleRenderingController.renderers.containsKey(evt.getId())
+		    && ScheduleRenderingController.renderers.get(evt.getId())
+		        .containsKey(m)) {
 			// don't render when we already have the result
 			return;
 		}
 		synchronized (ScheduleRenderingController.renderers) {
-			if (!ScheduleRenderingController.renderers.containsKey(eventId)) {
-				ScheduleRenderingController.renderers.put(eventId,
+			if (!ScheduleRenderingController.renderers.containsKey(evt.getId())) {
+				ScheduleRenderingController.renderers.put(evt.getId(),
 				    new HashMap<Machine, ScheduleRenderer>());
 			}
-			final ScheduleRenderer mr = new ScheduleRenderer(m, eventId);
-			ScheduleRenderingController.renderers.get(eventId).put(m, mr);
+			final ScheduleRenderer mr = new ScheduleRenderer(m, evt);
+			ScheduleRenderingController.renderers.get(evt.getId()).put(m, mr);
 		}
 		ScheduleRenderingController.e.submit(ScheduleRenderingController.renderers
-		    .get(eventId).get(m));
+		    .get(evt.getId()).get(m));
 	}
 }

@@ -75,10 +75,10 @@ public final class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 	 * @return The panel.
 	 */
 	private JPanel getMachine(final Machine item) {
-		final Integer eventId = TimelineSliderModel.getInstance().getValue();
 		try {
 			final MachinePanel pane = new MachinePanel();
-			pane.setImage(ScheduleRenderingController.getRendered(item, eventId));
+			pane.setImage(ScheduleRenderingController.getRendered(item,
+			    TimelineSliderModel.getInstance().getRichValue()));
 			return pane;
 		} catch (final Exception e) {
 			final JPanel p = new JPanel();

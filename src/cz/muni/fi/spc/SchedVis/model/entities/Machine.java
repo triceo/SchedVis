@@ -116,8 +116,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		return new TreeSet<Machine>(crit.list());
 	}
 
-	public static List<Job> getLatestSchedule(final Machine which,
-	    final Integer eventId) {
+	public static List<Job> getLatestSchedule(final Machine which, final Event evt) {
 		try {
 			if (Machine.s == null) {
 				final String query = "SELECT id, assignedCPUs, deadline, job, jobHint, expectedStart, expectedEnd, bringsSchedule FROM Job WHERE machine_id = ? AND parent = (SELECT max(parent) FROM Job WHERE machine_id = ? AND parent <= ?)";
@@ -126,7 +125,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 			}
 			Machine.s.setInt(1, which.getId().intValue());
 			Machine.s.setInt(2, which.getId().intValue());
-			Machine.s.setInt(3, eventId);
+			Machine.s.setInt(3, evt.getId());
 			final ResultSet rs = Machine.s.executeQuery();
 			final List<Job> schedules = new Vector<Job>();
 			while (rs.next()) {
@@ -195,13 +194,13 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	 * 
 	 * @param m
 	 *          Machine in question.
-	 * @param eventId
+	 * @param evt
 	 *          The given point of time.
 	 * @return False when the last machine event up to and including the given
 	 *         time is machine failure. True otherwise, especially when there are
 	 *         no such events.
 	 */
-	public static boolean isActive(final Machine m, final Integer eventId) {
+	public static boolean isActive(final Machine m, final Event evt) {
 		synchronized (Machine.machineEvents) {
 			if (Machine.machineEvents.length == 0) {
 				Machine.machineEvents = new EventType[] {
@@ -213,7 +212,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		}
 		final Criteria crit = BaseEntity.getCriteria(Event.class);
 		crit.add(Restrictions.in("type", Machine.machineEvents));
-		crit.add(Restrictions.lt("id", eventId));
+		crit.add(Restrictions.lt("id", evt.getId()));
 		crit.setProjection(Projections.max("id"));
 		final Integer evtId = (Integer) crit.uniqueResult();
 		if (evtId == null) {

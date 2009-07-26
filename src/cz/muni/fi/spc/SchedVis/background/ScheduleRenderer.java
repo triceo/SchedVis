@@ -64,7 +64,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	/**
 	 * Holds the position on the timeline that is currently being rendered.
 	 */
-	private final int renderedEventId;
+	private final Event renderedEvent;
 	/**
 	 * How many pixels shall one CPU of a machine occupy on the y axis of the
 	 * schedule.
@@ -248,12 +248,12 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 * 
 	 * @param m
 	 *          Machine to render.
-	 * @param eventId
+	 * @param evt
 	 *          A point in time in which we want the schedule rendered.
 	 */
-	public ScheduleRenderer(final Machine m, final Integer eventId) {
+	public ScheduleRenderer(final Machine m, final Event evt) {
 		this.m = m;
-		this.renderedEventId = eventId;
+		this.renderedEvent = evt;
 	}
 
 	/**
@@ -266,17 +266,17 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	public Image doInBackground() {
 		final Double globalTime = Double.valueOf(System.nanoTime());
 		Double time = globalTime;
-		this.clock = this.getClock();
+		this.clock = this.renderedEvent.getClock();
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logTime("clock", this.m, time);
 
 		time = Double.valueOf(System.nanoTime());
-		this.events = Machine.getLatestSchedule(this.m, this.renderedEventId);
+		this.events = Machine.getLatestSchedule(this.m, this.renderedEvent);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logTime("schedule", this.m, time);
 
 		time = Double.valueOf(System.nanoTime());
-		final boolean isActive = Machine.isActive(this.m, this.renderedEventId);
+		final boolean isActive = Machine.isActive(this.m, this.renderedEvent);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logTime("activity", this.m, time);
 
@@ -334,8 +334,8 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 					if (jobStartX < 0) {
 						// might be ok, but might also be bad. so inform.
 						ScheduleRenderer.logger.debug("Machine " + this.m.getName()
-						    + " at " + this.renderedEventId + " is drawing " + jobStartX
-						    + " before its boundary.");
+						    + " at " + this.renderedEvent.getId() + " is drawing "
+						    + jobStartX + " before its boundary.");
 					}
 					final int jobLength = this.getJobLength(schedule);
 					final int ltY = crntCPU * ScheduleRenderer.NUM_PIXELS_PER_CPU;
@@ -361,7 +361,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 					if (rightBoundary > 0) {
 						// always bad. warn.
 						ScheduleRenderer.logger.warn("Machine " + this.m.getName() + " at "
-						    + this.renderedEventId + " is drawing " + rightBoundary
+						    + this.renderedEvent.getId() + " is drawing " + rightBoundary
 						    + " over its boundary.");
 					}
 				}
@@ -423,15 +423,6 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 			}
 		}
 		return ScheduleRenderer.sets.get(schedule.getAssignedCPUs());
-	}
-
-	/**
-	 * Get the actual clock that is assigned to the event id.
-	 * 
-	 * @return The clock.
-	 */
-	private Integer getClock() {
-		return Event.getClockWithEventId(this.renderedEventId);
 	}
 
 	/**

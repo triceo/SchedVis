@@ -62,7 +62,6 @@ public final class Main {
 	 */
 	public static void benchmark() {
 		final Set<Machine> machines = Machine.getAllGroupless();
-		new ScheduleRenderer(machines.toArray(new Machine[] {})[0], 1);
 		Double totalTime = 0.0;
 		final int tickCount = Event.getAllTicks().size() / 500;
 		final Integer tickSpace = Math.max(1, Event.getAllTicks().size()
@@ -82,7 +81,7 @@ public final class Main {
 			i++;
 			final Long now = System.nanoTime();
 			for (final Machine m : machines) {
-				ScheduleRenderingController.getRendered(m, tick);
+				ScheduleRenderingController.getRendered(m, Event.getWithId(tick));
 			}
 			final Double time = (System.nanoTime() - (double) now) / 1000 / 1000 / 1000;
 			totalTime += time;
@@ -176,7 +175,7 @@ public final class Main {
 		System.out.println("Warming up the caches...");
 		final Event evt = Event.getFirst();
 		for (final Machine m : Machine.getAllGroupless()) {
-			ScheduleRenderingController.getRendered(m, evt.getId());
+			ScheduleRenderingController.getRendered(m, evt);
 		}
 		ScheduleRenderer.clearLogResults();
 	}
