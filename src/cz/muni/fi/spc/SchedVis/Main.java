@@ -20,7 +20,6 @@ package cz.muni.fi.spc.SchedVis;
 
 import java.io.File;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import cz.muni.fi.spc.SchedVis.background.Importer;
@@ -65,7 +64,6 @@ public final class Main {
 		final Set<Machine> machines = Machine.getAllGroupless();
 		new ScheduleRenderer(machines.toArray(new Machine[] {})[0], 1);
 		Double totalTime = 0.0;
-		final ExecutorService e = Executors.newFixedThreadPool(1);
 		final int tickCount = Event.getAllTicks().size() / 500;
 		final Integer tickSpace = Math.max(1, Event.getAllTicks().size()
 		    / tickCount);
@@ -84,13 +82,7 @@ public final class Main {
 			i++;
 			final Long now = System.nanoTime();
 			for (final Machine m : machines) {
-				final ScheduleRenderer mr = new ScheduleRenderer(m, tick);
-				e.submit(mr);
-				try {
-					mr.get();
-				} catch (final Exception ex) {
-					ex.printStackTrace();
-				}
+				ScheduleRenderingController.getRendered(m, tick);
 			}
 			final Double time = (System.nanoTime() - (double) now) / 1000 / 1000 / 1000;
 			totalTime += time;
