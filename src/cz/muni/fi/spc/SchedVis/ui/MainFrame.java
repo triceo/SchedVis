@@ -29,7 +29,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
@@ -71,13 +70,8 @@ public final class MainFrame extends JFrame {
 	}
 
 	public Container createContentPane() {
-		// get right panel
 		final JPanel schedulePanel = new JPanel();
 		schedulePanel.setLayout(new BorderLayout());
-		// get slider
-		final JPanel sPanel = new SliderPanel();
-		schedulePanel.add(sPanel, BorderLayout.PAGE_END);
-		schedulePanel.setMinimumSize(sPanel.getPreferredSize());
 		// get machine detail
 		this.detailPane = new JBorderedPanel("Machine detail");
 		this.updateDetail(null);
@@ -92,23 +86,14 @@ public final class MainFrame extends JFrame {
 		spanel.add(schpanel, BorderLayout.CENTER);
 		pane.setWheelScrollingEnabled(true);
 		schedulePanel.add(pane, BorderLayout.CENTER);
-
-		// get left panel
-		final JPanel leftPanel = new JPanel();
-		leftPanel.setMinimumSize(new Dimension(200, 200));
-		// left stats sub-panel
-		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.PAGE_AXIS));
-		final JPanel statsPanel = new JBorderedPanel("Just happened");
-		statsPanel.setLayout(new BorderLayout());
-		statsPanel.add(DescriptionPane.getInstance(), BorderLayout.CENTER);
-		// get panel with group picker
-		leftPanel.add(new JScrollPane(statsPanel));
-
-		// Create a split pane with the two scroll panes in it.
-		final JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-		    leftPanel, schedulePanel);
-		splitPane.setOneTouchExpandable(true);
-		return splitPane;
+		// get the bottom pane
+		final JPanel sPanel = new SliderPanel();
+		final JPanel bottom = new JPanel();
+		bottom.setLayout(new BoxLayout(bottom, BoxLayout.PAGE_AXIS));
+		bottom.add(sPanel);
+		bottom.add(StatusBar.getInstance());
+		schedulePanel.add(bottom, BorderLayout.PAGE_END);
+		return schedulePanel;
 	}
 
 	/**

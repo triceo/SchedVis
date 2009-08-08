@@ -66,7 +66,7 @@ public final class Player implements Runnable {
 					@Override
 					public void run() {
 						final TimelineSliderModel m = TimelineSliderModel.getInstance();
-						Event evt = Database.getEntityManager().find(Event.class,
+						final Event evt = Database.getEntityManager().find(Event.class,
 						    m.getValue());
 						m.setValue(Event.getNext(evt).getId());
 					}

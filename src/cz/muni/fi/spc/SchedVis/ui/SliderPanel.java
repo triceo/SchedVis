@@ -111,7 +111,7 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 			this.btnPlay.updateUI();
 			Player.getInstance().toggleStatus();
 		} else if (src.equals(this.btnNext) || src.equals(this.btnPrev)) {
-			Event evt = Database.getEntityManager().find(Event.class,
+			final Event evt = Database.getEntityManager().find(Event.class,
 			    this.tlsm.getValue());
 			if (src.equals(this.btnPrev)) {
 				try {
@@ -138,8 +138,8 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 			if (this.tlsm.getValue() < 1) {
 				return;
 			}
-			Event evt = this.tlsm.getRichValue();
-			Integer value = evt.getId();
+			final Event evt = this.tlsm.getRichValue();
+			final Integer value = evt.getId();
 			if (value.equals(this.tlsm.getMinimum())) {
 				this.btnPrev.setEnabled(false);
 				this.btnStart.setEnabled(false);
@@ -175,7 +175,7 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 				} catch (final NullPointerException ex) {
 					Main.getFrame().updateDetail(null);
 				}
-				DescriptionPane.getInstance().updateFrame(this.tlsm.getRichValue());
+				StatusBar.getInstance().updateFrame(this.tlsm.getRichValue());
 				Main.getFrame().setCursor(
 				    Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			}
