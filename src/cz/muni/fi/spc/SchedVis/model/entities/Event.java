@@ -54,17 +54,6 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	private static Event lastEvent = null;
 
 	/**
-	 * Whether or not there exists an event with a given ID.
-	 * 
-	 * @param eventId
-	 *          The event id in question.
-	 * @return True if such event exists, false otherwise.
-	 */
-	public static boolean exists(final Integer eventId) {
-		return (Database.getEntityManager().find(Event.class, eventId) != null);
-	}
-
-	/**
 	 * Get numbers of all existing events.
 	 * 
 	 * @return All the existing events.

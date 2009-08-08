@@ -66,24 +66,6 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	private static final Map<String, Machine> byName = new HashMap<String, Machine>();
 
 	/**
-	 * Retrieve machine with a given ID.
-	 * 
-	 * @param id
-	 *          The ID in question.
-	 * @return The machine.
-	 */
-	public synchronized static Machine get(final int id) {
-		if (!Machine.byId.containsKey(id)) {
-			Machine.byId.put(id, Database.getEntityManager().find(Machine.class, id));
-		}
-		final Machine m = Machine.byId.get(id);
-		if (!Machine.byName.containsKey(m.getName())) {
-			Machine.byName.put(m.getName(), m);
-		}
-		return m;
-	}
-
-	/**
 	 * Retrieve all the machines in a given group.
 	 * 
 	 * @param groupId
