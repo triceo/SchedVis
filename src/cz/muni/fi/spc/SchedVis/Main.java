@@ -216,8 +216,9 @@ public final class Main {
 			} catch (final InterruptedException e) {
 				// do nothing
 			}
-			System.out.println(new PrintfFormat(Messages.getString("Main.16")).sprintf(i //$NON-NLS-1$
-			    .getProgress()));
+			System.out
+			    .println(new PrintfFormat(Messages.getString("Main.16")).sprintf(i //$NON-NLS-1$
+			        .getProgress()));
 		}
 		System.out.println();
 		if (i.isSuccess()) {

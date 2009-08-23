@@ -27,13 +27,13 @@ public class MessagesControl extends ResourceBundle.Control {
 			return AccessController
 			    .doPrivileged(new PrivilegedExceptionAction<Reader>() {
 				    public Reader run() throws IOException {
-					    URLConnection connection = resourceURL.openConnection();
+					    final URLConnection connection = resourceURL.openConnection();
 					    connection.setUseCaches(false);
 					    return new BufferedReader(new InputStreamReader(connection
 					        .getInputStream()));
 				    }
 			    });
-		} catch (PrivilegedActionException x) {
+		} catch (final PrivilegedActionException x) {
 			throw (IOException) x.getCause();
 		}
 	}
@@ -42,8 +42,8 @@ public class MessagesControl extends ResourceBundle.Control {
 	public ResourceBundle newBundle(final String baseName, final Locale locale,
 	    final String format, final ClassLoader loader, final boolean reload)
 	    throws IllegalAccessException, InstantiationException, IOException {
-		String bundleName = this.toBundleName(baseName, locale);
-		String resourceName = this.toResourceName(bundleName, "properties");
+		final String bundleName = this.toBundleName(baseName, locale);
+		final String resourceName = this.toResourceName(bundleName, "properties");
 		final URL resourceURL = loader.getResource(resourceName);
 		if (resourceURL == null) {
 			return null;
