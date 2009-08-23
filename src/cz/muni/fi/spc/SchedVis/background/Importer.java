@@ -57,6 +57,8 @@ import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleMachineData;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleParser;
 import cz.muni.fi.spc.SchedVis.util.Configuration;
 import cz.muni.fi.spc.SchedVis.util.Database;
+import cz.muni.fi.spc.SchedVis.util.Messages;
+import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
 
 /**
  * A tool to import data from specific files into the SQL database used by this
@@ -101,7 +103,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 		for (int i = 0; i < cpus.length; i++) {
 			sb.append(cpus[i]);
 			if (i < (cpus.length - 1)) {
-				sb.append(",");
+				sb.append(","); //$NON-NLS-1$
 			}
 		}
 		return sb.toString();
@@ -188,18 +190,18 @@ public final class Importer extends SwingWorker<Void, Void> {
 	private void parseDataSet(final BufferedReader reader) throws ParseException {
 		this.setProgress(0);
 		final Map<String, Integer> eventTypes = new HashMap<String, Integer>();
-		eventTypes.put("job-arrival", EventType.EVENT_JOB_ARRIVAL);
-		eventTypes.put("job-execution-start", EventType.EVENT_JOB_EXECUTION_START);
-		eventTypes.put("job-cancel", EventType.EVENT_JOB_CANCEL);
-		eventTypes.put("good-move", EventType.EVENT_JOB_MOVE_GOOD);
-		eventTypes.put("bad-move", EventType.EVENT_JOB_MOVE_BAD);
-		eventTypes.put("machine-failure", EventType.EVENT_MACHINE_FAILURE);
-		eventTypes.put("machine-failure-move-good",
+		eventTypes.put("job-arrival", EventType.EVENT_JOB_ARRIVAL); //$NON-NLS-1$
+		eventTypes.put("job-execution-start", EventType.EVENT_JOB_EXECUTION_START); //$NON-NLS-1$
+		eventTypes.put("job-cancel", EventType.EVENT_JOB_CANCEL); //$NON-NLS-1$
+		eventTypes.put("good-move", EventType.EVENT_JOB_MOVE_GOOD); //$NON-NLS-1$
+		eventTypes.put("bad-move", EventType.EVENT_JOB_MOVE_BAD); //$NON-NLS-1$
+		eventTypes.put("machine-failure", EventType.EVENT_MACHINE_FAILURE); //$NON-NLS-1$
+		eventTypes.put("machine-failure-move-good", //$NON-NLS-1$
 		    EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD);
-		eventTypes.put("machine-failure-move-bad",
+		eventTypes.put("machine-failure-move-bad", //$NON-NLS-1$
 		    EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD);
-		eventTypes.put("machine-restart", EventType.EVENT_MACHINE_RESTART);
-		eventTypes.put("job-completion", EventType.EVENT_JOB_COMPLETION);
+		eventTypes.put("machine-restart", EventType.EVENT_MACHINE_RESTART); //$NON-NLS-1$
+		eventTypes.put("job-completion", EventType.EVENT_JOB_COMPLETION); //$NON-NLS-1$
 		final Iterator<Map.Entry<String, Integer>> eventTypeIterator = eventTypes
 		    .entrySet().iterator();
 		final List<EventType> etl = new Vector<EventType>();
@@ -238,18 +240,18 @@ public final class Importer extends SwingWorker<Void, Void> {
 				Integer jobHint = Event.JOB_HINT_NONE;
 				if (event instanceof EventIsJobRelated) {
 					evt.setJob(((EventIsJobRelated) event).getJob());
-					if (event.getName().equals("job-arrival")) {
+					if (event.getName().equals("job-arrival")) { //$NON-NLS-1$
 						// if in this clock a new job arrives, remember it
 						jobHint = Event.JOB_HINT_ARRIVAL;
-					} else if (event.getName().equals("job-execution-start")) {
+					} else if (event.getName().equals("job-execution-start")) { //$NON-NLS-1$
 						this.processUsedCPUs((ScheduleEventIO) event);
-					} else if (event.getName().equals("good-move")
-					    || event.getName().equals("machine-failure-move-good")) {
+					} else if (event.getName().equals("good-move") //$NON-NLS-1$
+					    || event.getName().equals("machine-failure-move-good")) { //$NON-NLS-1$
 						jobHint = Event.JOB_HINT_MOVE_OK;
-					} else if (event.getName().equals("bad-move")
-					    || event.getName().equals("machine-failure-move-bad")) {
+					} else if (event.getName().equals("bad-move") //$NON-NLS-1$
+					    || event.getName().equals("machine-failure-move-bad")) { //$NON-NLS-1$
 						jobHint = Event.JOB_HINT_MOVE_NOK;
-					} else if (event.getName().equals("job-completion")) {
+					} else if (event.getName().equals("job-completion")) { //$NON-NLS-1$
 						this.processUsedCPUs((ScheduleEventIO) event);
 					}
 				}
@@ -303,7 +305,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 							schedule2.setAssignedCPUs(this.convertCPUs(this.CPUstatus
 							    .get(schedule2.getMachine().getName())));
 						} catch (final NullPointerException ex) {
-							schedule2.setAssignedCPUs("");
+							schedule2.setAssignedCPUs(""); //$NON-NLS-1$
 						}
 						schedule2.setClock(evt.getClock());
 						schedule2.setBringsSchedule(false);
@@ -379,7 +381,8 @@ public final class Importer extends SwingWorker<Void, Void> {
 			if (Configuration.createGroupPerMachine()) {
 				for (final Machine m : machinesList) {
 					final MachineGroup mg = new MachineGroup();
-					mg.setName("Group '" + m.getName() + "'");
+					mg
+					    .setName(new PrintfFormat(Messages.getString("Importer.19")).sprintf(m.getName())); //$NON-NLS-1$
 					groupsList.add(mg);
 					m.setGroup(mg);
 				}
@@ -407,22 +410,19 @@ public final class Importer extends SwingWorker<Void, Void> {
 		final int jobId = e.getJob();
 		String[] jobCPUs;
 		try {
-			jobCPUs = this.allJobs.get(jobId).getAssignedCPUs().split(",");
+			jobCPUs = this.allJobs.get(jobId).getAssignedCPUs().split(","); //$NON-NLS-1$
 		} catch (final Exception ex) {
 			jobCPUs = new String[] {};
 		}
-		String machineId = "";
+		String machineId = ""; //$NON-NLS-1$
 		try {
 			machineId = this.allJobs.get(jobId).getMachine().getName();
 		} catch (final NullPointerException ex) {
-			Logger
-			    .getLogger(Importer.class)
-			    .warn(
-			        "Job #"
-			            + jobId
-			            + " executed/completed before its arrival. Probably a bug in the data set.");
+			Logger.getLogger(Importer.class).warn(
+			    new PrintfFormat(Messages.getString("Importer.22")) //$NON-NLS-1$
+			        .sprintf(jobId));
 		}
-		if (e.getName().equals("job-execution-start")) {
+		if (e.getName().equals("job-execution-start")) { //$NON-NLS-1$
 			// execution starting
 			if (!this.CPUstatus.containsKey(machineId)) {
 				this.CPUstatus.put(machineId, jobCPUs);
@@ -431,14 +431,9 @@ public final class Importer extends SwingWorker<Void, Void> {
 				    .asList(this.CPUstatus.get(machineId)));
 				final boolean isChanged = old.addAll(Arrays.asList(jobCPUs));
 				if (!isChanged) {
-					Logger
-					    .getLogger(Importer.class)
-					    .warn(
-					        "Job execution (#"
-					            + jobId
-					            + " at "
-					            + machineId
-					            + ") didn't occupy any unused CPUs. Probably a bug in the data set.");
+					Logger.getLogger(Importer.class).warn(
+					    new PrintfFormat(Messages.getString("Importer.24")) //$NON-NLS-1$
+					        .sprintf(new Object[] { jobId, machineId }));
 				}
 				this.CPUstatus.remove(machineId);
 				this.CPUstatus.put(machineId, old.toArray(new String[] {}));
@@ -449,18 +444,12 @@ public final class Importer extends SwingWorker<Void, Void> {
 			    .get(machineId)));
 			final boolean isChanged = old.removeAll(Arrays.asList(jobCPUs));
 			if (!isChanged) {
-				Logger
-				    .getLogger(Importer.class)
-				    .warn(
-				        "Job completion (#"
-				            + jobId
-				            + " at "
-				            + machineId
-				            + ") didn't free any used CPUs. Probably a bug in the data set.");
+				Logger.getLogger(Importer.class).warn(
+				    new PrintfFormat(Messages.getString("Importer.25")) //$NON-NLS-1$
+				        .sprintf(new Object[] { jobId, machineId }));
 			}
 			this.CPUstatus.remove(machineId);
 			this.CPUstatus.put(machineId, old.toArray(new String[] {}));
 		}
 	}
-
 }

@@ -163,7 +163,7 @@ public final class Database {
 	public static synchronized void use() {
 		if (Database.currentEM == null) {
 			final Map<String, String> map = new HashMap<String, String>();
-			map.put("hibernate.connection.url", "jdbc:sqlite:/"
+			map.put("hibernate.connection.url", "jdbc:sqlite:/" //$NON-NLS-1$ //$NON-NLS-2$
 			    + Configuration.getDatabaseFile().getAbsolutePath());
 			if (!Configuration.getDatabaseFile().exists()) {
 				/**
@@ -171,9 +171,9 @@ public final class Database {
 				 * Hibernate creates indices, which it won't when hbm2ddl.auto was set
 				 * to update.
 				 */
-				map.put("hibernate.hbm2ddl.auto", "create");
+				map.put("hibernate.hbm2ddl.auto", "create"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			Database.currentEM = Persistence.createEntityManagerFactory("SchedVis",
+			Database.currentEM = Persistence.createEntityManagerFactory("SchedVis", //$NON-NLS-1$
 			    map).createEntityManager();
 		}
 	}

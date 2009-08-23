@@ -73,7 +73,10 @@ public final class ScheduleRenderingController {
 				return img;
 			} catch (final Exception e) {
 				Logger.getLogger(ScheduleRenderingController.class).error(
-				    "Machine " + m.getName() + " at " + evt.getId() + " caught " + e);
+				    new PrintfFormat(Messages
+				        .getString("ScheduleRenderingController.0")) //$NON-NLS-1$
+				        .sprintf(new Object[] { m.getName(), evt.getId(),
+				            e.getLocalizedMessage() }));
 				return null;
 			}
 		}

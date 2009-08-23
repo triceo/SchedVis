@@ -30,6 +30,8 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
+import cz.muni.fi.spc.SchedVis.util.Messages;
+import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
 import cz.muni.fi.spc.SchedVis.util.ScheduleRenderingController;
 
 /**
@@ -54,12 +56,14 @@ public final class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 	private JPanel getGroup(final MachineGroup item) {
 		final JPanel target = new JPanel();
 		if (item == null) {
-			target.add(new JLabel("Ungrouped Machines"));
+			target.add(new JLabel(Messages.getString("ScheduleTreeCellRenderer.0"))); //$NON-NLS-1$
 		} else {
 			try {
-				target.add(new JLabel("Group '" + item.getName() + "'"));
+				target.add(new JLabel(new PrintfFormat(Messages
+				    .getString("ScheduleTreeCellRenderer.1")).sprintf(item //$NON-NLS-1$
+				    .getName())));
 			} catch (final NullPointerException ex) {
-				target.add(new JLabel(ex.getMessage()));
+				target.add(new JLabel(ex.getLocalizedMessage()));
 			}
 		}
 		return target;
@@ -102,7 +106,7 @@ public final class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 		} else {
 			// should never happen
 			final JPanel p = new JPanel();
-			p.add(new JLabel("Unknown object!"));
+			p.add(new JLabel(Messages.getString("ScheduleTreeCellRenderer.2"))); //$NON-NLS-1$
 			return p;
 		}
 	}

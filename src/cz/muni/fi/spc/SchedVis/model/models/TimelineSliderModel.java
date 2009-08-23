@@ -25,6 +25,7 @@ import javax.swing.event.ChangeListener;
 import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
+import cz.muni.fi.spc.SchedVis.util.Messages;
 
 /**
  * A model for the slider that specifies which time will the schedules be
@@ -71,7 +72,7 @@ public final class TimelineSliderModel extends DefaultBoundedRangeModel {
 				TimelineSliderModel.model.addChangeListener(listener);
 			} else {
 				Logger.getLogger(TimelineSliderModel.class).warn(
-				    "Listener has already been set. This will have no effect.");
+				    Messages.getString("TimelineSliderModel.0")); //$NON-NLS-1$
 			}
 		}
 		return TimelineSliderModel.model;

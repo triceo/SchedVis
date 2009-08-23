@@ -27,6 +27,7 @@ import cz.muni.fi.spc.SchedVis.model.models.GroupsListModel;
 import cz.muni.fi.spc.SchedVis.model.models.MachinesListModel;
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 import cz.muni.fi.spc.SchedVis.util.Database;
+import cz.muni.fi.spc.SchedVis.util.Messages;
 
 /*
  * This file is part of SchedVis.
@@ -67,11 +68,11 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 	private final GroupedMachinesList availableMachinesList;
 	private final GroupedMachinesList groupedMachinesList;
 
-	private static final String COMMAND__CLOSE_DIALOG = "closeDialog";
-	private static final String COMMAND__CREATE_NEW_GROUP = "createNewGroup";
-	private static final String COMMAND__DELETE_GROUP = "deleteGroup";
-	private static final String COMMAND__ADD_MACHINE_TO_GROUP = "addToGroup";
-	private static final String COMMAND__REMOVE_MACHINE_FROM_GROUP = "removeFromGroup";
+	private static final String COMMAND__CLOSE_DIALOG = "closeDialog"; //$NON-NLS-1$
+	private static final String COMMAND__CREATE_NEW_GROUP = "createNewGroup"; //$NON-NLS-1$
+	private static final String COMMAND__DELETE_GROUP = "deleteGroup"; //$NON-NLS-1$
+	private static final String COMMAND__ADD_MACHINE_TO_GROUP = "addToGroup"; //$NON-NLS-1$
+	private static final String COMMAND__REMOVE_MACHINE_FROM_GROUP = "removeFromGroup"; //$NON-NLS-1$
 
 	/**
 	 * Class constructor.
@@ -84,18 +85,18 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 	public GroupsDialog(final Frame owner, final boolean modal) {
 		super(owner, modal);
 		this.setMinimumSize(new Dimension(650, 400));
-		this.setTitle("Manage machine groups");
+		this.setTitle(Messages.getString("GroupsDialog.5")); //$NON-NLS-1$
 		final JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.LINE_AXIS));
 		// add group-pickling pane
 		final JPanel topLeftPane = new JPanel();
 		this.availableGroupsList = new JComboBox();
 		this.availableGroupsList.setModel(new GroupsListModel(this));
-		final JLabel label = new JLabel("MachineGroup to modify:");
+		final JLabel label = new JLabel(Messages.getString("GroupsDialog.6")); //$NON-NLS-1$
 		label.setLabelFor(this.availableGroupsList);
 		topLeftPane.add(label);
 		topLeftPane.add(this.availableGroupsList);
-		this.deleteGroupButton = new JButton("Delete");
+		this.deleteGroupButton = new JButton(Messages.getString("GroupsDialog.7")); //$NON-NLS-1$
 		this.deleteGroupButton.setActionCommand(GroupsDialog.COMMAND__DELETE_GROUP);
 		this.deleteGroupButton.addActionListener(this);
 		this.deleteGroupButton.setEnabled(false);
@@ -105,7 +106,7 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 		final JPanel topRightPane = new JPanel();
 		this.newGroupName = new JTextField(10);
 		topRightPane.add(this.newGroupName);
-		this.newGroupButton = new JButton("Create group");
+		this.newGroupButton = new JButton(Messages.getString("GroupsDialog.8")); //$NON-NLS-1$
 		this.newGroupButton
 		    .setActionCommand(GroupsDialog.COMMAND__CREATE_NEW_GROUP);
 		this.newGroupButton.addActionListener(this);
@@ -119,7 +120,7 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 		// in a group
 		grpMachinesPane.setLayout(new BoxLayout(grpMachinesPane,
 		    BoxLayout.PAGE_AXIS));
-		grpMachinesPane.add(new JLabel("Machines in the chosen group:"));
+		grpMachinesPane.add(new JLabel(Messages.getString("GroupsDialog.9"))); //$NON-NLS-1$
 		this.groupedMachinesList = new GroupedMachinesList(null, this);
 		this.groupedMachinesList.setEnabled(false);
 		grpMachinesPane.add(new JScrollPane(this.groupedMachinesList));
@@ -128,12 +129,12 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 		middlePane.setLayout(new BoxLayout(middlePane, BoxLayout.LINE_AXIS));
 		final JPanel buttonsPane = new JPanel(); // panel with controls
 		buttonsPane.setLayout(new BoxLayout(buttonsPane, BoxLayout.PAGE_AXIS));
-		this.addMachineButton = new JButton("<<");
+		this.addMachineButton = new JButton("<<"); //$NON-NLS-1$
 		this.addMachineButton
 		    .setActionCommand(GroupsDialog.COMMAND__ADD_MACHINE_TO_GROUP);
 		this.addMachineButton.setEnabled(false);
 		this.addMachineButton.addActionListener(this);
-		this.removeMachineButton = new JButton(">>");
+		this.removeMachineButton = new JButton(">>"); //$NON-NLS-1$
 		this.removeMachineButton.setEnabled(false);
 		this.removeMachineButton
 		    .setActionCommand(GroupsDialog.COMMAND__REMOVE_MACHINE_FROM_GROUP);
@@ -145,14 +146,14 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 		// machines
 		avlMachinesPane.setLayout(new BoxLayout(avlMachinesPane,
 		    BoxLayout.PAGE_AXIS));
-		avlMachinesPane.add(new JLabel("Machines in no group:"));
+		avlMachinesPane.add(new JLabel(Messages.getString("GroupsDialog.12"))); //$NON-NLS-1$
 		this.availableMachinesList = new GroupedMachinesList(null, this);
 		this.availableMachinesList.setEnabled(false);
 		avlMachinesPane.add(new JScrollPane(this.availableMachinesList));
 		middlePane.add(avlMachinesPane);
 		// add dialog-closing button
 		bottomPane.setLayout(new FlowLayout(FlowLayout.CENTER));
-		this.closeButton = new JButton("Finish");
+		this.closeButton = new JButton(Messages.getString("GroupsDialog.13")); //$NON-NLS-1$
 		this.closeButton.setActionCommand(GroupsDialog.COMMAND__CLOSE_DIALOG);
 		this.closeButton.addActionListener(this);
 		bottomPane.add(this.closeButton);
@@ -167,8 +168,8 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 		if (command.equals(GroupsDialog.COMMAND__CREATE_NEW_GROUP)) {
 			final String text = this.newGroupName.getText().trim();
 			if (text.length() == 0) {
-				JOptionPane.showMessageDialog(this,
-				    "Please provide a name for the group.");
+				JOptionPane.showMessageDialog(this, Messages
+				    .getString("GroupsDialog.14")); //$NON-NLS-1$
 			} else {
 				if (MachineGroup.getWithName(this.newGroupName.getText(), false) == null) {
 					final MachineGroup entity = new MachineGroup();
@@ -178,10 +179,10 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 					    .getModel();
 					model.update();
 					this.availableGroupsList.setSelectedItem(text);
-					this.newGroupName.setText("");
+					this.newGroupName.setText(""); //$NON-NLS-1$
 				} else {
-					JOptionPane.showMessageDialog(this,
-					    "Cannot create a group. Probably already exists.");
+					JOptionPane.showMessageDialog(this, Messages
+					    .getString("GroupsDialog.16")); //$NON-NLS-1$
 				}
 			}
 		} else if (command.equals(GroupsDialog.COMMAND__DELETE_GROUP)) {
@@ -206,7 +207,8 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 					this.removeMachineButton.setEnabled(false);
 				}
 			} else {
-				JOptionPane.showMessageDialog(this, "Cannot delete a group.");
+				JOptionPane.showMessageDialog(this, Messages
+				    .getString("GroupsDialog.17")); //$NON-NLS-1$
 			}
 		} else if (command.equals(GroupsDialog.COMMAND__ADD_MACHINE_TO_GROUP)) {
 			final MachineGroup ge = MachineGroup.getWithName(

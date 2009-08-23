@@ -60,7 +60,7 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 			Job.maxJobSpan = (Integer) ((Session) Database.getEntityManager()
 			    .getDelegate())
 			    .createSQLQuery(
-			        "SELECT max(expectedEnd - clock) AS s FROM Job GROUP BY parent, machine_id ORDER BY s DESC LIMIT 1")
+			        "SELECT max(expectedEnd - clock) AS s FROM Job GROUP BY parent, machine_id ORDER BY s DESC LIMIT 1") //$NON-NLS-1$
 			    .list().get(0);
 		}
 		return Job.maxJobSpan;

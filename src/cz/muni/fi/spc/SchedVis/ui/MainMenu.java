@@ -27,6 +27,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import cz.muni.fi.spc.SchedVis.util.Messages;
+
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
@@ -35,8 +37,8 @@ public final class MainMenu extends JMenuBar implements ActionListener {
 
 	private static final long serialVersionUID = -301105021169477153L;
 
-	private static String ACTION_QUIT = "quit";
-	private static String ACTION_MANAGE_GROUPS = "manage_groups";
+	private static String ACTION_QUIT = "quit"; //$NON-NLS-1$
+	private static String ACTION_MANAGE_GROUPS = "manage_groups"; //$NON-NLS-1$
 
 	private final JFrame frame;
 
@@ -50,29 +52,29 @@ public final class MainMenu extends JMenuBar implements ActionListener {
 		JMenuItem menuItem = null;
 
 		// Build the first menu.
-		menu = new JMenu("File");
+		menu = new JMenu(Messages.getString("MainMenu.2")); //$NON-NLS-1$
 		menu.setMnemonic(KeyEvent.VK_F);
 		menu.getAccessibleContext().setAccessibleDescription(
-		    "The classical file menu as seen in other apps.");
+		    Messages.getString("MainMenu.3")); //$NON-NLS-1$
 		this.add(menu);
 
-		menuItem = new JMenuItem("Quit", KeyEvent.VK_Q);
+		menuItem = new JMenuItem(Messages.getString("MainMenu.4"), KeyEvent.VK_Q); //$NON-NLS-1$
 		menuItem.getAccessibleContext().setAccessibleDescription(
-		    "Terminates the simulation and exits the application.");
+		    Messages.getString("MainMenu.5")); //$NON-NLS-1$
 		menuItem.setActionCommand(MainMenu.ACTION_QUIT);
 		menuItem.addActionListener(this);
 		menu.add(menuItem);
 
 		// Build the first menu.
-		menu = new JMenu("Edit");
+		menu = new JMenu(Messages.getString("MainMenu.6")); //$NON-NLS-1$
 		menu.setMnemonic(KeyEvent.VK_E);
 		menu.getAccessibleContext().setAccessibleDescription(
-		    "The classical edit options.");
+		    Messages.getString("MainMenu.7")); //$NON-NLS-1$
 		this.add(menu);
 
-		menuItem = new JMenuItem("Manage groups...", KeyEvent.VK_G);
+		menuItem = new JMenuItem(Messages.getString("MainMenu.8"), KeyEvent.VK_G); //$NON-NLS-1$
 		menuItem.getAccessibleContext().setAccessibleDescription(
-		    "Opens a dialog used to manage machine groups.");
+		    Messages.getString("MainMenu.9")); //$NON-NLS-1$
 		menuItem.setActionCommand(MainMenu.ACTION_MANAGE_GROUPS);
 		menuItem.addActionListener(this);
 		menu.add(menuItem);

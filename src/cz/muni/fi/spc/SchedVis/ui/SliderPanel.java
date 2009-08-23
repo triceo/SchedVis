@@ -50,11 +50,11 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 
 	private static final long serialVersionUID = 6091479520934383104L;
 	private TimelineSliderModel tlsm = null;
-	private final JButton btnStart = new JButton("|<");
-	private final JButton btnEnd = new JButton(">|");
-	private final JButton btnPlay = new JButton("|>");
-	private final JButton btnPrev = new JButton("<<");
-	private final JButton btnNext = new JButton(">>");
+	private final JButton btnStart = new JButton("|<"); //$NON-NLS-1$
+	private final JButton btnEnd = new JButton(">|"); //$NON-NLS-1$
+	private final JButton btnPlay = new JButton("|>"); //$NON-NLS-1$
+	private final JButton btnPrev = new JButton("<<"); //$NON-NLS-1$
+	private final JButton btnNext = new JButton(">>"); //$NON-NLS-1$
 	private boolean playing = false;
 
 	/**
@@ -104,9 +104,9 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 			this.playing = !this.playing;
 			this.btnPlay.removeAll();
 			if (this.playing) {
-				this.btnPlay.add(new JLabel("||"));
+				this.btnPlay.add(new JLabel("||")); //$NON-NLS-1$
 			} else {
-				this.btnPlay.add(new JLabel("|>"));
+				this.btnPlay.add(new JLabel("|>")); //$NON-NLS-1$
 			}
 			this.btnPlay.updateUI();
 			Player.getInstance().toggleStatus();

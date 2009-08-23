@@ -23,6 +23,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.event.ListDataListener;
 
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
+import cz.muni.fi.spc.SchedVis.util.Messages;
 
 /**
  * Model for a list of groups in the groups dialog.
@@ -53,7 +54,7 @@ public final class GroupsListModel extends DefaultComboBoxModel {
 	 */
 	public void update() {
 		this.removeAllElements();
-		this.addElement("No group");
+		this.addElement(Messages.getString("GroupsListModel.0")); //$NON-NLS-1$
 		for (final MachineGroup item : MachineGroup.getAll()) {
 			this.addElement(item.getName());
 		}

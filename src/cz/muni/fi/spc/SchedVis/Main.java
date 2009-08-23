@@ -30,6 +30,8 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.ui.MainFrame;
 import cz.muni.fi.spc.SchedVis.util.Configuration;
 import cz.muni.fi.spc.SchedVis.util.Database;
+import cz.muni.fi.spc.SchedVis.util.Messages;
+import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
 import cz.muni.fi.spc.SchedVis.util.ScheduleRenderingController;
 
 /**
@@ -73,8 +75,8 @@ public final class Main {
 		}
 		// warmup period
 		Main.warmup();
-		System.out.println("Starting benchmark:");
-		System.out.println("");
+		System.out.println(Messages.getString("Main.0")); //$NON-NLS-1$
+		System.out.println();
 		// run!
 		Integer i = 0;
 		for (final Integer tick : ticks) {
@@ -85,15 +87,16 @@ public final class Main {
 			}
 			final Double time = (System.nanoTime() - (double) now) / 1000 / 1000 / 1000;
 			totalTime += time;
-			System.out.println("[" + i + "/" + tickCount + "] Rendering event #"
-			    + tick + ".");
+			System.out.println(new PrintfFormat(Messages.getString("Main.1")) //$NON-NLS-1$
+			    .sprintf(new Integer[] { i, ticks.length, tick }));
 		}
-		System.out.println("");
-		System.out.println("Seconds per event: " + (totalTime / tickCount));
-		System.out.println("Seconds per event and machine: "
-		    + (totalTime / tickCount / machines.size()));
-		System.out.println("");
-		System.out.println("Recorded results:");
+		System.out.println();
+		System.out.println(new PrintfFormat(Messages.getString("Main.2")) //$NON-NLS-1$
+		    .sprintf(totalTime / tickCount));
+		System.out.println(new PrintfFormat(Messages.getString("Main.3")) //$NON-NLS-1$
+		    .sprintf(totalTime / tickCount / machines.size()));
+		System.out.println();
+		System.out.println(Messages.getString("Main.4")); //$NON-NLS-1$
 		ScheduleRenderer.reportLogResults();
 		return;
 	}
@@ -128,32 +131,32 @@ public final class Main {
 		if (args.length != 1) {
 			Main.printUsageAndExit();
 		}
-		if ("benchmark".equals(args[0])) {
+		if ("benchmark".equals(args[0])) { //$NON-NLS-1$
 			Database.use();
 			Main.benchmark();
 			System.exit(0);
 			return;
-		} else if ("run".equals(args[0])) {
+		} else if ("run".equals(args[0])) { //$NON-NLS-1$
 			final File dbFile = Configuration.getDatabaseFile();
 			if (dbFile.exists()) {
 				Database.use();
 			} else {
-				System.out.print("Database file " + dbFile.getAbsolutePath()
-				    + " cannot be found! ");
+				System.out.print(new PrintfFormat(Messages.getString("Main.7")) //$NON-NLS-1$
+				    .sprintf(dbFile.getAbsolutePath()));
 				Main.printUsageAndExit();
 			}
 			Main.main.gui();
 		} else {
 			final File machinesFile = Configuration.getMachinesFile();
 			if (!machinesFile.exists()) {
-				System.out.print("Machines file " + machinesFile.getAbsolutePath()
-				    + " cannot be found! ");
+				System.out.print(new PrintfFormat(Messages.getString("Main.8")) //$NON-NLS-1$
+				    .sprintf(machinesFile.getAbsolutePath()));
 				Main.printUsageAndExit();
 			}
 			final File dataFile = Configuration.getEventsFile();
 			if (!dataFile.exists()) {
-				System.out.print("Machines file " + dataFile.getAbsolutePath()
-				    + " cannot be found! ");
+				System.out.print(new PrintfFormat(Messages.getString("Main.9")) //$NON-NLS-1$
+				    .sprintf(dataFile.getAbsolutePath()));
 				Main.printUsageAndExit();
 			}
 			Database.use();
@@ -165,14 +168,14 @@ public final class Main {
 	 * Prints insctructions on how to use the program and exits.
 	 */
 	public static void printUsageAndExit() {
-		System.out.println("Please choose one of the operations available: ");
-		System.out.println(" ant import");
-		System.out.println(" ant run");
+		System.out.println(Messages.getString("Main.10")); //$NON-NLS-1$
+		System.out.println(" ant import"); //$NON-NLS-1$
+		System.out.println(" ant run"); //$NON-NLS-1$
 		System.exit(1);
 	}
 
 	private static void warmup() {
-		System.out.println("Warming up the caches...");
+		System.out.println(Messages.getString("Main.13")); //$NON-NLS-1$
 		final Event evt = Event.getFirst();
 		for (final Machine m : Machine.getAllGroupless()) {
 			ScheduleRenderingController.getRendered(m, evt);
@@ -203,27 +206,27 @@ public final class Main {
 	 *          The importer that handles the actual work.
 	 */
 	private void importData(final Importer i) {
-		System.out.println("Importing specified data.");
-		System.out.println("");
+		System.out.println(Messages.getString("Main.14")); //$NON-NLS-1$
+		System.out.println();
 		Executors.newCachedThreadPool().submit(i);
-		System.out.println("Processing...");
+		System.out.println(Messages.getString("Main.15")); //$NON-NLS-1$
 		while (!i.isDone()) {
 			try {
 				Thread.sleep(5000);
 			} catch (final InterruptedException e) {
 				// do nothing
 			}
-			System.out.println(" " + i.getProgress() + " % completed...");
+			System.out.println(new PrintfFormat(Messages.getString("Main.16")).sprintf(i //$NON-NLS-1$
+			    .getProgress()));
 		}
-		System.out.println("");
+		System.out.println();
 		if (i.isSuccess()) {
-			System.out.println("Import finished successfully!");
+			System.out.println(Messages.getString("Main.17")); //$NON-NLS-1$
 			System.exit(0);
 		} else {
-			System.out.println("Import failed!");
+			System.out.println(Messages.getString("Main.18")); //$NON-NLS-1$
 			Configuration.getDatabaseFile().deleteOnExit();
 			System.exit(1);
 		}
 	}
-
 }

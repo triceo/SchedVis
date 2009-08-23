@@ -22,6 +22,8 @@ import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
 import cz.muni.fi.spc.SchedVis.util.Configuration;
 import cz.muni.fi.spc.SchedVis.util.Database;
+import cz.muni.fi.spc.SchedVis.util.Messages;
+import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
 
 /**
  * The class that implements the "play" functionality. It is a thread that
@@ -57,9 +59,10 @@ public final class Player implements Runnable {
 				}
 			} catch (final Exception e) {
 				Logger.getLogger(Player.class).warn(
-				    "Player wait interrupted, caught " + e);
+				    new PrintfFormat(Messages.getString("Player.0")) //$NON-NLS-1$
+				        .sprintf(e.getLocalizedMessage()));
 			}
-			Logger.getLogger(Player.class).debug("Starting playing.");
+			Logger.getLogger(Player.class).debug(Messages.getString("Player.1")); //$NON-NLS-1$
 			while (Player.doesPlay) {
 				// invoke the code in the event-processing thread...
 				javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -76,10 +79,11 @@ public final class Player implements Runnable {
 					Thread.sleep(Configuration.getPlayDelay());
 				} catch (final Exception e) {
 					Logger.getLogger(Player.class).warn(
-					    "Player delay interrupted, caught " + e);
+					    new PrintfFormat(Messages.getString("Player.2")) //$NON-NLS-1$
+					        .sprintf(e.getLocalizedMessage()));
 				}
 			}
-			Logger.getLogger(Player.class).debug("Stopping playing.");
+			Logger.getLogger(Player.class).debug(Messages.getString("Player.3")); //$NON-NLS-1$
 		}
 	}
 
@@ -87,11 +91,11 @@ public final class Player implements Runnable {
 	 * Wake the thread from its sleep.
 	 */
 	public void toggleStatus() {
-		Logger.getLogger(Player.class).debug("Waking up the player.");
+		Logger.getLogger(Player.class).debug(Messages.getString("Player.4")); //$NON-NLS-1$
 		Player.doesPlay = !Player.doesPlay;
 		synchronized (Player.p) {
 			Player.p.notifyAll();
 		}
-		Logger.getLogger(Player.class).debug("Woken up the player.");
+		Logger.getLogger(Player.class).debug(Messages.getString("Player.5")); //$NON-NLS-1$
 	}
 }

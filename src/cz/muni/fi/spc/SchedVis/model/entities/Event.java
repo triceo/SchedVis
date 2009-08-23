@@ -62,7 +62,7 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	public static Set<Integer> getAllTicks() {
 		return new TreeSet<Integer>(((Session) Database.getEntityManager()
 		    .getDelegate()).createSQLQuery(
-		    "SELECT DISTINCT id FROM Event ORDER BY id ASC").list());
+		    "SELECT DISTINCT id FROM Event ORDER BY id ASC").list()); //$NON-NLS-1$
 	}
 
 	/**
@@ -85,7 +85,7 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	public synchronized static Event getLast() {
 		if (Event.lastEvent == null) {
 			final Criteria crit = BaseEntity.getCriteria(Event.class);
-			crit.addOrder(Order.desc("id"));
+			crit.addOrder(Order.desc("id")); //$NON-NLS-1$
 			crit.setMaxResults(1);
 			Event.lastEvent = (Event) crit.uniqueResult();
 		}
@@ -116,10 +116,10 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	 */
 	public static Event getNext(final Event evt, final Machine m) {
 		final Criteria crit = BaseEntity.getCriteria(Job.class);
-		crit.addOrder(Order.asc("id"));
-		crit.add(Restrictions.gt("parent", evt));
+		crit.addOrder(Order.asc("id")); //$NON-NLS-1$
+		crit.add(Restrictions.gt("parent", evt)); //$NON-NLS-1$
 		if (m != null) {
-			crit.add(Restrictions.eq("machine", m));
+			crit.add(Restrictions.eq("machine", m)); //$NON-NLS-1$
 		}
 		crit.setMaxResults(1);
 		final Job job = (Job) crit.uniqueResult();
@@ -152,10 +152,10 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	 */
 	public static Event getPrevious(final Event evt, final Machine m) {
 		final Criteria crit = BaseEntity.getCriteria(Job.class);
-		crit.addOrder(Order.desc("id"));
-		crit.add(Restrictions.lt("parent", evt));
+		crit.addOrder(Order.desc("id")); //$NON-NLS-1$
+		crit.add(Restrictions.lt("parent", evt)); //$NON-NLS-1$
 		if (m != null) {
-			crit.add(Restrictions.eq("machine", m));
+			crit.add(Restrictions.eq("machine", m)); //$NON-NLS-1$
 		}
 		crit.setMaxResults(1);
 		final Job job = (Job) crit.uniqueResult();

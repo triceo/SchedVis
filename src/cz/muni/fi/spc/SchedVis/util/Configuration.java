@@ -24,6 +24,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+
 /**
  * The class that is used to access every bit of SchedVis configuration. It is a
  * singleton.
@@ -37,8 +38,8 @@ public final class Configuration {
 
 	public static boolean createGroupPerMachine() {
 		final String val = Configuration.getProperties().getProperty(
-		    "import.group_per_machine", "0");
-		if (val.equals("1")) {
+		    "import.group_per_machine", "0"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (val.equals("1")) { //$NON-NLS-1$
 			return true;
 		}
 		return false;
@@ -50,8 +51,8 @@ public final class Configuration {
 	 * @return A database file.
 	 */
 	public static File getDatabaseFile() {
-		return new File(Configuration.getProperties().getProperty("files.database",
-		    "Production.sqlite")).getAbsoluteFile();
+		return new File(Configuration.getProperties().getProperty("files.database", //$NON-NLS-1$
+		    "Production.sqlite")).getAbsoluteFile(); //$NON-NLS-1$
 	}
 
 	/**
@@ -60,8 +61,8 @@ public final class Configuration {
 	 * @return Events file.
 	 */
 	public static File getEventsFile() {
-		return new File(Configuration.getProperties().getProperty("files.events",
-		    "Data-set.txt")).getAbsoluteFile();
+		return new File(Configuration.getProperties().getProperty("files.events", //$NON-NLS-1$
+		    "Data-set.txt")).getAbsoluteFile(); //$NON-NLS-1$
 	}
 
 	/**
@@ -70,8 +71,8 @@ public final class Configuration {
 	 * @return Machines file.
 	 */
 	public static File getMachinesFile() {
-		return new File(Configuration.getProperties().getProperty("files.machines",
-		    "machines.txt")).getAbsoluteFile();
+		return new File(Configuration.getProperties().getProperty("files.machines", //$NON-NLS-1$
+		    "machines.txt")).getAbsoluteFile(); //$NON-NLS-1$
 	}
 
 	/**
@@ -81,7 +82,7 @@ public final class Configuration {
 	 */
 	public static Integer getMaxImageWidth() {
 		return Integer.valueOf(Configuration.getProperties().getProperty(
-		    "graphics.max_image_width", "800"));
+		    "graphics.max_image_width", "800")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -92,7 +93,7 @@ public final class Configuration {
 	public static Integer getNumberOfPixelsPerCPU() {
 		final Integer minValue = 5;
 		Integer actualValue = Integer.valueOf(Configuration.getProperties()
-		    .getProperty("graphics.pixels_per_cpu", minValue.toString()));
+		    .getProperty("graphics.pixels_per_cpu", minValue.toString())); //$NON-NLS-1$
 		if (actualValue % 2 == 0) {
 			actualValue++;
 		}
@@ -106,7 +107,7 @@ public final class Configuration {
 	 */
 	public static Integer getNumberOfTicksPerGuide() {
 		return Integer.valueOf(Configuration.getProperties().getProperty(
-		    "graphics.ticks_per_guide", "5"));
+		    "graphics.ticks_per_guide", "5")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -116,7 +117,7 @@ public final class Configuration {
 	 */
 	public static Integer getPlayDelay() {
 		return Integer.valueOf(Configuration.getProperties().getProperty(
-		    "play.delay", "1000"));
+		    "play.delay", "1000")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -128,13 +129,14 @@ public final class Configuration {
 	protected synchronized static Properties getProperties() {
 		if (Configuration.p == null) {
 			try {
-				final FileInputStream in = new FileInputStream("config.properties");
+				final FileInputStream in = new FileInputStream("config.properties"); //$NON-NLS-1$
 				Configuration.p = new Properties();
 				Configuration.p.load(in);
 			} catch (final Exception e) {
 				Configuration.p = new Properties();
 				Logger.getLogger(Configuration.class).error(
-				    "Failed to load configuration file, caught: " + e + ".");
+				    new PrintfFormat(Messages.getString("Configuration.17")) //$NON-NLS-1$
+				        .sprintf(e.getLocalizedMessage()));
 			}
 		}
 		return Configuration.p;

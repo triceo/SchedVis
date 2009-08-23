@@ -3,6 +3,7 @@
 	<property file="config.properties" />
   <property name="dir.bin" value="./bin" />
 	<property name="dir.build" value="./build" />
+  <property name="dir.resources" value="./resources" />
   <property name="dir.src" value="./src" />
 	<property name="dir.lib" value="./lib" />
 	<condition property="lib.sqlite" value="sqlite-windows.jar" else="sqlite.jar">
@@ -41,6 +42,11 @@
 		<copy file="${dir.lib}/i386/sqlite_jni.dll" todir="${dir.bin}" />
     <copy todir="${dir.build}/META-INF">
     	<fileset dir="${dir.src}/META-INF" />
+    </copy>
+    <copy todir="${dir.build}">
+      <fileset dir="${dir.resources}/l10n">
+      	<include name="messages*" />
+      </fileset>
     </copy>
 	  <jar jarfile="${dir.bin}/${java.package.name}.jar" basedir="${dir.build}">
 	  	<manifest>

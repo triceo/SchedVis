@@ -34,6 +34,7 @@ import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
 import cz.muni.fi.spc.SchedVis.util.Database;
+import cz.muni.fi.spc.SchedVis.util.Messages;
 import cz.muni.fi.spc.SchedVis.util.ScheduleRenderingController;
 
 /**
@@ -57,7 +58,7 @@ public final class MainFrame extends JFrame {
 	 */
 	public MainFrame() {
 		// Create and set up the window.
-		this.setTitle("SchedVis");
+		this.setTitle("SchedVis"); //$NON-NLS-1$
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Create and set up the content pane.
@@ -73,14 +74,15 @@ public final class MainFrame extends JFrame {
 		final JPanel schedulePanel = new JPanel();
 		schedulePanel.setLayout(new BorderLayout());
 		// get machine detail
-		this.detailPane = new JBorderedPanel("Machine detail");
+		this.detailPane = new JBorderedPanel(Messages.getString("MainFrame.1")); //$NON-NLS-1$
 		this.updateDetail(null);
 		// get scrolling pane with a tree
 		final JPanel spanel = new JPanel();
 		spanel.setLayout(new BorderLayout());
 		final JScrollPane pane = new JScrollPane(spanel);
 		spanel.add(this.detailPane, BorderLayout.PAGE_START);
-		final JPanel schpanel = new JBorderedPanel("Complete schedule");
+		final JPanel schpanel = new JBorderedPanel(Messages
+		    .getString("MainFrame.2")); //$NON-NLS-1$
 		schpanel.setLayout(new BorderLayout());
 		schpanel.add(MainFrame.tree, BorderLayout.CENTER);
 		spanel.add(schpanel, BorderLayout.CENTER);
@@ -119,8 +121,7 @@ public final class MainFrame extends JFrame {
 				this.detailPane.add(pane);
 			}
 		} else {
-			this.detailPane.add(new JLabel(
-			    "Click on any schedule and a machine detail will appear here."));
+			this.detailPane.add(new JLabel(Messages.getString("MainFrame.3"))); //$NON-NLS-1$
 		}
 		this.detailPane.updateUI();
 	}

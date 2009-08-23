@@ -47,6 +47,7 @@ import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Job;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.util.Configuration;
+import cz.muni.fi.spc.SchedVis.util.Messages;
 import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
 
 /**
@@ -109,7 +110,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	/**
 	 * Holds a font used throughout the schedules. Memory use improvement.
 	 */
-	private static final Font font = new Font("Monospaced", Font.PLAIN, 9);
+	private static final Font font = new Font("Monospaced", Font.PLAIN, 9); //$NON-NLS-1$
 
 	/**
 	 * Holds schedule events in a currently rendered schedule. Stored for
@@ -148,7 +149,8 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	private static final HashMap<String, Map<Machine, List<Double>>> logTimes = new HashMap<String, Map<Machine, List<Double>>>();
 
 	/**
-	 * Index color model specifying 16 basic colors.
+	 * Index color model specifying 16 basic colors. This significantly improves
+	 * the speed of rendering the images.
 	 */
 	private static IndexColorModel icm = new IndexColorModel(4, 16, new byte[] {
 	    (byte) 255, (byte) 255, (byte) 255, (byte) 255, (byte) 192, (byte) 128,
@@ -196,16 +198,17 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		}
 		final List<Double> machineTimes = logMachine.get(m);
 		machineTimes.add(time);
-		ScheduleRenderer.logger.debug("Machine: " + m.getName() + ", type: " + type
-		    + ", time: " + new PrintfFormat("%.5f seconds.").sprintf(time));
+		ScheduleRenderer.logger.debug(new PrintfFormat(Messages
+		    .getString("ScheduleRenderer.1")).sprintf(new Object[] { //$NON-NLS-1$
+		    m.getName(), type, time }));
 	}
 
 	public static void reportLogResults() {
 		// show globals
 		System.out
-		    .println(" task \\ time [ms] |    avg    |    min    |    mid    |    max    ");
+		    .println(" task \\ time [ms] |    avg    |    min    |    mid    |    max    "); //$NON-NLS-1$
 		System.out
-		    .println(" -----------------------------------------------------------------");
+		    .println(" -----------------------------------------------------------------"); //$NON-NLS-1$
 		for (final Entry<String, Map<Machine, List<Double>>> entry : ScheduleRenderer.logTimes
 		    .entrySet()) {
 			List<Double> allValues = new Vector<Double>();
@@ -227,18 +230,16 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 			    - extremeValueCount.intValue());
 			allValuesSorted = allValues.toArray(new Double[] {});
 			// tabulate results
-			System.out.println("  "
-			    + new PrintfFormat("%15s").sprintf(entry.getKey())
-			    + " | "
-			    + new PrintfFormat(" %.5f ").sprintf(ScheduleRenderer
-			        .getAverage(allValues) * 1000)
-			    + " | "
-			    + new PrintfFormat(" %.5f ").sprintf(allValuesSorted[0] * 1000)
-			    + " | "
-			    + new PrintfFormat(" %.5f ").sprintf(ScheduleRenderer
-			        .getMedian(allValuesSorted) * 1000)
-			    + " | "
-			    + new PrintfFormat(" %.5f ")
+			System.out.println("  " //$NON-NLS-1$
+			    + new PrintfFormat("%15s").sprintf(entry.getKey()) //$NON-NLS-1$
+			    + " | " //$NON-NLS-1$
+			    + new PrintfFormat(" %.5f ").sprintf(ScheduleRenderer //$NON-NLS-1$
+			        .getAverage(allValues) * 1000) + " | " //$NON-NLS-1$
+			    + new PrintfFormat(" %.5f ").sprintf(allValuesSorted[0] * 1000) //$NON-NLS-1$
+			    + " | " //$NON-NLS-1$
+			    + new PrintfFormat(" %.5f ").sprintf(ScheduleRenderer //$NON-NLS-1$
+			        .getMedian(allValuesSorted) * 1000) + " | " //$NON-NLS-1$
+			    + new PrintfFormat(" %.5f ") //$NON-NLS-1$
 			        .sprintf(allValuesSorted[allValuesSorted.length - 1] * 1000));
 		}
 	}
@@ -268,17 +269,17 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		Double time = globalTime;
 		this.clock = this.renderedEvent.getClock();
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logTime("clock", this.m, time);
+		ScheduleRenderer.logTime("clock", this.m, time); //$NON-NLS-1$
 
 		time = Double.valueOf(System.nanoTime());
 		this.events = Machine.getLatestSchedule(this.m, this.renderedEvent);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logTime("schedule", this.m, time);
+		ScheduleRenderer.logTime("schedule", this.m, time); //$NON-NLS-1$
 
 		time = Double.valueOf(System.nanoTime());
 		final boolean isActive = Machine.isActive(this.m, this.renderedEvent);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logTime("activity", this.m, time);
+		ScheduleRenderer.logTime("activity", this.m, time); //$NON-NLS-1$
 
 		final Image img = this.getTemplate(isActive);
 		final Graphics2D g = (Graphics2D) img.getGraphics();
@@ -289,16 +290,17 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		// add machine info
 		if (isActive) {
 			g.setColor(Color.BLACK);
-			g.drawString(this.m.getName() + "@" + this.clock, 1, 9);
+			g.drawString(this.m.getName() + "@" + this.clock, 1, 9); //$NON-NLS-1$
 		} else {
 			g.setColor(Color.WHITE);
-			g.drawString(this.m.getName() + "@" + this.clock + " (off-line)", 1, 9);
+			g.drawString(this.m.getName()
+			    + "@" + this.clock + Messages.getString("ScheduleRenderer.19"), 1, 9); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logTime("rendering", this.m, time);
+		ScheduleRenderer.logTime("rendering", this.m, time); //$NON-NLS-1$
 
 		time = (System.nanoTime() - globalTime) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logTime("total", this.m, time);
+		ScheduleRenderer.logTime("total", this.m, time); //$NON-NLS-1$
 		return img;
 	}
 
@@ -333,9 +335,10 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 					final int jobStartX = this.getStartingPosition(schedule);
 					if (jobStartX < 0) {
 						// might be ok, but might also be bad. so inform.
-						ScheduleRenderer.logger.debug("Machine " + this.m.getName()
-						    + " at " + this.renderedEvent.getId() + " is drawing "
-						    + jobStartX + " before its boundary.");
+						ScheduleRenderer.logger.debug(new PrintfFormat(Messages
+						    .getString("ScheduleRenderer.22")) //$NON-NLS-1$
+						    .sprintf(new Object[] { this.m.getName(),
+						        this.renderedEvent.getId(), jobStartX }));
 					}
 					final int jobLength = this.getJobLength(schedule);
 					final int ltY = crntCPU * ScheduleRenderer.NUM_PIXELS_PER_CPU;
@@ -360,9 +363,10 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 					    - ScheduleRenderer.LINE_WIDTH;
 					if (rightBoundary > 0) {
 						// always bad. warn.
-						ScheduleRenderer.logger.warn("Machine " + this.m.getName() + " at "
-						    + this.renderedEvent.getId() + " is drawing " + rightBoundary
-						    + " over its boundary.");
+						ScheduleRenderer.logger.warn(new PrintfFormat(Messages
+						    .getString("ScheduleRenderer.23")) //$NON-NLS-1$
+						    .sprintf(new Object[] { this.m.getName(),
+						        this.renderedEvent.getId(), rightBoundary }));
 					}
 				}
 			} else {
@@ -415,7 +419,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		synchronized (ScheduleRenderer.sets) {
 			if (!ScheduleRenderer.sets.containsKey(schedule.getAssignedCPUs())) {
 				final Set<Integer> assignedCPUs = new TreeSet<Integer>();
-				for (final String num : schedule.getAssignedCPUs().split(",")) {
+				for (final String num : schedule.getAssignedCPUs().split(",")) { //$NON-NLS-1$
 					assignedCPUs.add(Integer.valueOf(num));
 				}
 				ScheduleRenderer.sets.put(schedule.getAssignedCPUs(), assignedCPUs
@@ -525,7 +529,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		        * ScheduleRenderer.NUM_PIXELS_PER_CPU);
 		// finish
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logTime("template", this.m, time);
+		ScheduleRenderer.logTime("template", this.m, time); //$NON-NLS-1$
 		return img;
 	}
 
