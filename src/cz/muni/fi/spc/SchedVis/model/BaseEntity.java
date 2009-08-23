@@ -45,7 +45,8 @@ public abstract class BaseEntity implements Cloneable {
 
 	/**
 	 * Get a fresh criteria query. Using this method violates JPA as it does not
-	 * support criteria queries and thus locks the application to Hibernate.
+	 * support criteria queries (JPA 1, that is) and thus locks the application
+	 * to Hibernate.
 	 * 
 	 * @param clazz
 	 *          The class on which the Criteria query will operate.
@@ -66,7 +67,7 @@ public abstract class BaseEntity implements Cloneable {
 	 * 
 	 * @return Session associated with the entity manager.
 	 */
-	protected static Session getSession(final EntityManager em) {
+	private static Session getSession(final EntityManager em) {
 		return (Session) em.getDelegate();
 	}
 

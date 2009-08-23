@@ -29,6 +29,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Table;
 
+import cz.muni.fi.spc.SchedVis.background.Importer;
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
 import cz.muni.fi.spc.SchedVis.util.Database;
 
@@ -51,7 +52,7 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 
 	/**
 	 * Get the maximum length of a job. Actually computed only first time, every
-	 * other time over the app lifetime, the first result is retrieved.
+	 * other time over the app instance lifetime, the first result is retrieved.
 	 * 
 	 * @return The length in ticks.
 	 */
@@ -134,7 +135,8 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 
 	/**
 	 * A "hint" to the renderer as to how to render the job. There is a
-	 * "just arrived" hint, a "moved good" hint and a "moved bad" hint.
+	 * "just arrived" hint, a "moved good" hint and a "moved bad" hint. See
+	 * {@link Importer} class for more details.
 	 * 
 	 * @return The hint.
 	 */

@@ -165,7 +165,7 @@ public final class Main {
 	}
 
 	/**
-	 * Prints insctructions on how to use the program and exits.
+	 * Prints instructions on how to use the program and exits.
 	 */
 	public static void printUsageAndExit() {
 		System.out.println(Messages.getString("Main.10")); //$NON-NLS-1$

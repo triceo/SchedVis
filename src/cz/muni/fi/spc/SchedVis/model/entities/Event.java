@@ -141,7 +141,8 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	}
 
 	/**
-	 * Get the event that immediately preceeds the specified event.
+	 * Get the event that immediately preceeds the specified event, with relation
+	 * to a given machine.
 	 * 
 	 * @param evt
 	 *          The event in question.
@@ -166,11 +167,11 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	}
 
 	/**
-	 * Retrieve a clock with a given event id.
+	 * Retrieve an event with a given event id.
 	 * 
 	 * @param eventId
 	 *          The id of the event in question.
-	 * @return The clock value.
+	 * @return The event.
 	 */
 	public static Event getWithId(final int eventId) {
 		final Event evt = Database.getEntityManager().find(Event.class, eventId);

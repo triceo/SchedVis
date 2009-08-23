@@ -56,8 +56,8 @@ import cz.muni.fi.spc.SchedVis.util.Database;
 public final class Machine extends BaseEntity implements Comparable<Machine> {
 
 	/**
-	 * Holds so-called "machine events" - those are events that change the state
-	 * of a machine, such as failure or restart. For performance reasons, this is
+	 * Holds so-called "machine event types" - those change the state of a
+	 * machine, such as failure or restart. For performance reasons, this is
 	 * static and filled lazily when needed.
 	 */
 	private static EventType[] machineEvents = new EventType[0];
@@ -98,6 +98,18 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		return new TreeSet<Machine>(crit.list());
 	}
 
+	/**
+	 * Get the latest schedule that concerns given machine at a given time. This
+	 * method ties directly to SQLite, even skipping Hibernate - it is essential
+	 * that this method is as fast as possible.
+	 * 
+	 * @param which
+	 *          The machine in which we are interested.
+	 * @param evt
+	 *          The latest schedule is looked for in the interval of event 1 to
+	 *          this number.
+	 * @return Jobs in the schedule.
+	 */
 	public static List<Job> getLatestSchedule(final Machine which, final Event evt) {
 		try {
 			if (Machine.s == null) {
@@ -148,7 +160,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	 * @param name
 	 *          The name in question.
 	 * @param cache
-	 *          Whether or not to use the entity cache.
+	 *          Whether or not to use the local entity cache.
 	 * @return The machine.
 	 */
 	public synchronized static Machine getWithName(final String name,

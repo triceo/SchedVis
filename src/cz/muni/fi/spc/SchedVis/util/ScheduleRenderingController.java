@@ -40,7 +40,8 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 public final class ScheduleRenderingController {
 
 	/**
-	 * Holds active machine renderers, ie. schedules that are still rendering.
+	 * Holds active machine renderers, i. e. the schedules that are still
+	 * rendering.
 	 */
 	private final static Map<Integer, Map<Machine, ScheduleRenderer>> renderers = new HashMap<Integer, Map<Machine, ScheduleRenderer>>();
 
@@ -51,7 +52,7 @@ public final class ScheduleRenderingController {
 
 	/**
 	 * Requests an already rendered schedule. If none is available but the
-	 * rendering is already in progress, it waits until it finishes and then
+	 * rendering is already in progress, it waits until it is finished and then
 	 * returns the result. Otherwise it starts the rendering and returns its
 	 * result when done.
 	 * 

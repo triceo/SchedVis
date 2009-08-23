@@ -52,6 +52,12 @@ import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
 
 /**
  * This class knows how to render schedule for a machine into an image.
+ * Performance of whole application essentially boils down to berformance of
+ * this class and entity methods it calls.
+ * 
+ * For benchmark mode of the application, it contains some special debugging
+ * code that allows for precise timing of all its operations - that can be used
+ * to measure and later further optimize the performance of this critical class.
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
@@ -90,7 +96,8 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	    .intValue();
 	/**
 	 * Total length of the x axis of the schedule. If you need to change it,
-	 * please change the input values, not the equation.
+	 * please change the input values, possibly in the config file, and not the
+	 * equation.
 	 */
 	private static final Integer LINE_WIDTH = Double.valueOf(
 	    Math.floor((Job.getMaxSpan() * ScheduleRenderer.NUM_PIXELS_PER_TICK)
@@ -102,13 +109,17 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 * Please remember not to use following colors: white (background for
 	 * machines), dark gray (background for disabled machines) and red (overdue
 	 * jobs).
+	 * 
+	 * Also, if you increase the amount of colors available, please also change
+	 * the associated color model that this class uses and mind its associated
+	 * comments.
 	 */
 	private static final Color[] colors = { Color.BLUE, Color.CYAN, Color.GREEN,
 	    Color.GRAY, Color.MAGENTA, Color.ORANGE, Color.LIGHT_GRAY, Color.PINK,
 	    Color.YELLOW };
 
 	/**
-	 * Holds a font used throughout the schedules. Memory use improvement.
+	 * Holds a font used throughout the schedules.
 	 */
 	private static final Font font = new Font("Monospaced", Font.PLAIN, 9); //$NON-NLS-1$
 
@@ -140,12 +151,9 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 */
 	private static final Integer TICKS_PER_GUIDING_BAR = Configuration
 	    .getNumberOfTicksPerGuide();
-
 	/**
-	 * The current point in time that we are rendering.
+	 * Stores debugging information.
 	 */
-	private int clock;
-
 	private static final HashMap<String, Map<Machine, List<Double>>> logTimes = new HashMap<String, Map<Machine, List<Double>>>();
 
 	/**
@@ -167,6 +175,13 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		ScheduleRenderer.logTimes.clear();
 	}
 
+	/**
+	 * Compute average value of many values.
+	 * 
+	 * @param values
+	 *          The values.
+	 * @return The average.
+	 */
 	private static Double getAverage(final List<Double> values) {
 		Double total = 0.0;
 		for (final Double value : values) {
@@ -175,6 +190,14 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		return total / values.size();
 	}
 
+	/**
+	 * Compute the median of many values. A median is the number that splits the
+	 * set of numbers into two sets of equal sizes.
+	 * 
+	 * @param sortedVals
+	 *          The values, sorted.
+	 * @return The median value.
+	 */
 	private static Double getMedian(final Double[] sortedVals) {
 		final Integer numVals = sortedVals.length;
 		if (numVals % 2 == 1) {
@@ -186,6 +209,16 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		    .intValue()]) / 2;
 	}
 
+	/**
+	 * Log a time it took to execute a given task.
+	 * 
+	 * @param type
+	 *          ID of a task that was being executed.
+	 * @param m
+	 *          The machine on which it was executed.
+	 * @param time
+	 *          The time it took.
+	 */
 	private static void logTime(final String type, final Machine m,
 	    final Double time) {
 		if (!ScheduleRenderer.logTimes.containsKey(type)) {
@@ -203,6 +236,9 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		    m.getName(), type, time }));
 	}
 
+	/**
+	 * Output a table with results of the performance benchmark.
+	 */
 	public static void reportLogResults() {
 		// show globals
 		System.out
@@ -258,8 +294,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	}
 
 	/**
-	 * Performs the actual drawing of the machine schedule. Draws a frame and
-	 * calls another method to perform drawing of jobs.
+	 * Performs the actual drawing of the machine schedule.
 	 * 
 	 * @return The rendered image.
 	 */
@@ -267,7 +302,6 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	public Image doInBackground() {
 		final Double globalTime = Double.valueOf(System.nanoTime());
 		Double time = globalTime;
-		this.clock = this.renderedEvent.getClock();
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logTime("clock", this.m, time); //$NON-NLS-1$
 
@@ -290,11 +324,15 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		// add machine info
 		if (isActive) {
 			g.setColor(Color.BLACK);
-			g.drawString(this.m.getName() + "@" + this.clock, 1, 9); //$NON-NLS-1$
+			g
+			    .drawString(
+			        this.m.getName() + "@" + this.renderedEvent.getClock(), 1, 9); //$NON-NLS-1$
 		} else {
 			g.setColor(Color.WHITE);
-			g.drawString(this.m.getName()
-			    + "@" + this.clock + Messages.getString("ScheduleRenderer.19"), 1, 9); //$NON-NLS-1$ //$NON-NLS-2$
+			g
+			    .drawString(
+			        this.m.getName()
+			            + "@" + this.renderedEvent.getClock() + Messages.getString("ScheduleRenderer.19"), 1, 9); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logTime("rendering", this.m, time); //$NON-NLS-1$
@@ -344,7 +382,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 					final int ltY = crntCPU * ScheduleRenderer.NUM_PIXELS_PER_CPU;
 					final int jobHgt = numCPUs * ScheduleRenderer.NUM_PIXELS_PER_CPU;
 					if ((schedule.getDeadline() > -1)
-					    && (schedule.getDeadline() < this.clock)) {
+					    && (schedule.getDeadline() < this.renderedEvent.getClock())) {
 						// the job has a deadline and has missed it
 						g.setColor(Color.RED);
 					} else {
@@ -479,7 +517,8 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 			return ScheduleRenderer.OVERFLOW_WIDTH;
 		}
 		return Double.valueOf(
-		    Math.floor((start - this.clock) * ScheduleRenderer.NUM_PIXELS_PER_TICK)
+		    Math.floor((start - this.renderedEvent.getClock())
+		        * ScheduleRenderer.NUM_PIXELS_PER_TICK)
 		        + ScheduleRenderer.OVERFLOW_WIDTH).intValue();
 	}
 

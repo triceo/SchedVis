@@ -44,10 +44,7 @@ public final class Database {
 	private static EntityManager currentEM;
 
 	/**
-	 * Returns the current "root" entity manager, ie. the one the
-	 * EntityManagerFactory was created with.
-	 * 
-	 * Client code should close no entity managers received using this method.
+	 * Returns the current entity manager. Client code should not close it.
 	 * 
 	 * @return The EntityManager.
 	 */
@@ -156,8 +153,7 @@ public final class Database {
 	}
 
 	/**
-	 * Creates the appropriate entity manager factory and a "root" entity manager.
-	 * 
+	 * Creates the appropriate entity manager factory and an entity manager.
 	 * Calling this method more than once has no effect.
 	 */
 	public static synchronized void use() {

@@ -91,10 +91,23 @@ public final class TimelineSliderModel extends DefaultBoundedRangeModel {
 		this.addChangeListener(listener);
 	}
 
+	/**
+	 * Return the event currently associated with the model. It is the event whose
+	 * ID is the current model value.
+	 * 
+	 * @return The event at which the model is "pointing".
+	 */
 	public Event getRichValue() {
 		return TimelineSliderModel.event;
 	}
 
+	/**
+	 * Set the "rich" value for this model. The event's ID is used as the actual
+	 * model value.
+	 * 
+	 * @param evt
+	 *          The event whose ID will be used.
+	 */
 	public void setValue(final Event evt) {
 		super.setValue(evt.getId());
 		TimelineSliderModel.event = evt;
