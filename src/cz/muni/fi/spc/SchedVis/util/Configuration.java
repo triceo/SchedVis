@@ -24,7 +24,6 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-
 /**
  * The class that is used to access every bit of SchedVis configuration. It is a
  * singleton.
@@ -129,7 +128,7 @@ public final class Configuration {
 	protected synchronized static Properties getProperties() {
 		if (Configuration.p == null) {
 			try {
-				final FileInputStream in = new FileInputStream("config.properties"); //$NON-NLS-1$
+				final FileInputStream in = new FileInputStream("bin/config.properties"); //$NON-NLS-1$
 				Configuration.p = new Properties();
 				Configuration.p.load(in);
 			} catch (final Exception e) {
