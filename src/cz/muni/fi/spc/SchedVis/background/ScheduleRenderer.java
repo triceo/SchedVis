@@ -171,6 +171,10 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	    (byte) 0, (byte) 255, (byte) 0, (byte) 128, (byte) 0, (byte) 255,
 	    (byte) 128, (byte) 0 });
 
+	private static final BasicStroke thinStroke = new BasicStroke(1);
+
+	private static final BasicStroke thickStroke = new BasicStroke(2);
+
 	public static void clearLogResults() {
 		ScheduleRenderer.logTimes.clear();
 	}
@@ -393,7 +397,11 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 					g.setPaint(this.getTexture(g.getColor(), schedule.getJobHint()));
 					g.fill(s);
 					g.setColor(Color.BLACK);
-					g.setStroke(new BasicStroke(1));
+					if (this.renderedEvent.getId().equals(schedule.getJob())) {
+						g.setStroke(ScheduleRenderer.thickStroke);
+					} else {
+						g.setStroke(ScheduleRenderer.thinStroke);
+					}
 					g.draw(s);
 					g.drawString(schedule.getJob().toString(),
 					    Math.max(jobStartX + 2, 2), ltY + jobHgt - 2);
