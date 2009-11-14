@@ -28,9 +28,12 @@
   </path>
   <path id="classpath.runtime">
     <path refid="classpath.base" />
-    <fileset dir="${dir.bin}">
-      <include name="*.jar"/>
-    </fileset>
+    <path path="${dir.bin}" />
+    <path>
+	<fileset dir="${dir.bin}">
+	    <include name="*.jar" />
+	</fileset>
+    </path>
   </path>
 	
 	<target name="makejar" description="Create a jar for the SchedVis project">
