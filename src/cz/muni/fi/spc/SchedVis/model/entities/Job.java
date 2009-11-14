@@ -56,7 +56,7 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 	 * 
 	 * @return The length in ticks.
 	 */
-	public static Integer getMaxSpan() {
+	public synchronized static Integer getMaxSpan() {
 		if (Job.maxJobSpan == -1) {
 			Job.maxJobSpan = (Integer) ((Session) Database.getEntityManager()
 			    .getDelegate())

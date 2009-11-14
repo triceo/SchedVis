@@ -59,7 +59,7 @@ public final class MachineGroup extends BaseEntity implements
 	 *          The id in question.
 	 * @return The machine.
 	 */
-	public static MachineGroup get(final Integer id) {
+	public synchronized static MachineGroup get(final Integer id) {
 		if (!MachineGroup.byId.containsKey(id)) {
 			MachineGroup.byId.put(id, Database.getEntityManager().find(
 			    MachineGroup.class, id));
@@ -99,7 +99,8 @@ public final class MachineGroup extends BaseEntity implements
 	 *          Whether or not to use the local entity cache.
 	 * @return The machine.
 	 */
-	public static MachineGroup getWithName(final String name, final boolean cache) {
+	public synchronized static MachineGroup getWithName(final String name,
+	    final boolean cache) {
 		if (!cache) {
 			return MachineGroup.getWithName(name);
 		}

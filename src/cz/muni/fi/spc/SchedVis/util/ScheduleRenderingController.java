@@ -48,7 +48,7 @@ public final class ScheduleRenderingController {
 	/**
 	 * Executor for rendering schedules.
 	 */
-	private final static ExecutorService e = Executors.newFixedThreadPool(1);
+	private static ExecutorService e = Executors.newCachedThreadPool();
 
 	/**
 	 * Requests an already rendered schedule. If none is available but the
@@ -62,7 +62,7 @@ public final class ScheduleRenderingController {
 	 *          The event in which to render the schedule.
 	 * @return The rendered schedule.
 	 */
-	public static Image getRendered(final Machine m, final Event evt) {
+	public synchronized static Image getRendered(final Machine m, final Event evt) {
 		if (ScheduleRenderingController.renderers.containsKey(evt.getId())
 		    && ScheduleRenderingController.renderers.get(evt.getId())
 		        .containsKey(m)) {
@@ -95,22 +95,32 @@ public final class ScheduleRenderingController {
 	 * @param evt
 	 *          The event in which to render the schedule.
 	 */
-	public static void render(final Machine m, final Event evt) {
+	public synchronized static void render(final Machine m, final Event evt) {
 		if (ScheduleRenderingController.renderers.containsKey(evt.getId())
 		    && ScheduleRenderingController.renderers.get(evt.getId())
 		        .containsKey(m)) {
 			// don't render when we already have the result
 			return;
 		}
-		synchronized (ScheduleRenderingController.renderers) {
-			if (!ScheduleRenderingController.renderers.containsKey(evt.getId())) {
-				ScheduleRenderingController.renderers.put(evt.getId(),
-				    new HashMap<Machine, ScheduleRenderer>());
-			}
-			final ScheduleRenderer mr = new ScheduleRenderer(m, evt);
-			ScheduleRenderingController.renderers.get(evt.getId()).put(m, mr);
+		if (!ScheduleRenderingController.renderers.containsKey(evt.getId())) {
+			ScheduleRenderingController.renderers.put(evt.getId(),
+			    new HashMap<Machine, ScheduleRenderer>());
 		}
+		final ScheduleRenderer mr = new ScheduleRenderer(m, evt);
+		ScheduleRenderingController.renderers.get(evt.getId()).put(m, mr);
 		ScheduleRenderingController.e.submit(ScheduleRenderingController.renderers
 		    .get(evt.getId()).get(m));
+	}
+
+	public static void restart() {
+		ScheduleRenderingController.e.shutdown();
+		while (!ScheduleRenderingController.e.isTerminated()) {
+			try {
+				Thread.sleep(1000);
+			} catch (Exception ex) {
+
+			}
+		}
+		ScheduleRenderingController.e = Executors.newCachedThreadPool();
 	}
 }

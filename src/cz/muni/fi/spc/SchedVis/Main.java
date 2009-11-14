@@ -83,12 +83,17 @@ public final class Main {
 			i++;
 			final Long now = System.nanoTime();
 			for (final Machine m : machines) {
-				ScheduleRenderingController.getRendered(m, Event.getWithId(tick));
+				ScheduleRenderingController.render(m, Event.getWithId(tick));
 			}
 			final Double time = (System.nanoTime() - (double) now) / 1000 / 1000 / 1000;
 			totalTime += time;
 			System.out.println(new PrintfFormat(Messages.getString("Main.1")) //$NON-NLS-1$
 			    .sprintf(new Integer[] { i, ticks.length, tick }));
+			try {
+				Thread.sleep(100);
+			} catch (Exception ex) {
+				// do nothing
+			}
 		}
 		System.out.println();
 		System.out.println(new PrintfFormat(Messages.getString("Main.2")) //$NON-NLS-1$

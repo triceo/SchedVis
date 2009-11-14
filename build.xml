@@ -84,7 +84,7 @@
     </java>
   </target>
   <target name="benchmark" description="Render the schedules prior to executing the program.">
-    <java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" maxmemory="256m">
+    <java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" maxmemory="512m">
       <!--jvmarg value="-Xloggc:garbage_collector.log" /-->
       <sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
       <arg value="benchmark" />

@@ -48,7 +48,7 @@ public final class Database {
 	 * 
 	 * @return The EntityManager.
 	 */
-	public static EntityManager getEntityManager() {
+	public synchronized static EntityManager getEntityManager() {
 		return Database.currentEM;
 	}
 

@@ -110,7 +110,8 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	 *          this number.
 	 * @return Jobs in the schedule.
 	 */
-	public static List<Job> getLatestSchedule(final Machine which, final Event evt) {
+	public synchronized static List<Job> getLatestSchedule(final Machine which,
+	    final Event evt) {
 		try {
 			if (Machine.s == null) {
 				final String query = "SELECT id, assignedCPUs, deadline, job, jobHint, expectedStart, expectedEnd, bringsSchedule FROM Job WHERE machine_id = ? AND parent = (SELECT max(parent) FROM Job WHERE machine_id = ? AND parent <= ?)"; //$NON-NLS-1$

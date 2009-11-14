@@ -165,6 +165,7 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 				ScheduleTree.getInstance().updateUI();
 				// update the detail pane based on the tree selection
 				try {
+					StatusBar.getInstance().updateFrame(this.tlsm.getRichValue());
 					final DefaultMutableTreeNode n = (DefaultMutableTreeNode) ScheduleTree
 					    .getInstance().getLastSelectedPathComponent();
 					if (n.getUserObject() instanceof Machine) {
@@ -175,7 +176,6 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 				} catch (final NullPointerException ex) {
 					Main.getFrame().updateDetail(null);
 				}
-				StatusBar.getInstance().updateFrame(this.tlsm.getRichValue());
 				Main.getFrame().setCursor(
 				    Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			}
