@@ -52,26 +52,6 @@ public final class MachineGroup extends BaseEntity implements
 	private static final Map<String, MachineGroup> byName = new HashMap<String, MachineGroup>();
 
 	/**
-	 * Get machine group with a given ID. It is expected that there will be a very
-	 * small number of groups, so they are cached locally.
-	 * 
-	 * @param id
-	 *          The id in question.
-	 * @return The machine.
-	 */
-	public synchronized static MachineGroup get(final Integer id) {
-		if (!MachineGroup.byId.containsKey(id)) {
-			MachineGroup.byId.put(id, Database.getEntityManager().find(
-			    MachineGroup.class, id));
-		}
-		final MachineGroup m = MachineGroup.byId.get(id);
-		if (!MachineGroup.byName.containsKey(m.getName())) {
-			MachineGroup.byName.put(m.getName(), m);
-		}
-		return m;
-	}
-
-	/**
 	 * Get all the machine groups.
 	 * 
 	 * @return The machine groups.
@@ -81,6 +61,26 @@ public final class MachineGroup extends BaseEntity implements
 		final Criteria crit = BaseEntity.getCriteria(MachineGroup.class);
 		crit.addOrder(Order.asc("name")); //$NON-NLS-1$
 		return new TreeSet<MachineGroup>(crit.list());
+	}
+
+	/**
+	 * Get machine group with a given ID. It is expected that there will be a very
+	 * small number of groups, so they are cached locally.
+	 * 
+	 * @param id
+	 *          The id in question.
+	 * @return The machine.
+	 */
+	public synchronized static MachineGroup getWithId(final int id) {
+		if (!MachineGroup.byId.containsKey(id)) {
+			MachineGroup.byId.put(id, Database.getEntityManager().find(
+			    MachineGroup.class, id));
+		}
+		final MachineGroup m = MachineGroup.byId.get(id);
+		if (!MachineGroup.byName.containsKey(m.getName())) {
+			MachineGroup.byName.put(m.getName(), m);
+		}
+		return m;
 	}
 
 	private static MachineGroup getWithName(final String name) {

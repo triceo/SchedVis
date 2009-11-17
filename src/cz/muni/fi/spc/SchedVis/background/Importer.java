@@ -235,7 +235,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 				lineId++;
 				eventId++;
 				final Event evt = new Event();
-				evt.setType(EventType.get(eventTypes.get(event.getName())));
+				evt.setType(EventType.getWithId(eventTypes.get(event.getName())));
 				evt.setClock(event.getClock());
 				Integer jobHint = Event.JOB_HINT_NONE;
 				if (event instanceof EventIsJobRelated) {

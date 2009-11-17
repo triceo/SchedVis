@@ -91,7 +91,7 @@ public final class Main {
 			    .sprintf(new Integer[] { i, ticks.length, tick }));
 			try {
 				Thread.sleep(100);
-			} catch (Exception ex) {
+			} catch (final Exception ex) {
 				// do nothing
 			}
 		}

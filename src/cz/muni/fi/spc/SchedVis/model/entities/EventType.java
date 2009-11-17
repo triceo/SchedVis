@@ -58,7 +58,7 @@ public final class EventType extends BaseEntity {
 	 *          The id of the event type in question.
 	 * @return The event type.
 	 */
-	public static synchronized EventType get(final int eventTypeId) {
+	public static synchronized EventType getWithId(final int eventTypeId) {
 		if (!EventType.byId.containsKey(eventTypeId)) {
 			EventType.byId.put(eventTypeId, Database.getEntityManager().find(
 			    EventType.class, eventTypeId));

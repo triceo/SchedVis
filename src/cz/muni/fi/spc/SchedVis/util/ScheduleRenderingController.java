@@ -117,7 +117,7 @@ public final class ScheduleRenderingController {
 		while (!ScheduleRenderingController.e.isTerminated()) {
 			try {
 				Thread.sleep(1000);
-			} catch (Exception ex) {
+			} catch (final Exception ex) {
 
 			}
 		}

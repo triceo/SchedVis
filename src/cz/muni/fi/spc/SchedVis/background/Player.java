@@ -21,7 +21,6 @@ import org.apache.log4j.Logger;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
 import cz.muni.fi.spc.SchedVis.util.Configuration;
-import cz.muni.fi.spc.SchedVis.util.Database;
 import cz.muni.fi.spc.SchedVis.util.Messages;
 import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
 
@@ -69,8 +68,7 @@ public final class Player implements Runnable {
 					@Override
 					public void run() {
 						final TimelineSliderModel m = TimelineSliderModel.getInstance();
-						final Event evt = Database.getEntityManager().find(Event.class,
-						    m.getValue());
+						final Event evt = Event.getWithId(m.getValue());
 						m.setValue(Event.getNext(evt).getId());
 					}
 				});

@@ -36,7 +36,6 @@ import cz.muni.fi.spc.SchedVis.background.Player;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
-import cz.muni.fi.spc.SchedVis.util.Database;
 
 /**
  * Implements a timeline "widget," used to move forward or backwards on the
@@ -111,8 +110,7 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 			this.btnPlay.updateUI();
 			Player.getInstance().toggleStatus();
 		} else if (src.equals(this.btnNext) || src.equals(this.btnPrev)) {
-			final Event evt = Database.getEntityManager().find(Event.class,
-			    this.tlsm.getValue());
+			final Event evt = Event.getWithId(this.tlsm.getValue());
 			if (src.equals(this.btnPrev)) {
 				try {
 					this.tlsm.setValue(Event.getPrevious(evt));

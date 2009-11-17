@@ -33,7 +33,6 @@ import javax.swing.JScrollPane;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
-import cz.muni.fi.spc.SchedVis.util.Database;
 import cz.muni.fi.spc.SchedVis.util.Messages;
 import cz.muni.fi.spc.SchedVis.util.ScheduleRenderingController;
 
@@ -109,8 +108,8 @@ public final class MainFrame extends JFrame {
 		if (m != null) {
 			this.detailPane.setLayout(new BoxLayout(this.detailPane,
 			    BoxLayout.PAGE_AXIS));
-			final Event currentEvent = Database.getEntityManager().find(Event.class,
-			    TimelineSliderModel.getInstance().getValue());
+			final Event currentEvent = Event.getWithId(TimelineSliderModel
+			    .getInstance().getValue());
 			final Event previousEvent = Event.getPrevious(currentEvent, m);
 			final Event nextEvent = Event.getNext(currentEvent, m);
 			for (final Event event : new TreeSet<Event>(Arrays.asList(new Event[] {

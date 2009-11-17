@@ -77,7 +77,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	public static Set<Machine> getAll(final Integer groupId) {
 		final Criteria crit = BaseEntity.getCriteria(Machine.class);
 		if (groupId != null) {
-			crit.add(Restrictions.eq("group", MachineGroup.get(groupId))); //$NON-NLS-1$
+			crit.add(Restrictions.eq("group", MachineGroup.getWithId(groupId))); //$NON-NLS-1$
 		} else {
 			crit.add(Restrictions.isNull("group")); //$NON-NLS-1$
 		}
@@ -199,10 +199,10 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		synchronized (Machine.machineEvents) {
 			if (Machine.machineEvents.length == 0) {
 				Machine.machineEvents = new EventType[] {
-				    EventType.get(EventType.EVENT_MACHINE_FAILURE),
-				    EventType.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
-				    EventType.get(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
-				    EventType.get(EventType.EVENT_MACHINE_RESTART) };
+				    EventType.getWithId(EventType.EVENT_MACHINE_FAILURE),
+				    EventType.getWithId(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
+				    EventType.getWithId(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
+				    EventType.getWithId(EventType.EVENT_MACHINE_RESTART) };
 			}
 		}
 		final Criteria crit = BaseEntity.getCriteria(Event.class);
@@ -213,7 +213,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		if (evtId == null) {
 			return true;
 		}
-		final Event e = Database.getEntityManager().find(Event.class, evtId);
+		final Event e = Event.getWithId(evtId);
 		if (e == null) {
 			return true;
 		}
