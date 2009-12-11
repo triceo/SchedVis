@@ -31,9 +31,9 @@
 package cz.muni.fi.spc.SchedVis.util;
 
 import java.text.DecimalFormatSymbols;
-import java.util.Enumeration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
-import java.util.Vector;
 
 /**
  * PrintfFormat allows the formatting of an array of objects embedded within a 
@@ -2922,8 +2922,8 @@ public final class PrintfFormat {
 		}
 	}
 
-	/** Vector of control strings and format literals. */
-	private final Vector<ConversionSpecification> vFmt = new Vector<ConversionSpecification>();
+	/** List of control strings and format literals. */
+	private final List<ConversionSpecification> vFmt = new ArrayList<ConversionSpecification>();
 	/** Character position. Used by the constructor. */
 	private int cPos = 0;
 	/** Character position. Used by the constructor. */
@@ -2950,7 +2950,7 @@ public final class PrintfFormat {
 		if (unCS != null) {
 			sFmt = new ConversionSpecification();
 			sFmt.setLiteral(unCS);
-			this.vFmt.addElement(sFmt);
+			this.vFmt.add(sFmt);
 		}
 		while ((this.cPos != -1) && (this.cPos < fmtArg.length())) {
 			for (ePos = this.cPos + 1; ePos < fmtArg.length(); ePos++) {
@@ -2998,12 +2998,12 @@ public final class PrintfFormat {
 			}
 			ePos = Math.min(ePos + 1, fmtArg.length());
 			sFmt = new ConversionSpecification(fmtArg.substring(this.cPos, ePos));
-			this.vFmt.addElement(sFmt);
+			this.vFmt.add(sFmt);
 			unCS = this.nonControl(fmtArg, ePos);
 			if (unCS != null) {
 				sFmt = new ConversionSpecification();
 				sFmt.setLiteral(unCS);
-				this.vFmt.addElement(sFmt);
+				this.vFmt.add(sFmt);
 			}
 		}
 	}
@@ -3051,12 +3051,9 @@ public final class PrintfFormat {
 	 * @return the formatted String.
 	 */
 	public String sprintf() {
-		final Enumeration<ConversionSpecification> e = this.vFmt.elements();
-		ConversionSpecification cs = null;
 		char c = 0;
 		final StringBuffer sb = new StringBuffer();
-		while (e.hasMoreElements()) {
-			cs = e.nextElement();
+		for (ConversionSpecification cs : this.vFmt) {
 			c = cs.getConversionCharacter();
 			if (c == '\0') {
 				sb.append(cs.getLiteral());
@@ -3081,12 +3078,9 @@ public final class PrintfFormat {
 	 *              unwrapped value.
 	 */
 	public String sprintf(final Object x) throws IllegalArgumentException {
-		final Enumeration<ConversionSpecification> e = this.vFmt.elements();
-		ConversionSpecification cs = null;
 		char c = 0;
 		final StringBuffer sb = new StringBuffer();
-		while (e.hasMoreElements()) {
-			cs = e.nextElement();
+		for (ConversionSpecification cs : this.vFmt) {
 			c = cs.getConversionCharacter();
 			if (c == '\0') {
 				sb.append(cs.getLiteral());
@@ -3126,13 +3120,10 @@ public final class PrintfFormat {
 	 * @return The formatted String.
 	 */
 	public String sprintf(final Object[] o) {
-		final Enumeration<ConversionSpecification> e = this.vFmt.elements();
-		ConversionSpecification cs = null;
 		char c = 0;
 		int i = 0;
 		final StringBuffer sb = new StringBuffer();
-		while (e.hasMoreElements()) {
-			cs = e.nextElement();
+		for (ConversionSpecification cs : this.vFmt) {
 			c = cs.getConversionCharacter();
 			if (c == '\0') {
 				sb.append(cs.getLiteral());

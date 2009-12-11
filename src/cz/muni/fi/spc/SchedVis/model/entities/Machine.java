@@ -21,12 +21,12 @@ package cz.muni.fi.spc.SchedVis.model.entities;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.Vector;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -122,7 +122,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 			Machine.s.setInt(2, which.getId().intValue());
 			Machine.s.setInt(3, evt.getId());
 			final ResultSet rs = Machine.s.executeQuery();
-			final List<Job> schedules = new Vector<Job>();
+			final List<Job> schedules = new ArrayList<Job>();
 			while (rs.next()) {
 				final Job schedule = new Job();
 				schedule.setId(rs.getInt(1));
@@ -144,7 +144,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 			return schedules;
 		} catch (final SQLException e) {
 			e.printStackTrace();
-			return new Vector<Job>();
+			return new ArrayList<Job>();
 		}
 	}
 

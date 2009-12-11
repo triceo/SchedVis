@@ -19,16 +19,17 @@
  */
 package cz.muni.fi.spc.SchedVis.parsers.schedule;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
- * A placeholder so that we don't need to write Vector<ScheduleMachineData> all
- * the time.
+ * A placeholder so that we don't need to write ArrayList<ScheduleMachineData>
+ * all the time.
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public final class ScheduleMachineDataList extends Vector<ScheduleMachineData> {
+public final class ScheduleMachineDataList extends
+    ArrayList<ScheduleMachineData> {
 
 	/**
      * 

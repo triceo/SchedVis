@@ -29,14 +29,14 @@ import java.awt.Shape;
 import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.Vector;
 import java.util.Map.Entry;
 
 import javax.swing.SwingWorker;
@@ -231,7 +231,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		final Map<Machine, List<Double>> logMachine = ScheduleRenderer.logTimes
 		    .get(type);
 		if (!logMachine.containsKey(m)) {
-			logMachine.put(m, new Vector<Double>());
+			logMachine.put(m, new ArrayList<Double>());
 		}
 		final List<Double> machineTimes = logMachine.get(m);
 		machineTimes.add(time);
@@ -251,7 +251,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		    .println(" -----------------------------------------------------------------"); //$NON-NLS-1$
 		for (final Entry<String, Map<Machine, List<Double>>> entry : ScheduleRenderer.logTimes
 		    .entrySet()) {
-			List<Double> allValues = new Vector<Double>();
+			List<Double> allValues = new ArrayList<Double>();
 			for (final Entry<Machine, List<Double>> perMachine : entry.getValue()
 			    .entrySet()) {
 				allValues.addAll(perMachine.getValue());
@@ -464,7 +464,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		}
 		synchronized (ScheduleRenderer.sets) {
 			if (!ScheduleRenderer.sets.containsKey(schedule.getAssignedCPUs())) {
-				final Set<Integer> assignedCPUs = new TreeSet<Integer>();
+				final Set<Integer> assignedCPUs = new HashSet<Integer>();
 				for (final String num : schedule.getAssignedCPUs().split(",")) { //$NON-NLS-1$
 					assignedCPUs.add(Integer.valueOf(num));
 				}

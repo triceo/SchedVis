@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,8 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.Vector;
 
 import javax.swing.SwingWorker;
 
@@ -204,7 +203,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 		eventTypes.put("job-completion", EventType.EVENT_JOB_COMPLETION); //$NON-NLS-1$
 		final Iterator<Map.Entry<String, Integer>> eventTypeIterator = eventTypes
 		    .entrySet().iterator();
-		final List<EventType> etl = new Vector<EventType>();
+		final List<EventType> etl = new ArrayList<EventType>();
 		while (eventTypeIterator.hasNext()) {
 			final EventType et = new EventType();
 			final Map.Entry<String, Integer> item = eventTypeIterator.next();
@@ -359,7 +358,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 		// fill the machines' table
 		final Integer totalMachines = machines.size();
 		Integer machineId = 0;
-		final List<Machine> machinesList = new Vector<Machine>();
+		final List<Machine> machinesList = new ArrayList<Machine>();
 		for (final MachineData machine : machines) {
 			machineId++;
 			// persist data
@@ -377,7 +376,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 			this.setProgress(progress.intValue());
 		}
 		try {
-			final List<MachineGroup> groupsList = new Vector<MachineGroup>();
+			final List<MachineGroup> groupsList = new ArrayList<MachineGroup>();
 			if (Configuration.createGroupPerMachine()) {
 				for (final Machine m : machinesList) {
 					final MachineGroup mg = new MachineGroup();
@@ -440,7 +439,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 			}
 		} else {
 			// execution finished
-			final Set<String> old = new TreeSet<String>(Arrays.asList(this.CPUstatus
+			final Set<String> old = new HashSet<String>(Arrays.asList(this.CPUstatus
 			    .get(machineId)));
 			final boolean isChanged = old.removeAll(Arrays.asList(jobCPUs));
 			if (!isChanged) {

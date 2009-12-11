@@ -19,6 +19,7 @@
 package cz.muni.fi.spc.SchedVis.model.entities;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -135,7 +136,7 @@ public final class MachineGroup extends BaseEntity implements
 	 */
 	public void addMachine(final Machine me) {
 		if (this.machines == null) {
-			this.machines = new TreeSet<Machine>();
+			this.machines = new HashSet<Machine>();
 		}
 		this.machines.add(me);
 	}

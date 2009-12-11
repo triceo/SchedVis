@@ -19,11 +19,11 @@
  */
 package cz.muni.fi.spc.SchedVis.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
@@ -59,7 +59,7 @@ public final class Database {
 	 *          The entity.
 	 */
 	public static void merge(final BaseEntity e) {
-		final List<BaseEntity> list = new Vector<BaseEntity>();
+		final List<BaseEntity> list = new ArrayList<BaseEntity>();
 		list.add(e);
 		Database.merge(list);
 	}
@@ -92,7 +92,7 @@ public final class Database {
 	 *          The entity.
 	 */
 	public static void persist(final BaseEntity e) {
-		final List<BaseEntity> list = new Vector<BaseEntity>();
+		final List<BaseEntity> list = new ArrayList<BaseEntity>();
 		list.add(e);
 		Database.persist(list);
 	}
@@ -126,7 +126,7 @@ public final class Database {
 	 *          The entity.
 	 */
 	public static void remove(final BaseEntity e) {
-		final List<BaseEntity> list = new Vector<BaseEntity>();
+		final List<BaseEntity> list = new ArrayList<BaseEntity>();
 		list.add(e);
 		Database.remove(list);
 	}

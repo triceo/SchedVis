@@ -19,16 +19,16 @@
  */
 package cz.muni.fi.spc.SchedVis.parsers.machines;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
- * A placeholder type so that we don't need to specify Vector<MachineData>
+ * A placeholder type so that we don't need to specify ArrayList<MachineData>
  * anywhere.
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public final class MachinesList extends Vector<MachineData> {
+public final class MachinesList extends ArrayList<MachineData> {
 
 	/**
      * 
