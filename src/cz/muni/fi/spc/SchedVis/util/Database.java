@@ -43,6 +43,11 @@ public final class Database {
 
 	private static EntityManager currentEM;
 
+	public static synchronized BaseEntity find(
+	    final Class<? extends BaseEntity> e, final int id) {
+		return Database.getEntityManager().find(e, id);
+	}
+
 	/**
 	 * Returns the current entity manager. Client code should not close it.
 	 * 

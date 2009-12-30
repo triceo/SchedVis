@@ -62,6 +62,8 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	 */
 	private static EventType[] machineEvents = new EventType[0];
 
+	private static PreparedStatement s;
+
 	private static final Map<Integer, Machine> byId = new HashMap<Integer, Machine>();
 	private static final Map<String, Machine> byName = new HashMap<String, Machine>();
 
@@ -118,10 +120,11 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 				Machine.s = BaseEntity.getConnection(Database.getEntityManager())
 				    .prepareStatement(query);
 			}
-			Machine.s.setInt(1, which.getId().intValue());
-			Machine.s.setInt(2, which.getId().intValue());
+			Machine.s.setInt(1, which.getId());
+			Machine.s.setInt(2, which.getId());
 			Machine.s.setInt(3, evt.getId());
 			final ResultSet rs = Machine.s.executeQuery();
+			Machine.s.clearParameters();
 			final List<Job> schedules = new ArrayList<Job>();
 			while (rs.next()) {
 				final Job schedule = new Job();
@@ -140,7 +143,6 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 				schedules.add(schedule);
 			}
 			rs.close();
-			Machine.s.clearParameters();
 			return schedules;
 		} catch (final SQLException e) {
 			e.printStackTrace();
@@ -227,25 +229,21 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	}
 
 	private String os;
-	private Integer id;
-	private Integer cpus;
-	private Integer hdd;
+	private int id;
+	private int cpus;
+	private int hdd;
 	private String name;
 	private String platform;
-	private Integer ram;
-
-	private Integer speed;
-
+	private int ram;
+	private int speed;
 	private MachineGroup group;
-
-	private static PreparedStatement s;
 
 	@Override
 	public int compareTo(final Machine o) {
-		return this.getId().compareTo(o.getId());
+		return Integer.valueOf(this.getId()).compareTo(Integer.valueOf(o.getId()));
 	}
 
-	public Integer getCPUs() {
+	public int getCPUs() {
 		return this.cpus;
 	}
 
@@ -255,13 +253,13 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		return this.group;
 	}
 
-	public Integer getHDD() {
+	public int getHDD() {
 		return this.hdd;
 	}
 
 	@Id
 	@GeneratedValue
-	public Integer getId() {
+	public int getId() {
 		return this.id;
 	}
 
@@ -278,15 +276,15 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		return this.platform;
 	}
 
-	public Integer getRAM() {
+	public int getRAM() {
 		return this.ram;
 	}
 
-	public Integer getSpeed() {
+	public int getSpeed() {
 		return this.speed;
 	}
 
-	public void setCPUs(final Integer cpus) {
+	public void setCPUs(final int cpus) {
 		this.cpus = cpus;
 	}
 
@@ -294,11 +292,11 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		this.group = group;
 	}
 
-	public void setHDD(final Integer hdd) {
+	public void setHDD(final int hdd) {
 		this.hdd = hdd;
 	}
 
-	protected void setId(final Integer id) {
+	protected void setId(final int id) {
 		this.id = id;
 	}
 
@@ -314,11 +312,11 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		this.platform = platform;
 	}
 
-	public void setRAM(final Integer ram) {
+	public void setRAM(final int ram) {
 		this.ram = ram;
 	}
 
-	public void setSpeed(final Integer speed) {
+	public void setSpeed(final int speed) {
 		this.speed = speed;
 	}
 

@@ -3053,7 +3053,7 @@ public final class PrintfFormat {
 	public String sprintf() {
 		char c = 0;
 		final StringBuffer sb = new StringBuffer();
-		for (ConversionSpecification cs : this.vFmt) {
+		for (final ConversionSpecification cs : this.vFmt) {
 			c = cs.getConversionCharacter();
 			if (c == '\0') {
 				sb.append(cs.getLiteral());
@@ -3080,7 +3080,7 @@ public final class PrintfFormat {
 	public String sprintf(final Object x) throws IllegalArgumentException {
 		char c = 0;
 		final StringBuffer sb = new StringBuffer();
-		for (ConversionSpecification cs : this.vFmt) {
+		for (final ConversionSpecification cs : this.vFmt) {
 			c = cs.getConversionCharacter();
 			if (c == '\0') {
 				sb.append(cs.getLiteral());
@@ -3123,7 +3123,7 @@ public final class PrintfFormat {
 		char c = 0;
 		int i = 0;
 		final StringBuffer sb = new StringBuffer();
-		for (ConversionSpecification cs : this.vFmt) {
+		for (final ConversionSpecification cs : this.vFmt) {
 			c = cs.getConversionCharacter();
 			if (c == '\0') {
 				sb.append(cs.getLiteral());

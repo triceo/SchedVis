@@ -18,6 +18,7 @@
  */
 package cz.muni.fi.spc.SchedVis.model.entities;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -49,8 +50,10 @@ import cz.muni.fi.spc.SchedVis.util.Database;
 public final class MachineGroup extends BaseEntity implements
     Comparable<MachineGroup> {
 
-	private static final Map<Integer, MachineGroup> byId = new HashMap<Integer, MachineGroup>();
-	private static final Map<String, MachineGroup> byName = new HashMap<String, MachineGroup>();
+	private static final Map<Integer, MachineGroup> byId = Collections
+	    .synchronizedMap(new HashMap<Integer, MachineGroup>());
+	private static final Map<String, MachineGroup> byName = Collections
+	    .synchronizedMap(new HashMap<String, MachineGroup>());
 
 	/**
 	 * Get all the machine groups.
@@ -72,9 +75,9 @@ public final class MachineGroup extends BaseEntity implements
 	 *          The id in question.
 	 * @return The machine.
 	 */
-	public synchronized static MachineGroup getWithId(final int id) {
+	public static MachineGroup getWithId(final int id) {
 		if (!MachineGroup.byId.containsKey(id)) {
-			MachineGroup.byId.put(id, Database.getEntityManager().find(
+			MachineGroup.byId.put(id, (MachineGroup) Database.find(
 			    MachineGroup.class, id));
 		}
 		final MachineGroup m = MachineGroup.byId.get(id);
@@ -122,7 +125,7 @@ public final class MachineGroup extends BaseEntity implements
 		return m;
 	}
 
-	private Integer id;
+	private int id;
 
 	private String name;
 
@@ -148,7 +151,7 @@ public final class MachineGroup extends BaseEntity implements
 
 	@GeneratedValue
 	@Id
-	public Integer getId() {
+	public int getId() {
 		return this.id;
 	}
 
@@ -177,7 +180,7 @@ public final class MachineGroup extends BaseEntity implements
 		this.machines.remove(me);
 	}
 
-	protected void setId(final Integer id) {
+	protected void setId(final int id) {
 		this.id = id;
 	}
 

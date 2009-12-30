@@ -44,11 +44,11 @@ import cz.muni.fi.spc.SchedVis.util.Database;
     "machine_id", "parent" }) })
 public final class Job extends BaseEntity implements Comparable<Job> {
 
-	public static final Integer JOB_HINT_NONE = 0;
-	public static final Integer JOB_HINT_MOVE_OK = 1;
-	public static final Integer JOB_HINT_MOVE_NOK = 2;
-	public static final Integer JOB_HINT_ARRIVAL = 3;
-	private static Integer maxJobSpan = -1;
+	public static final int JOB_HINT_NONE = 0;
+	public static final int JOB_HINT_MOVE_OK = 1;
+	public static final int JOB_HINT_MOVE_NOK = 2;
+	public static final int JOB_HINT_ARRIVAL = 3;
+	private static int maxJobSpan = -1;
 
 	/**
 	 * Get the maximum length of a job. Actually computed only first time, every
@@ -56,7 +56,7 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 	 * 
 	 * @return The length in ticks.
 	 */
-	public synchronized static Integer getMaxSpan() {
+	public static int getMaxSpan() {
 		if (Job.maxJobSpan == -1) {
 			Job.maxJobSpan = (Integer) ((Session) Database.getEntityManager()
 			    .getDelegate())
@@ -67,25 +67,25 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 		return Job.maxJobSpan;
 	}
 
-	private Integer id;
+	private int id;
 	private Machine srcMachine;
-	private Integer deadline;
-	private Integer expectedEnd;
-	private Integer expectedStart;
-	private Integer job;
-	private Integer neededCPUs;
-	private Integer neededHDD;
-	private Integer neededRAM;
+	private int deadline;
+	private int expectedEnd;
+	private int expectedStart;
+	private int job;
+	private int neededCPUs;
+	private int neededHDD;
+	private int neededRAM;
 	private String neededPlatform;
 	private Event parent;
 	private String assignedCPUs;
-	private Integer clock;
+	private int clock;
 	private boolean bringsSchedule = false;
-	private Integer jobHint = Job.JOB_HINT_NONE;
+	private int jobHint = Job.JOB_HINT_NONE;
 
 	@Override
 	public int compareTo(final Job o) {
-		return this.getId().compareTo(o.getId());
+		return Integer.valueOf(this.getId()).compareTo(Integer.valueOf(o.getId()));
 	}
 
 	/**
@@ -102,7 +102,7 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 		return this.bringsSchedule;
 	}
 
-	public Integer getClock() {
+	public int getClock() {
 		return this.clock;
 	}
 
@@ -111,25 +111,25 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 	 * 
 	 * @return If this is -1, there is no deadline.
 	 */
-	public Integer getDeadline() {
+	public int getDeadline() {
 		return this.deadline;
 	}
 
-	public Integer getExpectedEnd() {
+	public int getExpectedEnd() {
 		return this.expectedEnd;
 	}
 
-	public Integer getExpectedStart() {
+	public int getExpectedStart() {
 		return this.expectedStart;
 	}
 
 	@Id
 	@GeneratedValue
-	public Integer getId() {
+	public int getId() {
 		return this.id;
 	}
 
-	public Integer getJob() {
+	public int getJob() {
 		return this.job;
 	}
 
@@ -140,7 +140,7 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 	 * 
 	 * @return The hint.
 	 */
-	public Integer getJobHint() {
+	public int getJobHint() {
 		return this.jobHint;
 	}
 
@@ -149,11 +149,11 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 		return this.srcMachine;
 	}
 
-	public Integer getNeededCPUs() {
+	public int getNeededCPUs() {
 		return this.neededCPUs;
 	}
 
-	public Integer getNeededHDD() {
+	public int getNeededHDD() {
 		return this.neededHDD;
 	}
 
@@ -161,7 +161,7 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 		return this.neededPlatform;
 	}
 
-	public Integer getNeededRAM() {
+	public int getNeededRAM() {
 		return this.neededRAM;
 	}
 
@@ -179,31 +179,31 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 		this.bringsSchedule = value;
 	}
 
-	public void setClock(final Integer clock) {
+	public void setClock(final int clock) {
 		this.clock = clock;
 	}
 
-	public void setDeadline(final Integer value) {
+	public void setDeadline(final int value) {
 		this.deadline = value;
 	}
 
-	public void setExpectedEnd(final Integer value) {
+	public void setExpectedEnd(final int value) {
 		this.expectedEnd = value;
 	}
 
-	public void setExpectedStart(final Integer value) {
+	public void setExpectedStart(final int value) {
 		this.expectedStart = value;
 	}
 
-	public void setId(final Integer id) {
+	public void setId(final int id) {
 		this.id = id;
 	}
 
-	public void setJob(final Integer value) {
+	public void setJob(final int value) {
 		this.job = value;
 	}
 
-	public void setJobHint(final Integer value) {
+	public void setJobHint(final int value) {
 		this.jobHint = value;
 	}
 
@@ -211,11 +211,11 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 		this.srcMachine = machine;
 	}
 
-	public void setNeededCPUs(final Integer value) {
+	public void setNeededCPUs(final int value) {
 		this.neededCPUs = value;
 	}
 
-	public void setNeededHDD(final Integer value) {
+	public void setNeededHDD(final int value) {
 		this.neededHDD = value;
 	}
 
@@ -223,7 +223,7 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 		this.neededPlatform = value;
 	}
 
-	public void setNeededRAM(final Integer value) {
+	public void setNeededRAM(final int value) {
 		this.neededRAM = value;
 	}
 

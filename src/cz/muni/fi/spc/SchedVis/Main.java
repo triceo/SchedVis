@@ -64,7 +64,6 @@ public final class Main {
 	 */
 	public static void benchmark() {
 		final Set<Machine> machines = Machine.getAllGroupless();
-		Double totalTime = 0.0;
 		final int tickCount = Event.getAllTicks().size() / 500;
 		final Integer tickSpace = Math.max(1, Event.getAllTicks().size()
 		    / tickCount);
@@ -79,14 +78,11 @@ public final class Main {
 		System.out.println();
 		// run!
 		Integer i = 0;
-		for (final Integer tick : ticks) {
+		for (final int tick : ticks) {
 			i++;
-			final Long now = System.nanoTime();
 			for (final Machine m : machines) {
 				ScheduleRenderingController.render(m, Event.getWithId(tick));
 			}
-			final Double time = (System.nanoTime() - (double) now) / 1000 / 1000 / 1000;
-			totalTime += time;
 			System.out.println(new PrintfFormat(Messages.getString("Main.1")) //$NON-NLS-1$
 			    .sprintf(new Integer[] { i, ticks.length, tick }));
 			try {
@@ -95,11 +91,6 @@ public final class Main {
 				// do nothing
 			}
 		}
-		System.out.println();
-		System.out.println(new PrintfFormat(Messages.getString("Main.2")) //$NON-NLS-1$
-		    .sprintf(totalTime / tickCount));
-		System.out.println(new PrintfFormat(Messages.getString("Main.3")) //$NON-NLS-1$
-		    .sprintf(totalTime / tickCount / machines.size()));
 		System.out.println();
 		System.out.println(Messages.getString("Main.4")); //$NON-NLS-1$
 		ScheduleRenderer.reportLogResults();

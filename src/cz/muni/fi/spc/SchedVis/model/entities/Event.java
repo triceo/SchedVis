@@ -45,10 +45,10 @@ import cz.muni.fi.spc.SchedVis.util.Database;
 @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 public final class Event extends BaseEntity implements Comparable<Event> {
 
-	public static final Integer JOB_HINT_NONE = 0;
-	public static final Integer JOB_HINT_MOVE_OK = 1;
-	public static final Integer JOB_HINT_MOVE_NOK = 2;
-	public static final Integer JOB_HINT_ARRIVAL = 3;
+	public static final int JOB_HINT_NONE = 0;
+	public static final int JOB_HINT_MOVE_OK = 1;
+	public static final int JOB_HINT_MOVE_NOK = 2;
+	public static final int JOB_HINT_ARRIVAL = 3;
 
 	private static Event firstEvent = null;
 	private static Event lastEvent = null;
@@ -174,36 +174,36 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	 * @return The event.
 	 */
 	public static synchronized Event getWithId(final int eventId) {
-		final Event evt = Database.getEntityManager().find(Event.class, eventId);
+		final Event evt = (Event) Database.find(Event.class, eventId);
 		if (evt == null) {
-			return Event.getWithId(1);
+			return Event.getFirst();
 		}
 		return evt;
 	}
 
-	private Integer id;
+	private int id;
 	private EventType eventType;
 	private Machine srcMachine;
 	private Machine dstMachine;
-	private Integer clock;
-	private Integer job;
+	private int clock;
+	private int job;
 
 	@Override
 	public int compareTo(final Event o) {
-		return this.getId().compareTo(o.getId());
+		return Integer.valueOf(this.getId()).compareTo(Integer.valueOf(o.getId()));
 	}
 
-	public Integer getClock() {
+	public int getClock() {
 		return this.clock;
 	}
 
 	@Id
 	@GeneratedValue
-	public Integer getId() {
+	public int getId() {
 		return this.id;
 	}
 
-	public Integer getJob() {
+	public int getJob() {
 		return this.job;
 	}
 
@@ -223,15 +223,15 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 		return this.eventType;
 	}
 
-	public void setClock(final Integer value) {
+	public void setClock(final int value) {
 		this.clock = value;
 	}
 
-	public void setId(final Integer id) {
+	public void setId(final int id) {
 		this.id = id;
 	}
 
-	public void setJob(final Integer value) {
+	public void setJob(final int value) {
 		this.job = value;
 	}
 

@@ -48,24 +48,24 @@ public final class StatusBar extends JPanel {
 		return StatusBar.instance;
 	}
 
-	private static String parseTime(Double seconds) {
-		final Integer secondsInAMinute = 60;
-		final Integer secondsInAnHour = secondsInAMinute * 60;
-		final Integer secondsInADay = secondsInAnHour * 24;
+	private static String parseTime(double seconds) {
+		final int secondsInAMinute = 60;
+		final int secondsInAnHour = secondsInAMinute * 60;
+		final int secondsInADay = secondsInAnHour * 24;
 		// how many days
-		final Integer days = Double.valueOf(Math.floor(seconds / secondsInADay))
+		final int days = Double.valueOf(Math.floor(seconds / secondsInADay))
 		    .intValue();
 		seconds -= days * secondsInADay;
 		// how many hours
-		final Integer hours = Double.valueOf(Math.floor(seconds / secondsInAnHour))
+		final int hours = Double.valueOf(Math.floor(seconds / secondsInAnHour))
 		    .intValue();
 		seconds -= hours * secondsInAnHour;
 		// how many Minutes
-		final Integer minutes = Double.valueOf(
-		    Math.floor(seconds / secondsInAMinute)).intValue();
+		final int minutes = Double.valueOf(Math.floor(seconds / secondsInAMinute))
+		    .intValue();
 		seconds -= minutes * secondsInAMinute;
 		return new PrintfFormat(Messages.getString("StatusBar.0")) //$NON-NLS-1$
-		    .sprintf(new Integer[] { days, hours, minutes, seconds.intValue() });
+		    .sprintf(new Integer[] { days, hours, minutes, (int) seconds });
 	}
 
 	private StatusBar() {
@@ -129,7 +129,7 @@ public final class StatusBar extends JPanel {
 		this.setLayout(brdr);
 		this.add(new JLabel(new PrintfFormat(Messages.getString("StatusBar.10")) //$NON-NLS-1$
 		    .sprintf(new Object[] { event.getJob(),
-		        StatusBar.parseTime(event.getClock().doubleValue()), text })),
+		        StatusBar.parseTime(event.getClock()), text })),
 		    BorderLayout.CENTER);
 		this.updateUI();
 	}

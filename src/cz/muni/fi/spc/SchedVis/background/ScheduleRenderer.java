@@ -31,6 +31,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -76,20 +77,20 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 * How many pixels shall one CPU of a machine occupy on the y axis of the
 	 * schedule.
 	 */
-	private static final Integer NUM_PIXELS_PER_CPU = Configuration
+	private static final int NUM_PIXELS_PER_CPU = Configuration
 	    .getNumberOfPixelsPerCPU();
 	/**
 	 * How many pixels shall be used per a single tick on the x axis of the
 	 * schedule.
 	 */
-	private static final Float NUM_PIXELS_PER_TICK = Configuration
+	private static final float NUM_PIXELS_PER_TICK = Configuration
 	    .getMaxImageWidth()
 	    / (float) Job.getMaxSpan();
 	/**
 	 * How many pixels should be left in the left of the schedule for jobs that
 	 * were supposed to be executed before the current clock.
 	 */
-	private static final Integer OVERFLOW_WIDTH = Double
+	private static final int OVERFLOW_WIDTH = Double
 	    .valueOf(
 	        Math
 	            .floor((Job.getMaxSpan() * ScheduleRenderer.NUM_PIXELS_PER_TICK) / 8))
@@ -99,7 +100,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 * please change the input values, possibly in the config file, and not the
 	 * equation.
 	 */
-	private static final Integer LINE_WIDTH = Double.valueOf(
+	private static final int LINE_WIDTH = Double.valueOf(
 	    Math.floor((Job.getMaxSpan() * ScheduleRenderer.NUM_PIXELS_PER_TICK)
 	        + ScheduleRenderer.OVERFLOW_WIDTH)).intValue();
 	/**
@@ -123,12 +124,6 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 */
 	private static final Font font = new Font("Monospaced", Font.PLAIN, 9); //$NON-NLS-1$
 
-	/**
-	 * Holds schedule events in a currently rendered schedule. Stored for
-	 * performance reasons.
-	 */
-	private List<Job> events;
-
 	private static final Logger logger = Logger.getLogger(ScheduleRenderer.class);
 
 	/**
@@ -140,7 +135,8 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 * Holds colors for different jobs, so that they persist and are the same over
 	 * the whole application runtime.
 	 */
-	private static final Map<Integer, Color> jobsToColors = new HashMap<Integer, Color>();
+	private static final Map<Integer, Color> jobsToColors = Collections
+	    .synchronizedMap(new HashMap<Integer, Color>());
 	/**
 	 * Random for assigning job colors.
 	 */
@@ -149,12 +145,12 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	/**
 	 * How many ticks per a guiding bar should there be on the schedule.
 	 */
-	private static final Integer TICKS_PER_GUIDING_BAR = Configuration
+	private static final int TICKS_PER_GUIDING_BAR = Configuration
 	    .getNumberOfTicksPerGuide();
 	/**
 	 * Stores debugging information.
 	 */
-	private static final HashMap<String, Map<Machine, List<Double>>> logTimes = new HashMap<String, Map<Machine, List<Double>>>();
+	private static final Map<String, Map<Machine, List<Double>>> logTimes = new HashMap<String, Map<Machine, List<Double>>>();
 
 	/**
 	 * Index color model specifying 16 basic colors. This significantly improves
@@ -175,6 +171,9 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 
 	private static final BasicStroke thickStroke = new BasicStroke(2);
 
+	private static Map<String, Paint> paints = Collections
+	    .synchronizedMap(new HashMap<String, Paint>());
+
 	public static void clearLogResults() {
 		ScheduleRenderer.logTimes.clear();
 	}
@@ -187,7 +186,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 * @return The average.
 	 */
 	private static Double getAverage(final List<Double> values) {
-		Double total = 0.0;
+		double total = 0.0;
 		for (final Double value : values) {
 			total += value;
 		}
@@ -214,6 +213,54 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	}
 
 	/**
+	 * Get texture for the event's box.
+	 * 
+	 * @param background
+	 *          The color of the event box's background.
+	 * @param jobHint
+	 *          The type of event actually rendered.
+	 * @return The texture.
+	 */
+	private static Paint getTexture(final Color background, final Integer jobHint) {
+		final String jobHintText = (jobHint == null) ? "null" : jobHint.toString();
+		final String textureId = background.toString() + "---" + jobHintText;
+		if ((jobHint == null) || jobHint.equals(Event.JOB_HINT_NONE)) {
+			return background;
+		}
+		if (!ScheduleRenderer.paints.containsKey(textureId)) {
+			final BufferedImage texture = new BufferedImage(
+			    ScheduleRenderer.NUM_PIXELS_PER_CPU,
+			    ScheduleRenderer.NUM_PIXELS_PER_CPU, BufferedImage.TYPE_INT_RGB);
+			final Graphics2D g = (Graphics2D) texture.getGraphics();
+			g.setColor(background);
+			g.fill(new Rectangle(0, 0, ScheduleRenderer.NUM_PIXELS_PER_CPU,
+			    ScheduleRenderer.NUM_PIXELS_PER_CPU));
+			g.setColor(Color.WHITE);
+			if (jobHint.equals(Event.JOB_HINT_ARRIVAL)) {
+				// arrival; a plus is drawn
+				final int mid = (ScheduleRenderer.NUM_PIXELS_PER_CPU / 2);
+				g.drawLine(1, mid, ScheduleRenderer.NUM_PIXELS_PER_CPU - 2, mid);
+				g.drawLine(mid, 1, mid, ScheduleRenderer.NUM_PIXELS_PER_CPU - 2);
+			} else if (jobHint.equals(Event.JOB_HINT_MOVE_NOK)) {
+				// bad move; a cross is drawn
+				g.drawLine(1, 1, ScheduleRenderer.NUM_PIXELS_PER_CPU - 2,
+				    ScheduleRenderer.NUM_PIXELS_PER_CPU - 2);
+				g.drawLine(1, ScheduleRenderer.NUM_PIXELS_PER_CPU - 2,
+				    ScheduleRenderer.NUM_PIXELS_PER_CPU - 2, 1);
+			} else {
+				// a good move; a tick is drawn
+				g.drawLine(1, 1, 1, ScheduleRenderer.NUM_PIXELS_PER_CPU - 2);
+				g.drawLine(1, ScheduleRenderer.NUM_PIXELS_PER_CPU - 2,
+				    ScheduleRenderer.NUM_PIXELS_PER_CPU - 2, 1);
+			}
+			ScheduleRenderer.paints.put(textureId, new TexturePaint(texture,
+			    new Rectangle(0, 0, ScheduleRenderer.NUM_PIXELS_PER_CPU,
+			        ScheduleRenderer.NUM_PIXELS_PER_CPU)));
+		}
+		return ScheduleRenderer.paints.get(textureId);
+	}
+
+	/**
 	 * Log a time it took to execute a given task.
 	 * 
 	 * @param type
@@ -224,7 +271,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 *          The time it took.
 	 */
 	private static void logTime(final String type, final Machine m,
-	    final Double time) {
+	    final double time) {
 		if (!ScheduleRenderer.logTimes.containsKey(type)) {
 			ScheduleRenderer.logTimes.put(type, new HashMap<Machine, List<Double>>());
 		}
@@ -261,7 +308,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 			Arrays.sort(allValuesSorted);
 			allValues = Arrays.asList(allValuesSorted);
 			// remove upper and lower ${extremesPercent} % of values (the extremes)
-			final Integer extremesPercent = 1;
+			final int extremesPercent = 1;
 			final Double extremeValueCount = (new Double(allValues.size()) / 100.0)
 			    * extremesPercent;
 			allValues = allValues.subList(extremeValueCount.intValue(), allValues
@@ -310,11 +357,6 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		ScheduleRenderer.logTime("clock", this.m, time); //$NON-NLS-1$
 
 		time = Double.valueOf(System.nanoTime());
-		this.events = Machine.getLatestSchedule(this.m, this.renderedEvent);
-		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logTime("schedule", this.m, time); //$NON-NLS-1$
-
-		time = Double.valueOf(System.nanoTime());
 		final boolean isActive = Machine.isActive(this.m, this.renderedEvent);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logTime("activity", this.m, time); //$NON-NLS-1$
@@ -354,7 +396,8 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 *          The graphics in question.
 	 */
 	private void drawJobs(final Graphics2D g) {
-		for (final Job schedule : this.events) {
+		for (final Job schedule : Machine.getLatestSchedule(this.m,
+		    this.renderedEvent)) {
 			if (schedule.getBringsSchedule()) {
 				// render jobs in a schedule, one by one
 				/*
@@ -394,17 +437,18 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 						g.setColor(this.getJobColor(schedule.getJob()));
 					}
 					final Shape s = new Rectangle(jobStartX, ltY, jobLength, jobHgt);
-					g.setPaint(this.getTexture(g.getColor(), schedule.getJobHint()));
+					g.setPaint(ScheduleRenderer.getTexture(g.getColor(), schedule
+					    .getJobHint()));
 					g.fill(s);
 					g.setColor(Color.BLACK);
-					if (this.renderedEvent.getId().equals(schedule.getJob())) {
+					if (this.renderedEvent.getId() == schedule.getJob()) {
 						g.setStroke(ScheduleRenderer.thickStroke);
 					} else {
 						g.setStroke(ScheduleRenderer.thinStroke);
 					}
 					g.draw(s);
-					g.drawString(schedule.getJob().toString(),
-					    Math.max(jobStartX + 2, 2), ltY + jobHgt - 2);
+					g.drawString(String.valueOf(schedule.getJob()), Math.max(
+					    jobStartX + 2, 2), ltY + jobHgt - 2);
 					final int rightBoundary = jobStartX + jobLength
 					    - ScheduleRenderer.LINE_WIDTH;
 					if (rightBoundary > 0) {
@@ -484,12 +528,11 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 *         need to use another color for a job, indicating some special state
 	 *         the job is in.
 	 */
-	private synchronized Color getJobColor(final Integer jobId) {
+	private Color getJobColor(final Integer jobId) {
 		if (!ScheduleRenderer.jobsToColors.containsKey(jobId.intValue())) {
-			final Integer random = ScheduleRenderer.rand
-			    .nextInt(ScheduleRenderer.colors.length);
 			ScheduleRenderer.jobsToColors.put(jobId.intValue(),
-			    ScheduleRenderer.colors[random]);
+			    ScheduleRenderer.colors[ScheduleRenderer.rand
+			        .nextInt(ScheduleRenderer.colors.length)]);
 		}
 		return ScheduleRenderer.jobsToColors.get(jobId.intValue());
 	}
@@ -507,9 +550,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		if ((end == null) || (start == null)) {
 			return 0;
 		}
-		return Double.valueOf(
-		    Math.floor((end - start) * ScheduleRenderer.NUM_PIXELS_PER_TICK))
-		    .intValue();
+		return (int) ((end - start) * ScheduleRenderer.NUM_PIXELS_PER_TICK);
 	}
 
 	/**
@@ -524,10 +565,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		if (start == null) {
 			return ScheduleRenderer.OVERFLOW_WIDTH;
 		}
-		return Double.valueOf(
-		    Math.floor((start - this.renderedEvent.getClock())
-		        * ScheduleRenderer.NUM_PIXELS_PER_TICK)
-		        + ScheduleRenderer.OVERFLOW_WIDTH).intValue();
+		return (int) (((start - this.renderedEvent.getClock()) * ScheduleRenderer.NUM_PIXELS_PER_TICK) + ScheduleRenderer.OVERFLOW_WIDTH);
 	}
 
 	/**
@@ -539,9 +577,8 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 */
 	private Image getTemplate(final boolean isActive) {
 		Double time = Double.valueOf(System.nanoTime());
-		final int numCPUs = this.m.getCPUs().intValue();
 		final BufferedImage img = new BufferedImage(ScheduleRenderer.LINE_WIDTH,
-		    numCPUs * ScheduleRenderer.NUM_PIXELS_PER_CPU,
+		    this.m.getCPUs() * ScheduleRenderer.NUM_PIXELS_PER_CPU,
 		    BufferedImage.TYPE_BYTE_BINARY, ScheduleRenderer.icm);
 		final Graphics2D g = (Graphics2D) img.getGraphics();
 		// draw background
@@ -557,70 +594,27 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		} else {
 			g.setColor(Color.GRAY);
 		}
-		for (Integer cpu = 0; cpu < (this.m.getCPUs() - 1); cpu++) {
+		for (int cpu = 0; cpu < (this.m.getCPUs() - 1); cpu++) {
 			g.drawLine(0, (cpu + 1) * ScheduleRenderer.NUM_PIXELS_PER_CPU,
 			    ScheduleRenderer.LINE_WIDTH - 2, (cpu + 1)
 			        * ScheduleRenderer.NUM_PIXELS_PER_CPU);
 		}
-		final Integer barDistance = Math.max(1, Math
+		final int barDistance = Math.max(1, Math
 		    .round(ScheduleRenderer.TICKS_PER_GUIDING_BAR
 		        * ScheduleRenderer.NUM_PIXELS_PER_TICK));
-		for (Integer bar = 0; bar < (ScheduleRenderer.LINE_WIDTH / barDistance); bar++) {
+		for (int bar = 0; bar < (ScheduleRenderer.LINE_WIDTH / barDistance); bar++) {
 			g.drawLine(barDistance * (bar + 1), 0, barDistance * (bar + 1), img
 			    .getHeight() - 2);
 		}
 		g.setColor(Color.BLACK);
 		// draw a line in a place where "zero" (current clock) is.
 		g.drawLine(ScheduleRenderer.OVERFLOW_WIDTH, 0,
-		    ScheduleRenderer.OVERFLOW_WIDTH, numCPUs
+		    ScheduleRenderer.OVERFLOW_WIDTH, this.m.getCPUs()
 		        * ScheduleRenderer.NUM_PIXELS_PER_CPU);
 		// finish
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
 		ScheduleRenderer.logTime("template", this.m, time); //$NON-NLS-1$
 		return img;
-	}
-
-	/**
-	 * Get texture for the event's box.
-	 * 
-	 * @param background
-	 *          The color of the event box's background.
-	 * @param jobHint
-	 *          The type of event actually rendered.
-	 * @return The texture.
-	 */
-	private Paint getTexture(final Color background, final Integer jobHint) {
-		if ((jobHint == null) || jobHint.equals(Event.JOB_HINT_NONE)) {
-			return background;
-		}
-		final BufferedImage texture = new BufferedImage(
-		    ScheduleRenderer.NUM_PIXELS_PER_CPU,
-		    ScheduleRenderer.NUM_PIXELS_PER_CPU, BufferedImage.TYPE_INT_RGB);
-		final Graphics2D g = (Graphics2D) texture.getGraphics();
-		g.setColor(background);
-		g.fill(new Rectangle(0, 0, ScheduleRenderer.NUM_PIXELS_PER_CPU,
-		    ScheduleRenderer.NUM_PIXELS_PER_CPU));
-		g.setColor(Color.WHITE);
-		if (jobHint.equals(Event.JOB_HINT_ARRIVAL)) {
-			// arrival; a plus is drawn
-			final Integer mid = (ScheduleRenderer.NUM_PIXELS_PER_CPU / 2);
-			g.drawLine(1, mid, ScheduleRenderer.NUM_PIXELS_PER_CPU - 2, mid);
-			g.drawLine(mid, 1, mid, ScheduleRenderer.NUM_PIXELS_PER_CPU - 2);
-		} else if (jobHint.equals(Event.JOB_HINT_MOVE_NOK)) {
-			// bad move; a cross is drawn
-			g.drawLine(1, 1, ScheduleRenderer.NUM_PIXELS_PER_CPU - 2,
-			    ScheduleRenderer.NUM_PIXELS_PER_CPU - 2);
-			g.drawLine(1, ScheduleRenderer.NUM_PIXELS_PER_CPU - 2,
-			    ScheduleRenderer.NUM_PIXELS_PER_CPU - 2, 1);
-		} else {
-			// a good move; a tick is drawn
-			g.drawLine(1, 1, 1, ScheduleRenderer.NUM_PIXELS_PER_CPU - 2);
-			g.drawLine(1, ScheduleRenderer.NUM_PIXELS_PER_CPU - 2,
-			    ScheduleRenderer.NUM_PIXELS_PER_CPU - 2, 1);
-		}
-		return new TexturePaint(texture, new Rectangle(0, 0,
-		    ScheduleRenderer.NUM_PIXELS_PER_CPU,
-		    ScheduleRenderer.NUM_PIXELS_PER_CPU));
 	}
 
 }
