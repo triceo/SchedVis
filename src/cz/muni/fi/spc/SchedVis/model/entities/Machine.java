@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,8 +65,10 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 
 	private static PreparedStatement s;
 
-	private static final Map<Integer, Machine> byId = new HashMap<Integer, Machine>();
-	private static final Map<String, Machine> byName = new HashMap<String, Machine>();
+	private static final Map<Integer, Machine> byId = Collections
+	    .synchronizedMap(new HashMap<Integer, Machine>());
+	private static final Map<String, Machine> byName = Collections
+	    .synchronizedMap(new HashMap<String, Machine>());
 
 	/**
 	 * Retrieve all the machines in a given group.
@@ -124,7 +127,6 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 			Machine.s.setInt(2, which.getId());
 			Machine.s.setInt(3, evt.getId());
 			final ResultSet rs = Machine.s.executeQuery();
-			Machine.s.clearParameters();
 			final List<Job> schedules = new ArrayList<Job>();
 			while (rs.next()) {
 				final Job schedule = new Job();
@@ -143,6 +145,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 				schedules.add(schedule);
 			}
 			rs.close();
+			Machine.s.clearParameters();
 			return schedules;
 		} catch (final SQLException e) {
 			e.printStackTrace();
@@ -166,8 +169,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	 *          Whether or not to use the local entity cache.
 	 * @return The machine.
 	 */
-	public synchronized static Machine getWithName(final String name,
-	    final boolean cache) {
+	public static Machine getWithName(final String name, final boolean cache) {
 		if (!cache) {
 			return Machine.getWithName(name);
 		}
@@ -219,10 +221,10 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		if (e == null) {
 			return true;
 		}
-		final Integer id = e.getType().getId();
-		if ((id.equals(EventType.EVENT_MACHINE_FAILURE))
-		    || (id.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD))
-		    || (id.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD))) {
+		final int id = e.getType().getId();
+		if ((id == EventType.EVENT_MACHINE_FAILURE)
+		    || (id == EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD)
+		    || (id == EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD)) {
 			return false;
 		}
 		return true;
