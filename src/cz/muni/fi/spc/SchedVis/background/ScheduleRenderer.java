@@ -33,11 +33,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.swing.SwingWorker;
@@ -64,6 +61,52 @@ import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
  * 
  */
 public final class ScheduleRenderer extends SwingWorker<Image, Void> {
+
+	private static final class Colors {
+		/**
+		 * Index color model specifying 16 basic colors. This significantly improves
+		 * the speed of rendering the images.
+		 */
+		public static final IndexColorModel model = new IndexColorModel(4, 16,
+		    new byte[] { (byte) 255, (byte) 255, (byte) 255, (byte) 255,
+		        (byte) 192, (byte) 128, (byte) 128, (byte) 128, (byte) 128,
+		        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+		        (byte) 0 }, new byte[] { (byte) 255, (byte) 255, (byte) 0,
+		        (byte) 0, (byte) 192, (byte) 128, (byte) 128, (byte) 0, (byte) 0,
+		        (byte) 255, (byte) 255, (byte) 128, (byte) 128, (byte) 0, (byte) 0,
+		        (byte) 0 }, new byte[] { (byte) 255, (byte) 0, (byte) 255,
+		        (byte) 0, (byte) 192, (byte) 128, (byte) 0, (byte) 128, (byte) 0,
+		        (byte) 255, (byte) 0, (byte) 128, (byte) 0, (byte) 255, (byte) 128,
+		        (byte) 0 });
+
+		/**
+		 * Colors that are available for the jobs. This array can be extended at
+		 * will and the color-picking code will adjust to it.
+		 * 
+		 * Please remember not to use following colors: white (background for
+		 * machines), dark gray (background for disabled machines) and red (overdue
+		 * jobs).
+		 * 
+		 * Also, if you increase the amount of colors available, please also change
+		 * the associated color model and mind its associated comments.
+		 */
+		private static final Color[] colors = { Color.BLUE, Color.CYAN,
+		    Color.GREEN, Color.GRAY, Color.MAGENTA, Color.ORANGE, Color.LIGHT_GRAY,
+		    Color.PINK, Color.YELLOW };
+
+		/**
+		 * Assign a color for the job. This picks a "random" color for a job and
+		 * keeps it all through the program execution.
+		 * 
+		 * @param jobId
+		 *          ID of the job.
+		 * @return The job color.
+		 */
+		public static Color getJobColor(final Integer jobId) {
+			return Colors.colors[jobId % Colors.colors.length];
+		}
+
+	}
 
 	/**
 	 * Holds the machine whose schedule is currently being rendered.
@@ -103,21 +146,6 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	private static final int LINE_WIDTH = Double.valueOf(
 	    Math.floor((Job.getMaxSpan() * ScheduleRenderer.NUM_PIXELS_PER_TICK)
 	        + ScheduleRenderer.OVERFLOW_WIDTH)).intValue();
-	/**
-	 * Colors that are available for the jobs. This array can be extended at will
-	 * and the color-picking code will adjust to it.
-	 * 
-	 * Please remember not to use following colors: white (background for
-	 * machines), dark gray (background for disabled machines) and red (overdue
-	 * jobs).
-	 * 
-	 * Also, if you increase the amount of colors available, please also change
-	 * the associated color model that this class uses and mind its associated
-	 * comments.
-	 */
-	private static final Color[] colors = { Color.BLUE, Color.CYAN, Color.GREEN,
-	    Color.GRAY, Color.MAGENTA, Color.ORANGE, Color.LIGHT_GRAY, Color.PINK,
-	    Color.YELLOW };
 
 	/**
 	 * Holds a font used throughout the schedules.
@@ -125,22 +153,6 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	private static final Font font = new Font("Monospaced", Font.PLAIN, 9); //$NON-NLS-1$
 
 	private static final Logger logger = Logger.getLogger(ScheduleRenderer.class);
-
-	/**
-	 * Micro-optimization. Holds the parsed values of assigned CPUs.
-	 */
-	private static final Map<String, Integer[]> sets = new HashMap<String, Integer[]>();
-
-	/**
-	 * Holds colors for different jobs, so that they persist and are the same over
-	 * the whole application runtime.
-	 */
-	private static final Map<Integer, Color> jobsToColors = Collections
-	    .synchronizedMap(new HashMap<Integer, Color>());
-	/**
-	 * Random for assigning job colors.
-	 */
-	private static final Random rand = new Random();
 
 	/**
 	 * How many ticks per a guiding bar should there be on the schedule.
@@ -151,21 +163,6 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 * Stores debugging information.
 	 */
 	private static final Map<String, Map<Machine, List<Double>>> logTimes = new HashMap<String, Map<Machine, List<Double>>>();
-
-	/**
-	 * Index color model specifying 16 basic colors. This significantly improves
-	 * the speed of rendering the images.
-	 */
-	private static IndexColorModel icm = new IndexColorModel(4, 16, new byte[] {
-	    (byte) 255, (byte) 255, (byte) 255, (byte) 255, (byte) 192, (byte) 128,
-	    (byte) 128, (byte) 128, (byte) 128, (byte) 0, (byte) 0, (byte) 0,
-	    (byte) 0, (byte) 0, (byte) 0, (byte) 0 }, new byte[] { (byte) 255,
-	    (byte) 255, (byte) 0, (byte) 0, (byte) 192, (byte) 128, (byte) 128,
-	    (byte) 0, (byte) 0, (byte) 255, (byte) 255, (byte) 128, (byte) 128,
-	    (byte) 0, (byte) 0, (byte) 0 }, new byte[] { (byte) 255, (byte) 0,
-	    (byte) 255, (byte) 0, (byte) 192, (byte) 128, (byte) 0, (byte) 128,
-	    (byte) 0, (byte) 255, (byte) 0, (byte) 128, (byte) 0, (byte) 255,
-	    (byte) 128, (byte) 0 });
 
 	private static final BasicStroke thinStroke = new BasicStroke(1);
 
@@ -398,12 +395,12 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	private void drawJobs(final Graphics2D g) {
 		for (final Job schedule : Machine.getLatestSchedule(this.m,
 		    this.renderedEvent)) {
+			final int[] cpus = this.getAssignedCPUs(schedule);
 			if (schedule.getBringsSchedule()) {
 				// render jobs in a schedule, one by one
 				/*
 				 * isolate all the contiguous blocks of CPUs in the job and paint them.
 				 */
-				final Integer[] cpus = this.getAssignedCPUs(schedule);
 				for (int i = 0; i < cpus.length; i++) {
 					final int crntCPU = cpus[i];
 					try {
@@ -434,7 +431,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 						g.setColor(Color.RED);
 					} else {
 						// job with no deadlines
-						g.setColor(this.getJobColor(schedule.getJob()));
+						g.setColor(Colors.getJobColor(schedule.getJob()));
 					}
 					final Shape s = new Rectangle(jobStartX, ltY, jobLength, jobHgt);
 					g.setPaint(ScheduleRenderer.getTexture(g.getColor(), schedule
@@ -461,7 +458,6 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 				}
 			} else {
 				// render CPU occupation
-				final Integer[] cpus = this.getAssignedCPUs(schedule);
 				if (cpus.length == 0) {
 					continue;
 				}
@@ -500,41 +496,22 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 *          The job in question.
 	 * @return Numbers of assigned CPUs.
 	 */
-	private Integer[] getAssignedCPUs(final Job schedule) {
-		// get assigned CPUs, set will ensure they are unique and sorted
-		if ((schedule.getAssignedCPUs() == null)
-		    || (schedule.getAssignedCPUs().trim().length() == 0)) {
-			return new Integer[] {};
+	private int[] getAssignedCPUs(final Job schedule) {
+		// get assigned CPUs
+		final String raw = schedule.getAssignedCPUs();
+		if ((raw == null) || (raw.trim().length() == 0)) {
+			return new int[] {};
 		}
-		synchronized (ScheduleRenderer.sets) {
-			if (!ScheduleRenderer.sets.containsKey(schedule.getAssignedCPUs())) {
-				final Set<Integer> assignedCPUs = new HashSet<Integer>();
-				for (final String num : schedule.getAssignedCPUs().split(",")) { //$NON-NLS-1$
-					assignedCPUs.add(Integer.valueOf(num));
-				}
-				ScheduleRenderer.sets.put(schedule.getAssignedCPUs(), assignedCPUs
-				    .toArray(new Integer[0]));
-			}
+		// parse single numbers
+		String[] rawParts = raw.split(","); //$NON-NLS-1$
+		// store for returning
+		final int[] assignedCPUs = new int[rawParts.length];
+		int i = 0;
+		for (final String num : rawParts) {
+			assignedCPUs[i] = Integer.valueOf(num);
+			i++;
 		}
-		return ScheduleRenderer.sets.get(schedule.getAssignedCPUs());
-	}
-
-	/**
-	 * Make sure a job has always the same color, no matter when and where it is
-	 * painted.
-	 * 
-	 * @param jobId
-	 * @return A color that shall be used for that job. May be ignored when we
-	 *         need to use another color for a job, indicating some special state
-	 *         the job is in.
-	 */
-	private Color getJobColor(final Integer jobId) {
-		if (!ScheduleRenderer.jobsToColors.containsKey(jobId.intValue())) {
-			ScheduleRenderer.jobsToColors.put(jobId.intValue(),
-			    ScheduleRenderer.colors[ScheduleRenderer.rand
-			        .nextInt(ScheduleRenderer.colors.length)]);
-		}
-		return ScheduleRenderer.jobsToColors.get(jobId.intValue());
+		return assignedCPUs;
 	}
 
 	/**
@@ -579,7 +556,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		Double time = Double.valueOf(System.nanoTime());
 		final BufferedImage img = new BufferedImage(ScheduleRenderer.LINE_WIDTH,
 		    this.m.getCPUs() * ScheduleRenderer.NUM_PIXELS_PER_CPU,
-		    BufferedImage.TYPE_BYTE_BINARY, ScheduleRenderer.icm);
+		    BufferedImage.TYPE_BYTE_BINARY, Colors.model);
 		final Graphics2D g = (Graphics2D) img.getGraphics();
 		// draw background
 		if (isActive) {
@@ -613,7 +590,7 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		        * ScheduleRenderer.NUM_PIXELS_PER_CPU);
 		// finish
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logTime("template", this.m, time); //$NON-NLS-1$
+		ScheduleRenderer.logTime("template", this.m, time);
 		return img;
 	}
 
