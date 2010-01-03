@@ -56,17 +56,13 @@ import cz.muni.fi.spc.SchedVis.util.Database;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public final class Machine extends BaseEntity implements Comparable<Machine> {
 
-	/**
-	 * Holds so-called "machine event types" - those change the state of a
-	 * machine, such as failure or restart. For performance reasons, this is
-	 * static and filled lazily when needed.
-	 */
-	private static EventType[] machineEvents = new EventType[0];
+	private static Integer internalIdCounter = 0;
 
 	private static PreparedStatement s;
 
 	private static final Map<Integer, Machine> byId = Collections
 	    .synchronizedMap(new HashMap<Integer, Machine>());
+
 	private static final Map<String, Machine> byName = Collections
 	    .synchronizedMap(new HashMap<String, Machine>());
 
@@ -230,9 +226,21 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		return true;
 	}
 
+	private int internalId;
+
+	/**
+	 * Holds so-called "machine event types" - those change the state of a
+	 * machine, such as failure or restart. For performance reasons, this is
+	 * static and filled lazily when needed.
+	 */
+	private static EventType[] machineEvents = new EventType[0];
+
 	private String os;
+
 	private int id;
+
 	private int cpus;
+
 	private int hdd;
 	private String name;
 	private String platform;
@@ -240,9 +248,38 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	private int speed;
 	private MachineGroup group;
 
+	public Machine() {
+		synchronized (Machine.internalIdCounter) {
+			this.setInternalId(Machine.internalIdCounter++);
+		}
+	}
+
 	@Override
 	public int compareTo(final Machine o) {
 		return Integer.valueOf(this.getId()).compareTo(Integer.valueOf(o.getId()));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof Machine)) {
+			return false;
+		}
+		final Machine other = (Machine) obj;
+		if (this.internalId != other.internalId) {
+			return false;
+		}
+		return true;
 	}
 
 	public int getCPUs() {
@@ -263,6 +300,10 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	@GeneratedValue
 	public int getId() {
 		return this.id;
+	}
+
+	public int getInternalId() {
+		return this.internalId;
 	}
 
 	@Index(name = "mnIndex")
@@ -286,6 +327,19 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		return this.speed;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + this.internalId;
+		return result;
+	}
+
 	public void setCPUs(final int cpus) {
 		this.cpus = cpus;
 	}
@@ -300,6 +354,10 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 
 	protected void setId(final int id) {
 		this.id = id;
+	}
+
+	private void setInternalId(final int id) {
+		this.internalId = id;
 	}
 
 	public void setName(final String name) {

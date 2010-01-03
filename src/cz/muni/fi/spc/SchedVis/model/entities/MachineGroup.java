@@ -50,10 +50,7 @@ import cz.muni.fi.spc.SchedVis.util.Database;
 public final class MachineGroup extends BaseEntity implements
     Comparable<MachineGroup> {
 
-	private static final Map<Integer, MachineGroup> byId = Collections
-	    .synchronizedMap(new HashMap<Integer, MachineGroup>());
-	private static final Map<String, MachineGroup> byName = Collections
-	    .synchronizedMap(new HashMap<String, MachineGroup>());
+	private static Integer internalIdCounter = 0;
 
 	/**
 	 * Get all the machine groups.
@@ -125,11 +122,25 @@ public final class MachineGroup extends BaseEntity implements
 		return m;
 	}
 
+	private int internalId;
+
+	private static final Map<Integer, MachineGroup> byId = Collections
+	    .synchronizedMap(new HashMap<Integer, MachineGroup>());
+
+	private static final Map<String, MachineGroup> byName = Collections
+	    .synchronizedMap(new HashMap<String, MachineGroup>());
+
 	private int id;
 
 	private String name;
 
 	private Set<Machine> machines;
+
+	public MachineGroup() {
+		synchronized (MachineGroup.internalIdCounter) {
+			this.setInternalId(MachineGroup.internalIdCounter++);
+		}
+	}
 
 	/**
 	 * Add a machine to the group.
@@ -149,10 +160,37 @@ public final class MachineGroup extends BaseEntity implements
 		return this.getName().compareTo(o.getName());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof MachineGroup)) {
+			return false;
+		}
+		final MachineGroup other = (MachineGroup) obj;
+		if (this.internalId != other.internalId) {
+			return false;
+		}
+		return true;
+	}
+
 	@GeneratedValue
 	@Id
 	public int getId() {
 		return this.id;
+	}
+
+	public int getInternalId() {
+		return this.internalId;
 	}
 
 	/**
@@ -170,6 +208,19 @@ public final class MachineGroup extends BaseEntity implements
 		return this.name;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + this.internalId;
+		return result;
+	}
+
 	/**
 	 * Remove machine from the group.
 	 * 
@@ -182,6 +233,10 @@ public final class MachineGroup extends BaseEntity implements
 
 	protected void setId(final int id) {
 		this.id = id;
+	}
+
+	private void setInternalId(final int id) {
+		this.internalId = id;
 	}
 
 	protected void setMachines(final Set<Machine> machines) {

@@ -53,6 +53,8 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	private static Event firstEvent = null;
 	private static Event lastEvent = null;
 
+	private static Integer internalIdCounter = 0;
+
 	/**
 	 * Get numbers of all existing events.
 	 * 
@@ -70,9 +72,12 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	 * 
 	 * @return The event.
 	 */
-	public synchronized static Event getFirst() {
+	public static Event getFirst() {
 		if (Event.firstEvent == null) {
-			Event.firstEvent = Event.getWithId(1);
+			final Criteria crit = BaseEntity.getCriteria(Event.class);
+			crit.addOrder(Order.asc("id")); //$NON-NLS-1$
+			crit.setMaxResults(1);
+			Event.firstEvent = (Event) crit.uniqueResult();
 		}
 		return Event.firstEvent;
 	}
@@ -82,7 +87,7 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	 * 
 	 * @return The event.
 	 */
-	public synchronized static Event getLast() {
+	public static Event getLast() {
 		if (Event.lastEvent == null) {
 			final Criteria crit = BaseEntity.getCriteria(Event.class);
 			crit.addOrder(Order.desc("id")); //$NON-NLS-1$
@@ -173,7 +178,7 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	 *          The id of the event in question.
 	 * @return The event.
 	 */
-	public static synchronized Event getWithId(final int eventId) {
+	public static Event getWithId(final int eventId) {
 		final Event evt = (Event) Database.find(Event.class, eventId);
 		if (evt == null) {
 			return Event.getFirst();
@@ -186,11 +191,43 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	private Machine srcMachine;
 	private Machine dstMachine;
 	private int clock;
+
 	private int job;
+
+	private int internalId;
+
+	public Event() {
+		synchronized (Event.internalIdCounter) {
+			this.setInternalId(Event.internalIdCounter++);
+		}
+	}
 
 	@Override
 	public int compareTo(final Event o) {
 		return Integer.valueOf(this.getId()).compareTo(Integer.valueOf(o.getId()));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof Event)) {
+			return false;
+		}
+		final Event other = (Event) obj;
+		if (this.internalId != other.internalId) {
+			return false;
+		}
+		return true;
 	}
 
 	public int getClock() {
@@ -201,6 +238,10 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	@GeneratedValue
 	public int getId() {
 		return this.id;
+	}
+
+	public int getInternalId() {
+		return this.internalId;
 	}
 
 	public int getJob() {
@@ -223,12 +264,29 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 		return this.eventType;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + this.internalId;
+		return result;
+	}
+
 	public void setClock(final int value) {
 		this.clock = value;
 	}
 
 	public void setId(final int id) {
 		this.id = id;
+	}
+
+	private void setInternalId(final int id) {
+		this.internalId = id;
 	}
 
 	public void setJob(final int value) {

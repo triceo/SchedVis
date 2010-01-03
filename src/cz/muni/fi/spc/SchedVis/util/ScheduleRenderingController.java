@@ -19,6 +19,7 @@
 package cz.muni.fi.spc.SchedVis.util;
 
 import java.awt.Image;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -43,12 +44,21 @@ public final class ScheduleRenderingController {
 	 * Holds active machine renderers, i. e. the schedules that are still
 	 * rendering.
 	 */
-	private final static Map<Integer, Map<Machine, ScheduleRenderer>> renderers = new HashMap<Integer, Map<Machine, ScheduleRenderer>>();
+	private final static Map<Integer, Map<Machine, ScheduleRenderer>> renderers = Collections
+	    .synchronizedMap(new HashMap<Integer, Map<Machine, ScheduleRenderer>>());
 
 	/**
 	 * Executor for rendering schedules.
 	 */
-	private static ExecutorService e = Executors.newCachedThreadPool();
+	private static ExecutorService e = ScheduleRenderingController
+	    .getNewExecutor();
+
+	private static Logger logger = Logger
+	    .getLogger(ScheduleRenderingController.class);
+
+	private static ExecutorService getNewExecutor() {
+		return Executors.newFixedThreadPool(1);
+	}
 
 	/**
 	 * Requests an already rendered schedule. If none is available but the
@@ -62,23 +72,24 @@ public final class ScheduleRenderingController {
 	 *          The event in which to render the schedule.
 	 * @return The rendered schedule.
 	 */
-	public synchronized static Image getRendered(final Machine m, final Event evt) {
-		if (ScheduleRenderingController.renderers.containsKey(evt.getId())
-		    && ScheduleRenderingController.renderers.get(evt.getId())
-		        .containsKey(m)) {
-			// we have the renderer cached
-			try {
-				final Image img = ScheduleRenderingController.renderers
-				    .get(evt.getId()).get(m).get();
-				ScheduleRenderingController.renderers.get(evt.getId()).remove(m);
-				return img;
-			} catch (final Exception e) {
-				Logger.getLogger(ScheduleRenderingController.class).error(
-				    new PrintfFormat(Messages
-				        .getString("ScheduleRenderingController.0")) //$NON-NLS-1$
-				        .sprintf(new Object[] { m.getName(), evt.getId(),
-				            e.getLocalizedMessage() }));
-				return null;
+	public static Image getRendered(final Machine m, final Event evt) {
+		synchronized (ScheduleRenderingController.renderers) {
+			if (ScheduleRenderingController.renderers.containsKey(evt.getId())
+			    && ScheduleRenderingController.renderers.get(evt.getId())
+			        .containsKey(m)) {
+				// we have the renderer cached
+				try {
+					final Image img = ScheduleRenderingController.renderers.get(
+					    evt.getId()).get(m).get();
+					ScheduleRenderingController.renderers.get(evt.getId()).remove(m);
+					return img;
+				} catch (final Exception e) {
+					ScheduleRenderingController.logger.error(new PrintfFormat(Messages
+					    .getString("ScheduleRenderingController.0")) //$NON-NLS-1$
+					    .sprintf(new Object[] { m.getName(), evt.getId(),
+					        e.getLocalizedMessage() }));
+					return null;
+				}
 			}
 		}
 		// get the renderer
@@ -95,19 +106,21 @@ public final class ScheduleRenderingController {
 	 * @param evt
 	 *          The event in which to render the schedule.
 	 */
-	public synchronized static void render(final Machine m, final Event evt) {
-		if (ScheduleRenderingController.renderers.containsKey(evt.getId())
-		    && ScheduleRenderingController.renderers.get(evt.getId())
-		        .containsKey(m)) {
-			// don't render when we already have the result
-			return;
+	public static void render(final Machine m, final Event evt) {
+		synchronized (ScheduleRenderingController.renderers) {
+			if (ScheduleRenderingController.renderers.containsKey(evt.getId())
+			    && ScheduleRenderingController.renderers.get(evt.getId())
+			        .containsKey(m)) {
+				// don't render when we already have the result
+				return;
+			}
+			if (!ScheduleRenderingController.renderers.containsKey(evt.getId())) {
+				ScheduleRenderingController.renderers.put(evt.getId(), Collections
+				    .synchronizedMap(new HashMap<Machine, ScheduleRenderer>()));
+			}
 		}
-		if (!ScheduleRenderingController.renderers.containsKey(evt.getId())) {
-			ScheduleRenderingController.renderers.put(evt.getId(),
-			    new HashMap<Machine, ScheduleRenderer>());
-		}
-		final ScheduleRenderer mr = new ScheduleRenderer(m, evt);
-		ScheduleRenderingController.renderers.get(evt.getId()).put(m, mr);
+		ScheduleRenderingController.renderers.get(evt.getId()).put(m,
+		    new ScheduleRenderer(m, evt));
 		ScheduleRenderingController.e.submit(ScheduleRenderingController.renderers
 		    .get(evt.getId()).get(m));
 	}
@@ -118,9 +131,10 @@ public final class ScheduleRenderingController {
 			try {
 				Thread.sleep(1000);
 			} catch (final Exception ex) {
-
+				// ignore
 			}
 		}
-		ScheduleRenderingController.e = Executors.newCachedThreadPool();
+		ScheduleRenderingController.e = ScheduleRenderingController
+		    .getNewExecutor();
 	}
 }

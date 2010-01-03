@@ -11,13 +11,10 @@
 	    <!--  DB connection -->
 	    <property name="hibernate.connection.driver_class" value="SQLite.JDBCDriver" />
 	    <property name="hibernate.dialect" value="org.hibernate.dialect.SQLiteDialect" />
-	    <!-- Some SQL-related stuff -->
-	    <property name="hibernate.show_sql" value="false" />
 	    <!-- Caching -->
 	    <property name="hibernate.cache.provider_class" value="org.hibernate.cache.EhCacheProvider" />
 	    <property name="hibernate.cache.use_query_cache" value="true" />
       <property name="hibernate.cache.use_second_level_cache" value="true" />
-      <property name="hibernate.cache.use_structured_entries" value="true"/>
     </properties>
 	</persistence-unit>
 </persistence>

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
@@ -41,7 +42,14 @@ import cz.muni.fi.spc.SchedVis.model.BaseEntity;
  */
 public final class Database {
 
-	private static EntityManager currentEM;
+	private static EntityManagerFactory currentEMF;
+
+	private static ThreadLocal<EntityManager> entityManager = new ThreadLocal<EntityManager>() {
+		@Override
+		protected synchronized EntityManager initialValue() {
+			return Database.currentEMF.createEntityManager();
+		}
+	};
 
 	public static synchronized BaseEntity find(
 	    final Class<? extends BaseEntity> e, final int id) {
@@ -53,8 +61,8 @@ public final class Database {
 	 * 
 	 * @return The EntityManager.
 	 */
-	public synchronized static EntityManager getEntityManager() {
-		return Database.currentEM;
+	public static EntityManager getEntityManager() {
+		return Database.entityManager.get();
 	}
 
 	/**
@@ -162,9 +170,9 @@ public final class Database {
 	 * Calling this method more than once has no effect.
 	 */
 	public static synchronized void use() {
-		if (Database.currentEM == null) {
+		if (Database.currentEMF == null) {
 			final Map<String, String> map = new HashMap<String, String>();
-			map.put("hibernate.connection.url", "jdbc:sqlite:/" //$NON-NLS-1$ //$NON-NLS-2$
+			map.put("hibernate.connection.url", "jdbc:sqlite:/"
 			    + Configuration.getDatabaseFile().getAbsolutePath());
 			if (!Configuration.getDatabaseFile().exists()) {
 				/**
@@ -172,10 +180,10 @@ public final class Database {
 				 * Hibernate creates indices, which it won't when hbm2ddl.auto was set
 				 * to update.
 				 */
-				map.put("hibernate.hbm2ddl.auto", "create"); //$NON-NLS-1$ //$NON-NLS-2$
+				map.put("hibernate.hbm2ddl.auto", "create");
 			}
-			Database.currentEM = Persistence.createEntityManagerFactory("SchedVis", //$NON-NLS-1$
-			    map).createEntityManager();
+			Database.currentEMF = Persistence.createEntityManagerFactory("SchedVis",
+			    map);
 		}
 	}
 

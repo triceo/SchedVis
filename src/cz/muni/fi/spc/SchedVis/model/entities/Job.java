@@ -49,6 +49,7 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 	public static final int JOB_HINT_MOVE_NOK = 2;
 	public static final int JOB_HINT_ARRIVAL = 3;
 	private static int maxJobSpan = -1;
+	private static Integer internalIdCounter = 0;
 
 	/**
 	 * Get the maximum length of a job. Actually computed only first time, every
@@ -67,8 +68,12 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 		return Job.maxJobSpan;
 	}
 
+	private int internalId;
+
 	private int id;
+
 	private Machine srcMachine;
+
 	private int deadline;
 	private int expectedEnd;
 	private int expectedStart;
@@ -83,9 +88,36 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 	private boolean bringsSchedule = false;
 	private int jobHint = Job.JOB_HINT_NONE;
 
+	public Job() {
+		this.setInternalId(Job.internalIdCounter++);
+	}
+
 	@Override
 	public int compareTo(final Job o) {
 		return Integer.valueOf(this.getId()).compareTo(Integer.valueOf(o.getId()));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof Job)) {
+			return false;
+		}
+		final Job other = (Job) obj;
+		if (this.internalId != other.internalId) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -127,6 +159,10 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 	@GeneratedValue
 	public int getId() {
 		return this.id;
+	}
+
+	public int getInternalId() {
+		return this.internalId;
 	}
 
 	public int getJob() {
@@ -171,6 +207,19 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 		return this.parent;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + this.internalId;
+		return result;
+	}
+
 	public void setAssignedCPUs(final String value) {
 		this.assignedCPUs = value;
 	}
@@ -197,6 +246,10 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 
 	public void setId(final int id) {
 		this.id = id;
+	}
+
+	private void setInternalId(final int id) {
+		this.internalId = id;
 	}
 
 	public void setJob(final int value) {

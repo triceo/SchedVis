@@ -63,34 +63,25 @@ public final class Main {
 	 * many, many times and outputs the resulting time.
 	 */
 	public static void benchmark() {
-		final Set<Machine> machines = Machine.getAllGroupless();
-		final int tickCount = Event.getAllTicks().size() / 500;
-		final Integer tickSpace = Math.max(1, Event.getAllTicks().size()
-		    / tickCount);
-		final int[] ticks = new int[tickCount];
-		ticks[0] = 1;
-		for (int i = 1; i < tickCount; i++) {
-			ticks[i] = tickSpace * i;
-		}
-		// warmup period
-		Main.warmup();
+		final Integer BENCH_EVERY_NTH = 500;
 		System.out.println(Messages.getString("Main.0")); //$NON-NLS-1$
 		System.out.println();
 		// run!
+		final Set<Machine> machines = Machine.getAllGroupless();
+		final Set<Integer> ticks = Event.getAllTicks();
 		Integer i = 0;
-		for (final int tick : ticks) {
+		for (final int tick : Event.getAllTicks()) {
+			if (tick % BENCH_EVERY_NTH != 0) {
+				continue;
+			}
 			i++;
 			for (final Machine m : machines) {
-				ScheduleRenderingController.render(m, Event.getWithId(tick));
+				ScheduleRenderingController.getRendered(m, Event.getWithId(tick));
 			}
 			System.out.println(new PrintfFormat(Messages.getString("Main.1")) //$NON-NLS-1$
-			    .sprintf(new Integer[] { i, ticks.length, tick }));
-			try {
-				Thread.sleep(100);
-			} catch (final Exception ex) {
-				// do nothing
-			}
+			    .sprintf(new Integer[] { i, ticks.size() / BENCH_EVERY_NTH, tick }));
 		}
+		ScheduleRenderingController.restart(); // wait until all is done
 		System.out.println();
 		System.out.println(Messages.getString("Main.4")); //$NON-NLS-1$
 		ScheduleRenderer.reportLogResults();
@@ -129,6 +120,7 @@ public final class Main {
 		}
 		if ("benchmark".equals(args[0])) { //$NON-NLS-1$
 			Database.use();
+			Main.warmup();
 			Main.benchmark();
 			System.exit(0);
 			return;
@@ -141,6 +133,7 @@ public final class Main {
 				    .sprintf(dbFile.getAbsolutePath()));
 				Main.printUsageAndExit();
 			}
+			Main.warmup();
 			Main.main.gui();
 		} else {
 			final File machinesFile = Configuration.getMachinesFile();
@@ -185,7 +178,6 @@ public final class Main {
 	 * @param args
 	 */
 	private void gui() {
-		Main.warmup();
 		Executors.newFixedThreadPool(1).submit(Player.getInstance());
 		/*
 		 * Schedule a job for the event-dispatching thread creating and showing this
