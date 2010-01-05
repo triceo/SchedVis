@@ -27,7 +27,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
-import cz.muni.fi.spc.SchedVis.util.Messages;
+import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>

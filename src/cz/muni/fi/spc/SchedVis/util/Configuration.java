@@ -24,6 +24,8 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
+
 /**
  * The class that is used to access every bit of SchedVis configuration. It is a
  * singleton.

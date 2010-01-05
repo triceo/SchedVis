@@ -27,9 +27,10 @@ import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
-import cz.muni.fi.spc.SchedVis.background.ScheduleRenderer;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
+import cz.muni.fi.spc.SchedVis.ui.ScheduleRenderer;
+import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
  * This class serves as a container for all the schedule rendering. If there is

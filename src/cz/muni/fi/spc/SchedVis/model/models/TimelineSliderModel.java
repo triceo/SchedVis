@@ -25,7 +25,7 @@ import javax.swing.event.ChangeListener;
 import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
-import cz.muni.fi.spc.SchedVis.util.Messages;
+import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
  * A model for the slider that specifies which time will the schedules be

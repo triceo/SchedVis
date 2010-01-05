@@ -14,15 +14,15 @@
  * You should have received a copy of the GNU General Public License
  * along with SchedVis. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.muni.fi.spc.SchedVis.background;
+package cz.muni.fi.spc.SchedVis.ui;
 
 import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
 import cz.muni.fi.spc.SchedVis.util.Configuration;
-import cz.muni.fi.spc.SchedVis.util.Messages;
 import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
+import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
  * The class that implements the "play" functionality. It is a thread that

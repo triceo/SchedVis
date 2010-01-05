@@ -16,7 +16,7 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis.background;
+package cz.muni.fi.spc.SchedVis.ui;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -29,13 +29,10 @@ import java.awt.Shape;
 import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.SwingWorker;
 
@@ -44,9 +41,10 @@ import org.apache.log4j.Logger;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Job;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
+import cz.muni.fi.spc.SchedVis.util.Benchmark;
 import cz.muni.fi.spc.SchedVis.util.Configuration;
-import cz.muni.fi.spc.SchedVis.util.Messages;
 import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
+import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
  * This class knows how to render schedule for a machine into an image.
@@ -161,10 +159,6 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 */
 	private static final int TICKS_PER_GUIDING_BAR = Configuration
 	    .getNumberOfTicksPerGuide();
-	/**
-	 * Stores debugging information.
-	 */
-	private static final Map<String, Map<Machine, List<Double>>> logTimes = new HashMap<String, Map<Machine, List<Double>>>();
 
 	private static final BasicStroke thinStroke = new BasicStroke(1);
 
@@ -179,44 +173,6 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	private static final int BAR_DISTANCE = Math.max(1, Math
 	    .round(ScheduleRenderer.TICKS_PER_GUIDING_BAR
 	        * ScheduleRenderer.NUM_PIXELS_PER_TICK));
-
-	public static void clearLogResults() {
-		ScheduleRenderer.logTimes.clear();
-	}
-
-	/**
-	 * Compute average value of many values.
-	 * 
-	 * @param values
-	 *          The values.
-	 * @return The average.
-	 */
-	private static Double getAverage(final List<Double> values) {
-		double total = 0.0;
-		for (final Double value : values) {
-			total += value;
-		}
-		return total / values.size();
-	}
-
-	/**
-	 * Compute the median of many values. A median is the number that splits the
-	 * set of numbers into two sets of equal sizes.
-	 * 
-	 * @param sortedVals
-	 *          The values, sorted.
-	 * @return The median value.
-	 */
-	private static Double getMedian(final Double[] sortedVals) {
-		final Integer numVals = sortedVals.length;
-		if (numVals % 2 == 1) {
-			return sortedVals[(numVals / 2) + 1];
-		}
-		final Double lowerBound = Math.floor(numVals / 2);
-		final Double upperBound = Math.ceil(numVals / 2);
-		return (sortedVals[lowerBound.intValue()] + sortedVals[upperBound
-		    .intValue()]) / 2;
-	}
 
 	/**
 	 * Get texture for the event's box.
@@ -264,77 +220,6 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		return ScheduleRenderer.paints.get(textureId);
 	}
 
-	/**
-	 * Log a time it took to execute a given task.
-	 * 
-	 * @param type
-	 *          ID of a task that was being executed.
-	 * @param m
-	 *          The machine on which it was executed.
-	 * @param time
-	 *          The time it took.
-	 */
-	private static void logTime(final String type, final Machine m,
-	    final double time) {
-		if (!ScheduleRenderer.logTimes.containsKey(type)) {
-			ScheduleRenderer.logTimes.put(type, new HashMap<Machine, List<Double>>());
-		}
-		final Map<Machine, List<Double>> logMachine = ScheduleRenderer.logTimes
-		    .get(type);
-		if (!logMachine.containsKey(m)) {
-			logMachine.put(m, new ArrayList<Double>());
-		}
-		final List<Double> machineTimes = logMachine.get(m);
-		machineTimes.add(time);
-		ScheduleRenderer.logger.debug(new PrintfFormat(Messages
-		    .getString("ScheduleRenderer.1")).sprintf(new Object[] { //$NON-NLS-1$
-		    m.getName(), type, time }));
-	}
-
-	/**
-	 * Output a table with results of the performance benchmark.
-	 */
-	public static void reportLogResults() {
-		// show globals
-		System.out
-		    .println(" task \\ time [ms] |    avg    |    min    |    mid    |    max    "); //$NON-NLS-1$
-		System.out
-		    .println(" -----------------------------------------------------------------"); //$NON-NLS-1$
-		for (final Entry<String, Map<Machine, List<Double>>> entry : ScheduleRenderer.logTimes
-		    .entrySet()) {
-			List<Double> allValues = new ArrayList<Double>();
-			for (final Entry<Machine, List<Double>> perMachine : entry.getValue()
-			    .entrySet()) {
-				allValues.addAll(perMachine.getValue());
-			}
-			// sort the list
-			Double[] allValuesSorted = allValues.toArray(new Double[] {});
-			Arrays.sort(allValuesSorted);
-			allValues = Arrays.asList(allValuesSorted);
-			// remove upper and lower ${extremesPercent} % of values (the extremes)
-			final int extremesPercent = 1;
-			final Double extremeValueCount = (new Double(allValues.size()) / 100.0)
-			    * extremesPercent;
-			allValues = allValues.subList(extremeValueCount.intValue(), allValues
-			    .size());
-			allValues = allValues.subList(0, allValues.size()
-			    - extremeValueCount.intValue());
-			allValuesSorted = allValues.toArray(new Double[] {});
-			// tabulate results
-			System.out.println("  " //$NON-NLS-1$
-			    + new PrintfFormat("%15s").sprintf(entry.getKey()) //$NON-NLS-1$
-			    + " | " //$NON-NLS-1$
-			    + new PrintfFormat(" %.5f ").sprintf(ScheduleRenderer //$NON-NLS-1$
-			        .getAverage(allValues) * 1000) + " | " //$NON-NLS-1$
-			    + new PrintfFormat(" %.5f ").sprintf(allValuesSorted[0] * 1000) //$NON-NLS-1$
-			    + " | " //$NON-NLS-1$
-			    + new PrintfFormat(" %.5f ").sprintf(ScheduleRenderer //$NON-NLS-1$
-			        .getMedian(allValuesSorted) * 1000) + " | " //$NON-NLS-1$
-			    + new PrintfFormat(" %.5f ") //$NON-NLS-1$
-			        .sprintf(allValuesSorted[allValuesSorted.length - 1] * 1000));
-		}
-	}
-
 	private BufferedImage img;
 
 	/**
@@ -361,19 +246,19 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		Double time = globalTime;
 		final boolean isActive = Machine.isActive(this.m, this.renderedEvent);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logTime("activity", this.m, time); //$NON-NLS-1$
+		Benchmark.logTime("activity", this.m, time); //$NON-NLS-1$
 
 		time = Double.valueOf(System.nanoTime());
 		final Graphics2D g = this.getTemplate(isActive);
 		g.setFont(ScheduleRenderer.font);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logTime("template", this.m, time); //$NON-NLS-1$
+		Benchmark.logTime("template", this.m, time); //$NON-NLS-1$
 
 		time = Double.valueOf(System.nanoTime());
 		final List<Job> jobs = Machine
 		    .getLatestSchedule(this.m, this.renderedEvent);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logTime("schedule", this.m, time); //$NON-NLS-1$
+		Benchmark.logTime("schedule", this.m, time); //$NON-NLS-1$
 
 		time = Double.valueOf(System.nanoTime());
 		this.drawJobs(g, jobs);
@@ -385,10 +270,10 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		g.setColor(isActive ? Color.BLACK : Color.WHITE);
 		g.drawString(descriptor, 1, 9);
 		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logTime("rendering", this.m, time); //$NON-NLS-1$
+		Benchmark.logTime("rendering", this.m, time); //$NON-NLS-1$
 
 		time = (System.nanoTime() - globalTime) / 1000 / 1000 / 1000;
-		ScheduleRenderer.logTime("total", this.m, time); //$NON-NLS-1$
+		Benchmark.logTime("total", this.m, time); //$NON-NLS-1$
 		return this.img;
 	}
 

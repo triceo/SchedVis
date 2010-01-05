@@ -33,8 +33,8 @@ import javax.swing.JScrollPane;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
-import cz.muni.fi.spc.SchedVis.util.Messages;
 import cz.muni.fi.spc.SchedVis.util.ScheduleRenderingController;
+import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
  * MainFrame class for SchedVis' user interface.

@@ -23,7 +23,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.event.ListDataListener;
 
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
-import cz.muni.fi.spc.SchedVis.util.Messages;
+import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
  * Model for a list of groups in the groups dialog.

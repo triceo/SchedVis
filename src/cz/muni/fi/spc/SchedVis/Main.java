@@ -19,20 +19,19 @@
 package cz.muni.fi.spc.SchedVis;
 
 import java.io.File;
-import java.util.Set;
 import java.util.concurrent.Executors;
 
-import cz.muni.fi.spc.SchedVis.background.Importer;
-import cz.muni.fi.spc.SchedVis.background.Player;
-import cz.muni.fi.spc.SchedVis.background.ScheduleRenderer;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.ui.MainFrame;
+import cz.muni.fi.spc.SchedVis.ui.Player;
+import cz.muni.fi.spc.SchedVis.util.Benchmark;
 import cz.muni.fi.spc.SchedVis.util.Configuration;
 import cz.muni.fi.spc.SchedVis.util.Database;
-import cz.muni.fi.spc.SchedVis.util.Messages;
+import cz.muni.fi.spc.SchedVis.util.Importer;
 import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
 import cz.muni.fi.spc.SchedVis.util.ScheduleRenderingController;
+import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
  * The main class for the SchedVis project.
@@ -57,36 +56,6 @@ public final class Main {
 	private static final Main main = new Main();
 
 	private static MainFrame frame;
-
-	/**
-	 * Runs some basic benchmarks. Basically renders some random schedules many,
-	 * many, many times and outputs the resulting time.
-	 */
-	public static void benchmark() {
-		final Integer BENCH_EVERY_NTH = 500;
-		System.out.println(Messages.getString("Main.0")); //$NON-NLS-1$
-		System.out.println();
-		// run!
-		final Set<Machine> machines = Machine.getAllGroupless();
-		final Set<Integer> ticks = Event.getAllTicks();
-		Integer i = 0;
-		for (final int tick : Event.getAllTicks()) {
-			if (tick % BENCH_EVERY_NTH != 0) {
-				continue;
-			}
-			i++;
-			for (final Machine m : machines) {
-				ScheduleRenderingController.getRendered(m, Event.getWithId(tick));
-			}
-			System.out.println(new PrintfFormat(Messages.getString("Main.1")) //$NON-NLS-1$
-			    .sprintf(new Integer[] { i, ticks.size() / BENCH_EVERY_NTH, tick }));
-		}
-		ScheduleRenderingController.restart(); // wait until all is done
-		System.out.println();
-		System.out.println(Messages.getString("Main.4")); //$NON-NLS-1$
-		ScheduleRenderer.reportLogResults();
-		return;
-	}
 
 	/**
 	 * Get the main Swing frame. Useful for refreshing the whole GUI.
@@ -121,7 +90,7 @@ public final class Main {
 		if ("benchmark".equals(args[0])) { //$NON-NLS-1$
 			Database.use();
 			Main.warmup();
-			Main.benchmark();
+			Benchmark.run();
 			System.exit(0);
 			return;
 		} else if ("run".equals(args[0])) { //$NON-NLS-1$
@@ -169,7 +138,7 @@ public final class Main {
 		for (final Machine m : Machine.getAllGroupless()) {
 			ScheduleRenderingController.getRendered(m, evt);
 		}
-		ScheduleRenderer.clearLogResults();
+		Benchmark.clearLogResults();
 	}
 
 	/**

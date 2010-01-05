@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with SchedVis. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.muni.fi.spc.SchedVis.util;
+package cz.muni.fi.spc.SchedVis.util.l10n;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;

@@ -25,8 +25,8 @@ import javax.swing.JPanel;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.EventType;
-import cz.muni.fi.spc.SchedVis.util.Messages;
 import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
+import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>

@@ -16,7 +16,7 @@
 /**
  * 
  */
-package cz.muni.fi.spc.SchedVis.background;
+package cz.muni.fi.spc.SchedVis.util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -54,10 +54,7 @@ import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleEventMove;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleJobData;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleMachineData;
 import cz.muni.fi.spc.SchedVis.parsers.schedule.ScheduleParser;
-import cz.muni.fi.spc.SchedVis.util.Configuration;
-import cz.muni.fi.spc.SchedVis.util.Database;
-import cz.muni.fi.spc.SchedVis.util.Messages;
-import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
+import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
  * A tool to import data from specific files into the SQL database used by this

@@ -19,7 +19,7 @@
  */
 package cz.muni.fi.spc.SchedVis.parsers;
 
-import cz.muni.fi.spc.SchedVis.background.Importer;
+import cz.muni.fi.spc.SchedVis.util.Importer;
 
 /**
  * Base class for SchedVis auto-generated parsers, which should provide some
