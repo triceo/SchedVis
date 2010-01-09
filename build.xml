@@ -6,11 +6,6 @@
   <property name="dir.resources" value="./resources" />
   <property name="dir.src" value="./src" />
 	<property name="dir.lib" value="./lib" />
-	<condition property="lib.sqlite" value="sqlite-windows.jar" else="sqlite.jar">
-	  <and>
-	    <os family="windows"/>
-	  </and>
-	</condition>
   <property name="dir.doc" value="./doc" />
 	<property name="java.target.version" value="1.5" />
   <property name="java.package.name" value="SchedVis" />
@@ -19,7 +14,6 @@
   <path id="classpath.base">
     <fileset dir="${dir.lib}">
       <include name="ext/*.jar"/>
-      <include name="${lib.sqlite}"/>
     </fileset>
   </path>
   <path id="classpath.build">
@@ -38,7 +32,6 @@
 	
 	<target name="makejar" description="Create a jar for the SchedVis project">
     <mkdir dir="${dir.bin}" />
-		<copy file="${dir.lib}/i386/sqlite_jni.dll" todir="${dir.bin}" />
     <copy todir="${dir.build}/META-INF">
     	<fileset dir="${dir.src}/META-INF" />
     </copy>
@@ -73,20 +66,16 @@
   </target>
 	<target name="run" description="Run the program.">
 		<java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" maxmemory="256m">
-			<sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
 			<arg value="run" />
 		</java>
   </target>
   <target name="import" description="Import data into a database.">
     <java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" maxmemory="256m">
-      <sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
       <arg value="import" />
     </java>
   </target>
   <target name="benchmark" description="Render the schedules prior to executing the program.">
     <java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" maxmemory="512m">
-      <!--jvmarg value="-Xloggc:garbage_collector.log" /-->
-      <sysproperty key="SQLite.library.path" value="${toString:dir.lib.native}"/>
       <arg value="benchmark" />
     </java>
   </target>

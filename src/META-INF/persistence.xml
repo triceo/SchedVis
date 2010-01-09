@@ -9,7 +9,7 @@
     <class>cz.muni.fi.spc.SchedVis.model.entities.Job</class>
     <properties>
 	    <!--  DB connection -->
-	    <property name="hibernate.connection.driver_class" value="SQLite.JDBCDriver" />
+	    <property name="hibernate.connection.driver_class" value="org.sqlite.JDBC" />
 	    <property name="hibernate.dialect" value="org.hibernate.dialect.SQLiteDialect" />
 	    <!-- Caching -->
 	    <property name="hibernate.cache.provider_class" value="org.hibernate.cache.EhCacheProvider" />
