@@ -7,7 +7,7 @@
   <property name="dir.src" value="./src" />
 	<property name="dir.lib" value="./lib" />
   <property name="dir.doc" value="./doc" />
-	<property name="java.target.version" value="1.5" />
+	<property name="java.target.version" value="1.6" />
   <property name="java.package.name" value="SchedVis" />
   <property name="java.main.class" value="cz.muni.fi.spc.SchedVis.Main" />
   <path id="dir.lib.native" path="${dir.lib}/i386" />
@@ -58,23 +58,24 @@
 	  <mkdir dir="${dir.build}" />
 		<javac srcdir="${dir.src}" destdir="${dir.build}" classpathref="classpath.build" source="${java.target.version}" includeJavaRuntime="true" />
 	</target>
-	<target name="build" description="Build the SchedVis project" depends="compile,makejar,makedoc" />
+  <target name="build" description="Build the SchedVis project" depends="-build,makedoc" />
+	<target name="-build" description="Build the SchedVis project" depends="compile,makejar" />
 	<target name="clean" description="Restore the distribution to its default state.">
 		<delete dir="${dir.bin}" />
     <delete dir="${dir.build}" />
     <delete file="${files.database}" />
   </target>
-	<target name="run" description="Run the program.">
+	<target name="run" depends="-build" description="Run the program.">
 		<java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" maxmemory="256m">
 			<arg value="run" />
 		</java>
   </target>
-  <target name="import" description="Import data into a database.">
+  <target name="import" depends="-build" description="Import data into a database.">
     <java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" maxmemory="256m">
       <arg value="import" />
     </java>
   </target>
-  <target name="benchmark" description="Render the schedules prior to executing the program.">
+  <target name="benchmark" depends="-build" description="Render the schedules prior to executing the program.">
     <java dir="./" classname="${java.main.class}" classpathref="classpath.runtime" newenvironment="true" fork="true" maxmemory="512m">
       <arg value="benchmark" />
     </java>
