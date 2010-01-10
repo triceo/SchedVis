@@ -24,7 +24,7 @@ public final class Benchmark {
 	 * Compute average value of many values.
 	 * 
 	 * @param values
-	 *          The values.
+	 *            The values.
 	 * @return The average.
 	 */
 	private static Double getAverage(final List<Double> values) {
@@ -40,7 +40,7 @@ public final class Benchmark {
 	 * set of numbers into two sets of equal sizes.
 	 * 
 	 * @param sortedVals
-	 *          The values, sorted.
+	 *            The values, sorted.
 	 * @return The median value.
 	 */
 	private static Double getMedian(final Double[] sortedVals) {
@@ -51,25 +51,26 @@ public final class Benchmark {
 		final Double lowerBound = Math.floor(numVals / 2);
 		final Double upperBound = Math.ceil(numVals / 2);
 		return (sortedVals[lowerBound.intValue()] + sortedVals[upperBound
-		    .intValue()]) / 2;
+				.intValue()]) / 2;
 	}
 
 	/**
 	 * Log a time it took to execute a given task.
 	 * 
 	 * @param type
-	 *          ID of a task that was being executed.
+	 *            ID of a task that was being executed.
 	 * @param m
-	 *          The machine on which it was executed.
+	 *            The machine on which it was executed.
 	 * @param time
-	 *          The time it took.
+	 *            The time it took.
 	 */
 	public static void logTime(final String type, final Machine m,
-	    final double time) {
+			final double time) {
 		if (!Benchmark.logTimes.containsKey(type)) {
 			Benchmark.logTimes.put(type, new HashMap<Machine, List<Double>>());
 		}
-		final Map<Machine, List<Double>> logMachine = Benchmark.logTimes.get(type);
+		final Map<Machine, List<Double>> logMachine = Benchmark.logTimes
+				.get(type);
 		if (!logMachine.containsKey(m)) {
 			logMachine.put(m, new ArrayList<Double>());
 		}
@@ -83,40 +84,41 @@ public final class Benchmark {
 	private static void reportLogResults() {
 		// show globals
 		System.out
-		    .println(" task \\ time [ms] |    avg    |    min    |    mid    |    max    "); //$NON-NLS-1$
+				.println(" task \\ time [ms] |    avg    |    min    |    mid    |    max    "); //$NON-NLS-1$
 		System.out
-		    .println(" -----------------------------------------------------------------"); //$NON-NLS-1$
+				.println(" -----------------------------------------------------------------"); //$NON-NLS-1$
 		for (final Entry<String, Map<Machine, List<Double>>> entry : Benchmark.logTimes
-		    .entrySet()) {
+				.entrySet()) {
 			List<Double> allValues = new ArrayList<Double>();
-			for (final Entry<Machine, List<Double>> perMachine : entry.getValue()
-			    .entrySet()) {
+			for (final Entry<Machine, List<Double>> perMachine : entry
+					.getValue().entrySet()) {
 				allValues.addAll(perMachine.getValue());
 			}
 			// sort the list
 			Double[] allValuesSorted = allValues.toArray(new Double[] {});
 			Arrays.sort(allValuesSorted);
 			allValues = Arrays.asList(allValuesSorted);
-			// remove upper and lower ${extremesPercent} % of values (the extremes)
+			// remove upper and lower ${extremesPercent} % of values (the
+			// extremes)
 			final int extremesPercent = 1;
 			final Double extremeValueCount = (new Double(allValues.size()) / 100.0)
-			    * extremesPercent;
-			allValues = allValues.subList(extremeValueCount.intValue(), allValues
-			    .size());
+					* extremesPercent;
+			allValues = allValues.subList(extremeValueCount.intValue(),
+					allValues.size());
 			allValues = allValues.subList(0, allValues.size()
-			    - extremeValueCount.intValue());
+					- extremeValueCount.intValue());
 			allValuesSorted = allValues.toArray(new Double[] {});
 			// tabulate results
 			System.out
-			    .println("  " //$NON-NLS-1$
-			        + new PrintfFormat("%15s").sprintf(entry.getKey()) //$NON-NLS-1$
-			        + " | " //$NON-NLS-1$
-			        + new PrintfFormat(" %.5f ").sprintf(Benchmark.getAverage(allValues) * 1000) + " | " //$NON-NLS-1$ $$NON-NLS-2$
-			        + new PrintfFormat(" %.5f ").sprintf(allValuesSorted[0] * 1000) //$NON-NLS-1$
-			        + " | " //$NON-NLS-1$
-			        + new PrintfFormat(" %.5f ").sprintf(Benchmark.getMedian(allValuesSorted) * 1000) + " | " //$NON-NLS-1$ $NON-NLS-2$
-			        + new PrintfFormat(" %.5f ") //$NON-NLS-1$
-			            .sprintf(allValuesSorted[allValuesSorted.length - 1] * 1000));
+					.println("  " //$NON-NLS-1$
+							+ new PrintfFormat("%15s").sprintf(entry.getKey()) //$NON-NLS-1$
+							+ " | " //$NON-NLS-1$
+							+ new PrintfFormat(" %.5f ").sprintf(Benchmark.getAverage(allValues) * 1000) + " | " //$NON-NLS-1$ $$NON-NLS-2$
+							+ new PrintfFormat(" %.5f ").sprintf(allValuesSorted[0] * 1000) //$NON-NLS-1$
+							+ " | " //$NON-NLS-1$
+							+ new PrintfFormat(" %.5f ").sprintf(Benchmark.getMedian(allValuesSorted) * 1000) + " | " //$NON-NLS-1$ $NON-NLS-2$
+							+ new PrintfFormat(" %.5f ") //$NON-NLS-1$
+									.sprintf(allValuesSorted[allValuesSorted.length - 1] * 1000));
 		}
 	}
 
@@ -126,22 +128,30 @@ public final class Benchmark {
 	 */
 	public synchronized static void run() {
 		final Integer BENCH_EVERY_NTH = 500;
+		final Integer NUMBER_OF_BENCHES = 10;
 		System.out.println(Messages.getString("Main.0")); //$NON-NLS-1$
 		System.out.println();
 		// run!
 		final Set<Machine> machines = Machine.getAllGroupless();
 		final Set<Integer> ticks = Event.getAllTicks();
 		Integer i = 0;
-		for (final int tick : Event.getAllTicks()) {
-			if (tick % BENCH_EVERY_NTH != 0) {
-				continue;
+		for (int count = 0; count < NUMBER_OF_BENCHES; count++) {
+			for (final int tick : Event.getAllTicks()) {
+				if (tick % BENCH_EVERY_NTH != 0) {
+					continue;
+				}
+				i++;
+				for (final Machine m : machines) {
+					ScheduleRenderingController.getRendered(m, Event
+							.getWithId(tick));
+				}
+				System.out.println(new PrintfFormat(Messages
+						.getString("Main.1")) //$NON-NLS-1$
+						.sprintf(new Integer[] {
+								i,
+								(ticks.size() / BENCH_EVERY_NTH)
+										* NUMBER_OF_BENCHES, tick }));
 			}
-			i++;
-			for (final Machine m : machines) {
-				ScheduleRenderingController.getRendered(m, Event.getWithId(tick));
-			}
-			System.out.println(new PrintfFormat(Messages.getString("Main.1")) //$NON-NLS-1$
-			    .sprintf(new Integer[] { i, ticks.size() / BENCH_EVERY_NTH, tick }));
 		}
 		ScheduleRenderingController.restart(); // wait until all is done
 		System.out.println();
