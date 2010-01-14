@@ -32,6 +32,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import javax.swing.SwingWorker;
@@ -114,10 +116,8 @@ public final class Schedule extends SwingWorker<Image, Void> {
 	 * How many pixels should be left in the left of the schedule for jobs that
 	 * were supposed to be executed before the current clock.
 	 */
-	private static final int OVERFLOW_WIDTH = Double
-	    .valueOf(
-	        Math
-	            .floor((Job.getMaxSpan() * Schedule.NUM_PIXELS_PER_TICK) / 8))
+	private static final int OVERFLOW_WIDTH = Double.valueOf(
+	    Math.floor((Job.getMaxSpan() * Schedule.NUM_PIXELS_PER_TICK) / 8))
 	    .intValue();
 	/**
 	 * Total length of the x axis of the schedule. If you need to change it,
@@ -154,8 +154,7 @@ public final class Schedule extends SwingWorker<Image, Void> {
 	    Schedule.NUM_PIXELS_PER_CPU, Schedule.NUM_PIXELS_PER_CPU);
 
 	private static final int BAR_DISTANCE = Math.max(1, Math
-	    .round(Schedule.TICKS_PER_GUIDING_BAR
-	        * Schedule.NUM_PIXELS_PER_TICK));
+	    .round(Schedule.TICKS_PER_GUIDING_BAR * Schedule.NUM_PIXELS_PER_TICK));
 
 	/**
 	 * Get texture for the event's box.
@@ -174,8 +173,8 @@ public final class Schedule extends SwingWorker<Image, Void> {
 		if (!Schedule.paints.containsKey(textureId)) {
 			final int hint = jobHint.intValue();
 			final BufferedImage texture = new BufferedImage(
-			    Schedule.NUM_PIXELS_PER_CPU,
-			    Schedule.NUM_PIXELS_PER_CPU, BufferedImage.TYPE_INT_RGB);
+			    Schedule.NUM_PIXELS_PER_CPU, Schedule.NUM_PIXELS_PER_CPU,
+			    BufferedImage.TYPE_INT_RGB);
 			final Graphics2D g = (Graphics2D) texture.getGraphics();
 			g.setColor(background);
 			g.fill(Schedule.textureRectangle);
@@ -266,7 +265,8 @@ public final class Schedule extends SwingWorker<Image, Void> {
 	 */
 	private void drawJobs(final Graphics2D g, final List<Job> jobs) {
 		for (final Job job : jobs) {
-			final int[] cpus = this.getAssignedCPUs(job);
+			final Integer[] cpus = this.getAssignedCPUs(job)
+			    .toArray(new Integer[] {});
 			if (job.getBringsSchedule()) { // render jobs in a schedule, one by one
 				/*
 				 * isolate all the contiguous blocks of CPUs in the job and paint them.
@@ -300,8 +300,7 @@ public final class Schedule extends SwingWorker<Image, Void> {
 						g.setColor(Colors.getJobColor(job.getJob())); // no deadline
 					}
 					final Shape s = new Rectangle(jobStartX, ltY, jobLength, jobHgt);
-					g.setPaint(Schedule
-					    .getTexture(g.getColor(), job.getJobHint()));
+					g.setPaint(Schedule.getTexture(g.getColor(), job.getJobHint()));
 					g.fill(s);
 					g.setColor(Color.BLACK);
 					if (this.renderedEvent.getId() == job.getJob()) {
@@ -358,20 +357,18 @@ public final class Schedule extends SwingWorker<Image, Void> {
 	 *          The job in question.
 	 * @return Numbers of assigned CPUs.
 	 */
-	private int[] getAssignedCPUs(final Job schedule) {
+	private Set<Integer> getAssignedCPUs(final Job schedule) {
 		// get assigned CPUs
 		final String raw = schedule.getAssignedCPUs();
 		if ((raw == null) || (raw.length() == 0)) {
-			return new int[] {};
+			return new TreeSet<Integer>();
 		}
 		// parse single numbers
 		final String[] rawParts = raw.split(","); //$NON-NLS-1$
 		// store for returning
-		final int[] assignedCPUs = new int[rawParts.length];
-		int i = 0;
+		final Set<Integer> assignedCPUs = new TreeSet<Integer>();
 		for (final String num : rawParts) {
-			assignedCPUs[i] = Integer.valueOf(num);
-			i++;
+			assignedCPUs.add(Integer.valueOf(num));
 		}
 		return assignedCPUs;
 	}
@@ -428,20 +425,21 @@ public final class Schedule extends SwingWorker<Image, Void> {
 		} else {
 			g.setColor(Color.GRAY);
 		}
+		// draw lines separating CPUs
 		for (int cpu = 0; cpu < (this.m.getCPUs() - 1); cpu++) {
 			final int yAxis = (cpu + 1) * Schedule.NUM_PIXELS_PER_CPU;
-			g.drawLine(0, yAxis, this.IMAGE_HEIGHT - 2, yAxis);
+			g.drawLine(0, yAxis, Schedule.IMAGE_WIDTH - 2, yAxis);
 		}
-		final int numBars = Schedule.IMAGE_WIDTH
-		    / Schedule.BAR_DISTANCE;
+		// draw bars showing position on the timeline
+		final int numBars = Schedule.IMAGE_WIDTH / Schedule.BAR_DISTANCE;
 		for (int bar = 0; bar < numBars; bar++) {
 			final int xAxis = Schedule.BAR_DISTANCE * (bar + 1);
 			g.drawLine(xAxis, 0, xAxis, this.IMAGE_HEIGHT - 2);
 		}
-		g.setColor(Color.BLACK);
 		// draw a line in a place where "zero" (current clock) is.
-		g.drawLine(Schedule.OVERFLOW_WIDTH, 0,
-		    Schedule.OVERFLOW_WIDTH, this.IMAGE_HEIGHT);
+		g.setColor(Color.BLACK);
+		g.drawLine(Schedule.OVERFLOW_WIDTH, 0, Schedule.OVERFLOW_WIDTH,
+		    this.IMAGE_HEIGHT);
 		return g;
 	}
 }
