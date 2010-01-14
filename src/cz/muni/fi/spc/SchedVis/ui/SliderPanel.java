@@ -35,6 +35,7 @@ import cz.muni.fi.spc.SchedVis.Main;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
+import cz.muni.fi.spc.SchedVis.util.Player;
 
 /**
  * Implements a timeline "widget," used to move forward or backwards on the

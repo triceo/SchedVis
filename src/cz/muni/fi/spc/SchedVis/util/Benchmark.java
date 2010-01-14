@@ -1,5 +1,8 @@
 package cz.muni.fi.spc.SchedVis.util;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.IndexColorModel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,8 +13,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
 
+import javax.swing.SwingUtilities;
+
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
+import cz.muni.fi.spc.SchedVis.ui.Schedule;
 import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 public final class Benchmark {
@@ -52,6 +58,22 @@ public final class Benchmark {
 
 	private static Map<UUID, Intermediate> inters = Collections
 	    .synchronizedMap(new HashMap<UUID, Intermediate>());
+
+	/**
+	 * Index color model specifying 16 basic colors. This significantly improves
+	 * the speed of preparing the images, thus decreasing the time the benchmark
+	 * will take.
+	 */
+	public static final IndexColorModel model = new IndexColorModel(4, 16,
+	    new byte[] { (byte) 255, (byte) 255, (byte) 255, (byte) 255, (byte) 192,
+	        (byte) 128, (byte) 128, (byte) 128, (byte) 128, (byte) 0, (byte) 0,
+	        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0 }, new byte[] {
+	        (byte) 255, (byte) 255, (byte) 0, (byte) 0, (byte) 192, (byte) 128,
+	        (byte) 128, (byte) 0, (byte) 0, (byte) 255, (byte) 255, (byte) 128,
+	        (byte) 128, (byte) 0, (byte) 0, (byte) 0 }, new byte[] { (byte) 255,
+	        (byte) 0, (byte) 255, (byte) 0, (byte) 192, (byte) 128, (byte) 0,
+	        (byte) 128, (byte) 0, (byte) 255, (byte) 0, (byte) 128, (byte) 0,
+	        (byte) 255, (byte) 128, (byte) 0 });
 
 	public static void clearLogResults() {
 		Benchmark.logTimes.clear();
@@ -184,25 +206,34 @@ public final class Benchmark {
 		final Set<Integer> ticks = Event.getAllTicks();
 		Integer i = 0;
 		for (int count = 0; count < NUMBER_OF_BENCHES; count++) {
-			for (final int tick : Event.getAllTicks()) {
+			for (final int tick : ticks) {
 				if (tick % BENCH_EVERY_NTH != 0) {
 					continue;
 				}
 				i++;
 				for (final Machine m : machines) {
-					ScheduleRenderingController.getRendered(m, Event.getWithId(tick));
+					Benchmark.runSingleSchedule(Event.getWithId(tick), m);
 				}
 				System.out.println(new PrintfFormat(Messages.getString("Main.1")) //$NON-NLS-1$
 				    .sprintf(new Integer[] { i,
 				        (ticks.size() / BENCH_EVERY_NTH) * NUMBER_OF_BENCHES, tick }));
 			}
 		}
-		ScheduleRenderingController.restart(); // wait until all is done
 		System.out.println();
 		System.out.println(Messages.getString("Main.4")); //$NON-NLS-1$
 		Benchmark.reportLogResults();
 		Benchmark.isEnabled = false;
 		return;
+	}
+
+	public static void runSingleSchedule(final Event e, final Machine m)
+	    throws Exception {
+		BufferedImage img = new BufferedImage(Schedule.IMAGE_WIDTH,
+		    Schedule.NUM_PIXELS_PER_CPU * m.getCPUs(),
+		    BufferedImage.TYPE_BYTE_BINARY, Benchmark.model);
+		final Graphics2D g = img.createGraphics();
+
+		SwingUtilities.invokeAndWait(new Schedule(m, e, g));
 	}
 
 	public static UUID startProfile(final String id, final Machine m) {

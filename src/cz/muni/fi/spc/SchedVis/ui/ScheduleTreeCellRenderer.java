@@ -31,7 +31,6 @@ import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
 import cz.muni.fi.spc.SchedVis.model.models.ScheduleTreeModel;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
 import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
-import cz.muni.fi.spc.SchedVis.util.ScheduleRenderingController;
 import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
@@ -80,10 +79,8 @@ public final class ScheduleTreeCellRenderer extends DefaultTreeCellRenderer {
 	 */
 	private JPanel getMachine(final Machine item) {
 		try {
-			final MachinePanel pane = new MachinePanel();
-			pane.setImage(ScheduleRenderingController.getRendered(item,
-			    TimelineSliderModel.getInstance().getRichValue()));
-			return pane;
+			return new MachinePanel(item, TimelineSliderModel.getInstance()
+			    .getRichValue());
 		} catch (final Exception e) {
 			final JPanel p = new JPanel();
 			p.add(new JLabel(e.toString()));

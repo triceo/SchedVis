@@ -128,7 +128,7 @@ public final class StatusBar extends JPanel {
 		final BorderLayout brdr = new BorderLayout();
 		this.setLayout(brdr);
 		this.add(new JLabel(new PrintfFormat(Messages.getString("StatusBar.10")) //$NON-NLS-1$
-		    .sprintf(new Object[] { event.getJob(),
+		    .sprintf(new Object[] { event.getId(),
 		        StatusBar.parseTime(event.getClock()), text })),
 		    BorderLayout.CENTER);
 		this.updateUI();

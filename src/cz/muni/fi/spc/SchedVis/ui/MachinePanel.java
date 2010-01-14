@@ -21,9 +21,13 @@ package cz.muni.fi.spc.SchedVis.ui;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
+import cz.muni.fi.spc.SchedVis.model.entities.Event;
+import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 
 /**
  * A panel that shows a machine schedule.
@@ -33,38 +37,36 @@ import javax.swing.JPanel;
 public final class MachinePanel extends JPanel {
 
 	private static final long serialVersionUID = 1407665978399872917L;
-	private Image i = null;
+	private final Machine m;
+	private final Event e;
 
-	/**
-	 * Get the schedule image this panel holds.
-	 * 
-	 * @return The schedule.
-	 */
-	public Image getImage() {
-		return this.i;
+	public MachinePanel(final Machine m, final Event e) {
+		this.m = m;
+		this.e = e;
 	}
 
-	/**
-	 * Refresh the panel on the screen.
-	 */
 	@Override
-	public void paint(final Graphics g) {
-		super.paint(g);
-		if (this.getImage() != null) {
-			g.drawImage(this.getImage(), 0, 0, null);
+	public Dimension getPreferredSize() {
+		return new Dimension(Schedule.IMAGE_WIDTH, this.m.getCPUs()
+		    * Schedule.NUM_PIXELS_PER_CPU);
+	}
+
+	@Override
+	protected void paintComponent(final Graphics g) {
+		super.paintComponent(g);
+		Schedule r = new Schedule(this.m, this.e, (Graphics2D) g);
+		try {
+			if (SwingUtilities.isEventDispatchThread()) {
+				r.run();
+			} else {
+				SwingUtilities.invokeAndWait(r);
+			}
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+		} catch (java.lang.reflect.InvocationTargetException ite) {
+			ite.printStackTrace();
+			throw new IllegalStateException(ite.getMessage());
 		}
-	}
 
-	/**
-	 * Set the schedule image to be rendered in this panel.
-	 * 
-	 * @param i
-	 *          The schedule.
-	 */
-	public void setImage(final Image i) {
-		this.i = i;
-		this.setPreferredSize(new Dimension(this.getImage().getWidth(null) + 5,
-		    this.getImage().getHeight(null) + 5));
 	}
-
 }

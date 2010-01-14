@@ -21,16 +21,17 @@ package cz.muni.fi.spc.SchedVis;
 import java.io.File;
 import java.util.concurrent.Executors;
 
+import javax.swing.SwingUtilities;
+
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.ui.MainFrame;
-import cz.muni.fi.spc.SchedVis.ui.Player;
 import cz.muni.fi.spc.SchedVis.util.Benchmark;
 import cz.muni.fi.spc.SchedVis.util.Configuration;
 import cz.muni.fi.spc.SchedVis.util.Database;
 import cz.muni.fi.spc.SchedVis.util.Importer;
+import cz.muni.fi.spc.SchedVis.util.Player;
 import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
-import cz.muni.fi.spc.SchedVis.util.ScheduleRenderingController;
 import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
@@ -83,7 +84,7 @@ public final class Main {
 	 *          <dd>
 	 *          </dl>
 	 */
-	public static void main(final String[] args) {
+	public static void main(final String[] args) throws Exception {
 		if (args.length != 1) {
 			Main.printUsageAndExit();
 		}
@@ -132,11 +133,11 @@ public final class Main {
 		System.exit(1);
 	}
 
-	private static void warmup() {
+	private static void warmup() throws Exception {
 		System.out.println(Messages.getString("Main.13")); //$NON-NLS-1$
 		final Event evt = Event.getFirst();
 		for (final Machine m : Machine.getAllGroupless()) {
-			ScheduleRenderingController.getRendered(m, evt);
+			Benchmark.runSingleSchedule(evt, m);
 		}
 		Benchmark.clearLogResults();
 	}
@@ -152,7 +153,7 @@ public final class Main {
 		 * Schedule a job for the event-dispatching thread creating and showing this
 		 * application's GUI.
 		 */
-		javax.swing.SwingUtilities.invokeLater(new GUI());
+		SwingUtilities.invokeLater(new GUI());
 	}
 
 	/**

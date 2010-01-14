@@ -14,14 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with SchedVis. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.muni.fi.spc.SchedVis.ui;
+package cz.muni.fi.spc.SchedVis.util;
 
 import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
-import cz.muni.fi.spc.SchedVis.util.Configuration;
-import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
 import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
@@ -68,8 +66,7 @@ public final class Player implements Runnable {
 					@Override
 					public void run() {
 						final TimelineSliderModel m = TimelineSliderModel.getInstance();
-						final Event evt = Event.getWithId(m.getValue());
-						m.setValue(Event.getNext(evt).getId());
+						m.setValue(Event.getNext(m.getRichValue()));
 					}
 				});
 				// .. and wait

@@ -84,7 +84,6 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 	 */
 	public GroupsDialog(final Frame owner, final boolean modal) {
 		super(owner, modal);
-		this.setMinimumSize(new Dimension(650, 400));
 		this.setTitle(Messages.getString("GroupsDialog.5")); //$NON-NLS-1$
 		final JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.LINE_AXIS));
@@ -257,6 +256,11 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 				    this));
 			}
 		}
+	}
+
+	@Override
+	public Dimension getMinimumSize() {
+		return new Dimension(650, 400);
 	}
 
 	public void intervalAdded(final ListDataEvent e) {

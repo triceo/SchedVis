@@ -33,7 +33,6 @@ import javax.swing.JScrollPane;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
-import cz.muni.fi.spc.SchedVis.util.ScheduleRenderingController;
 import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
@@ -44,9 +43,6 @@ import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
  */
 public final class MainFrame extends JFrame {
 
-	/**
-     * 
-     */
 	private static final long serialVersionUID = 6652856626507094021L;
 	private static ScheduleTree tree = ScheduleTree.getInstance();
 	private JPanel detailPane;
@@ -64,8 +60,6 @@ public final class MainFrame extends JFrame {
 		this.setJMenuBar(new MainMenu(this));
 		final Container pane = this.createContentPane();
 		this.setContentPane(pane);
-
-		// Display the window.
 		this.setMinimumSize(new Dimension(800, 600));
 	}
 
@@ -114,10 +108,7 @@ public final class MainFrame extends JFrame {
 			final Event nextEvent = Event.getNext(currentEvent, m);
 			for (final Event event : new TreeSet<Event>(Arrays.asList(new Event[] {
 			    previousEvent, currentEvent, nextEvent }))) {
-				ScheduleRenderingController.render(m, event);
-				final MachinePanel pane = new MachinePanel();
-				pane.setImage(ScheduleRenderingController.getRendered(m, event));
-				this.detailPane.add(pane);
+				this.detailPane.add(new MachinePanel(m, event));
 			}
 		} else {
 			this.detailPane.add(new JLabel(Messages.getString("MainFrame.3"))); //$NON-NLS-1$
