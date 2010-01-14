@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.swing.SwingWorker;
 
@@ -242,25 +243,22 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 	 */
 	@Override
 	public Image doInBackground() {
-		final Double globalTime = Double.valueOf(System.nanoTime());
-		Double time = globalTime;
+		final UUID globalUuid = Benchmark.startProfile("total", this.m); //$NON-NLS-1$
+		UUID uuid = Benchmark.startProfile("activity", this.m);
 		final boolean isActive = Machine.isActive(this.m, this.renderedEvent);
-		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		Benchmark.logTime("activity", this.m, time); //$NON-NLS-1$
+		Benchmark.stopProfile(uuid);
 
-		time = Double.valueOf(System.nanoTime());
+		uuid = Benchmark.startProfile("template", this.m); //$NON-NLS-1$
 		final Graphics2D g = this.getTemplate(isActive);
 		g.setFont(ScheduleRenderer.font);
-		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		Benchmark.logTime("template", this.m, time); //$NON-NLS-1$
+		Benchmark.stopProfile(uuid);
 
-		time = Double.valueOf(System.nanoTime());
+		uuid = Benchmark.startProfile("schedule", this.m); //$NON-NLS-1$
 		final List<Job> jobs = Machine
 		    .getLatestSchedule(this.m, this.renderedEvent);
-		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		Benchmark.logTime("schedule", this.m, time); //$NON-NLS-1$
+		Benchmark.stopProfile(uuid);
 
-		time = Double.valueOf(System.nanoTime());
+		uuid = Benchmark.startProfile("rendering", this.m); //$NON-NLS-1$
 		this.drawJobs(g, jobs);
 		// add machine info
 		String descriptor = this.m.getName() + "@" + this.renderedEvent.getClock(); //$NON-NLS-1$
@@ -269,11 +267,8 @@ public final class ScheduleRenderer extends SwingWorker<Image, Void> {
 		}
 		g.setColor(isActive ? Color.BLACK : Color.WHITE);
 		g.drawString(descriptor, 1, 9);
-		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
-		Benchmark.logTime("rendering", this.m, time); //$NON-NLS-1$
-
-		time = (System.nanoTime() - globalTime) / 1000 / 1000 / 1000;
-		Benchmark.logTime("total", this.m, time); //$NON-NLS-1$
+		Benchmark.stopProfile(uuid);
+		Benchmark.stopProfile(globalUuid);
 		return this.img;
 	}
 

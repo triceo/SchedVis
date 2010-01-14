@@ -2,10 +2,12 @@ package cz.muni.fi.spc.SchedVis.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.Map.Entry;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
@@ -14,7 +16,42 @@ import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 public final class Benchmark {
 
-	private static final Map<String, Map<Machine, List<Double>>> logTimes = new HashMap<String, Map<Machine, List<Double>>>();
+	private final static class Intermediate {
+
+		private long startTime;
+		private final String id;
+		private final Machine m;
+
+		public Intermediate(final String id, final Machine m) {
+			this.id = id;
+			this.m = m;
+		}
+
+		public String getId() {
+			return this.id;
+		}
+
+		public Machine getMachine() {
+			return this.m;
+		}
+
+		public long getStartTime() {
+			return this.startTime;
+		}
+
+		public void setStartTime(final long nanotime) {
+			this.startTime = nanotime;
+		}
+
+	}
+
+	private static final Map<String, Map<Machine, List<Long>>> logTimes = Collections
+	    .synchronizedMap(new HashMap<String, Map<Machine, List<Long>>>());
+
+	private static boolean isEnabled = false;
+
+	private static Map<UUID, Intermediate> inters = Collections
+	    .synchronizedMap(new HashMap<UUID, Intermediate>());
 
 	public static void clearLogResults() {
 		Benchmark.logTimes.clear();
@@ -24,12 +61,12 @@ public final class Benchmark {
 	 * Compute average value of many values.
 	 * 
 	 * @param values
-	 *            The values.
+	 *          The values.
 	 * @return The average.
 	 */
-	private static Double getAverage(final List<Double> values) {
+	private static Double getAverage(final List<Long> values) {
 		double total = 0.0;
-		for (final Double value : values) {
+		for (final Long value : values) {
 			total += value;
 		}
 		return total / values.size();
@@ -40,10 +77,10 @@ public final class Benchmark {
 	 * set of numbers into two sets of equal sizes.
 	 * 
 	 * @param sortedVals
-	 *            The values, sorted.
+	 *          The values, sorted.
 	 * @return The median value.
 	 */
-	private static Double getMedian(final Double[] sortedVals) {
+	private static Long getMedian(final Long[] sortedVals) {
 		final Integer numVals = sortedVals.length;
 		if (numVals % 2 == 1) {
 			return sortedVals[(numVals / 2) + 1];
@@ -51,31 +88,38 @@ public final class Benchmark {
 		final Double lowerBound = Math.floor(numVals / 2);
 		final Double upperBound = Math.ceil(numVals / 2);
 		return (sortedVals[lowerBound.intValue()] + sortedVals[upperBound
-				.intValue()]) / 2;
+		    .intValue()]) / 2;
 	}
 
 	/**
 	 * Log a time it took to execute a given task.
 	 * 
 	 * @param type
-	 *            ID of a task that was being executed.
+	 *          ID of a task that was being executed.
 	 * @param m
-	 *            The machine on which it was executed.
+	 *          The machine on which it was executed.
 	 * @param time
-	 *            The time it took.
+	 *          The time it took.
 	 */
-	public static void logTime(final String type, final Machine m,
-			final double time) {
+	private static void logTime(final String type, final Machine m,
+	    final long time) {
 		if (!Benchmark.logTimes.containsKey(type)) {
-			Benchmark.logTimes.put(type, new HashMap<Machine, List<Double>>());
+			Benchmark.logTimes.put(type, new HashMap<Machine, List<Long>>());
 		}
-		final Map<Machine, List<Double>> logMachine = Benchmark.logTimes
-				.get(type);
+		final Map<Machine, List<Long>> logMachine = Benchmark.logTimes.get(type);
 		if (!logMachine.containsKey(m)) {
-			logMachine.put(m, new ArrayList<Double>());
+			logMachine.put(m, new ArrayList<Long>());
 		}
-		final List<Double> machineTimes = logMachine.get(m);
+		final List<Long> machineTimes = logMachine.get(m);
 		machineTimes.add(time);
+	}
+
+	private static double nanoToMilli(final double nano) {
+		return nano / 1000 / 1000;
+	}
+
+	private static double nanoToMilli(final long nano) {
+		return Benchmark.nanoToMilli((double) nano);
 	}
 
 	/**
@@ -84,41 +128,41 @@ public final class Benchmark {
 	private static void reportLogResults() {
 		// show globals
 		System.out
-				.println(" task \\ time [ms] |    avg    |    min    |    mid    |    max    "); //$NON-NLS-1$
+		    .println(" task \\ time [ms] |    avg    |    min    |    mid    |    max    "); //$NON-NLS-1$
 		System.out
-				.println(" -----------------------------------------------------------------"); //$NON-NLS-1$
-		for (final Entry<String, Map<Machine, List<Double>>> entry : Benchmark.logTimes
-				.entrySet()) {
-			List<Double> allValues = new ArrayList<Double>();
-			for (final Entry<Machine, List<Double>> perMachine : entry
-					.getValue().entrySet()) {
+		    .println(" -----------------------------------------------------------------"); //$NON-NLS-1$
+		for (final Entry<String, Map<Machine, List<Long>>> entry : Benchmark.logTimes
+		    .entrySet()) {
+			List<Long> allValues = new ArrayList<Long>();
+			for (final Entry<Machine, List<Long>> perMachine : entry.getValue()
+			    .entrySet()) {
 				allValues.addAll(perMachine.getValue());
 			}
 			// sort the list
-			Double[] allValuesSorted = allValues.toArray(new Double[] {});
+			Long[] allValuesSorted = allValues.toArray(new Long[] {});
 			Arrays.sort(allValuesSorted);
 			allValues = Arrays.asList(allValuesSorted);
 			// remove upper and lower ${extremesPercent} % of values (the
 			// extremes)
-			final int extremesPercent = 1;
+			final int extremesPercent = 2;
 			final Double extremeValueCount = (new Double(allValues.size()) / 100.0)
-					* extremesPercent;
-			allValues = allValues.subList(extremeValueCount.intValue(),
-					allValues.size());
+			    * extremesPercent;
+			allValues = allValues.subList(extremeValueCount.intValue(), allValues
+			    .size());
 			allValues = allValues.subList(0, allValues.size()
-					- extremeValueCount.intValue());
-			allValuesSorted = allValues.toArray(new Double[] {});
+			    - extremeValueCount.intValue());
 			// tabulate results
 			System.out
-					.println("  " //$NON-NLS-1$
-							+ new PrintfFormat("%15s").sprintf(entry.getKey()) //$NON-NLS-1$
-							+ " | " //$NON-NLS-1$
-							+ new PrintfFormat(" %.5f ").sprintf(Benchmark.getAverage(allValues) * 1000) + " | " //$NON-NLS-1$ $$NON-NLS-2$
-							+ new PrintfFormat(" %.5f ").sprintf(allValuesSorted[0] * 1000) //$NON-NLS-1$
-							+ " | " //$NON-NLS-1$
-							+ new PrintfFormat(" %.5f ").sprintf(Benchmark.getMedian(allValuesSorted) * 1000) + " | " //$NON-NLS-1$ $NON-NLS-2$
-							+ new PrintfFormat(" %.5f ") //$NON-NLS-1$
-									.sprintf(allValuesSorted[allValuesSorted.length - 1] * 1000));
+			    .println("  " //$NON-NLS-1$
+			        + new PrintfFormat("%15s").sprintf(entry.getKey()) //$NON-NLS-1$
+			        + " | " //$NON-NLS-1$
+			        + new PrintfFormat(" %.5f ").sprintf(Benchmark.nanoToMilli(Benchmark.getAverage(allValues))) + " | " //$NON-NLS-1$ $$NON-NLS-2$
+			        + new PrintfFormat(" %.5f ").sprintf(Benchmark.nanoToMilli(allValuesSorted[0])) //$NON-NLS-1$
+			        + " | " //$NON-NLS-1$
+			        + new PrintfFormat(" %.5f ").sprintf(Benchmark.nanoToMilli(Benchmark.getMedian(allValuesSorted))) + " | " //$NON-NLS-1$ $NON-NLS-2$
+			        + new PrintfFormat(" %.5f ") //$NON-NLS-1$
+			            .sprintf(Benchmark
+			                .nanoToMilli(allValuesSorted[allValuesSorted.length - 1])));
 		}
 	}
 
@@ -126,7 +170,11 @@ public final class Benchmark {
 	 * Runs some basic benchmarks. Basically renders some random schedules many,
 	 * many, many times and outputs the resulting time.
 	 */
-	public synchronized static void run() {
+	public static void run() throws Exception {
+		if (Benchmark.isEnabled) {
+			throw new Exception("Benchmark already running.");
+		}
+		Benchmark.isEnabled = true;
 		final Integer BENCH_EVERY_NTH = 500;
 		final Integer NUMBER_OF_BENCHES = 10;
 		System.out.println(Messages.getString("Main.0")); //$NON-NLS-1$
@@ -142,26 +190,44 @@ public final class Benchmark {
 				}
 				i++;
 				for (final Machine m : machines) {
-					ScheduleRenderingController.getRendered(m, Event
-							.getWithId(tick));
+					ScheduleRenderingController.getRendered(m, Event.getWithId(tick));
 				}
-				System.out.println(new PrintfFormat(Messages
-						.getString("Main.1")) //$NON-NLS-1$
-						.sprintf(new Integer[] {
-								i,
-								(ticks.size() / BENCH_EVERY_NTH)
-										* NUMBER_OF_BENCHES, tick }));
+				System.out.println(new PrintfFormat(Messages.getString("Main.1")) //$NON-NLS-1$
+				    .sprintf(new Integer[] { i,
+				        (ticks.size() / BENCH_EVERY_NTH) * NUMBER_OF_BENCHES, tick }));
 			}
 		}
 		ScheduleRenderingController.restart(); // wait until all is done
 		System.out.println();
 		System.out.println(Messages.getString("Main.4")); //$NON-NLS-1$
 		Benchmark.reportLogResults();
+		Benchmark.isEnabled = false;
 		return;
+	}
+
+	public static UUID startProfile(final String id, final Machine m) {
+		if (!Benchmark.isEnabled) {
+			return null;
+		}
+		final UUID uuid = UUID.randomUUID();
+		final Intermediate i = new Intermediate(id, m);
+		Benchmark.inters.put(uuid, i);
+		i.setStartTime(System.nanoTime());
+		return uuid;
+	}
+
+	public static long stopProfile(final UUID uuid) {
+		if (!Benchmark.isEnabled) {
+			return 0;
+		}
+		final long now = System.nanoTime();
+		final Intermediate i = Benchmark.inters.remove(uuid);
+		final long difference = now - i.getStartTime();
+		Benchmark.logTime(i.getId(), i.getMachine(), difference);
+		return difference;
 	}
 
 	private Benchmark() {
 		// prevent instantialization
 	}
-
 }
