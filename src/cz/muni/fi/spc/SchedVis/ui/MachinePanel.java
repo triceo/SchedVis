@@ -22,6 +22,7 @@ package cz.muni.fi.spc.SchedVis.ui;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -54,16 +55,16 @@ public final class MachinePanel extends JPanel {
 	@Override
 	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
-		Schedule r = new Schedule(this.m, this.e, (Graphics2D) g);
+		final Schedule r = new Schedule(this.m, this.e, (Graphics2D) g);
 		try {
 			if (SwingUtilities.isEventDispatchThread()) {
 				r.run();
 			} else {
 				SwingUtilities.invokeAndWait(r);
 			}
-		} catch (InterruptedException ie) {
+		} catch (final InterruptedException ie) {
 			Thread.currentThread().interrupt();
-		} catch (java.lang.reflect.InvocationTargetException ite) {
+		} catch (final InvocationTargetException ite) {
 			ite.printStackTrace();
 			throw new IllegalStateException(ite.getMessage());
 		}

@@ -161,7 +161,7 @@ public final class Benchmark {
 				allValues.addAll(perMachine.getValue());
 			}
 			// sort the list
-			Long[] allValuesSorted = allValues.toArray(new Long[] {});
+			final Long[] allValuesSorted = allValues.toArray(new Long[] {});
 			Arrays.sort(allValuesSorted);
 			allValues = Arrays.asList(allValuesSorted);
 			// remove upper and lower ${extremesPercent} % of values (the
@@ -228,7 +228,7 @@ public final class Benchmark {
 
 	public static void runSingleSchedule(final Event e, final Machine m)
 	    throws Exception {
-		BufferedImage img = new BufferedImage(Schedule.IMAGE_WIDTH,
+		final BufferedImage img = new BufferedImage(Schedule.IMAGE_WIDTH,
 		    Schedule.NUM_PIXELS_PER_CPU * m.getCPUs(),
 		    BufferedImage.TYPE_BYTE_BINARY, Benchmark.model);
 		final Graphics2D g = img.createGraphics();

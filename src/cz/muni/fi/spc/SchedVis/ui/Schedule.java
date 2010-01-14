@@ -411,7 +411,7 @@ public final class Schedule extends SwingWorker<Image, Void> {
 	 *          Whether the background should indicate an active machine.
 	 * @return The background image.
 	 */
-	private Graphics2D getTemplate(final Graphics2D g, final boolean isActive) {
+	private void getTemplate(final Graphics2D g, final boolean isActive) {
 		// draw background
 		if (isActive) {
 			g.setColor(Color.WHITE);
@@ -440,6 +440,5 @@ public final class Schedule extends SwingWorker<Image, Void> {
 		g.setColor(Color.BLACK);
 		g.drawLine(Schedule.OVERFLOW_WIDTH, 0, Schedule.OVERFLOW_WIDTH,
 		    this.IMAGE_HEIGHT);
-		return g;
 	}
 }
