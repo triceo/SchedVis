@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.Map.Entry;
 
@@ -60,7 +61,7 @@ public final class Benchmark {
 	private static final Map<String, List<Long>> timesByType = Collections
 	    .synchronizedMap(new HashMap<String, List<Long>>());
 	private static final Map<String, List<Long>> timesByMachine = Collections
-	    .synchronizedMap(new HashMap<String, List<Long>>());
+	    .synchronizedMap(new TreeMap<String, List<Long>>());
 
 	private static boolean isEnabled = false;
 
@@ -147,7 +148,8 @@ public final class Benchmark {
 		if (!Benchmark.timesByMachine.containsKey(machineName)) {
 			Benchmark.timesByMachine.put(machineName, new ArrayList<Long>());
 		}
-		Benchmark.timesByMachine.get(machineName).add(time);
+		Benchmark.timesByMachine.get(machineName).add(
+		    time / i.getMachine().getCPUs());
 	}
 
 	private static double nanoToMilli(final double nano) {
@@ -159,8 +161,10 @@ public final class Benchmark {
 	}
 
 	protected static void reportLogResults() {
+		System.out.println("Benchmark by type of event:");
 		Benchmark.reportLogResults(Benchmark.timesByType);
 		System.out.println();
+		System.out.println("Benchmark by machine (normalized by number of CPUs:");
 		Benchmark.reportLogResults(Benchmark.timesByMachine);
 	}
 
