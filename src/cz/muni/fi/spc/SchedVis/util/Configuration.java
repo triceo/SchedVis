@@ -46,6 +46,16 @@ public final class Configuration {
 		return false;
 	}
 
+	public static Integer getBenchmarkFrequency() {
+		return Integer.valueOf(Configuration.getProperties().getProperty(
+		    "benchmark.every_nth_event", "100")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public static Integer getBenchmarkIterations() {
+		return Integer.valueOf(Configuration.getProperties().getProperty(
+		    "benchmark.number_of_runs", "5")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	/**
 	 * Retrieve the file that holds the SQLite database.
 	 * 

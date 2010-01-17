@@ -26,11 +26,17 @@ public final class Benchmark {
 
 		private long startTime;
 		private final String id;
+		private final Event e;
 		private final Machine m;
 
-		public Intermediate(final String id, final Machine m) {
+		public Intermediate(final String id, final Event e, final Machine m) {
 			this.id = id;
+			this.e = e;
 			this.m = m;
+		}
+
+		public Event getEvent() {
+			return this.e;
 		}
 
 		public String getId() {
@@ -51,8 +57,10 @@ public final class Benchmark {
 
 	}
 
-	private static final Map<String, Map<Machine, List<Long>>> logTimes = Collections
-	    .synchronizedMap(new HashMap<String, Map<Machine, List<Long>>>());
+	private static final Map<String, List<Long>> timesByType = Collections
+	    .synchronizedMap(new HashMap<String, List<Long>>());
+	private static final Map<String, List<Long>> timesByMachine = Collections
+	    .synchronizedMap(new HashMap<String, List<Long>>());
 
 	private static boolean isEnabled = false;
 
@@ -76,7 +84,7 @@ public final class Benchmark {
 	        (byte) 255, (byte) 128, (byte) 0 });
 
 	public static void clearLogResults() {
-		Benchmark.logTimes.clear();
+		Benchmark.timesByType.clear();
 	}
 
 	/**
@@ -86,7 +94,7 @@ public final class Benchmark {
 	 *          The values.
 	 * @return The average.
 	 */
-	private static Double getAverage(final List<Long> values) {
+	protected static Double getAverage(final List<Long> values) {
 		double total = 0.0;
 		for (final Long value : values) {
 			total += value;
@@ -102,13 +110,19 @@ public final class Benchmark {
 	 *          The values, sorted.
 	 * @return The median value.
 	 */
-	private static Long getMedian(final Long[] sortedVals) {
+	protected static Long getMedian(final Long[] sortedVals) {
+		return Benchmark.getNthQuartil(sortedVals, 2);
+	}
+
+	protected static Long getNthQuartil(final Long[] sortedVals, final Integer n) {
 		final Integer numVals = sortedVals.length;
-		if (numVals % 2 == 1) {
+		if (numVals % 4 == 1) {
+			return sortedVals[((numVals / 4) * n) + 1];
+		} else if ((numVals % 2 == 1) && (n == 2)) {
 			return sortedVals[(numVals / 2) + 1];
 		}
-		final Double lowerBound = Math.floor(numVals / 2);
-		final Double upperBound = Math.ceil(numVals / 2);
+		final Double lowerBound = Math.floor((numVals / 4) * n);
+		final Double upperBound = Math.ceil((numVals / 4) * n);
 		return (sortedVals[lowerBound.intValue()] + sortedVals[upperBound
 		    .intValue()]) / 2;
 	}
@@ -116,24 +130,24 @@ public final class Benchmark {
 	/**
 	 * Log a time it took to execute a given task.
 	 * 
-	 * @param type
-	 *          ID of a task that was being executed.
-	 * @param m
-	 *          The machine on which it was executed.
+	 * @param i
+	 *          The intermediate data holder.
 	 * @param time
 	 *          The time it took.
 	 */
-	private static void logTime(final String type, final Machine m,
-	    final long time) {
-		if (!Benchmark.logTimes.containsKey(type)) {
-			Benchmark.logTimes.put(type, new HashMap<Machine, List<Long>>());
+	protected static void logTime(final Intermediate i, final long time) {
+		String type = i.getId();
+		String machineName = i.getMachine().getName();
+		// log by type
+		if (!Benchmark.timesByType.containsKey(type)) {
+			Benchmark.timesByType.put(type, new ArrayList<Long>());
 		}
-		final Map<Machine, List<Long>> logMachine = Benchmark.logTimes.get(type);
-		if (!logMachine.containsKey(m)) {
-			logMachine.put(m, new ArrayList<Long>());
+		Benchmark.timesByType.get(type).add(time);
+		// log by machine
+		if (!Benchmark.timesByMachine.containsKey(machineName)) {
+			Benchmark.timesByMachine.put(machineName, new ArrayList<Long>());
 		}
-		final List<Long> machineTimes = logMachine.get(m);
-		machineTimes.add(time);
+		Benchmark.timesByMachine.get(machineName).add(time);
 	}
 
 	private static double nanoToMilli(final double nano) {
@@ -144,22 +158,23 @@ public final class Benchmark {
 		return Benchmark.nanoToMilli((double) nano);
 	}
 
+	protected static void reportLogResults() {
+		Benchmark.reportLogResults(Benchmark.timesByType);
+		System.out.println();
+		Benchmark.reportLogResults(Benchmark.timesByMachine);
+	}
+
 	/**
 	 * Output a table with results of the performance benchmark.
 	 */
-	private static void reportLogResults() {
+	private static void reportLogResults(final Map<String, List<Long>> times) {
 		// show globals
 		System.out
-		    .println(" task \\ time [ms] |    avg    |    min    |    mid    |    max    "); //$NON-NLS-1$
+		    .println(" task \\ time [ms] |    avg    |    min    |    1/4    |    mid    |    3/4    |    max    "); //$NON-NLS-1$
 		System.out
-		    .println(" -----------------------------------------------------------------"); //$NON-NLS-1$
-		for (final Entry<String, Map<Machine, List<Long>>> entry : Benchmark.logTimes
-		    .entrySet()) {
-			List<Long> allValues = new ArrayList<Long>();
-			for (final Entry<Machine, List<Long>> perMachine : entry.getValue()
-			    .entrySet()) {
-				allValues.addAll(perMachine.getValue());
-			}
+		    .println(" ------------------------------------------------------------------------------------------"); //$NON-NLS-1$
+		for (final Entry<String, List<Long>> entry : times.entrySet()) {
+			List<Long> allValues = entry.getValue();
 			// sort the list
 			final Long[] allValuesSorted = allValues.toArray(new Long[] {});
 			Arrays.sort(allValuesSorted);
@@ -179,9 +194,10 @@ public final class Benchmark {
 			        + new PrintfFormat("%15s").sprintf(entry.getKey()) //$NON-NLS-1$
 			        + " | " //$NON-NLS-1$
 			        + new PrintfFormat(" %.5f ").sprintf(Benchmark.nanoToMilli(Benchmark.getAverage(allValues))) + " | " //$NON-NLS-1$ $$NON-NLS-2$
-			        + new PrintfFormat(" %.5f ").sprintf(Benchmark.nanoToMilli(allValuesSorted[0])) //$NON-NLS-1$
-			        + " | " //$NON-NLS-1$
+			        + new PrintfFormat(" %.5f ").sprintf(Benchmark.nanoToMilli(allValuesSorted[0])) + " | " //$NON-NLS-1$
+			        + new PrintfFormat(" %.5f ").sprintf(Benchmark.nanoToMilli(Benchmark.getNthQuartil(allValuesSorted, 1))) + " | " //$NON-NLS-1$ $NON-NLS-2$
 			        + new PrintfFormat(" %.5f ").sprintf(Benchmark.nanoToMilli(Benchmark.getMedian(allValuesSorted))) + " | " //$NON-NLS-1$ $NON-NLS-2$
+			        + new PrintfFormat(" %.5f ").sprintf(Benchmark.nanoToMilli(Benchmark.getNthQuartil(allValuesSorted, 3))) + " | " //$NON-NLS-1$ $NON-NLS-2$
 			        + new PrintfFormat(" %.5f ") //$NON-NLS-1$
 			            .sprintf(Benchmark
 			                .nanoToMilli(allValuesSorted[allValuesSorted.length - 1])));
@@ -197,8 +213,8 @@ public final class Benchmark {
 			throw new Exception("Benchmark already running.");
 		}
 		Benchmark.isEnabled = true;
-		final Integer BENCH_EVERY_NTH = 500;
-		final Integer NUMBER_OF_BENCHES = 10;
+		final Integer BENCH_EVERY_NTH = Configuration.getBenchmarkFrequency();
+		final Integer NUMBER_OF_BENCHES = Configuration.getBenchmarkIterations();
 		System.out.println(Messages.getString("Main.0")); //$NON-NLS-1$
 		System.out.println();
 		// run!
@@ -236,12 +252,13 @@ public final class Benchmark {
 		SwingUtilities.invokeAndWait(new Schedule(m, e, g));
 	}
 
-	public static UUID startProfile(final String id, final Machine m) {
+	public static UUID startProfile(final String id, final Event e,
+	    final Machine m) {
 		if (!Benchmark.isEnabled) {
 			return null;
 		}
 		final UUID uuid = UUID.randomUUID();
-		final Intermediate i = new Intermediate(id, m);
+		final Intermediate i = new Intermediate(id, e, m);
 		Benchmark.inters.put(uuid, i);
 		i.setStartTime(System.nanoTime());
 		return uuid;
@@ -254,7 +271,7 @@ public final class Benchmark {
 		final long now = System.nanoTime();
 		final Intermediate i = Benchmark.inters.remove(uuid);
 		final long difference = now - i.getStartTime();
-		Benchmark.logTime(i.getId(), i.getMachine(), difference);
+		Benchmark.logTime(i, difference);
 		return difference;
 	}
 
