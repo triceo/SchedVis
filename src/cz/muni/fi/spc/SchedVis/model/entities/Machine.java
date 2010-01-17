@@ -380,4 +380,20 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		this.speed = speed;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Machine [cpus=" + this.cpus + ", "
+		    + (this.group != null ? "group=" + this.group + ", " : "") + "hdd="
+		    + this.hdd + ", id=" + this.id + ", "
+		    + (this.name != null ? "name=" + this.name + ", " : "")
+		    + (this.os != null ? "os=" + this.os + ", " : "")
+		    + (this.platform != null ? "platform=" + this.platform + ", " : "")
+		    + "ram=" + this.ram + ", speed=" + this.speed + "]";
+	}
+
 }

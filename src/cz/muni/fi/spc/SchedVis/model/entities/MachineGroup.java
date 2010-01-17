@@ -247,4 +247,16 @@ public final class MachineGroup extends BaseEntity implements
 		this.name = name;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "MachineGroup [id=" + this.id + ", "
+		    + (this.machines != null ? "machines=" + this.machines + ", " : "")
+		    + (this.name != null ? "name=" + this.name : "") + "]";
+	}
+
 }

@@ -305,4 +305,22 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 		this.eventType = type;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Event [clock="
+		    + this.clock
+		    + ", "
+		    + (this.dstMachine != null ? "dstMachine=" + this.dstMachine + ", "
+		        : "")
+		    + (this.eventType != null ? "eventType=" + this.eventType + ", " : "")
+		    + "id=" + this.id + ", job=" + this.job + ", "
+		    + (this.srcMachine != null ? "srcMachine=" + this.srcMachine : "")
+		    + "]";
+	}
+
 }

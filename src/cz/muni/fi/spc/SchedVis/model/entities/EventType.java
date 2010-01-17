@@ -146,4 +146,15 @@ public final class EventType extends BaseEntity {
 		this.name = name;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "EventType [id=" + this.id + ", "
+		    + (this.name != null ? "name=" + this.name : "") + "]";
+	}
+
 }

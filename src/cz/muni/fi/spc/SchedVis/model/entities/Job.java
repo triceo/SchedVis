@@ -284,4 +284,22 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 		this.parent = parent;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Job [assignedCPUs=" + this.assignedCPUs + ", bringsSchedule="
+		    + this.bringsSchedule + ", clock=" + this.clock + ", deadline="
+		    + this.deadline + ", expectedEnd=" + this.expectedEnd
+		    + ", expectedStart=" + this.expectedStart + ", id=" + this.id
+		    + ", job=" + this.job + ", jobHint=" + this.jobHint + ", neededCPUs="
+		    + this.neededCPUs + ", neededHDD=" + this.neededHDD
+		    + ", neededPlatform=" + this.neededPlatform + ", neededRAM="
+		    + this.neededRAM + ", parent=" + this.parent + ", srcMachine="
+		    + this.srcMachine + "]";
+	}
+
 }
