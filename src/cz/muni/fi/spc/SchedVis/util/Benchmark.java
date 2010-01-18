@@ -16,6 +16,8 @@ import java.util.Map.Entry;
 
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
+
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.ui.Schedule;
@@ -57,6 +59,8 @@ public final class Benchmark {
 		}
 
 	}
+
+	private static final Logger logger = Logger.getLogger(Benchmark.class);
 
 	private static final Map<String, List<Long>> timesByType = Collections
 	    .synchronizedMap(new HashMap<String, List<Long>>());
@@ -150,6 +154,8 @@ public final class Benchmark {
 		}
 		Benchmark.timesByMachine.get(machineName).add(
 		    time / i.getMachine().getCPUs());
+		Benchmark.logger.trace("Type: " + type + ", machine: " + machineName
+		    + ", clock: " + i.getEvent().getClock() + ", time: " + time + " ns.");
 	}
 
 	private static double nanoToMilli(final double nano) {
@@ -164,7 +170,7 @@ public final class Benchmark {
 		System.out.println("Benchmark by type of event:");
 		Benchmark.reportLogResults(Benchmark.timesByType);
 		System.out.println();
-		System.out.println("Benchmark by machine (normalized by number of CPUs:");
+		System.out.println("Benchmark by machine (normalized by number of CPUs):");
 		Benchmark.reportLogResults(Benchmark.timesByMachine);
 	}
 
