@@ -269,18 +269,20 @@ public final class Schedule extends SwingWorker<Image, Void> {
 			final Integer[] cpus = this.getAssignedCPUs(job)
 			    .toArray(new Integer[] {});
 			if (job.getBringsSchedule()) { // render jobs in a schedule, one by one
-				/*
-				 * isolate all the contiguous blocks of CPUs in the job and paint them.
-				 */
 				for (int i = 0; i < cpus.length; i++) {
 					final int crntCPU = cpus[i];
-					try {
-						while (cpus[i + 1] == cpus[i] + 1) {
-							// loop until a gap is found in the list of used CPUs
-							i++;
+					// isolate a contiguous block of CPUs
+					while (true) {
+						final int currentCPUNumber = cpus[i];
+						if ((i + 1) == cpus.length) {
+							break;
 						}
-					} catch (final ArrayIndexOutOfBoundsException e) {
-						// but finish when all the CPUs have been seeked through
+						final int nextCPUNumber = cpus[i + 1];
+						final int difference = nextCPUNumber - currentCPUNumber;
+						if (difference > 1) {
+							break;
+						}
+						i++;
 					}
 					final int numCPUs = cpus[i] - crntCPU + 1;
 					// now draw
@@ -327,13 +329,18 @@ public final class Schedule extends SwingWorker<Image, Void> {
 				}
 				for (int i = 0; i < cpus.length; i++) {
 					final int crntCPU = cpus[i];
-					try {
-						while (cpus[i + 1] == cpus[i] + 1) {
-							// loop until a gap is found in the list of used CPUs
-							i++;
+					// isolate a contiguous block of CPUs
+					while (true) {
+						final int currentCPUNumber = cpus[i];
+						if ((i + 1) == cpus.length) {
+							break;
 						}
-					} catch (final ArrayIndexOutOfBoundsException e) {
-						// but finish when all the CPUs have been seeked through
+						final int nextCPUNumber = cpus[i + 1];
+						final int difference = nextCPUNumber - currentCPUNumber;
+						if (difference > 1) {
+							break;
+						}
+						i++;
 					}
 					final int numCPUs = cpus[i] - crntCPU + 1;
 					// now draw
