@@ -117,7 +117,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	    final Event evt) {
 		try {
 			if (Machine.s == null) {
-				final String query = "SELECT id, assignedCPUs, deadline, job, jobHint, expectedStart, expectedEnd, bringsSchedule FROM Job WHERE machine_id = ? AND parent = (SELECT max(parent) FROM Job WHERE machine_id = ? AND parent <= ?)"; //$NON-NLS-1$
+				final String query = "SELECT id, assignedCPUs, deadline, number, jobHintId, expectedStart, expectedEnd, bringsSchedule FROM Job WHERE machine_id = ? AND parent = (SELECT max(parent) FROM Job WHERE machine_id = ? AND parent <= ?)"; //$NON-NLS-1$
 				Machine.s = BaseEntity.getConnection(Database.getEntityManager())
 				    .prepareStatement(query);
 			}
