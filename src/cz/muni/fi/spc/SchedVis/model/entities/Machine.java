@@ -44,6 +44,8 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
+import cz.muni.fi.spc.SchedVis.model.EventType;
+import cz.muni.fi.spc.SchedVis.model.JobHint;
 import cz.muni.fi.spc.SchedVis.util.Database;
 
 /**
@@ -129,8 +131,8 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 				schedule.setId(rs.getInt(1));
 				schedule.setAssignedCPUs(rs.getString(2));
 				schedule.setDeadline(rs.getInt(3));
-				schedule.setJob(rs.getInt(4));
-				schedule.setJobHint(rs.getInt(5));
+				schedule.setNumber(rs.getInt(4));
+				schedule.setHint(JobHint.getWithId(rs.getInt(5)));
 				schedule.setExpectedStart(rs.getInt(6));
 				schedule.setExpectedEnd(rs.getInt(7));
 				if (rs.getInt(8) == 1) {
@@ -196,19 +198,15 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	 *         no such events.
 	 */
 	public static boolean isActive(final Machine m, final Event evt) {
-		synchronized (Machine.machineEvents) {
-			if (Machine.machineEvents.length == 0) {
-				Machine.machineEvents = new EventType[] {
-				    EventType.getWithId(EventType.EVENT_MACHINE_FAILURE),
-				    EventType.getWithId(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD),
-				    EventType.getWithId(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD),
-				    EventType.getWithId(EventType.EVENT_MACHINE_RESTART) };
-			}
-		}
+		final Integer[] machineEvents = new Integer[] {
+		    EventType.MACHINE_FAIL.getId(),
+		    EventType.MACHINE_FAIL_MOVE_BAD.getId(),
+		    EventType.MACHINE_FAIL_MOVE_GOOD.getId(),
+		    EventType.MACHINE_RESTART.getId() };
 		final Criteria crit = BaseEntity.getCriteria(Event.class);
-		crit.add(Restrictions.in("type", Machine.machineEvents)); //$NON-NLS-1$
-		crit.add(Restrictions.lt("id", evt.getId())); //$NON-NLS-1$
-		crit.setProjection(Projections.max("id")); //$NON-NLS-1$
+		crit.add(Restrictions.in("eventTypeId", machineEvents)); //$NON-NLS-1$
+		crit.add(Restrictions.lt("id", evt.getId()));
+		crit.setProjection(Projections.max("id"));
 		final Integer evtId = (Integer) crit.uniqueResult();
 		if (evtId == null) {
 			return true;
@@ -217,23 +215,16 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		if (e == null) {
 			return true;
 		}
-		final int id = e.getType().getId();
-		if ((id == EventType.EVENT_MACHINE_FAILURE)
-		    || (id == EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD)
-		    || (id == EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD)) {
+		final EventType et = e.getType();
+		if ((et == EventType.MACHINE_FAIL)
+		    || (et == EventType.MACHINE_FAIL_MOVE_BAD)
+		    || (et == EventType.MACHINE_FAIL_MOVE_GOOD)) {
 			return false;
 		}
 		return true;
 	}
 
 	private int internalId;
-
-	/**
-	 * Holds so-called "machine event types" - those change the state of a
-	 * machine, such as failure or restart. For performance reasons, this is
-	 * static and filled lazily when needed.
-	 */
-	private static EventType[] machineEvents = new EventType[0];
 
 	private String os;
 

@@ -4,7 +4,6 @@
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
     <class>cz.muni.fi.spc.SchedVis.model.entities.MachineGroup</class>
     <class>cz.muni.fi.spc.SchedVis.model.entities.Machine</class>
-    <class>cz.muni.fi.spc.SchedVis.model.entities.EventType</class>
     <class>cz.muni.fi.spc.SchedVis.model.entities.Event</class>
     <class>cz.muni.fi.spc.SchedVis.model.entities.Job</class>
     <properties>

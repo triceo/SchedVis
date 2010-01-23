@@ -40,6 +40,7 @@ import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 
+import cz.muni.fi.spc.SchedVis.model.JobHint;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Job;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
@@ -165,13 +166,12 @@ public final class Schedule extends SwingWorker<Image, Void> {
 	 *          The type of event actually rendered.
 	 * @return The texture.
 	 */
-	private static Paint getTexture(final Color background, final Integer jobHint) {
-		if ((jobHint == null) || jobHint.equals(Event.JOB_HINT_NONE)) {
+	private static Paint getTexture(final Color background, final JobHint jobHint) {
+		if ((jobHint == null) || (jobHint == JobHint.NONE)) {
 			return background;
 		}
 		final String textureId = background.toString() + "---" + jobHint;
 		if (!Schedule.paints.containsKey(textureId)) {
-			final int hint = jobHint.intValue();
 			final BufferedImage texture = new BufferedImage(
 			    Schedule.NUM_PIXELS_PER_CPU, Schedule.NUM_PIXELS_PER_CPU,
 			    BufferedImage.TYPE_INT_RGB);
@@ -179,12 +179,12 @@ public final class Schedule extends SwingWorker<Image, Void> {
 			g.setColor(background);
 			g.fill(Schedule.textureRectangle);
 			g.setColor(Color.WHITE);
-			if (hint == Event.JOB_HINT_ARRIVAL) {
+			if (jobHint == JobHint.ARRIVAL) {
 				// arrival; a plus is drawn
 				final int mid = (Schedule.NUM_PIXELS_PER_CPU / 2);
 				g.drawLine(1, mid, Schedule.NUM_PIXELS_PER_CPU - 2, mid);
 				g.drawLine(mid, 1, mid, Schedule.NUM_PIXELS_PER_CPU - 2);
-			} else if (hint == Event.JOB_HINT_MOVE_NOK) {
+			} else if (jobHint == JobHint.MOVE_NOK) {
 				// bad move; a cross is drawn
 				g.drawLine(1, 1, Schedule.NUM_PIXELS_PER_CPU - 2,
 				    Schedule.NUM_PIXELS_PER_CPU - 2);
@@ -298,20 +298,20 @@ public final class Schedule extends SwingWorker<Image, Void> {
 					if ((deadline > -1) && (deadline < this.renderedEvent.getClock())) {
 						g.setColor(Color.RED); // the job has a deadline and has missed it
 					} else {
-						g.setColor(Colors.getJobColor(job.getJob())); // no deadline
+						g.setColor(Colors.getJobColor(job.getNumber())); // no deadline
 					}
 					final Shape s = new Rectangle(jobStartX, ltY, jobLength, jobHgt);
-					g.setPaint(Schedule.getTexture(g.getColor(), job.getJobHint()));
+					g.setPaint(Schedule.getTexture(g.getColor(), job.getHint()));
 					g.fill(s);
 					g.setColor(Color.BLACK);
-					if (this.renderedEvent.getId() == job.getJob()) {
+					if (this.renderedEvent.getId() == job.getNumber()) {
 						g.setStroke(Schedule.thickStroke);
 					} else {
 						g.setStroke(Schedule.thinStroke);
 					}
 					g.draw(s);
-					g.drawString(String.valueOf(job.getJob()),
-					    Math.max(jobStartX + 2, 2), ltY + jobHgt - 2);
+					g.drawString(String.valueOf(job.getNumber()), Math.max(jobStartX + 2,
+					    2), ltY + jobHgt - 2);
 					final int rightBoundary = jobStartX + jobLength
 					    - Schedule.IMAGE_WIDTH;
 					if (rightBoundary > 0) {

@@ -22,6 +22,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import org.hibernate.Session;
 import org.hibernate.annotations.Cache;
@@ -30,6 +31,7 @@ import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Table;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
+import cz.muni.fi.spc.SchedVis.model.JobHint;
 import cz.muni.fi.spc.SchedVis.util.Database;
 import cz.muni.fi.spc.SchedVis.util.Importer;
 
@@ -44,10 +46,6 @@ import cz.muni.fi.spc.SchedVis.util.Importer;
     "machine_id", "parent" }) })
 public final class Job extends BaseEntity implements Comparable<Job> {
 
-	public static final int JOB_HINT_NONE = 0;
-	public static final int JOB_HINT_MOVE_OK = 1;
-	public static final int JOB_HINT_MOVE_NOK = 2;
-	public static final int JOB_HINT_ARRIVAL = 3;
 	private static int maxJobSpan = -1;
 	private static Integer internalIdCounter = 0;
 
@@ -86,7 +84,7 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 	private String assignedCPUs;
 	private int clock;
 	private boolean bringsSchedule = false;
-	private int jobHint = Job.JOB_HINT_NONE;
+	private int jobHint = JobHint.NONE.getId();
 
 	public Job() {
 		this.setInternalId(Job.internalIdCounter++);
@@ -155,6 +153,18 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 		return this.expectedStart;
 	}
 
+	/**
+	 * A "hint" to the renderer as to how to render the job. There is a
+	 * "just arrived" hint, a "moved good" hint and a "moved bad" hint. See
+	 * {@link Importer} class for more details.
+	 * 
+	 * @return The hint.
+	 */
+	@Transient
+	public JobHint getHint() {
+		return JobHint.getWithId(this.getJobHintId());
+	}
+
 	@Id
 	@GeneratedValue
 	public int getId() {
@@ -165,18 +175,7 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 		return this.internalId;
 	}
 
-	public int getJob() {
-		return this.job;
-	}
-
-	/**
-	 * A "hint" to the renderer as to how to render the job. There is a
-	 * "just arrived" hint, a "moved good" hint and a "moved bad" hint. See
-	 * {@link Importer} class for more details.
-	 * 
-	 * @return The hint.
-	 */
-	public int getJobHint() {
+	public int getJobHintId() {
 		return this.jobHint;
 	}
 
@@ -199,6 +198,10 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 
 	public int getNeededRAM() {
 		return this.neededRAM;
+	}
+
+	public int getNumber() {
+		return this.job;
 	}
 
 	@ManyToOne
@@ -244,6 +247,10 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 		this.expectedStart = value;
 	}
 
+	public void setHint(final JobHint value) {
+		this.setJobHintId(value.getId());
+	}
+
 	public void setId(final int id) {
 		this.id = id;
 	}
@@ -252,11 +259,7 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 		this.internalId = id;
 	}
 
-	public void setJob(final int value) {
-		this.job = value;
-	}
-
-	public void setJobHint(final int value) {
+	public void setJobHintId(final int value) {
 		this.jobHint = value;
 	}
 
@@ -278,6 +281,10 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 
 	public void setNeededRAM(final int value) {
 		this.neededRAM = value;
+	}
+
+	public void setNumber(final int value) {
+		this.job = value;
 	}
 
 	public void setParent(final Event parent) {

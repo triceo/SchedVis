@@ -23,8 +23,8 @@ import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import cz.muni.fi.spc.SchedVis.model.EventType;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
-import cz.muni.fi.spc.SchedVis.model.entities.EventType;
 import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
 import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
@@ -74,50 +74,50 @@ public final class StatusBar extends JPanel {
 	}
 
 	public void updateFrame(final Event event) {
-		Integer eventType;
+		EventType eventType;
 		String text = Messages.getString("StatusBar.1"); //$NON-NLS-1$
 		try {
-			eventType = event.getType().getId();
+			eventType = event.getType();
 		} catch (final NullPointerException e) {
 			eventType = null;
 		}
 		if (eventType != null) {
-			if (eventType.equals(EventType.EVENT_JOB_ARRIVAL)) {
+			if (eventType == EventType.JOB_ARRIVAL) {
 				// job arrived
 				text = new PrintfFormat(Messages.getString("StatusBar.2")) //$NON-NLS-1$
 				    .sprintf(event.getJob());
-			} else if (eventType.equals(EventType.EVENT_JOB_COMPLETION)) {
+			} else if (eventType == EventType.JOB_COMPLETION) {
 				// job completed
 				text = new PrintfFormat(Messages.getString("StatusBar.3")).sprintf(event //$NON-NLS-1$
 				        .getJob());
-			} else if (eventType.equals(EventType.EVENT_JOB_CANCEL)) {
+			} else if (eventType == EventType.JOB_CANCEL) {
 				// job cancelled
 				text = new PrintfFormat(Messages.getString("StatusBar.4")).sprintf(event //$NON-NLS-1$
 				        .getJob());
-			} else if (eventType.equals(EventType.EVENT_JOB_EXECUTION_START)) {
+			} else if (eventType == EventType.JOB_EXECUTION_START) {
 				// job started executing
 				text = new PrintfFormat(Messages.getString("StatusBar.5")) //$NON-NLS-1$
 				    .sprintf(event.getJob());
-			} else if (eventType.equals(EventType.EVENT_MACHINE_RESTART)) {
+			} else if (eventType == EventType.MACHINE_RESTART) {
 				// machine restart
 				text = new PrintfFormat(Messages.getString("StatusBar.6")) //$NON-NLS-1$
 				    .sprintf(event.getSourceMachine());
-			} else if (eventType.equals(EventType.EVENT_MACHINE_FAILURE)
-			    || eventType.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD)
-			    || eventType.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD)) {
+			} else if ((eventType == EventType.MACHINE_FAIL)
+			    || (eventType == EventType.MACHINE_FAIL_MOVE_GOOD)
+			    || (eventType == EventType.MACHINE_FAIL_MOVE_BAD)) {
 				// machine failure
 				text = new PrintfFormat(Messages.getString("StatusBar.7")).sprintf(event //$NON-NLS-1$
 				        .getSourceMachine());
 			}
-			if (eventType.equals(EventType.EVENT_JOB_MOVE_GOOD)
-			    || eventType.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD)) {
+			if ((eventType == EventType.MOVE_GOOD)
+			    || (eventType == EventType.MACHINE_FAIL_MOVE_GOOD)) {
 				// good move
 				text = new PrintfFormat(Messages.getString("StatusBar.8")) //$NON-NLS-1$
 				    .sprintf(new Object[] { event.getJob(),
 				        event.getSourceMachine().getName(),
 				        event.getTargetMachine().getName() });
-			} else if (eventType.equals(EventType.EVENT_JOB_MOVE_BAD)
-			    || eventType.equals(EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD)) {
+			} else if ((eventType == EventType.MOVE_BAD)
+			    || (eventType == EventType.MACHINE_FAIL_MOVE_BAD)) {
 				text = new PrintfFormat(Messages.getString("StatusBar.9")) //$NON-NLS-1$
 				    .sprintf(new Object[] { event.getJob(),
 				        event.getSourceMachine().getName(),

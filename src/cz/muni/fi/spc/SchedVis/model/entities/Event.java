@@ -24,6 +24,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -34,6 +35,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
+import cz.muni.fi.spc.SchedVis.model.EventType;
 import cz.muni.fi.spc.SchedVis.util.Database;
 
 /**
@@ -44,11 +46,6 @@ import cz.muni.fi.spc.SchedVis.util.Database;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 public final class Event extends BaseEntity implements Comparable<Event> {
-
-	public static final int JOB_HINT_NONE = 0;
-	public static final int JOB_HINT_MOVE_OK = 1;
-	public static final int JOB_HINT_MOVE_NOK = 2;
-	public static final int JOB_HINT_ARRIVAL = 3;
 
 	private static Event firstEvent = null;
 	private static Event lastEvent = null;
@@ -187,7 +184,7 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	}
 
 	private int id;
-	private EventType eventType;
+	private int eventType;
 	private Machine srcMachine;
 	private Machine dstMachine;
 	private int clock;
@@ -234,6 +231,11 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 		return this.clock;
 	}
 
+	@Index(name = "tIndex")
+	protected int getEventTypeId() {
+		return this.eventType;
+	}
+
 	@Id
 	@GeneratedValue
 	public int getId() {
@@ -258,10 +260,9 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 		return this.dstMachine;
 	}
 
-	@ManyToOne
-	@Index(name = "tIndex")
+	@Transient
 	public EventType getType() {
-		return this.eventType;
+		return EventType.getWithId(this.getId());
 	}
 
 	/*
@@ -279,6 +280,10 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 
 	public void setClock(final int value) {
 		this.clock = value;
+	}
+
+	protected void setEventTypeId(final int id) {
+		this.eventType = id;
 	}
 
 	public void setId(final int id) {
@@ -302,23 +307,17 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	}
 
 	public void setType(final EventType type) {
-		this.eventType = type;
+		this.setEventTypeId(type.getId());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 		return "Event [clock="
 		    + this.clock
 		    + ", "
 		    + (this.dstMachine != null ? "dstMachine=" + this.dstMachine + ", "
-		        : "")
-		    + (this.eventType != null ? "eventType=" + this.eventType + ", " : "")
-		    + "id=" + this.id + ", job=" + this.job + ", "
+		        : "") + "eventType=" + this.eventType + ", id=" + this.id
+		    + ", job=" + this.job + ", "
 		    + (this.srcMachine != null ? "srcMachine=" + this.srcMachine : "")
 		    + "]";
 	}

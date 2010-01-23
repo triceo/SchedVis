@@ -141,8 +141,8 @@ public final class Benchmark {
 	 *          The time it took.
 	 */
 	protected static void logTime(final Intermediate i, final long time) {
-		String type = i.getId();
-		String machineName = i.getMachine().getName();
+		final String type = i.getId();
+		final String machineName = i.getMachine().getName();
 		// log by type
 		if (!Benchmark.timesByType.containsKey(type)) {
 			Benchmark.timesByType.put(type, new ArrayList<Long>());

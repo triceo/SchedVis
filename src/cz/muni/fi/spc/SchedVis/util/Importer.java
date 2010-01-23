@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,8 +36,9 @@ import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 
+import cz.muni.fi.spc.SchedVis.model.EventType;
+import cz.muni.fi.spc.SchedVis.model.JobHint;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
-import cz.muni.fi.spc.SchedVis.model.entities.EventType;
 import cz.muni.fi.spc.SchedVis.model.entities.Job;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.model.entities.MachineGroup;
@@ -185,30 +185,6 @@ public final class Importer extends SwingWorker<Void, Void> {
 	 */
 	private void parseDataSet(final BufferedReader reader) throws ParseException {
 		this.setProgress(0);
-		final Map<String, Integer> eventTypes = new HashMap<String, Integer>();
-		eventTypes.put("job-arrival", EventType.EVENT_JOB_ARRIVAL); //$NON-NLS-1$
-		eventTypes.put("job-execution-start", EventType.EVENT_JOB_EXECUTION_START); //$NON-NLS-1$
-		eventTypes.put("job-cancel", EventType.EVENT_JOB_CANCEL); //$NON-NLS-1$
-		eventTypes.put("good-move", EventType.EVENT_JOB_MOVE_GOOD); //$NON-NLS-1$
-		eventTypes.put("bad-move", EventType.EVENT_JOB_MOVE_BAD); //$NON-NLS-1$
-		eventTypes.put("machine-failure", EventType.EVENT_MACHINE_FAILURE); //$NON-NLS-1$
-		eventTypes.put("machine-failure-move-good", //$NON-NLS-1$
-		    EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_GOOD);
-		eventTypes.put("machine-failure-move-bad", //$NON-NLS-1$
-		    EventType.EVENT_MACHINE_FAILURE_JOB_MOVE_BAD);
-		eventTypes.put("machine-restart", EventType.EVENT_MACHINE_RESTART); //$NON-NLS-1$
-		eventTypes.put("job-completion", EventType.EVENT_JOB_COMPLETION); //$NON-NLS-1$
-		final Iterator<Map.Entry<String, Integer>> eventTypeIterator = eventTypes
-		    .entrySet().iterator();
-		final List<EventType> etl = new ArrayList<EventType>();
-		while (eventTypeIterator.hasNext()) {
-			final EventType et = new EventType();
-			final Map.Entry<String, Integer> item = eventTypeIterator.next();
-			et.setId(item.getValue());
-			et.setName(item.getKey());
-			etl.add(et);
-		}
-		Database.persist(etl);
 		try {
 			// parse data set
 			this.parsedLines = 0;
@@ -231,22 +207,22 @@ public final class Importer extends SwingWorker<Void, Void> {
 				lineId++;
 				eventId++;
 				final Event evt = new Event();
-				evt.setType(EventType.getWithId(eventTypes.get(event.getName())));
+				evt.setType(EventType.getWithName(event.getName()));
 				evt.setClock(event.getClock());
-				Integer jobHint = Event.JOB_HINT_NONE;
+				JobHint jobHint = JobHint.NONE;
 				if (event instanceof EventIsJobRelated) {
 					evt.setJob(((EventIsJobRelated) event).getJob());
 					if (event.getName().equals("job-arrival")) { //$NON-NLS-1$
 						// if in this clock a new job arrives, remember it
-						jobHint = Event.JOB_HINT_ARRIVAL;
+						jobHint = JobHint.ARRIVAL;
 					} else if (event.getName().equals("job-execution-start")) { //$NON-NLS-1$
 						this.processUsedCPUs((ScheduleEventIO) event);
 					} else if (event.getName().equals("good-move") //$NON-NLS-1$
 					    || event.getName().equals("machine-failure-move-good")) { //$NON-NLS-1$
-						jobHint = Event.JOB_HINT_MOVE_OK;
+						jobHint = JobHint.MOVE_OK;
 					} else if (event.getName().equals("bad-move") //$NON-NLS-1$
 					    || event.getName().equals("machine-failure-move-bad")) { //$NON-NLS-1$
-						jobHint = Event.JOB_HINT_MOVE_NOK;
+						jobHint = JobHint.MOVE_NOK;
 					} else if (event.getName().equals("job-completion")) { //$NON-NLS-1$
 						this.processUsedCPUs((ScheduleEventIO) event);
 					}
@@ -280,11 +256,11 @@ public final class Importer extends SwingWorker<Void, Void> {
 							schedule1.setDeadline(job.getDeadline());
 							schedule1.setExpectedStart(job.starts());
 							schedule1.setExpectedEnd(job.ends());
-							schedule1.setJob(job.getId());
+							schedule1.setNumber(job.getId());
 							schedule1.setClock(evt.getClock());
 							schedule1.setParent(evt);
 							if (job.getId() == ((EventIsJobRelated) event).getJob()) {
-								schedule1.setJobHint(jobHint);
+								schedule1.setHint(jobHint);
 							}
 							this.allJobs.put(job.getId(), schedule1);
 							Database.persist(schedule1);
