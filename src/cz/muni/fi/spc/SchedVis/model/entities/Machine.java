@@ -116,39 +116,43 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	public synchronized static List<Job> getLatestSchedule(final Machine which,
 	    final Event evt) {
 		try {
-			if (Machine.s == null) {
-				final String query = "SELECT id, assignedCPUs, deadline, number, jobHintId, expectedStart, expectedEnd, bringsSchedule FROM Job WHERE machine_id = ? AND parent = (SELECT max(parent) FROM Job WHERE machine_id = ? AND parent <= ?)"; //$NON-NLS-1$
-				Machine.s = BaseEntity.getConnection(Database.getEntityManager())
-				    .prepareStatement(query);
-			}
-			Machine.s.setInt(1, which.getId());
-			Machine.s.setInt(2, which.getId());
-			Machine.s.setInt(3, evt.getId());
-			final ResultSet rs = Machine.s.executeQuery();
-			final List<Job> schedules = new ArrayList<Job>();
-			while (rs.next()) {
-				final Job schedule = new Job();
-				schedule.setId(rs.getInt(1));
-				schedule.setAssignedCPUs(rs.getString(2));
-				schedule.setDeadline(rs.getInt(3));
-				schedule.setNumber(rs.getInt(4));
-				schedule.setHint(JobHint.getWithId(rs.getInt(5)));
-				schedule.setExpectedStart(rs.getInt(6));
-				schedule.setExpectedEnd(rs.getInt(7));
-				if (rs.getInt(8) == 1) {
-					schedule.setBringsSchedule(true);
-				} else {
-					schedule.setBringsSchedule(false);
-				}
-				schedules.add(schedule);
-			}
-			rs.close();
-			Machine.s.clearParameters();
-			return schedules;
-		} catch (final SQLException e) {
-			e.printStackTrace();
+			return Machine.getLatestScheduleInternal(which, evt);
+		} catch (final SQLException ex) {
 			return new ArrayList<Job>();
 		}
+	}
+
+	private synchronized static List<Job> getLatestScheduleInternal(
+	    final Machine which, final Event evt) throws SQLException {
+		if (Machine.s == null) {
+			final String query = "SELECT id, assignedCPUs, deadline, number, jobHintId, expectedStart, expectedEnd, bringsSchedule FROM Job WHERE machine_id = ? AND parent = (SELECT max(parent) FROM Job WHERE machine_id = ? AND parent <= ?)"; //$NON-NLS-1$
+			Machine.s = BaseEntity.getConnection(Database.getEntityManager())
+			    .prepareStatement(query);
+		}
+		Machine.s.setInt(1, which.getId());
+		Machine.s.setInt(2, which.getId());
+		Machine.s.setInt(3, evt.getId());
+		final ResultSet rs = Machine.s.executeQuery();
+		final List<Job> schedules = new ArrayList<Job>();
+		while (rs.next()) {
+			final Job schedule = new Job();
+			schedule.setId(rs.getInt(1));
+			schedule.setAssignedCPUs(rs.getString(2));
+			schedule.setDeadline(rs.getInt(3));
+			schedule.setNumber(rs.getInt(4));
+			schedule.setHint(JobHint.getWithId(rs.getInt(5)));
+			schedule.setExpectedStart(rs.getInt(6));
+			schedule.setExpectedEnd(rs.getInt(7));
+			if (rs.getInt(8) == 1) {
+				schedule.setBringsSchedule(true);
+			} else {
+				schedule.setBringsSchedule(false);
+			}
+			schedules.add(schedule);
+		}
+		rs.close();
+		Machine.s.clearParameters();
+		return schedules;
 	}
 
 	private static Machine getWithName(final String name) {
