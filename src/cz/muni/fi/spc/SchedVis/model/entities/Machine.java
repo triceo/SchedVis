@@ -80,11 +80,11 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	public static Set<Machine> getAll(final Integer groupId) {
 		final Criteria crit = BaseEntity.getCriteria(Machine.class);
 		if (groupId != null) {
-			crit.add(Restrictions.eq("group", MachineGroup.getWithId(groupId))); //$NON-NLS-1$
+			crit.add(Restrictions.eq("group", MachineGroup.getWithId(groupId)));
 		} else {
-			crit.add(Restrictions.isNull("group")); //$NON-NLS-1$
+			crit.add(Restrictions.isNull("group"));
 		}
-		crit.addOrder(Order.asc("name")); //$NON-NLS-1$
+		crit.addOrder(Order.asc("name"));
 		return new TreeSet<Machine>(crit.list());
 	}
 
@@ -97,7 +97,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	@SuppressWarnings("unchecked")
 	public static Set<Machine> getAllGroupless() {
 		final Criteria crit = BaseEntity.getCriteria(Machine.class);
-		crit.addOrder(Order.asc("name")); //$NON-NLS-1$
+		crit.addOrder(Order.asc("name"));
 		return new TreeSet<Machine>(crit.list());
 	}
 
@@ -125,7 +125,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	private synchronized static List<Job> getLatestScheduleInternal(
 	    final Machine which, final Event evt) throws SQLException {
 		if (Machine.s == null) {
-			final String query = "SELECT id, assignedCPUs, deadline, number, jobHintId, expectedStart, expectedEnd, bringsSchedule FROM Job WHERE machine_id = ? AND parent = (SELECT max(parent) FROM Job WHERE machine_id = ? AND parent <= ?)"; //$NON-NLS-1$
+			final String query = "SELECT id, assignedCPUs, deadline, number, jobHintId, expectedStart, expectedEnd, bringsSchedule FROM Job WHERE machine_id = ? AND parent = (SELECT max(parent) FROM Job WHERE machine_id = ? AND parent <= ?)";
 			Machine.s = BaseEntity.getConnection(Database.getEntityManager())
 			    .prepareStatement(query);
 		}
@@ -157,7 +157,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 
 	private static Machine getWithName(final String name) {
 		final Criteria crit = BaseEntity.getCriteria(Machine.class);
-		crit.add(Restrictions.eq("name", name)); //$NON-NLS-1$
+		crit.add(Restrictions.eq("name", name));
 		crit.setMaxResults(1);
 		return (Machine) crit.uniqueResult();
 	}
@@ -208,7 +208,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		    EventType.MACHINE_FAIL_MOVE_GOOD.getId(),
 		    EventType.MACHINE_RESTART.getId() };
 		final Criteria crit = BaseEntity.getCriteria(Event.class);
-		crit.add(Restrictions.in("eventTypeId", machineEvents)); //$NON-NLS-1$
+		crit.add(Restrictions.in("eventTypeId", machineEvents));
 		crit.add(Restrictions.lt("id", evt.getId()));
 		crit.setProjection(Projections.max("id"));
 		final Integer evtId = (Integer) crit.uniqueResult();

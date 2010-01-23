@@ -72,7 +72,7 @@ public final class TimelineSliderModel extends DefaultBoundedRangeModel {
 				TimelineSliderModel.model.addChangeListener(listener);
 			} else {
 				Logger.getLogger(TimelineSliderModel.class).warn(
-				    Messages.getString("TimelineSliderModel.0")); //$NON-NLS-1$
+				    Messages.getString("TimelineSliderModel.0"));
 			}
 		}
 		return TimelineSliderModel.model;

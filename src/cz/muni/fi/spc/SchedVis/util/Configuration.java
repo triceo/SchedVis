@@ -20,6 +20,7 @@ package cz.muni.fi.spc.SchedVis.util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Formatter;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -39,8 +40,8 @@ public final class Configuration {
 
 	public static boolean createGroupPerMachine() {
 		final String val = Configuration.getProperties().getProperty(
-		    "import.group_per_machine", "0"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (val.equals("1")) { //$NON-NLS-1$
+		    "import.group_per_machine", "0");
+		if (val.equals("1")) {
 			return true;
 		}
 		return false;
@@ -48,12 +49,12 @@ public final class Configuration {
 
 	public static Integer getBenchmarkFrequency() {
 		return Integer.valueOf(Configuration.getProperties().getProperty(
-		    "benchmark.every_nth_event", "100")); //$NON-NLS-1$ //$NON-NLS-2$
+		    "benchmark.every_nth_event", "100"));
 	}
 
 	public static Integer getBenchmarkIterations() {
 		return Integer.valueOf(Configuration.getProperties().getProperty(
-		    "benchmark.number_of_runs", "5")); //$NON-NLS-1$ //$NON-NLS-2$
+		    "benchmark.number_of_runs", "5"));
 	}
 
 	/**
@@ -62,8 +63,8 @@ public final class Configuration {
 	 * @return A database file.
 	 */
 	public static File getDatabaseFile() {
-		return new File(Configuration.getProperties().getProperty("files.database", //$NON-NLS-1$
-		    "Production.sqlite")).getAbsoluteFile(); //$NON-NLS-1$
+		return new File(Configuration.getProperties().getProperty("files.database",
+		    "Production.sqlite")).getAbsoluteFile();
 	}
 
 	/**
@@ -72,8 +73,8 @@ public final class Configuration {
 	 * @return Events file.
 	 */
 	public static File getEventsFile() {
-		return new File(Configuration.getProperties().getProperty("files.events", //$NON-NLS-1$
-		    "Data-set.txt")).getAbsoluteFile(); //$NON-NLS-1$
+		return new File(Configuration.getProperties().getProperty("files.events",
+		    "Data-set.txt")).getAbsoluteFile();
 	}
 
 	/**
@@ -82,8 +83,8 @@ public final class Configuration {
 	 * @return Machines file.
 	 */
 	public static File getMachinesFile() {
-		return new File(Configuration.getProperties().getProperty("files.machines", //$NON-NLS-1$
-		    "machines.txt")).getAbsoluteFile(); //$NON-NLS-1$
+		return new File(Configuration.getProperties().getProperty("files.machines",
+		    "machines.txt")).getAbsoluteFile();
 	}
 
 	/**
@@ -93,7 +94,7 @@ public final class Configuration {
 	 */
 	public static Integer getMaxImageWidth() {
 		return Integer.valueOf(Configuration.getProperties().getProperty(
-		    "graphics.max_image_width", "800")); //$NON-NLS-1$ //$NON-NLS-2$
+		    "graphics.max_image_width", "800"));
 	}
 
 	/**
@@ -104,7 +105,7 @@ public final class Configuration {
 	public static Integer getNumberOfPixelsPerCPU() {
 		final Integer minValue = 5;
 		Integer actualValue = Integer.valueOf(Configuration.getProperties()
-		    .getProperty("graphics.pixels_per_cpu", minValue.toString())); //$NON-NLS-1$
+		    .getProperty("graphics.pixels_per_cpu", minValue.toString()));
 		if (actualValue % 2 == 0) {
 			actualValue++;
 		}
@@ -118,7 +119,7 @@ public final class Configuration {
 	 */
 	public static Integer getNumberOfTicksPerGuide() {
 		return Integer.valueOf(Configuration.getProperties().getProperty(
-		    "graphics.ticks_per_guide", "5")); //$NON-NLS-1$ //$NON-NLS-2$
+		    "graphics.ticks_per_guide", "5"));
 	}
 
 	/**
@@ -128,7 +129,7 @@ public final class Configuration {
 	 */
 	public static Integer getPlayDelay() {
 		return Integer.valueOf(Configuration.getProperties().getProperty(
-		    "play.delay", "1000")); //$NON-NLS-1$ //$NON-NLS-2$
+		    "play.delay", "1000"));
 	}
 
 	/**
@@ -140,14 +141,14 @@ public final class Configuration {
 	protected synchronized static Properties getProperties() {
 		if (Configuration.p == null) {
 			try {
-				final FileInputStream in = new FileInputStream("bin/config.properties"); //$NON-NLS-1$
+				final FileInputStream in = new FileInputStream("bin/config.properties");
 				Configuration.p = new Properties();
 				Configuration.p.load(in);
 			} catch (final Exception e) {
 				Configuration.p = new Properties();
 				Logger.getLogger(Configuration.class).error(
-				    new PrintfFormat(Messages.getString("Configuration.17")) //$NON-NLS-1$
-				        .sprintf(e.getLocalizedMessage()));
+				    new Formatter().format(Messages.getString("Configuration.17"), e
+				        .getLocalizedMessage()));
 			}
 		}
 		return Configuration.p;

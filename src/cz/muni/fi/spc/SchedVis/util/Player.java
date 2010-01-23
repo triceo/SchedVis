@@ -16,6 +16,8 @@
  */
 package cz.muni.fi.spc.SchedVis.util;
 
+import java.util.Formatter;
+
 import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
@@ -56,10 +58,10 @@ public final class Player implements Runnable {
 				}
 			} catch (final Exception e) {
 				Logger.getLogger(Player.class).warn(
-				    new PrintfFormat(Messages.getString("Player.0")) //$NON-NLS-1$
-				        .sprintf(e.getLocalizedMessage()));
+				    new Formatter().format(Messages.getString("Player.0"), e
+				        .getLocalizedMessage()));
 			}
-			Logger.getLogger(Player.class).debug(Messages.getString("Player.1")); //$NON-NLS-1$
+			Logger.getLogger(Player.class).debug(Messages.getString("Player.1"));
 			while (Player.doesPlay) {
 				// invoke the code in the event-processing thread...
 				javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -74,11 +76,11 @@ public final class Player implements Runnable {
 					Thread.sleep(Configuration.getPlayDelay());
 				} catch (final Exception e) {
 					Logger.getLogger(Player.class).warn(
-					    new PrintfFormat(Messages.getString("Player.2")) //$NON-NLS-1$
-					        .sprintf(e.getLocalizedMessage()));
+					    new Formatter().format(Messages.getString("Player.2"), e
+					        .getLocalizedMessage()));
 				}
 			}
-			Logger.getLogger(Player.class).debug(Messages.getString("Player.3")); //$NON-NLS-1$
+			Logger.getLogger(Player.class).debug(Messages.getString("Player.3"));
 		}
 	}
 
@@ -86,11 +88,11 @@ public final class Player implements Runnable {
 	 * Wake the thread from its sleep.
 	 */
 	public void toggleStatus() {
-		Logger.getLogger(Player.class).debug(Messages.getString("Player.4")); //$NON-NLS-1$
+		Logger.getLogger(Player.class).debug(Messages.getString("Player.4"));
 		Player.doesPlay = !Player.doesPlay;
 		synchronized (Player.p) {
 			Player.p.notifyAll();
 		}
-		Logger.getLogger(Player.class).debug(Messages.getString("Player.5")); //$NON-NLS-1$
+		Logger.getLogger(Player.class).debug(Messages.getString("Player.5"));
 	}
 }

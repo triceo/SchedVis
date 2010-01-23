@@ -19,6 +19,7 @@
 package cz.muni.fi.spc.SchedVis;
 
 import java.io.File;
+import java.util.Formatter;
 import java.util.concurrent.Executors;
 
 import javax.swing.SwingUtilities;
@@ -31,7 +32,6 @@ import cz.muni.fi.spc.SchedVis.util.Configuration;
 import cz.muni.fi.spc.SchedVis.util.Database;
 import cz.muni.fi.spc.SchedVis.util.Importer;
 import cz.muni.fi.spc.SchedVis.util.Player;
-import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
 import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
@@ -88,19 +88,19 @@ public final class Main {
 		if (args.length != 1) {
 			Main.printUsageAndExit();
 		}
-		if ("benchmark".equals(args[0])) { //$NON-NLS-1$
+		if ("benchmark".equals(args[0])) {
 			Database.use();
 			Main.warmup();
 			Benchmark.run();
 			System.exit(0);
 			return;
-		} else if ("run".equals(args[0])) { //$NON-NLS-1$
+		} else if ("run".equals(args[0])) {
 			final File dbFile = Configuration.getDatabaseFile();
 			if (dbFile.exists()) {
 				Database.use();
 			} else {
-				System.out.print(new PrintfFormat(Messages.getString("Main.7")) //$NON-NLS-1$
-				    .sprintf(dbFile.getAbsolutePath()));
+				System.out.print(new Formatter().format(Messages.getString("Main.7"),
+				    dbFile.getAbsolutePath()));
 				Main.printUsageAndExit();
 			}
 			Main.warmup();
@@ -108,14 +108,14 @@ public final class Main {
 		} else {
 			final File machinesFile = Configuration.getMachinesFile();
 			if (!machinesFile.exists()) {
-				System.out.print(new PrintfFormat(Messages.getString("Main.8")) //$NON-NLS-1$
-				    .sprintf(machinesFile.getAbsolutePath()));
+				System.out.print(new Formatter().format(Messages.getString("Main.8"),
+				    machinesFile.getAbsolutePath()));
 				Main.printUsageAndExit();
 			}
 			final File dataFile = Configuration.getEventsFile();
 			if (!dataFile.exists()) {
-				System.out.print(new PrintfFormat(Messages.getString("Main.9")) //$NON-NLS-1$
-				    .sprintf(dataFile.getAbsolutePath()));
+				System.out.print(new Formatter().format(Messages.getString("Main.9"),
+				    dataFile.getAbsolutePath()));
 				Main.printUsageAndExit();
 			}
 			Database.use();
@@ -127,14 +127,14 @@ public final class Main {
 	 * Prints instructions on how to use the program and exits.
 	 */
 	public static void printUsageAndExit() {
-		System.out.println(Messages.getString("Main.10")); //$NON-NLS-1$
-		System.out.println(" ant import"); //$NON-NLS-1$
-		System.out.println(" ant run"); //$NON-NLS-1$
+		System.out.println(Messages.getString("Main.10"));
+		System.out.println(" ant import");
+		System.out.println(" ant run");
 		System.exit(1);
 	}
 
 	private static void warmup() throws Exception {
-		System.out.println(Messages.getString("Main.13")); //$NON-NLS-1$
+		System.out.println(Messages.getString("Main.13"));
 		final Event evt = Event.getFirst();
 		for (final Machine m : Machine.getAllGroupless()) {
 			Benchmark.runSingleSchedule(evt, m);
@@ -164,26 +164,25 @@ public final class Main {
 	 *          The importer that handles the actual work.
 	 */
 	private void importData(final Importer i) {
-		System.out.println(Messages.getString("Main.14")); //$NON-NLS-1$
+		System.out.println(Messages.getString("Main.14"));
 		System.out.println();
 		Executors.newCachedThreadPool().submit(i);
-		System.out.println(Messages.getString("Main.15")); //$NON-NLS-1$
+		System.out.println(Messages.getString("Main.15"));
 		while (!i.isDone()) {
 			try {
 				Thread.sleep(5000);
 			} catch (final InterruptedException e) {
 				// do nothing
 			}
-			System.out
-			    .println(new PrintfFormat(Messages.getString("Main.16")).sprintf(i //$NON-NLS-1$
-			        .getProgress()));
+			System.out.println(new Formatter().format(Messages.getString("Main.16"),
+			    i.getProgress()));
 		}
 		System.out.println();
 		if (i.isSuccess()) {
-			System.out.println(Messages.getString("Main.17")); //$NON-NLS-1$
+			System.out.println(Messages.getString("Main.17"));
 			System.exit(0);
 		} else {
-			System.out.println(Messages.getString("Main.18")); //$NON-NLS-1$
+			System.out.println(Messages.getString("Main.18"));
 			Configuration.getDatabaseFile().deleteOnExit();
 			System.exit(1);
 		}

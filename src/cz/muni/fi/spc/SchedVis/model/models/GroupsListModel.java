@@ -54,7 +54,7 @@ public final class GroupsListModel extends DefaultComboBoxModel {
 	 */
 	public void update() {
 		this.removeAllElements();
-		this.addElement(Messages.getString("GroupsListModel.0")); //$NON-NLS-1$
+		this.addElement(Messages.getString("GroupsListModel.0"));
 		for (final MachineGroup item : MachineGroup.getAll()) {
 			this.addElement(item.getName());
 		}

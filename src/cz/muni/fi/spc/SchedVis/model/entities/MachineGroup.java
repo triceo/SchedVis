@@ -60,7 +60,7 @@ public final class MachineGroup extends BaseEntity implements
 	@SuppressWarnings("unchecked")
 	public static Set<MachineGroup> getAll() {
 		final Criteria crit = BaseEntity.getCriteria(MachineGroup.class);
-		crit.addOrder(Order.asc("name")); //$NON-NLS-1$
+		crit.addOrder(Order.asc("name"));
 		return new TreeSet<MachineGroup>(crit.list());
 	}
 
@@ -86,7 +86,7 @@ public final class MachineGroup extends BaseEntity implements
 
 	private static MachineGroup getWithName(final String name) {
 		final Criteria crit = BaseEntity.getCriteria(MachineGroup.class);
-		crit.add(Restrictions.eq("name", name)); //$NON-NLS-1$
+		crit.add(Restrictions.eq("name", name));
 		crit.setMaxResults(1);
 		return (MachineGroup) crit.uniqueResult();
 	}
@@ -107,7 +107,7 @@ public final class MachineGroup extends BaseEntity implements
 		}
 		if (!MachineGroup.byName.containsKey(name)) {
 			final Criteria crit = BaseEntity.getCriteria(MachineGroup.class);
-			crit.add(Restrictions.eq("name", name)); //$NON-NLS-1$
+			crit.add(Restrictions.eq("name", name));
 			crit.setMaxResults(1);
 			final MachineGroup mg = MachineGroup.getWithName(name);
 			if (mg == null) {

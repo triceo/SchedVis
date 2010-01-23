@@ -19,13 +19,13 @@
 package cz.muni.fi.spc.SchedVis.ui;
 
 import java.awt.BorderLayout;
+import java.util.Formatter;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import cz.muni.fi.spc.SchedVis.model.EventType;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
-import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
 import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
@@ -64,8 +64,8 @@ public final class StatusBar extends JPanel {
 		final int minutes = Double.valueOf(Math.floor(seconds / secondsInAMinute))
 		    .intValue();
 		seconds -= minutes * secondsInAMinute;
-		return new PrintfFormat(Messages.getString("StatusBar.0")) //$NON-NLS-1$
-		    .sprintf(new Integer[] { days, hours, minutes, (int) seconds });
+		return new Formatter().format(Messages.getString("StatusBar.0"),
+		    new Object[] { days, hours, minutes, (int) seconds }).toString();
 	}
 
 	private StatusBar() {
@@ -75,7 +75,7 @@ public final class StatusBar extends JPanel {
 
 	public void updateFrame(final Event event) {
 		EventType eventType;
-		String text = Messages.getString("StatusBar.1"); //$NON-NLS-1$
+		String text = Messages.getString("StatusBar.1");
 		try {
 			eventType = event.getType();
 		} catch (final NullPointerException e) {
@@ -84,53 +84,53 @@ public final class StatusBar extends JPanel {
 		if (eventType != null) {
 			if (eventType == EventType.JOB_ARRIVAL) {
 				// job arrived
-				text = new PrintfFormat(Messages.getString("StatusBar.2")) //$NON-NLS-1$
-				    .sprintf(event.getJob());
+				text = new Formatter().format(Messages.getString("StatusBar.2"),
+				    event.getJob()).toString();
 			} else if (eventType == EventType.JOB_COMPLETION) {
 				// job completed
-				text = new PrintfFormat(Messages.getString("StatusBar.3")).sprintf(event //$NON-NLS-1$
-				        .getJob());
+				text = new Formatter().format(Messages.getString("StatusBar.3"),
+				    event.getJob()).toString();
 			} else if (eventType == EventType.JOB_CANCEL) {
 				// job cancelled
-				text = new PrintfFormat(Messages.getString("StatusBar.4")).sprintf(event //$NON-NLS-1$
-				        .getJob());
+				text = new Formatter().format(Messages.getString("StatusBar.4"),
+				    event.getJob()).toString();
 			} else if (eventType == EventType.JOB_EXECUTION_START) {
 				// job started executing
-				text = new PrintfFormat(Messages.getString("StatusBar.5")) //$NON-NLS-1$
-				    .sprintf(event.getJob());
+				text = new Formatter().format(Messages.getString("StatusBar.5"),
+				    event.getJob()).toString();
 			} else if (eventType == EventType.MACHINE_RESTART) {
 				// machine restart
-				text = new PrintfFormat(Messages.getString("StatusBar.6")) //$NON-NLS-1$
-				    .sprintf(event.getSourceMachine());
+				text = new Formatter().format(Messages.getString("StatusBar.6"),
+				    event.getSourceMachine()).toString();
 			} else if ((eventType == EventType.MACHINE_FAIL)
 			    || (eventType == EventType.MACHINE_FAIL_MOVE_GOOD)
 			    || (eventType == EventType.MACHINE_FAIL_MOVE_BAD)) {
 				// machine failure
-				text = new PrintfFormat(Messages.getString("StatusBar.7")).sprintf(event //$NON-NLS-1$
-				        .getSourceMachine());
+				text = new Formatter().format(Messages.getString("StatusBar.7"),
+				    event.getSourceMachine()).toString();
 			}
 			if ((eventType == EventType.MOVE_GOOD)
 			    || (eventType == EventType.MACHINE_FAIL_MOVE_GOOD)) {
 				// good move
-				text = new PrintfFormat(Messages.getString("StatusBar.8")) //$NON-NLS-1$
-				    .sprintf(new Object[] { event.getJob(),
-				        event.getSourceMachine().getName(),
-				        event.getTargetMachine().getName() });
+				text = new Formatter().format(
+				    Messages.getString("StatusBar.8"),
+				    new Object[] { event.getJob(), event.getSourceMachine().getName(),
+				        event.getTargetMachine().getName() }).toString();
 			} else if ((eventType == EventType.MOVE_BAD)
 			    || (eventType == EventType.MACHINE_FAIL_MOVE_BAD)) {
-				text = new PrintfFormat(Messages.getString("StatusBar.9")) //$NON-NLS-1$
-				    .sprintf(new Object[] { event.getJob(),
-				        event.getSourceMachine().getName(),
-				        event.getTargetMachine().getName() });
+				text = new Formatter().format(
+				    Messages.getString("StatusBar.9"),
+				    new Object[] { event.getJob(), event.getSourceMachine().getName(),
+				        event.getTargetMachine().getName() }).toString();
 			}
 		}
 		this.removeAll();
 		final BorderLayout brdr = new BorderLayout();
 		this.setLayout(brdr);
-		this.add(new JLabel(new PrintfFormat(Messages.getString("StatusBar.10")) //$NON-NLS-1$
-		    .sprintf(new Object[] { event.getId(),
-		        StatusBar.parseTime(event.getClock()), text })),
-		    BorderLayout.CENTER);
+		this.add(new JLabel(new Formatter().format(
+		    Messages.getString("StatusBar.10"),
+		    new Object[] { event.getId(), StatusBar.parseTime(event.getClock()),
+		        text }).toString()), BorderLayout.CENTER);
 		this.updateUI();
 	}
 }

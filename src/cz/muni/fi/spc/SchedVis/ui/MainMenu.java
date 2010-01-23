@@ -37,8 +37,8 @@ public final class MainMenu extends JMenuBar implements ActionListener {
 
 	private static final long serialVersionUID = -301105021169477153L;
 
-	private static String ACTION_QUIT = "quit"; //$NON-NLS-1$
-	private static String ACTION_MANAGE_GROUPS = "manage_groups"; //$NON-NLS-1$
+	private static String ACTION_QUIT = "quit";
+	private static String ACTION_MANAGE_GROUPS = "manage_groups";
 
 	private final JFrame frame;
 
@@ -52,29 +52,29 @@ public final class MainMenu extends JMenuBar implements ActionListener {
 		JMenuItem menuItem = null;
 
 		// Build the first menu.
-		menu = new JMenu(Messages.getString("MainMenu.2")); //$NON-NLS-1$
+		menu = new JMenu(Messages.getString("MainMenu.2"));
 		menu.setMnemonic(KeyEvent.VK_F);
 		menu.getAccessibleContext().setAccessibleDescription(
-		    Messages.getString("MainMenu.3")); //$NON-NLS-1$
+		    Messages.getString("MainMenu.3"));
 		this.add(menu);
 
-		menuItem = new JMenuItem(Messages.getString("MainMenu.4"), KeyEvent.VK_Q); //$NON-NLS-1$
+		menuItem = new JMenuItem(Messages.getString("MainMenu.4"), KeyEvent.VK_Q);
 		menuItem.getAccessibleContext().setAccessibleDescription(
-		    Messages.getString("MainMenu.5")); //$NON-NLS-1$
+		    Messages.getString("MainMenu.5"));
 		menuItem.setActionCommand(MainMenu.ACTION_QUIT);
 		menuItem.addActionListener(this);
 		menu.add(menuItem);
 
 		// Build the first menu.
-		menu = new JMenu(Messages.getString("MainMenu.6")); //$NON-NLS-1$
+		menu = new JMenu(Messages.getString("MainMenu.6"));
 		menu.setMnemonic(KeyEvent.VK_E);
 		menu.getAccessibleContext().setAccessibleDescription(
-		    Messages.getString("MainMenu.7")); //$NON-NLS-1$
+		    Messages.getString("MainMenu.7"));
 		this.add(menu);
 
-		menuItem = new JMenuItem(Messages.getString("MainMenu.8"), KeyEvent.VK_G); //$NON-NLS-1$
+		menuItem = new JMenuItem(Messages.getString("MainMenu.8"), KeyEvent.VK_G);
 		menuItem.getAccessibleContext().setAccessibleDescription(
-		    Messages.getString("MainMenu.9")); //$NON-NLS-1$
+		    Messages.getString("MainMenu.9"));
 		menuItem.setActionCommand(MainMenu.ACTION_MANAGE_GROUPS);
 		menuItem.addActionListener(this);
 		menu.add(menuItem);

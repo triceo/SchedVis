@@ -29,6 +29,7 @@ import java.awt.Shape;
 import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,6 @@ import cz.muni.fi.spc.SchedVis.model.entities.Job;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.util.Benchmark;
 import cz.muni.fi.spc.SchedVis.util.Configuration;
-import cz.muni.fi.spc.SchedVis.util.PrintfFormat;
 import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
@@ -134,7 +134,7 @@ public final class Schedule extends SwingWorker<Image, Void> {
 	/**
 	 * Holds a font used throughout the schedules.
 	 */
-	private static final Font font = new Font("Monospaced", Font.PLAIN, 9); //$NON-NLS-1$
+	private static final Font font = new Font("Monospaced", Font.PLAIN, 9);
 
 	private static final Logger logger = Logger.getLogger(Schedule.class);
 
@@ -227,8 +227,8 @@ public final class Schedule extends SwingWorker<Image, Void> {
 	 */
 	@Override
 	public Image doInBackground() {
-		final UUID globalUuid = Benchmark.startProfile(
-		    "total", this.renderedEvent, this.m); //$NON-NLS-1$
+		final UUID globalUuid = Benchmark.startProfile("total", this.renderedEvent,
+		    this.m);
 		UUID uuid = Benchmark.startProfile("activity", this.renderedEvent, this.m);
 		final boolean isActive = Machine.isActive(this.m, this.renderedEvent);
 		Benchmark.stopProfile(uuid);
@@ -246,7 +246,7 @@ public final class Schedule extends SwingWorker<Image, Void> {
 		uuid = Benchmark.startProfile("rendering", this.renderedEvent, this.m);
 		this.drawJobs(this.g, jobs);
 		// add machine info
-		String descriptor = this.m.getName() + "@" + this.renderedEvent.getClock(); //$NON-NLS-1$
+		String descriptor = this.m.getName() + "@" + this.renderedEvent.getClock();
 		if (!isActive) {
 			descriptor += Messages.getString("ScheduleRenderer.19");
 		}
@@ -288,10 +288,9 @@ public final class Schedule extends SwingWorker<Image, Void> {
 					// now draw
 					final int jobStartX = this.getStartingPosition(job);
 					if (jobStartX < 0) { // could be bad, may not be
-						Schedule.logger.info(new PrintfFormat(Messages
-						    .getString("ScheduleRenderer.22")) //$NON-NLS-1$
-						    .sprintf(new Object[] { this.m.getName(),
-						        this.renderedEvent.getId(), jobStartX }));
+						Schedule.logger.info(new Formatter().format(Messages
+						    .getString("ScheduleRenderer.22"), new Object[] {
+						    this.m.getName(), this.renderedEvent.getId(), jobStartX }));
 					}
 					final int jobLength = this.getJobLength(job);
 					final int ltY = crntCPU * Schedule.NUM_PIXELS_PER_CPU;
@@ -317,10 +316,9 @@ public final class Schedule extends SwingWorker<Image, Void> {
 					final int rightBoundary = jobStartX + jobLength
 					    - Schedule.IMAGE_WIDTH;
 					if (rightBoundary > 0) {
-						Schedule.logger.warn(new PrintfFormat(Messages
-						    .getString("ScheduleRenderer.23")) //$NON-NLS-1$
-						    .sprintf(new Object[] { this.m.getName(),
-						        this.renderedEvent.getId(), rightBoundary }));
+						Schedule.logger.warn(new Formatter().format(Messages
+						    .getString("ScheduleRenderer.23"), new Object[] {
+						    this.m.getName(), this.renderedEvent.getId(), rightBoundary }));
 					}
 				}
 			} else { // render CPU occupation
@@ -372,7 +370,7 @@ public final class Schedule extends SwingWorker<Image, Void> {
 			return new TreeSet<Integer>();
 		}
 		// parse single numbers
-		final String[] rawParts = raw.split(","); //$NON-NLS-1$
+		final String[] rawParts = raw.split(",");
 		// store for returning
 		final Set<Integer> assignedCPUs = new TreeSet<Integer>();
 		for (final String num : rawParts) {

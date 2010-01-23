@@ -53,7 +53,7 @@ public final class MainFrame extends JFrame {
 	 */
 	public MainFrame() {
 		// Create and set up the window.
-		this.setTitle("SchedVis"); //$NON-NLS-1$
+		this.setTitle("SchedVis");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Create and set up the content pane.
@@ -67,7 +67,7 @@ public final class MainFrame extends JFrame {
 		final JPanel schedulePanel = new JPanel();
 		schedulePanel.setLayout(new BorderLayout());
 		// get machine detail
-		this.detailPane = new JBorderedPanel(Messages.getString("MainFrame.1")); //$NON-NLS-1$
+		this.detailPane = new JBorderedPanel(Messages.getString("MainFrame.1"));
 		this.updateDetail(null);
 		// get scrolling pane with a tree
 		final JPanel spanel = new JPanel();
@@ -75,7 +75,7 @@ public final class MainFrame extends JFrame {
 		final JScrollPane pane = new JScrollPane(spanel);
 		spanel.add(this.detailPane, BorderLayout.PAGE_START);
 		final JPanel schpanel = new JBorderedPanel(Messages
-		    .getString("MainFrame.2")); //$NON-NLS-1$
+		    .getString("MainFrame.2"));
 		schpanel.setLayout(new BorderLayout());
 		schpanel.add(MainFrame.tree, BorderLayout.CENTER);
 		spanel.add(schpanel, BorderLayout.CENTER);
@@ -111,7 +111,7 @@ public final class MainFrame extends JFrame {
 				this.detailPane.add(new MachinePanel(m, event));
 			}
 		} else {
-			this.detailPane.add(new JLabel(Messages.getString("MainFrame.3"))); //$NON-NLS-1$
+			this.detailPane.add(new JLabel(Messages.getString("MainFrame.3")));
 		}
 		this.detailPane.updateUI();
 	}

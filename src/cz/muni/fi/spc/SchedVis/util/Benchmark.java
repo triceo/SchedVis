@@ -6,6 +6,7 @@ import java.awt.image.IndexColorModel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -180,9 +181,9 @@ public final class Benchmark {
 	private static void reportLogResults(final Map<String, List<Long>> times) {
 		// show globals
 		System.out
-		    .println(" task \\ time [ms] |    avg    |    min    |    1/4    |    mid    |    3/4    |    max    "); //$NON-NLS-1$
+		    .println(" task \\ time [ms] |    avg    |    min    |    1/4    |    mid    |    3/4    |    max    ");
 		System.out
-		    .println(" ------------------------------------------------------------------------------------------"); //$NON-NLS-1$
+		    .println(" ------------------------------------------------------------------------------------------");
 		for (final Entry<String, List<Long>> entry : times.entrySet()) {
 			List<Long> allValues = entry.getValue();
 			// sort the list
@@ -199,18 +200,25 @@ public final class Benchmark {
 			allValues = allValues.subList(0, allValues.size()
 			    - extremeValueCount.intValue());
 			// tabulate results
-			System.out
-			    .println("  " //$NON-NLS-1$
-			        + new PrintfFormat("%15s").sprintf(entry.getKey()) //$NON-NLS-1$
-			        + " | " //$NON-NLS-1$
-			        + new PrintfFormat(" %.5f ").sprintf(Benchmark.nanoToMilli(Benchmark.getAverage(allValues))) + " | " //$NON-NLS-1$ $$NON-NLS-2$
-			        + new PrintfFormat(" %.5f ").sprintf(Benchmark.nanoToMilli(allValuesSorted[0])) + " | " //$NON-NLS-1$
-			        + new PrintfFormat(" %.5f ").sprintf(Benchmark.nanoToMilli(Benchmark.getNthQuartil(allValuesSorted, 1))) + " | " //$NON-NLS-1$ $NON-NLS-2$
-			        + new PrintfFormat(" %.5f ").sprintf(Benchmark.nanoToMilli(Benchmark.getMedian(allValuesSorted))) + " | " //$NON-NLS-1$ $NON-NLS-2$
-			        + new PrintfFormat(" %.5f ").sprintf(Benchmark.nanoToMilli(Benchmark.getNthQuartil(allValuesSorted, 3))) + " | " //$NON-NLS-1$ $NON-NLS-2$
-			        + new PrintfFormat(" %.5f ") //$NON-NLS-1$
-			            .sprintf(Benchmark
-			                .nanoToMilli(allValuesSorted[allValuesSorted.length - 1])));
+			System.out.println(new Formatter().format("  %15s", entry.getKey())
+			    + " | "
+			    + new Formatter().format(" %.5f ", Benchmark.nanoToMilli(Benchmark
+			        .getAverage(allValues)))
+			    + " | "
+			    + new Formatter().format(" %.5f ", Benchmark
+			        .nanoToMilli(allValuesSorted[0]))
+			    + " | "
+			    + new Formatter().format(" %.5f ", Benchmark.nanoToMilli(Benchmark
+			        .getNthQuartil(allValuesSorted, 1)))
+			    + " | "
+			    + new Formatter().format(" %.5f ", Benchmark.nanoToMilli(Benchmark
+			        .getMedian(allValuesSorted)))
+			    + " | "
+			    + new Formatter().format(" %.5f ", Benchmark.nanoToMilli(Benchmark
+			        .getNthQuartil(allValuesSorted, 3)))
+			    + " | "
+			    + new Formatter().format(" %.5f ", Benchmark
+			        .nanoToMilli(allValuesSorted[allValuesSorted.length - 1])));
 		}
 	}
 
@@ -225,7 +233,7 @@ public final class Benchmark {
 		Benchmark.isEnabled = true;
 		final Integer BENCH_EVERY_NTH = Configuration.getBenchmarkFrequency();
 		final Integer NUMBER_OF_BENCHES = Configuration.getBenchmarkIterations();
-		System.out.println(Messages.getString("Main.0")); //$NON-NLS-1$
+		System.out.println(Messages.getString("Main.0"));
 		System.out.println();
 		// run!
 		final Set<Machine> machines = Machine.getAllGroupless();
@@ -240,13 +248,13 @@ public final class Benchmark {
 				for (final Machine m : machines) {
 					Benchmark.runSingleSchedule(Event.getWithId(tick), m);
 				}
-				System.out.println(new PrintfFormat(Messages.getString("Main.1")) //$NON-NLS-1$
-				    .sprintf(new Integer[] { i,
+				System.out.println(new Formatter().format(Messages.getString("Main.1"),
+				    new Object[] { i,
 				        (ticks.size() / BENCH_EVERY_NTH) * NUMBER_OF_BENCHES, tick }));
 			}
 		}
 		System.out.println();
-		System.out.println(Messages.getString("Main.4")); //$NON-NLS-1$
+		System.out.println(Messages.getString("Main.4"));
 		Benchmark.reportLogResults();
 		Benchmark.isEnabled = false;
 		return;
