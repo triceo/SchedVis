@@ -201,7 +201,7 @@ public final class Benchmark {
 			    - extremeValueCount.intValue());
 			// tabulate results
 			System.out.println(new Formatter().format(
-			    "  %15s  |  %.5f  |  %.5f  |  %.5f  |  %.5f  |  %.5f  |  %.5f", entry
+			    "  %15s |  %.5f  |  %.5f  |  %.5f  |  %.5f  |  %.5f  |  %.5f", entry
 			        .getKey(),
 			    Benchmark.nanoToMilli(Benchmark.getAverage(allValues)), Benchmark
 			        .nanoToMilli(allValuesSorted[0]), Benchmark.nanoToMilli(Benchmark
