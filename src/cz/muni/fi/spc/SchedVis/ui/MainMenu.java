@@ -35,10 +35,11 @@ import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
  */
 public final class MainMenu extends JMenuBar implements ActionListener {
 
-	private static final long serialVersionUID = -301105021169477153L;
+	private static enum Actions {
+		QUIT, MANAGE_GROUPS;
+	}
 
-	private static String ACTION_QUIT = "quit";
-	private static String ACTION_MANAGE_GROUPS = "manage_groups";
+	private static final long serialVersionUID = -301105021169477153L;
 
 	private final JFrame frame;
 
@@ -61,7 +62,7 @@ public final class MainMenu extends JMenuBar implements ActionListener {
 		menuItem = new JMenuItem(Messages.getString("MainMenu.4"), KeyEvent.VK_Q);
 		menuItem.getAccessibleContext().setAccessibleDescription(
 		    Messages.getString("MainMenu.5"));
-		menuItem.setActionCommand(MainMenu.ACTION_QUIT);
+		menuItem.setActionCommand(Actions.QUIT.toString());
 		menuItem.addActionListener(this);
 		menu.add(menuItem);
 
@@ -75,7 +76,7 @@ public final class MainMenu extends JMenuBar implements ActionListener {
 		menuItem = new JMenuItem(Messages.getString("MainMenu.8"), KeyEvent.VK_G);
 		menuItem.getAccessibleContext().setAccessibleDescription(
 		    Messages.getString("MainMenu.9"));
-		menuItem.setActionCommand(MainMenu.ACTION_MANAGE_GROUPS);
+		menuItem.setActionCommand(Actions.MANAGE_GROUPS.toString());
 		menuItem.addActionListener(this);
 		menu.add(menuItem);
 	}
@@ -85,9 +86,9 @@ public final class MainMenu extends JMenuBar implements ActionListener {
 	 */
 	public void actionPerformed(final ActionEvent event) {
 		final String command = event.getActionCommand();
-		if (command.equals(MainMenu.ACTION_QUIT)) {
+		if (command.equals(Actions.QUIT.toString())) {
 			this.quit();
-		} else if (command.equals(MainMenu.ACTION_MANAGE_GROUPS)) {
+		} else if (command.equals(Actions.MANAGE_GROUPS.toString())) {
 			final GroupsDialog dialog = new GroupsDialog(this.frame, true);
 			dialog.setVisible(true);
 		}

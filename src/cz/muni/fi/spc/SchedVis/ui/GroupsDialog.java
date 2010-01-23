@@ -53,11 +53,15 @@ import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 public final class GroupsDialog extends JDialog implements ActionListener,
     ListDataListener, ListSelectionListener {
 
+	private static enum Commands {
+		CLOSE_DIALOG, CREATE_NEW_GROUP, DELETE_GROUP, ADD_MACHINE_TO_GROUP, REMOVE_MACHINE_FROM_GROUP;
+
+	}
+
 	/**
      * 
      */
 	private static final long serialVersionUID = -1070355363275232038L;
-
 	private final JTextField newGroupName;
 	private final JButton newGroupButton;
 	private final JButton deleteGroupButton;
@@ -66,13 +70,8 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 	private final JButton closeButton;
 	private final JComboBox availableGroupsList;
 	private final GroupedMachinesList availableMachinesList;
-	private final GroupedMachinesList groupedMachinesList;
 
-	private static final String COMMAND__CLOSE_DIALOG = "closeDialog";
-	private static final String COMMAND__CREATE_NEW_GROUP = "createNewGroup";
-	private static final String COMMAND__DELETE_GROUP = "deleteGroup";
-	private static final String COMMAND__ADD_MACHINE_TO_GROUP = "addToGroup";
-	private static final String COMMAND__REMOVE_MACHINE_FROM_GROUP = "removeFromGroup";
+	private final GroupedMachinesList groupedMachinesList;
 
 	/**
 	 * Class constructor.
@@ -96,7 +95,7 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 		topLeftPane.add(label);
 		topLeftPane.add(this.availableGroupsList);
 		this.deleteGroupButton = new JButton(Messages.getString("GroupsDialog.7"));
-		this.deleteGroupButton.setActionCommand(GroupsDialog.COMMAND__DELETE_GROUP);
+		this.deleteGroupButton.setActionCommand(Commands.DELETE_GROUP.toString());
 		this.deleteGroupButton.addActionListener(this);
 		this.deleteGroupButton.setEnabled(false);
 		topLeftPane.add(this.deleteGroupButton);
@@ -106,8 +105,7 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 		this.newGroupName = new JTextField(10);
 		topRightPane.add(this.newGroupName);
 		this.newGroupButton = new JButton(Messages.getString("GroupsDialog.8"));
-		this.newGroupButton
-		    .setActionCommand(GroupsDialog.COMMAND__CREATE_NEW_GROUP);
+		this.newGroupButton.setActionCommand(Commands.CREATE_NEW_GROUP.toString());
 		this.newGroupButton.addActionListener(this);
 		topRightPane.add(this.newGroupButton);
 		topPane.add(topRightPane);
@@ -129,14 +127,14 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 		final JPanel buttonsPane = new JPanel(); // panel with controls
 		buttonsPane.setLayout(new BoxLayout(buttonsPane, BoxLayout.PAGE_AXIS));
 		this.addMachineButton = new JButton("<<");
-		this.addMachineButton
-		    .setActionCommand(GroupsDialog.COMMAND__ADD_MACHINE_TO_GROUP);
+		this.addMachineButton.setActionCommand(Commands.ADD_MACHINE_TO_GROUP
+		    .toString());
 		this.addMachineButton.setEnabled(false);
 		this.addMachineButton.addActionListener(this);
 		this.removeMachineButton = new JButton(">>");
 		this.removeMachineButton.setEnabled(false);
 		this.removeMachineButton
-		    .setActionCommand(GroupsDialog.COMMAND__REMOVE_MACHINE_FROM_GROUP);
+		    .setActionCommand(Commands.REMOVE_MACHINE_FROM_GROUP.toString());
 		this.removeMachineButton.addActionListener(this);
 		buttonsPane.add(this.addMachineButton);
 		buttonsPane.add(this.removeMachineButton);
@@ -153,7 +151,7 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 		// add dialog-closing button
 		bottomPane.setLayout(new FlowLayout(FlowLayout.CENTER));
 		this.closeButton = new JButton(Messages.getString("GroupsDialog.13"));
-		this.closeButton.setActionCommand(GroupsDialog.COMMAND__CLOSE_DIALOG);
+		this.closeButton.setActionCommand(Commands.CLOSE_DIALOG.toString());
 		this.closeButton.addActionListener(this);
 		bottomPane.add(this.closeButton);
 		this.add(bottomPane, BorderLayout.PAGE_END);
@@ -164,7 +162,7 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 	 */
 	public void actionPerformed(final ActionEvent e) {
 		final String command = e.getActionCommand();
-		if (command.equals(GroupsDialog.COMMAND__CREATE_NEW_GROUP)) {
+		if (command.equals(Commands.CREATE_NEW_GROUP.toString())) {
 			final String text = this.newGroupName.getText().trim();
 			if (text.length() == 0) {
 				JOptionPane.showMessageDialog(this, Messages
@@ -184,7 +182,7 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 					    .getString("GroupsDialog.16"));
 				}
 			}
-		} else if (command.equals(GroupsDialog.COMMAND__DELETE_GROUP)) {
+		} else if (command.equals(Commands.DELETE_GROUP.toString())) {
 			final MachineGroup mg = MachineGroup.getWithName(
 			    (String) this.availableGroupsList.getSelectedItem(), false);
 			for (final Machine m : Machine.getAll(mg.getId())) {
@@ -209,7 +207,7 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 				JOptionPane.showMessageDialog(this, Messages
 				    .getString("GroupsDialog.17"));
 			}
-		} else if (command.equals(GroupsDialog.COMMAND__ADD_MACHINE_TO_GROUP)) {
+		} else if (command.equals(Commands.ADD_MACHINE_TO_GROUP.toString())) {
 			final MachineGroup ge = MachineGroup.getWithName(
 			    ((String) this.availableGroupsList.getSelectedItem()), false);
 			for (final Object machineName : this.availableMachinesList
@@ -218,14 +216,14 @@ public final class GroupsDialog extends JDialog implements ActionListener,
 				m.setGroup(ge);
 				Database.merge(m);
 			}
-		} else if (command.equals(GroupsDialog.COMMAND__REMOVE_MACHINE_FROM_GROUP)) {
+		} else if (command.equals(Commands.REMOVE_MACHINE_FROM_GROUP.toString())) {
 			for (final Object machineName : this.groupedMachinesList
 			    .getSelectedValues()) {
 				final Machine me = Machine.getWithName((String) machineName, false);
 				me.setGroup(null);
 				Database.merge(me);
 			}
-		} else if (command.equals(GroupsDialog.COMMAND__CLOSE_DIALOG)) {
+		} else if (command.equals(Commands.CLOSE_DIALOG.toString())) {
 			this.setVisible(false);
 			// to prevent various out-of-date problems later in the UI
 			Database.merge(MachineGroup.getAll());
