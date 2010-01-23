@@ -22,12 +22,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -62,11 +61,9 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 
 	private static PreparedStatement s;
 
-	private static final Map<Integer, Machine> byId = Collections
-	    .synchronizedMap(new HashMap<Integer, Machine>());
+	private static final ConcurrentMap<Integer, Machine> byId = new ConcurrentHashMap<Integer, Machine>();
 
-	private static final Map<String, Machine> byName = Collections
-	    .synchronizedMap(new HashMap<String, Machine>());
+	private static final ConcurrentMap<String, Machine> byName = new ConcurrentHashMap<String, Machine>();
 
 	/**
 	 * Retrieve all the machines in a given group.
@@ -113,8 +110,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	 *          this number.
 	 * @return Jobs in the schedule.
 	 */
-	public synchronized static List<Job> getLatestSchedule(final Machine which,
-	    final Event evt) {
+	public static List<Job> getLatestSchedule(final Machine which, final Event evt) {
 		try {
 			return Machine.getLatestScheduleInternal(which, evt);
 		} catch (final SQLException ex) {
@@ -183,9 +179,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 			Machine.byName.put(name, m);
 		}
 		final Machine m = Machine.byName.get(name);
-		if (!Machine.byId.containsKey(m.getId())) {
-			Machine.byId.put(m.getId(), m);
-		}
+		Machine.byId.putIfAbsent(m.getId(), m);
 		return m;
 	}
 

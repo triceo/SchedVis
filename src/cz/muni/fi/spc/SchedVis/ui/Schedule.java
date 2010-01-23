@@ -28,14 +28,13 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
-import java.util.Collections;
 import java.util.Formatter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.SwingWorker;
 
@@ -148,8 +147,7 @@ public final class Schedule extends SwingWorker<Image, Void> {
 
 	private static final BasicStroke thickStroke = new BasicStroke(2);
 
-	private static Map<String, Paint> paints = Collections
-	    .synchronizedMap(new HashMap<String, Paint>());
+	private static Map<String, Paint> paints = new ConcurrentHashMap<String, Paint>();
 
 	private static Rectangle textureRectangle = new Rectangle(0, 0,
 	    Schedule.NUM_PIXELS_PER_CPU, Schedule.NUM_PIXELS_PER_CPU);

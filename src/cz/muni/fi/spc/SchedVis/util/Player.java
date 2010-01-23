@@ -17,6 +17,7 @@
 package cz.muni.fi.spc.SchedVis.util;
 
 import java.util.Formatter;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.log4j.Logger;
 
@@ -35,6 +36,7 @@ import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 public final class Player implements Runnable {
 
 	private static final Player p = new Player();
+	CountDownLatch l = new CountDownLatch(1);
 	private static boolean doesPlay = false;
 
 	/**
@@ -53,9 +55,7 @@ public final class Player implements Runnable {
 	public void run() {
 		while (true) {
 			try {
-				synchronized (Player.p) {
-					Player.p.wait();
-				}
+				this.l.await();
 			} catch (final Exception e) {
 				Logger.getLogger(Player.class).warn(
 				    new Formatter().format(Messages.getString("Player.0"), e
@@ -90,8 +90,9 @@ public final class Player implements Runnable {
 	public void toggleStatus() {
 		Logger.getLogger(Player.class).debug(Messages.getString("Player.4"));
 		Player.doesPlay = !Player.doesPlay;
-		synchronized (Player.p) {
-			Player.p.notifyAll();
+		synchronized (this.l) {
+			this.l.countDown();
+			this.l = new CountDownLatch(1);
 		}
 		Logger.getLogger(Player.class).debug(Messages.getString("Player.5"));
 	}

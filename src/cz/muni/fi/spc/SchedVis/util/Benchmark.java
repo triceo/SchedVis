@@ -5,15 +5,14 @@ import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Formatter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.swing.SwingUtilities;
 
@@ -63,15 +62,12 @@ public final class Benchmark {
 
 	private static final Logger logger = Logger.getLogger(Benchmark.class);
 
-	private static final Map<String, List<Long>> timesByType = Collections
-	    .synchronizedMap(new HashMap<String, List<Long>>());
-	private static final Map<String, List<Long>> timesByMachine = Collections
-	    .synchronizedMap(new TreeMap<String, List<Long>>());
+	private static final ConcurrentMap<String, List<Long>> timesByType = new ConcurrentHashMap<String, List<Long>>();
+	private static final ConcurrentMap<String, List<Long>> timesByMachine = new ConcurrentHashMap<String, List<Long>>();
 
 	private static boolean isEnabled = false;
 
-	private static Map<UUID, Intermediate> inters = Collections
-	    .synchronizedMap(new HashMap<UUID, Intermediate>());
+	private static ConcurrentMap<UUID, Intermediate> inters = new ConcurrentHashMap<UUID, Intermediate>();
 
 	/**
 	 * Index color model specifying 16 basic colors. This significantly improves
@@ -145,14 +141,10 @@ public final class Benchmark {
 		final String type = i.getId();
 		final String machineName = i.getMachine().getName();
 		// log by type
-		if (!Benchmark.timesByType.containsKey(type)) {
-			Benchmark.timesByType.put(type, new ArrayList<Long>());
-		}
+		Benchmark.timesByType.putIfAbsent(type, new ArrayList<Long>());
 		Benchmark.timesByType.get(type).add(time);
 		// log by machine
-		if (!Benchmark.timesByMachine.containsKey(machineName)) {
-			Benchmark.timesByMachine.put(machineName, new ArrayList<Long>());
-		}
+		Benchmark.timesByMachine.putIfAbsent(machineName, new ArrayList<Long>());
 		Benchmark.timesByMachine.get(machineName).add(
 		    time / i.getMachine().getCPUs());
 		Benchmark.logger.trace("Type: " + type + ", machine: " + machineName

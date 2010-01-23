@@ -18,12 +18,11 @@
  */
 package cz.muni.fi.spc.SchedVis.model.entities;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -78,9 +77,7 @@ public final class MachineGroup extends BaseEntity implements
 			    MachineGroup.class, id));
 		}
 		final MachineGroup m = MachineGroup.byId.get(id);
-		if (!MachineGroup.byName.containsKey(m.getName())) {
-			MachineGroup.byName.put(m.getName(), m);
-		}
+		MachineGroup.byName.putIfAbsent(m.getName(), m);
 		return m;
 	}
 
@@ -100,8 +97,7 @@ public final class MachineGroup extends BaseEntity implements
 	 *          Whether or not to use the local entity cache.
 	 * @return The machine.
 	 */
-	public synchronized static MachineGroup getWithName(final String name,
-	    final boolean cache) {
+	public static MachineGroup getWithName(final String name, final boolean cache) {
 		if (!cache) {
 			return MachineGroup.getWithName(name);
 		}
@@ -116,19 +112,17 @@ public final class MachineGroup extends BaseEntity implements
 			MachineGroup.byName.put(name, mg);
 		}
 		final MachineGroup m = MachineGroup.byName.get(name);
-		if ((m != null) && !MachineGroup.byId.containsKey(m.getId())) {
-			MachineGroup.byId.put(m.getId(), m);
+		if (m != null) {
+			MachineGroup.byId.putIfAbsent(m.getId(), m);
 		}
 		return m;
 	}
 
 	private int internalId;
 
-	private static final Map<Integer, MachineGroup> byId = Collections
-	    .synchronizedMap(new HashMap<Integer, MachineGroup>());
+	private static final ConcurrentMap<Integer, MachineGroup> byId = new ConcurrentHashMap<Integer, MachineGroup>();
 
-	private static final Map<String, MachineGroup> byName = Collections
-	    .synchronizedMap(new HashMap<String, MachineGroup>());
+	private static final ConcurrentMap<String, MachineGroup> byName = new ConcurrentHashMap<String, MachineGroup>();
 
 	private int id;
 
