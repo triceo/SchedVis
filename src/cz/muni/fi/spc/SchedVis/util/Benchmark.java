@@ -200,25 +200,15 @@ public final class Benchmark {
 			allValues = allValues.subList(0, allValues.size()
 			    - extremeValueCount.intValue());
 			// tabulate results
-			System.out.println(new Formatter().format("  %15s", entry.getKey())
-			    + " | "
-			    + new Formatter().format(" %.5f ", Benchmark.nanoToMilli(Benchmark
-			        .getAverage(allValues)))
-			    + " | "
-			    + new Formatter().format(" %.5f ", Benchmark
-			        .nanoToMilli(allValuesSorted[0]))
-			    + " | "
-			    + new Formatter().format(" %.5f ", Benchmark.nanoToMilli(Benchmark
-			        .getNthQuartil(allValuesSorted, 1)))
-			    + " | "
-			    + new Formatter().format(" %.5f ", Benchmark.nanoToMilli(Benchmark
-			        .getMedian(allValuesSorted)))
-			    + " | "
-			    + new Formatter().format(" %.5f ", Benchmark.nanoToMilli(Benchmark
-			        .getNthQuartil(allValuesSorted, 3)))
-			    + " | "
-			    + new Formatter().format(" %.5f ", Benchmark
-			        .nanoToMilli(allValuesSorted[allValuesSorted.length - 1])));
+			System.out.println(new Formatter().format(
+			    "  %15s  |  %.5f  |  %.5f  |  %.5f  |  %.5f  |  %.5f  |  %.5f", entry
+			        .getKey(),
+			    Benchmark.nanoToMilli(Benchmark.getAverage(allValues)), Benchmark
+			        .nanoToMilli(allValuesSorted[0]), Benchmark.nanoToMilli(Benchmark
+			        .getNthQuartil(allValuesSorted, 1)), Benchmark
+			        .nanoToMilli(Benchmark.getMedian(allValuesSorted)), Benchmark
+			        .nanoToMilli(Benchmark.getNthQuartil(allValuesSorted, 3)),
+			    Benchmark.nanoToMilli(allValuesSorted[allValuesSorted.length - 1])));
 		}
 	}
 
