@@ -50,12 +50,12 @@ import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
  * This class knows how to render schedule for a machine into an image.
- * Performance of whole application essentially boils down to berformance of
+ * Performance of whole application essentially boils down to performance of
  * this class and entity methods it calls.
  * 
  * For benchmark mode of the application, it contains some special debugging
  * code that allows for precise timing of all its operations - that can be used
- * to measure and later further optimize the performance of this critical class.
+ * to measure the performance of this critical class.
  * 
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
@@ -148,12 +148,14 @@ public final class Schedule extends SwingWorker<Image, Void> {
 	private static final BasicStroke thickStroke = new BasicStroke(2);
 
 	private static Map<String, Paint> paints = new ConcurrentHashMap<String, Paint>();
-
-	private static Rectangle textureRectangle = new Rectangle(0, 0,
-	    Schedule.NUM_PIXELS_PER_CPU, Schedule.NUM_PIXELS_PER_CPU);
+	private static Map<Boolean, Paint> backgroundPaints = new ConcurrentHashMap<Boolean, Paint>();
 
 	private static final int BAR_DISTANCE = Math.max(1, Math
 	    .round(Schedule.TICKS_PER_GUIDING_BAR * Schedule.NUM_PIXELS_PER_TICK));
+	private static Rectangle textureRectangle = new Rectangle(0, 0,
+	    Schedule.NUM_PIXELS_PER_CPU, Schedule.NUM_PIXELS_PER_CPU);
+	private static Rectangle backgroundTextureRectangle = new Rectangle(0, 0,
+	    Schedule.NUM_PIXELS_PER_CPU, Schedule.BAR_DISTANCE);
 
 	/**
 	 * Get texture for the event's box.
@@ -164,7 +166,46 @@ public final class Schedule extends SwingWorker<Image, Void> {
 	 *          The type of event actually rendered.
 	 * @return The texture.
 	 */
-	private static Paint getTexture(final Color background, final JobHint jobHint) {
+	private synchronized static Paint getBackgroundTexture(final boolean isActive) {
+		if (!Schedule.backgroundPaints.containsKey(isActive)) {
+			final BufferedImage texture = new BufferedImage(
+			    Schedule.NUM_PIXELS_PER_CPU, Schedule.NUM_PIXELS_PER_CPU,
+			    BufferedImage.TYPE_INT_RGB);
+			final Graphics2D g = texture.createGraphics();
+			// fill background
+			if (isActive) {
+				g.setColor(Color.WHITE);
+			} else {
+				g.setColor(Color.DARK_GRAY);
+			}
+			g.fill(Schedule.backgroundTextureRectangle);
+			// now draw grid
+			if (isActive) {
+				g.setColor(Color.LIGHT_GRAY);
+			} else {
+				g.setColor(Color.GRAY);
+			}
+			g.drawLine(0, 0, Schedule.backgroundTextureRectangle.width, 0);
+			g.drawLine(Schedule.backgroundTextureRectangle.width - 1, 0,
+			    Schedule.backgroundTextureRectangle.width - 1,
+			    Schedule.backgroundTextureRectangle.height);
+			Schedule.backgroundPaints.put(isActive, new TexturePaint(texture,
+			    Schedule.backgroundTextureRectangle));
+		}
+		return Schedule.backgroundPaints.get(isActive);
+	}
+
+	/**
+	 * Get texture for the event's box.
+	 * 
+	 * @param background
+	 *          The color of the event box's background.
+	 * @param jobHint
+	 *          The type of event actually rendered.
+	 * @return The texture.
+	 */
+	private static synchronized Paint getTexture(final Color background,
+	    final JobHint jobHint) {
 		if ((jobHint == null) || (jobHint == JobHint.NONE)) {
 			return background;
 		}
@@ -201,7 +242,10 @@ public final class Schedule extends SwingWorker<Image, Void> {
 	}
 
 	private BufferedImage img;
+
 	private final Graphics2D g;
+
+	private final Rectangle imageRectangle;
 
 	/**
 	 * Class constructor.
@@ -216,6 +260,8 @@ public final class Schedule extends SwingWorker<Image, Void> {
 		this.renderedEvent = evt;
 		this.g = g;
 		this.IMAGE_HEIGHT = this.m.getCPUs() * Schedule.NUM_PIXELS_PER_CPU;
+		this.imageRectangle = new Rectangle(0, 0, Schedule.IMAGE_WIDTH,
+		    this.IMAGE_HEIGHT);
 	}
 
 	/**
@@ -227,21 +273,27 @@ public final class Schedule extends SwingWorker<Image, Void> {
 	public Image doInBackground() {
 		final UUID globalUuid = Benchmark.startProfile("total", this.renderedEvent,
 		    this.m);
-		UUID uuid = Benchmark.startProfile("activity", this.renderedEvent, this.m);
+		UUID uuid = Benchmark.startProfile("data_activity", this.renderedEvent,
+		    this.m);
 		final boolean isActive = Machine.isActive(this.m, this.renderedEvent);
 		Benchmark.stopProfile(uuid);
 
-		uuid = Benchmark.startProfile("template", this.renderedEvent, this.m);
-		this.getTemplate(this.g, isActive);
-		this.g.setFont(Schedule.font);
-		Benchmark.stopProfile(uuid);
-
-		uuid = Benchmark.startProfile("schedule", this.renderedEvent, this.m);
+		uuid = Benchmark.startProfile("data_schedule", this.renderedEvent, this.m);
 		final List<Job> jobs = Machine
 		    .getLatestSchedule(this.m, this.renderedEvent);
 		Benchmark.stopProfile(uuid);
 
-		uuid = Benchmark.startProfile("rendering", this.renderedEvent, this.m);
+		uuid = Benchmark.startProfile("render_back", this.renderedEvent, this.m);
+		this.g.setPaint(Schedule.getBackgroundTexture(isActive));
+		this.g.fill(this.imageRectangle);
+		// draw a line in a place where "zero" (current clock) is.
+		this.g.setColor(Color.BLACK);
+		this.g.drawLine(Schedule.OVERFLOW_WIDTH, 0, Schedule.OVERFLOW_WIDTH,
+		    this.IMAGE_HEIGHT);
+		Benchmark.stopProfile(uuid);
+
+		uuid = Benchmark.startProfile("render_front", this.renderedEvent, this.m);
+		this.g.setFont(Schedule.font);
 		this.drawJobs(this.g, jobs);
 		// add machine info
 		String descriptor = this.m.getName() + "@" + this.renderedEvent.getClock();
@@ -408,41 +460,4 @@ public final class Schedule extends SwingWorker<Image, Void> {
 		return (int) (((start - this.renderedEvent.getClock()) * Schedule.NUM_PIXELS_PER_TICK) + Schedule.OVERFLOW_WIDTH);
 	}
 
-	/**
-	 * Get the background for the schedule.
-	 * 
-	 * @param isActive
-	 *          Whether the background should indicate an active machine.
-	 * @return The background image.
-	 */
-	private void getTemplate(final Graphics2D g, final boolean isActive) {
-		// draw background
-		if (isActive) {
-			g.setColor(Color.WHITE);
-		} else {
-			g.setColor(Color.DARK_GRAY);
-		}
-		g.fillRect(0, 0, Schedule.IMAGE_WIDTH - 1, this.IMAGE_HEIGHT - 1);
-		// draw the grid
-		if (isActive) {
-			g.setColor(Color.LIGHT_GRAY);
-		} else {
-			g.setColor(Color.GRAY);
-		}
-		// draw lines separating CPUs
-		for (int cpu = 0; cpu < (this.m.getCPUs() - 1); cpu++) {
-			final int yAxis = (cpu + 1) * Schedule.NUM_PIXELS_PER_CPU;
-			g.drawLine(0, yAxis, Schedule.IMAGE_WIDTH - 2, yAxis);
-		}
-		// draw bars showing position on the timeline
-		final int numBars = Schedule.IMAGE_WIDTH / Schedule.BAR_DISTANCE;
-		for (int bar = 0; bar < numBars; bar++) {
-			final int xAxis = Schedule.BAR_DISTANCE * (bar + 1);
-			g.drawLine(xAxis, 0, xAxis, this.IMAGE_HEIGHT - 2);
-		}
-		// draw a line in a place where "zero" (current clock) is.
-		g.setColor(Color.BLACK);
-		g.drawLine(Schedule.OVERFLOW_WIDTH, 0, Schedule.OVERFLOW_WIDTH,
-		    this.IMAGE_HEIGHT);
-	}
 }
