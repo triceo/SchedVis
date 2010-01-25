@@ -65,6 +65,11 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 
 	private static final ConcurrentMap<String, Machine> byName = new ConcurrentHashMap<String, Machine>();
 
+	private static final Integer[] machineEvents = new Integer[] {
+	    EventType.MACHINE_FAIL.getId(), EventType.MACHINE_FAIL_MOVE_BAD.getId(),
+	    EventType.MACHINE_FAIL_MOVE_GOOD.getId(),
+	    EventType.MACHINE_RESTART.getId() };
+
 	/**
 	 * Retrieve all the machines in a given group.
 	 * 
@@ -196,14 +201,9 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	 *         no such events.
 	 */
 	public static boolean isActive(final Machine m, final Event evt) {
-		final Integer[] machineEvents = new Integer[] {
-		    EventType.MACHINE_FAIL.getId(),
-		    EventType.MACHINE_FAIL_MOVE_BAD.getId(),
-		    EventType.MACHINE_FAIL_MOVE_GOOD.getId(),
-		    EventType.MACHINE_RESTART.getId() };
 		final Criteria crit = BaseEntity.getCriteria(Event.class);
-		crit.add(Restrictions.in("eventTypeId", machineEvents));
 		crit.add(Restrictions.lt("id", evt.getId()));
+		crit.add(Restrictions.in("eventTypeId", Machine.machineEvents));
 		crit.setProjection(Projections.max("id"));
 		final Integer evtId = (Integer) crit.uniqueResult();
 		if (evtId == null) {
