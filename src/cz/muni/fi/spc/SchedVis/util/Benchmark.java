@@ -160,11 +160,11 @@ public final class Benchmark {
 	}
 
 	protected static void reportLogResults() {
-		System.out.println("Benchmark by type of event:");
-		Benchmark.reportLogResults(Benchmark.timesByType);
-		System.out.println();
 		System.out.println("Benchmark by machine (normalized by number of CPUs):");
 		Benchmark.reportLogResults(Benchmark.timesByMachine);
+		System.out.println();
+		System.out.println("Benchmark by type of event:");
+		Benchmark.reportLogResults(Benchmark.timesByType);
 	}
 
 	/**
@@ -208,9 +208,9 @@ public final class Benchmark {
 	 * Runs some basic benchmarks. Basically renders some random schedules many,
 	 * many, many times and outputs the resulting time.
 	 */
-	public static void run() throws Exception {
+	public static void run() {
 		if (Benchmark.isEnabled) {
-			throw new Exception("Benchmark already running.");
+			throw new IllegalStateException("Benchmark already running.");
 		}
 		Benchmark.isEnabled = true;
 		final Integer BENCH_EVERY_NTH = Configuration.getBenchmarkFrequency();
@@ -242,14 +242,16 @@ public final class Benchmark {
 		return;
 	}
 
-	public static void runSingleSchedule(final Event e, final Machine m)
-	    throws Exception {
+	public static void runSingleSchedule(final Event e, final Machine m) {
 		final BufferedImage img = new BufferedImage(Schedule.IMAGE_WIDTH,
 		    Schedule.NUM_PIXELS_PER_CPU * m.getCPUs(),
 		    BufferedImage.TYPE_BYTE_BINARY, Benchmark.model);
 		final Graphics2D g = img.createGraphics();
-
-		SwingUtilities.invokeAndWait(new Schedule(m, e, g));
+		try {
+			SwingUtilities.invokeAndWait(new Schedule(m, e, g));
+		} catch (Exception ex) {
+			System.out.println("Thread caught exception: " + ex.getMessage());
+		}
 	}
 
 	public static UUID startProfile(final String id, final Event e,
