@@ -22,7 +22,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -36,8 +35,6 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.swing.SwingWorker;
-
 import org.apache.log4j.Logger;
 
 import cz.muni.fi.spc.SchedVis.model.JobHint;
@@ -50,7 +47,7 @@ import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
 /**
  * This class knows how to render schedule for a machine into an image.
- * Performance of whole application essentially boils down to berformance of
+ * Performance of whole application essentially boils down to performance of
  * this class and entity methods it calls.
  * 
  * For benchmark mode of the application, it contains some special debugging
@@ -60,7 +57,7 @@ import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  * 
  */
-public final class Schedule extends SwingWorker<Image, Void> {
+public final class Schedule implements Runnable {
 
 	private static final class Colors {
 
@@ -200,7 +197,6 @@ public final class Schedule extends SwingWorker<Image, Void> {
 		return Schedule.paints.get(textureId);
 	}
 
-	private BufferedImage img;
 	private final Graphics2D g;
 
 	/**
@@ -216,43 +212,6 @@ public final class Schedule extends SwingWorker<Image, Void> {
 		this.renderedEvent = evt;
 		this.g = g;
 		this.IMAGE_HEIGHT = this.m.getCPUs() * Schedule.NUM_PIXELS_PER_CPU;
-	}
-
-	/**
-	 * Performs the actual drawing of the machine schedule.
-	 * 
-	 * @return The rendered image.
-	 */
-	@Override
-	public Image doInBackground() {
-		final UUID globalUuid = Benchmark.startProfile("total", this.renderedEvent,
-		    this.m);
-		UUID uuid = Benchmark.startProfile("activity", this.renderedEvent, this.m);
-		final boolean isActive = Machine.isActive(this.m, this.renderedEvent);
-		Benchmark.stopProfile(uuid);
-
-		uuid = Benchmark.startProfile("template", this.renderedEvent, this.m);
-		this.getTemplate(this.g, isActive);
-		this.g.setFont(Schedule.font);
-		Benchmark.stopProfile(uuid);
-
-		uuid = Benchmark.startProfile("schedule", this.renderedEvent, this.m);
-		final List<Job> jobs = Machine
-		    .getLatestSchedule(this.m, this.renderedEvent);
-		Benchmark.stopProfile(uuid);
-
-		uuid = Benchmark.startProfile("rendering", this.renderedEvent, this.m);
-		this.drawJobs(this.g, jobs);
-		// add machine info
-		String descriptor = this.m.getName() + "@" + this.renderedEvent.getClock();
-		if (!isActive) {
-			descriptor += Messages.getString("ScheduleRenderer.19");
-		}
-		this.g.setColor(isActive ? Color.BLACK : Color.WHITE);
-		this.g.drawString(descriptor, 1, 9);
-		Benchmark.stopProfile(uuid);
-		Benchmark.stopProfile(globalUuid);
-		return this.img;
 	}
 
 	/**
@@ -444,5 +403,36 @@ public final class Schedule extends SwingWorker<Image, Void> {
 		g.setColor(Color.BLACK);
 		g.drawLine(Schedule.OVERFLOW_WIDTH, 0, Schedule.OVERFLOW_WIDTH,
 		    this.IMAGE_HEIGHT);
+	}
+
+	@Override
+	public void run() {
+		final UUID globalUuid = Benchmark.startProfile("total", this.renderedEvent,
+		    this.m);
+		UUID uuid = Benchmark.startProfile("activity", this.renderedEvent, this.m);
+		final boolean isActive = Machine.isActive(this.m, this.renderedEvent);
+		Benchmark.stopProfile(uuid);
+
+		uuid = Benchmark.startProfile("template", this.renderedEvent, this.m);
+		this.getTemplate(this.g, isActive);
+		this.g.setFont(Schedule.font);
+		Benchmark.stopProfile(uuid);
+
+		uuid = Benchmark.startProfile("schedule", this.renderedEvent, this.m);
+		final List<Job> jobs = Machine
+		    .getLatestSchedule(this.m, this.renderedEvent);
+		Benchmark.stopProfile(uuid);
+
+		uuid = Benchmark.startProfile("rendering", this.renderedEvent, this.m);
+		this.drawJobs(this.g, jobs);
+		// add machine info
+		String descriptor = this.m.getName() + "@" + this.renderedEvent.getClock();
+		if (!isActive) {
+			descriptor += Messages.getString("ScheduleRenderer.19");
+		}
+		this.g.setColor(isActive ? Color.BLACK : Color.WHITE);
+		this.g.drawString(descriptor, 1, 9);
+		Benchmark.stopProfile(uuid);
+		Benchmark.stopProfile(globalUuid);
 	}
 }

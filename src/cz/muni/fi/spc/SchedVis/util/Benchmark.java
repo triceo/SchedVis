@@ -3,6 +3,7 @@ package cz.muni.fi.spc.SchedVis.util;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Formatter;
@@ -13,8 +14,6 @@ import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
@@ -213,6 +212,12 @@ public final class Benchmark {
 			throw new IllegalStateException("Benchmark already running.");
 		}
 		Benchmark.isEnabled = true;
+		System.out.println("Please press any key to start benchmark...");
+		try {
+			System.in.read();
+		} catch (final IOException ex) {
+			// nothing can be done. ignore.
+		}
 		final Integer BENCH_EVERY_NTH = Configuration.getBenchmarkFrequency();
 		final Integer NUMBER_OF_BENCHES = Configuration.getBenchmarkIterations();
 		System.out.println(Messages.getString("Main.0"));
@@ -248,8 +253,8 @@ public final class Benchmark {
 		    BufferedImage.TYPE_BYTE_BINARY, Benchmark.model);
 		final Graphics2D g = img.createGraphics();
 		try {
-			SwingUtilities.invokeAndWait(new Schedule(m, e, g));
-		} catch (Exception ex) {
+			new Schedule(m, e, g).run();
+		} catch (final Exception ex) {
 			System.out.println("Thread caught exception: " + ex.getMessage());
 		}
 	}
