@@ -102,8 +102,8 @@ public final class MainFrame extends JFrame {
 		if (m != null) {
 			this.detailPane.setLayout(new BoxLayout(this.detailPane,
 			    BoxLayout.PAGE_AXIS));
-			final Event currentEvent = Event.getWithId(TimelineSliderModel
-			    .getInstance().getValue());
+			final Event currentEvent = TimelineSliderModel.getInstance()
+			    .getRichValue();
 			final Event previousEvent = Event.getPrevious(currentEvent, m);
 			final Event nextEvent = Event.getNext(currentEvent, m);
 			for (final Event event : new TreeSet<Event>(Arrays.asList(new Event[] {

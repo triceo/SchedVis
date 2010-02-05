@@ -15,8 +15,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.log4j.Logger;
-
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.ui.Schedule;
@@ -28,17 +26,11 @@ public final class Benchmark {
 
 		private long startTime;
 		private final String id;
-		private final Event e;
 		private final Machine m;
 
-		public Intermediate(final String id, final Event e, final Machine m) {
+		public Intermediate(final String id, final Machine m) {
 			this.id = id;
-			this.e = e;
 			this.m = m;
-		}
-
-		public Event getEvent() {
-			return this.e;
 		}
 
 		public String getId() {
@@ -58,8 +50,6 @@ public final class Benchmark {
 		}
 
 	}
-
-	private static final Logger logger = Logger.getLogger(Benchmark.class);
 
 	private static final ConcurrentMap<String, List<Long>> timesByType = new ConcurrentHashMap<String, List<Long>>();
 	private static final ConcurrentMap<String, List<Long>> timesByMachine = new ConcurrentHashMap<String, List<Long>>();
@@ -146,8 +136,6 @@ public final class Benchmark {
 		Benchmark.timesByMachine.putIfAbsent(machineName, new ArrayList<Long>());
 		Benchmark.timesByMachine.get(machineName).add(
 		    time / i.getMachine().getCPUs());
-		Benchmark.logger.trace("Type: " + type + ", machine: " + machineName
-		    + ", clock: " + i.getEvent().getClock() + ", time: " + time + " ns.");
 	}
 
 	private static double nanoToMilli(final double nano) {
@@ -259,13 +247,12 @@ public final class Benchmark {
 		}
 	}
 
-	public static UUID startProfile(final String id, final Event e,
-	    final Machine m) {
+	public static UUID startProfile(final String id, final Machine m) {
 		if (!Benchmark.isEnabled) {
 			return null;
 		}
 		final UUID uuid = UUID.randomUUID();
-		final Intermediate i = new Intermediate(id, e, m);
+		final Intermediate i = new Intermediate(id, m);
 		Benchmark.inters.put(uuid, i);
 		i.setStartTime(System.nanoTime());
 		return uuid;

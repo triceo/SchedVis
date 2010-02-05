@@ -73,7 +73,7 @@ public final class MachineGroup extends BaseEntity implements
 	 */
 	public static MachineGroup getWithId(final int id) {
 		if (!MachineGroup.byId.containsKey(id)) {
-			MachineGroup.byId.put(id, (MachineGroup) Database.find(
+			MachineGroup.byId.put(id, Database.getEntityManager().find(
 			    MachineGroup.class, id));
 		}
 		final MachineGroup m = MachineGroup.byId.get(id);

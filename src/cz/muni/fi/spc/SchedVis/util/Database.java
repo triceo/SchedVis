@@ -51,11 +51,6 @@ public final class Database {
 		}
 	};
 
-	public static synchronized BaseEntity find(
-	    final Class<? extends BaseEntity> e, final int id) {
-		return Database.getEntityManager().find(e, id);
-	}
-
 	/**
 	 * Returns the current entity manager. Client code should not close it.
 	 * 
@@ -174,14 +169,6 @@ public final class Database {
 			final Map<String, String> map = new HashMap<String, String>();
 			map.put("hibernate.connection.url", "jdbc:sqlite:/"
 			    + Configuration.getDatabaseFile().getAbsolutePath());
-			if (!Configuration.getDatabaseFile().exists()) {
-				/**
-				 * Create the schema when the file does not exists. This makes sure that
-				 * Hibernate creates indices, which it won't when hbm2ddl.auto was set
-				 * to update.
-				 */
-				map.put("hibernate.hbm2ddl.auto", "create");
-			}
 			Database.currentEMF = Persistence.createEntityManagerFactory("SchedVis",
 			    map);
 		}

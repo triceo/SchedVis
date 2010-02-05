@@ -407,23 +407,22 @@ public final class Schedule implements Runnable {
 
 	@Override
 	public void run() {
-		final UUID globalUuid = Benchmark.startProfile("total", this.renderedEvent,
-		    this.m);
-		UUID uuid = Benchmark.startProfile("activity", this.renderedEvent, this.m);
+		final UUID globalUuid = Benchmark.startProfile("total", this.m);
+		UUID uuid = Benchmark.startProfile("activity", this.m);
 		final boolean isActive = Machine.isActive(this.m, this.renderedEvent);
 		Benchmark.stopProfile(uuid);
 
-		uuid = Benchmark.startProfile("template", this.renderedEvent, this.m);
+		uuid = Benchmark.startProfile("template", this.m);
 		this.getTemplate(this.g, isActive);
 		this.g.setFont(Schedule.font);
 		Benchmark.stopProfile(uuid);
 
-		uuid = Benchmark.startProfile("schedule", this.renderedEvent, this.m);
+		uuid = Benchmark.startProfile("schedule", this.m);
 		final List<Job> jobs = Machine
 		    .getLatestSchedule(this.m, this.renderedEvent);
 		Benchmark.stopProfile(uuid);
 
-		uuid = Benchmark.startProfile("rendering", this.renderedEvent, this.m);
+		uuid = Benchmark.startProfile("rendering", this.m);
 		this.drawJobs(this.g, jobs);
 		// add machine info
 		String descriptor = this.m.getName() + "@" + this.renderedEvent.getClock();

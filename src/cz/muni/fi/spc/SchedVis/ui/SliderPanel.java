@@ -110,7 +110,7 @@ public final class SliderPanel extends JPanel implements ChangeListener,
 			this.btnPlay.updateUI();
 			Player.getInstance().toggleStatus();
 		} else if (src.equals(this.btnNext) || src.equals(this.btnPrev)) {
-			final Event evt = Event.getWithId(this.tlsm.getValue());
+			final Event evt = this.tlsm.getRichValue();
 			if (src.equals(this.btnPrev)) {
 				try {
 					this.tlsm.setValue(Event.getPrevious(evt));
