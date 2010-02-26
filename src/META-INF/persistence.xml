@@ -11,14 +11,6 @@
 	    <property name="hibernate.connection.driver_class" value="org.sqlite.JDBC" />
 	    <property name="hibernate.dialect" value="org.hibernate.dialect.SQLiteDialect" />
       <property name="hibernate.hbm2ddl.auto" value="update" />
-      <!-- Connection pooling -->
-      <property name="hibernate.connection.provider_class" value="org.hibernate.connection.C3P0ConnectionProvider" />
-      <property name="hibernate.c3p0.max_size" value="1" />
-			<property name="hibernate.c3p0.min_size" value="1" />
-			<property name="hibernate.c3p0.timeout" value="5000" />
-			<property name="hibernate.c3p0.max_statements" value="100" />
-			<property name="hibernate.c3p0.idle_test_period" value="300" />
-			<property name="hibernate.c3p0.acquire_increment" value="2" />
 	    <!-- Caching -->
 	    <property name="hibernate.cache.provider_class" value="org.hibernate.cache.EhCacheProvider" />
 	    <property name="hibernate.cache.use_query_cache" value="true" />
