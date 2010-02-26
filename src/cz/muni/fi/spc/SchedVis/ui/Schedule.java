@@ -197,7 +197,7 @@ public final class Schedule implements Runnable {
 		return Schedule.paints.get(textureId);
 	}
 
-	private final Graphics2D g;
+	private Graphics2D g;
 
 	/**
 	 * Class constructor.
@@ -207,10 +207,9 @@ public final class Schedule implements Runnable {
 	 * @param evt
 	 *          A point in time in which we want the schedule rendered.
 	 */
-	public Schedule(final Machine m, final Event evt, final Graphics2D g) {
+	public Schedule(final Machine m, final Event evt) {
 		this.m = m;
 		this.renderedEvent = evt;
-		this.g = g;
 		this.IMAGE_HEIGHT = this.m.getCPUs() * Schedule.NUM_PIXELS_PER_CPU;
 	}
 
@@ -337,6 +336,16 @@ public final class Schedule implements Runnable {
 	}
 
 	/**
+	 * @return the g
+	 */
+	private Graphics2D getGraphics() {
+		if (this.g == null) {
+			throw new IllegalStateException("No graphics supplied for a schedule.");
+		}
+		return this.g;
+	}
+
+	/**
 	 * Calculate the length of a job on the screen.
 	 * 
 	 * @param schedule
@@ -413,8 +422,8 @@ public final class Schedule implements Runnable {
 		Benchmark.stopProfile(uuid);
 
 		uuid = Benchmark.startProfile("template", this.m);
-		this.getTemplate(this.g, isActive);
-		this.g.setFont(Schedule.font);
+		this.getTemplate(this.getGraphics(), isActive);
+		this.getGraphics().setFont(Schedule.font);
 		Benchmark.stopProfile(uuid);
 
 		uuid = Benchmark.startProfile("schedule", this.m);
@@ -423,15 +432,19 @@ public final class Schedule implements Runnable {
 		Benchmark.stopProfile(uuid);
 
 		uuid = Benchmark.startProfile("rendering", this.m);
-		this.drawJobs(this.g, jobs);
+		this.drawJobs(this.getGraphics(), jobs);
 		// add machine info
 		String descriptor = this.m.getName() + "@" + this.renderedEvent.getClock();
 		if (!isActive) {
 			descriptor += Messages.getString("ScheduleRenderer.19");
 		}
-		this.g.setColor(isActive ? Color.BLACK : Color.WHITE);
-		this.g.drawString(descriptor, 1, 9);
+		this.getGraphics().setColor(isActive ? Color.BLACK : Color.WHITE);
+		this.getGraphics().drawString(descriptor, 1, 9);
 		Benchmark.stopProfile(uuid);
 		Benchmark.stopProfile(globalUuid);
+	}
+
+	public void setTargetGraphics(final Graphics2D g) {
+		this.g = g;
 	}
 }

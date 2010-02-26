@@ -22,7 +22,6 @@ package cz.muni.fi.spc.SchedVis.ui;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -38,35 +37,34 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 public final class MachinePanel extends JPanel {
 
 	private static final long serialVersionUID = 1407665978399872917L;
-	private final Machine m;
-	private final Event e;
+	private final Schedule s;
+	private final Integer numCPUs;
+	private final Dimension d;
 
 	public MachinePanel(final Machine m, final Event e) {
-		this.m = m;
-		this.e = e;
-	}
-
-	@Override
-	public Dimension getPreferredSize() {
-		return new Dimension(Schedule.IMAGE_WIDTH, this.m.getCPUs()
+		this.s = new Schedule(m, e);
+		this.numCPUs = m.getCPUs();
+		this.setOpaque(true);
+		this.d = new Dimension(Schedule.IMAGE_WIDTH, this.numCPUs
 		    * Schedule.NUM_PIXELS_PER_CPU);
 	}
 
 	@Override
+	public Dimension getPreferredSize() {
+		return this.d;
+	}
+
+	@Override
 	protected void paintComponent(final Graphics g) {
-		super.paintComponent(g);
-		final Schedule r = new Schedule(this.m, this.e, (Graphics2D) g);
+		this.s.setTargetGraphics((Graphics2D) g);
 		try {
 			if (SwingUtilities.isEventDispatchThread()) {
-				r.run();
+				this.s.run();
 			} else {
-				SwingUtilities.invokeAndWait(r);
+				SwingUtilities.invokeAndWait(this.s);
 			}
-		} catch (final InterruptedException ie) {
-			Thread.currentThread().interrupt();
-		} catch (final InvocationTargetException ite) {
-			ite.printStackTrace();
-			throw new IllegalStateException(ite.getMessage());
+		} catch (final Exception e) {
+			e.printStackTrace();
 		}
 
 	}

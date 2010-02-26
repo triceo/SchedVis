@@ -241,7 +241,9 @@ public final class Benchmark {
 		    BufferedImage.TYPE_BYTE_BINARY, Benchmark.model);
 		final Graphics2D g = img.createGraphics();
 		try {
-			new Schedule(m, e, g).run();
+			final Schedule s = new Schedule(m, e);
+			s.setTargetGraphics(g);
+			s.run();
 		} catch (final Exception ex) {
 			System.out.println("Thread caught exception: " + ex.getMessage());
 		}
