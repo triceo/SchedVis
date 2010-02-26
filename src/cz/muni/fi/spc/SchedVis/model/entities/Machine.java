@@ -202,6 +202,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	 */
 	public static boolean isActive(final Machine m, final Event evt) {
 		final Criteria crit = BaseEntity.getCriteria(Event.class);
+		crit.add(Restrictions.eq("sourceMachine", m));
 		crit.add(Restrictions.lt("id", evt.getId()));
 		crit.add(Restrictions.in("eventTypeId", Machine.machineEvents));
 		crit.setProjection(Projections.max("id"));
