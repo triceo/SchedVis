@@ -434,12 +434,15 @@ public final class Schedule implements Runnable {
 		uuid = Benchmark.startProfile("rendering", this.m);
 		this.drawJobs(this.getGraphics(), jobs);
 		// add machine info
-		String descriptor = this.m.getName() + "@" + this.renderedEvent.getClock();
+		final StringBuilder b = new StringBuilder();
+		b.append(this.m.getName());
+		b.append("@");
+		b.append(this.renderedEvent.getClock());
 		if (!isActive) {
-			descriptor += Messages.getString("ScheduleRenderer.19");
+			b.append(Messages.getString("ScheduleRenderer.19"));
 		}
 		this.getGraphics().setColor(isActive ? Color.BLACK : Color.WHITE);
-		this.getGraphics().drawString(descriptor, 1, 9);
+		this.getGraphics().drawString(b.toString(), 1, 9);
 		Benchmark.stopProfile(uuid);
 		Benchmark.stopProfile(globalUuid);
 	}

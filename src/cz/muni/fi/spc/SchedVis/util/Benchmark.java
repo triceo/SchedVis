@@ -245,7 +245,7 @@ public final class Benchmark {
 			s.setTargetGraphics(g);
 			s.run();
 		} catch (final Exception ex) {
-			System.out.println("Thread caught exception: " + ex.getMessage());
+			System.out.println("Thread caught exception: " + ex);
 		}
 	}
 
