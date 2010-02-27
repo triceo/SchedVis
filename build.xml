@@ -35,7 +35,7 @@
     <copy todir="${dir.build}/META-INF">
     	<fileset dir="${dir.src}/META-INF" />
     </copy>
-    <copy todir="${dir.bin}"> <!-- Copy all the configs -->
+    <copy todir="${dir.build}"> <!-- Copy all the configs -->
       <fileset dir="${dir.resources}/config">
         <include name="*" />
       </fileset>
