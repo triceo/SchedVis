@@ -45,9 +45,13 @@
       	<include name="messages*" />
       </fileset>
     </copy>
+		<pathconvert property="classpath.jar" pathsep=" ">
+		    <path refid="classpath.runtime" />
+	  </pathconvert>
 	  <jar jarfile="${dir.bin}/${java.package.name}.jar" basedir="${dir.build}">
 	  	<manifest>
 	  		<attribute name="Main-Class" value="${java.main.class}" />  	  
+	  		<attribute name="Class-Path" value="${classpath.jar}" />
 	  	</manifest>
 	  </jar>
 	</target>
