@@ -26,10 +26,15 @@ public final class Benchmark {
 
 		private long startTime;
 		private final String id;
-		private final Machine m;
+		private Machine m;
+
+		public Intermediate(final String id) {
+			this.id = id;
+			this.m = null;
+		}
 
 		public Intermediate(final String id, final Machine m) {
-			this.id = id;
+			this(id);
 			this.m = m;
 		}
 
@@ -128,14 +133,16 @@ public final class Benchmark {
 	 */
 	protected static void logTime(final Intermediate i, final long time) {
 		final String type = i.getId();
-		final String machineName = i.getMachine().getName();
 		// log by type
 		Benchmark.timesByType.putIfAbsent(type, new ArrayList<Long>());
 		Benchmark.timesByType.get(type).add(time);
 		// log by machine
-		Benchmark.timesByMachine.putIfAbsent(machineName, new ArrayList<Long>());
-		Benchmark.timesByMachine.get(machineName).add(
-		    time / i.getMachine().getCPUs());
+		if (i.getMachine() != null) {
+			final String machineName = i.getMachine().getName();
+			Benchmark.timesByMachine.putIfAbsent(machineName, new ArrayList<Long>());
+			Benchmark.timesByMachine.get(machineName).add(
+			    time / i.getMachine().getCPUs());
+		}
 	}
 
 	private static double nanoToMilli(final double nano) {
@@ -247,6 +254,17 @@ public final class Benchmark {
 		} catch (final Exception ex) {
 			System.out.println("Thread caught exception: " + ex);
 		}
+	}
+
+	public static UUID startProfile(final String id) {
+		if (!Benchmark.isEnabled) {
+			return null;
+		}
+		final UUID uuid = UUID.randomUUID();
+		final Intermediate i = new Intermediate(id);
+		Benchmark.inters.put(uuid, i);
+		i.setStartTime(System.nanoTime());
+		return uuid;
 	}
 
 	public static UUID startProfile(final String id, final Machine m) {
