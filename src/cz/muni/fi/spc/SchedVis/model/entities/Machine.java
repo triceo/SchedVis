@@ -212,7 +212,6 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		try {
 			return Machine.isActiveInternal(m, evt);
 		} catch (final SQLException ex) {
-			ex.printStackTrace();
 			return true;
 		}
 	}
@@ -236,6 +235,9 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 			return true;
 		}
 		rs.next();
+		if (rs.getObject(1) == null) {
+			return true;
+		}
 		return Machine.isActivityEvent(rs.getInt(1));
 	}
 
