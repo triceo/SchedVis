@@ -24,6 +24,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
@@ -448,5 +449,19 @@ public final class Schedule implements Runnable {
 
 	public void setTargetGraphics(final Graphics2D g) {
 		this.g = g;
+		g.setRenderingHint(RenderingHints.KEY_RENDERING,
+		    RenderingHints.VALUE_RENDER_SPEED);
+		g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,
+		    RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+		    RenderingHints.VALUE_ANTIALIAS_OFF);
+		g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING,
+		    RenderingHints.VALUE_COLOR_RENDER_SPEED);
+		g.setRenderingHint(RenderingHints.KEY_DITHERING,
+		    RenderingHints.VALUE_DITHER_DISABLE);
+		g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
+		    RenderingHints.VALUE_STROKE_PURE);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+		    RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 	}
 }
