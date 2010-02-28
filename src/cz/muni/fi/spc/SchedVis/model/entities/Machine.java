@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -39,7 +40,6 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import cz.muni.fi.spc.SchedVis.model.BaseEntity;
@@ -61,14 +61,21 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 
 	private static PreparedStatement s;
 
+	private static PreparedStatement s2;
+
 	private static final ConcurrentMap<Integer, Machine> byId = new ConcurrentHashMap<Integer, Machine>();
 
 	private static final ConcurrentMap<String, Machine> byName = new ConcurrentHashMap<String, Machine>();
 
-	private static final Integer[] machineEvents = new Integer[] {
-	    EventType.MACHINE_FAIL.getId(), EventType.MACHINE_FAIL_MOVE_BAD.getId(),
-	    EventType.MACHINE_FAIL_MOVE_GOOD.getId(),
-	    EventType.MACHINE_RESTART.getId() };
+	private static final Integer[] machineEvents;
+
+	static {
+		machineEvents = new Integer[] { EventType.MACHINE_FAIL.getId(),
+		    EventType.MACHINE_FAIL_MOVE_BAD.getId(),
+		    EventType.MACHINE_FAIL_MOVE_GOOD.getId(),
+		    EventType.MACHINE_RESTART.getId() };
+		Arrays.sort(Machine.machineEvents);
+	}
 
 	/**
 	 * Retrieve all the machines in a given group.
@@ -199,18 +206,36 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	 * @return False when the last machine event up to and including the given
 	 *         time is machine failure. True otherwise, especially when there are
 	 *         no such events.
+	 * @throws SQLException
 	 */
 	public static boolean isActive(final Machine m, final Event evt) {
-		final Criteria crit = BaseEntity.getCriteria(Event.class);
-		crit.add(Restrictions.eq("sourceMachine", m));
-		crit.add(Restrictions.lt("id", evt.getId()));
-		crit.add(Restrictions.in("eventTypeId", Machine.machineEvents));
-		crit.setProjection(Projections.max("id"));
-		final Integer evtId = (Integer) crit.uniqueResult();
-		if (evtId == null) {
+		try {
+			return Machine.isActiveInternal(m, evt);
+		} catch (final SQLException ex) {
 			return true;
 		}
-		final Event e = Event.getWithId(evtId);
+	}
+
+	public static synchronized boolean isActiveInternal(final Machine m,
+	    final Event evt) throws SQLException {
+		if (Machine.s2 == null) {
+			final String query = "SELECT MAX(id) FROM Event WHERE id IN (SELECT id FROM Event WHERE sourceMachine_id = ? AND eventTypeId IN (?, ?, ?, ?)) AND id < ?";
+			Machine.s2 = BaseEntity.getConnection(Database.getEntityManager())
+			    .prepareStatement(query);
+		}
+		Machine.s2.clearParameters();
+		Machine.s2.setInt(1, m.getId());
+		Integer i = 1;
+		for (final Integer id : Machine.machineEvents) {
+			Machine.s2.setInt(++i, id);
+		}
+		Machine.s2.setInt(++i, evt.getId());
+		final ResultSet rs = Machine.s2.executeQuery();
+		if (!rs.isBeforeFirst()) {
+			return true;
+		}
+		rs.next();
+		final Event e = Event.getWithId(rs.getInt(1));
 		if (e == null) {
 			return true;
 		}

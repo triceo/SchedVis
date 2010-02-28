@@ -31,6 +31,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
+import org.hibernate.annotations.Table;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
@@ -45,6 +46,8 @@ import cz.muni.fi.spc.SchedVis.util.Database;
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+@Table(appliesTo = "Event", indexes = { @Index(name = "multiIndex2", columnNames = {
+    "sourceMachine_id", "eventTypeId" }) })
 public final class Event extends BaseEntity implements Comparable<Event> {
 
 	private static Event firstEvent = null;
@@ -231,7 +234,6 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 		return this.clock;
 	}
 
-	@Index(name = "tIndex")
 	protected int getEventTypeId() {
 		return this.eventType;
 	}
