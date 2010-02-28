@@ -60,8 +60,8 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	private static Integer internalIdCounter = 0;
 
 	private static PreparedStatement s;
-
 	private static PreparedStatement s2;
+	private static PreparedStatement s3;
 
 	private static final ConcurrentMap<Integer, Machine> byId = new ConcurrentHashMap<Integer, Machine>();
 
@@ -212,6 +212,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		try {
 			return Machine.isActiveInternal(m, evt);
 		} catch (final SQLException ex) {
+			ex.printStackTrace();
 			return true;
 		}
 	}
@@ -235,17 +236,23 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 			return true;
 		}
 		rs.next();
-		final Event e = Event.getWithId(rs.getInt(1));
-		if (e == null) {
+		return Machine.isActivityEvent(rs.getInt(1));
+	}
+
+	private static boolean isActivityEvent(final int eventId) throws SQLException {
+		if (Machine.s3 == null) {
+			final String query = "SELECT id FROM Event WHERE id = ? AND eventTypeId = ?";
+			Machine.s3 = BaseEntity.getConnection(Database.getEntityManager())
+			    .prepareStatement(query);
+		}
+		Machine.s3.clearParameters();
+		Machine.s3.setInt(1, eventId);
+		Machine.s3.setInt(2, EventType.MACHINE_RESTART.getId());
+		final ResultSet rs = Machine.s3.executeQuery();
+		if (rs.isBeforeFirst()) {
 			return true;
 		}
-		final EventType et = e.getType();
-		if ((et == EventType.MACHINE_FAIL)
-		    || (et == EventType.MACHINE_FAIL_MOVE_BAD)
-		    || (et == EventType.MACHINE_FAIL_MOVE_GOOD)) {
-			return false;
-		}
-		return true;
+		return false;
 	}
 
 	private int internalId;
