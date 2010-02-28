@@ -434,10 +434,8 @@ public final class Schedule implements Runnable {
 		uuid = Benchmark.startProfile("rendering");
 		this.drawJobs(this.getGraphics(), jobs);
 		// add machine info
-		final StringBuilder b = new StringBuilder();
-		b.append(this.m.getName());
-		b.append("@");
-		b.append(this.renderedEvent.getClock());
+		final StringBuilder b = new StringBuilder().append(this.m.getName())
+		    .append("@").append(this.renderedEvent.getClock());
 		if (!isActive) {
 			b.append(Messages.getString("ScheduleRenderer.19"));
 		}
