@@ -313,6 +313,43 @@ public final class Schedule implements Runnable {
 	}
 
 	/**
+	 * Get the background for the schedule.
+	 * 
+	 * @param isActive
+	 *          Whether the background should indicate an active machine.
+	 * @return The background image.
+	 */
+	private void drawTemplate(final Graphics2D g, final boolean isActive) {
+		// draw background
+		if (isActive) {
+			g.setBackground(Color.WHITE);
+		} else {
+			g.setBackground(Color.DARK_GRAY);
+		}
+		// draw the grid
+		if (isActive) {
+			g.setColor(Color.LIGHT_GRAY);
+		} else {
+			g.setColor(Color.GRAY);
+		}
+		// draw lines separating CPUs
+		for (int cpu = 0; cpu < (this.m.getCPUs() - 1); cpu++) {
+			final int yAxis = (cpu + 1) * Schedule.NUM_PIXELS_PER_CPU;
+			g.drawLine(0, yAxis, Schedule.IMAGE_WIDTH - 2, yAxis);
+		}
+		// draw bars showing position on the timeline
+		final int numBars = Schedule.IMAGE_WIDTH / Schedule.BAR_DISTANCE;
+		for (int bar = 0; bar < numBars; bar++) {
+			final int xAxis = Schedule.BAR_DISTANCE * (bar + 1);
+			g.drawLine(xAxis, 0, xAxis, this.IMAGE_HEIGHT - 2);
+		}
+		// draw a line in a place where "zero" (current clock) is.
+		g.setColor(Color.BLACK);
+		g.drawLine(Schedule.OVERFLOW_WIDTH, 0, Schedule.OVERFLOW_WIDTH,
+		    this.IMAGE_HEIGHT);
+	}
+
+	/**
 	 * Parse the CPUs that have been assigned to a given job.
 	 * 
 	 * @param schedule
@@ -376,44 +413,6 @@ public final class Schedule implements Runnable {
 		return (int) (((start - this.renderedEvent.getClock()) * Schedule.NUM_PIXELS_PER_TICK) + Schedule.OVERFLOW_WIDTH);
 	}
 
-	/**
-	 * Get the background for the schedule.
-	 * 
-	 * @param isActive
-	 *          Whether the background should indicate an active machine.
-	 * @return The background image.
-	 */
-	private void getTemplate(final Graphics2D g, final boolean isActive) {
-		// draw background
-		if (isActive) {
-			g.setColor(Color.WHITE);
-		} else {
-			g.setColor(Color.DARK_GRAY);
-		}
-		g.fillRect(0, 0, Schedule.IMAGE_WIDTH - 1, this.IMAGE_HEIGHT - 1);
-		// draw the grid
-		if (isActive) {
-			g.setColor(Color.LIGHT_GRAY);
-		} else {
-			g.setColor(Color.GRAY);
-		}
-		// draw lines separating CPUs
-		for (int cpu = 0; cpu < (this.m.getCPUs() - 1); cpu++) {
-			final int yAxis = (cpu + 1) * Schedule.NUM_PIXELS_PER_CPU;
-			g.drawLine(0, yAxis, Schedule.IMAGE_WIDTH - 2, yAxis);
-		}
-		// draw bars showing position on the timeline
-		final int numBars = Schedule.IMAGE_WIDTH / Schedule.BAR_DISTANCE;
-		for (int bar = 0; bar < numBars; bar++) {
-			final int xAxis = Schedule.BAR_DISTANCE * (bar + 1);
-			g.drawLine(xAxis, 0, xAxis, this.IMAGE_HEIGHT - 2);
-		}
-		// draw a line in a place where "zero" (current clock) is.
-		g.setColor(Color.BLACK);
-		g.drawLine(Schedule.OVERFLOW_WIDTH, 0, Schedule.OVERFLOW_WIDTH,
-		    this.IMAGE_HEIGHT);
-	}
-
 	@Override
 	public void run() {
 		final UUID globalUuid = Benchmark.startProfile("total", this.m);
@@ -422,7 +421,7 @@ public final class Schedule implements Runnable {
 		Benchmark.stopProfile(uuid);
 
 		uuid = Benchmark.startProfile("template", this.m);
-		this.getTemplate(this.getGraphics(), isActive);
+		this.drawTemplate(this.getGraphics(), isActive);
 		this.getGraphics().setFont(Schedule.font);
 		Benchmark.stopProfile(uuid);
 
