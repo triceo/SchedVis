@@ -124,9 +124,9 @@ public final class Benchmark {
 	private static void reportLogResults(final Map<String, List<Long>> times) {
 		// show globals
 		System.out
-		    .println(" task \\ time [ms] |    avg    |    min    |    1/4    |    mid    |    3/4    |    max    | std. dev.");
+		    .println(" task \\ time [ms] |    avg    |    1/50   |    1/4    |    1/2    |    3/4    |   49/50    | std. dev.");
 		System.out
-		    .println(" ------------------------------------------------------------------------------------------");
+		    .println(" ------------------------------------------------------------------------------------------------------");
 		for (final Entry<String, List<Long>> entry : times.entrySet()) {
 			DescriptiveStatistics stats = new DescriptiveStatistics();
 			for (double v : entry.getValue()) {
@@ -136,14 +136,14 @@ public final class Benchmark {
 			System.out
 			    .println(new Formatter()
 			        .format(
-			            "  %15s |  %.5f  |  %.5f  |  %.5f  |  %.5f  |  %.5f  |  %.5f  |  %.5f",
+			            "  %15s |  %.5f  |  %.5f  |  %.5f  |  %.5f  |  %.5f  |  %.5f   |  %.5f",
 			            entry.getKey(), Benchmark.nanoToMilli(stats.getMean()),
-			            Benchmark.nanoToMilli(stats.getMin()), Benchmark
+			            Benchmark.nanoToMilli(stats.getPercentile(2)), Benchmark
 			                .nanoToMilli(stats.getPercentile(25)), Benchmark
 			                .nanoToMilli(stats.getPercentile(50)), Benchmark
 			                .nanoToMilli(stats.getPercentile(75)), Benchmark
-			                .nanoToMilli(stats.getMax()), Benchmark.nanoToMilli(stats
-			                .getStandardDeviation())));
+			                .nanoToMilli(stats.getPercentile(98)), Benchmark
+			                .nanoToMilli(stats.getStandardDeviation())));
 		}
 	}
 
