@@ -5,7 +5,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Formatter;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +13,8 @@ import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
@@ -84,46 +85,6 @@ public final class Benchmark {
 	}
 
 	/**
-	 * Compute average value of many values.
-	 * 
-	 * @param values
-	 *          The values.
-	 * @return The average.
-	 */
-	protected static Double getAverage(final List<Long> values) {
-		double total = 0.0;
-		for (final Long value : values) {
-			total += value;
-		}
-		return total / values.size();
-	}
-
-	/**
-	 * Compute the median of many values. A median is the number that splits the
-	 * set of numbers into two sets of equal sizes.
-	 * 
-	 * @param sortedVals
-	 *          The values, sorted.
-	 * @return The median value.
-	 */
-	protected static Long getMedian(final Long[] sortedVals) {
-		return Benchmark.getNthQuartil(sortedVals, 2);
-	}
-
-	protected static Long getNthQuartil(final Long[] sortedVals, final Integer n) {
-		final Integer numVals = sortedVals.length;
-		if (numVals % 4 == 1) {
-			return sortedVals[((numVals / 4) * n) + 1];
-		} else if ((numVals % 2 == 1) && (n == 2)) {
-			return sortedVals[(numVals / 2) + 1];
-		}
-		final Double lowerBound = Math.floor((numVals / 4) * n);
-		final Double upperBound = Math.ceil((numVals / 4) * n);
-		return (sortedVals[lowerBound.intValue()] + sortedVals[upperBound
-		    .intValue()]) / 2;
-	}
-
-	/**
 	 * Log a time it took to execute a given task.
 	 * 
 	 * @param i
@@ -149,10 +110,6 @@ public final class Benchmark {
 		return nano / 1000 / 1000;
 	}
 
-	private static double nanoToMilli(final long nano) {
-		return Benchmark.nanoToMilli((double) nano);
-	}
-
 	protected static void reportLogResults() {
 		System.out.println("Benchmark by machine (normalized by number of CPUs):");
 		Benchmark.reportLogResults(Benchmark.timesByMachine);
@@ -167,34 +124,26 @@ public final class Benchmark {
 	private static void reportLogResults(final Map<String, List<Long>> times) {
 		// show globals
 		System.out
-		    .println(" task \\ time [ms] |    avg    |    min    |    1/4    |    mid    |    3/4    |    max    ");
+		    .println(" task \\ time [ms] |    avg    |    min    |    1/4    |    mid    |    3/4    |    max    | std. dev.");
 		System.out
 		    .println(" ------------------------------------------------------------------------------------------");
 		for (final Entry<String, List<Long>> entry : times.entrySet()) {
-			List<Long> allValues = entry.getValue();
-			// sort the list
-			final Long[] allValuesSorted = allValues.toArray(new Long[] {});
-			Arrays.sort(allValuesSorted);
-			allValues = Arrays.asList(allValuesSorted);
-			// remove upper and lower ${extremesPercent} % of values (the
-			// extremes)
-			final int extremesPercent = 2;
-			final Double extremeValueCount = (new Double(allValues.size()) / 100.0)
-			    * extremesPercent;
-			allValues = allValues.subList(extremeValueCount.intValue(), allValues
-			    .size());
-			allValues = allValues.subList(0, allValues.size()
-			    - extremeValueCount.intValue());
+			DescriptiveStatistics stats = new DescriptiveStatistics();
+			for (double v : entry.getValue()) {
+				stats.addValue(v);
+			}
 			// tabulate results
-			System.out.println(new Formatter().format(
-			    "  %15s |  %.5f  |  %.5f  |  %.5f  |  %.5f  |  %.5f  |  %.5f", entry
-			        .getKey(),
-			    Benchmark.nanoToMilli(Benchmark.getAverage(allValues)), Benchmark
-			        .nanoToMilli(allValuesSorted[0]), Benchmark.nanoToMilli(Benchmark
-			        .getNthQuartil(allValuesSorted, 1)), Benchmark
-			        .nanoToMilli(Benchmark.getMedian(allValuesSorted)), Benchmark
-			        .nanoToMilli(Benchmark.getNthQuartil(allValuesSorted, 3)),
-			    Benchmark.nanoToMilli(allValuesSorted[allValuesSorted.length - 1])));
+			System.out
+			    .println(new Formatter()
+			        .format(
+			            "  %15s |  %.5f  |  %.5f  |  %.5f  |  %.5f  |  %.5f  |  %.5f  |  %.5f",
+			            entry.getKey(), Benchmark.nanoToMilli(stats.getMean()),
+			            Benchmark.nanoToMilli(stats.getMin()), Benchmark
+			                .nanoToMilli(stats.getPercentile(25)), Benchmark
+			                .nanoToMilli(stats.getPercentile(50)), Benchmark
+			                .nanoToMilli(stats.getPercentile(75)), Benchmark
+			                .nanoToMilli(stats.getMax()), Benchmark.nanoToMilli(stats
+			                .getStandardDeviation())));
 		}
 	}
 
