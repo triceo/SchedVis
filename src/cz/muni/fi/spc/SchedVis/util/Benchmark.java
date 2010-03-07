@@ -14,6 +14,7 @@ import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import javax.swing.SwingUtilities;
 
@@ -31,15 +32,22 @@ public final class Benchmark {
 		private long startTime;
 		private final String id;
 		private Machine m;
+		private Event e;
 
 		public Intermediate(final String id) {
 			this.id = id;
 			this.m = null;
+			this.e = null;
 		}
 
-		public Intermediate(final String id, final Machine m) {
+		public Intermediate(final String id, final Machine m, final Event e) {
 			this(id);
 			this.m = m;
+			this.e = e;
+		}
+
+		public Event getEvent() {
+			return this.e;
 		}
 
 		public String getId() {
@@ -60,8 +68,9 @@ public final class Benchmark {
 
 	}
 
-	private static final ConcurrentMap<String, List<Long>> timesByType = new ConcurrentHashMap<String, List<Long>>();
-	private static final ConcurrentMap<String, List<Long>> timesByMachine = new ConcurrentHashMap<String, List<Long>>();
+	private static final ConcurrentMap<String, List<Long>> timesByType = new ConcurrentSkipListMap<String, List<Long>>();
+	private static final ConcurrentMap<String, List<Long>> timesByMachine = new ConcurrentSkipListMap<String, List<Long>>();
+	private static final ConcurrentMap<String, List<Long>> timesByEvent = new ConcurrentSkipListMap<String, List<Long>>();
 
 	private static boolean isEnabled = false;
 
@@ -88,8 +97,13 @@ public final class Benchmark {
 		if (i.getMachine() != null) {
 			final String machineName = i.getMachine().getName();
 			Benchmark.timesByMachine.putIfAbsent(machineName, new ArrayList<Long>());
-			Benchmark.timesByMachine.get(machineName).add(
-			    time / i.getMachine().getCPUs());
+			Benchmark.timesByMachine.get(machineName).add(time);
+		}
+		// log by event
+		if (i.getEvent() != null) {
+			final String eventName = Integer.toString(i.getEvent().getId());
+			Benchmark.timesByEvent.putIfAbsent(eventName, new ArrayList<Long>());
+			Benchmark.timesByEvent.get(eventName).add(time);
 		}
 	}
 
@@ -98,8 +112,11 @@ public final class Benchmark {
 	}
 
 	protected static void reportLogResults() {
-		System.out.println("Benchmark by machine (normalized by number of CPUs):");
+		System.out.println("Benchmark by machine:");
 		Benchmark.reportLogResults(Benchmark.timesByMachine);
+		// System.out.println();
+		// System.out.println("Benchmark by event:");
+		// Benchmark.reportLogResults(Benchmark.timesByEvent);
 		System.out.println();
 		System.out.println("Benchmark by type of event:");
 		Benchmark.reportLogResults(Benchmark.timesByType);
@@ -203,12 +220,13 @@ public final class Benchmark {
 		return uuid;
 	}
 
-	public static UUID startProfile(final String id, final Machine m) {
+	public static UUID startProfile(final String id, final Machine m,
+	    final Event e) {
 		if (!Benchmark.isEnabled) {
 			return null;
 		}
 		final UUID uuid = UUID.randomUUID();
-		final Intermediate i = new Intermediate(id, m);
+		final Intermediate i = new Intermediate(id, m, e);
 		Benchmark.inters.put(uuid, i);
 		i.setStartTime(System.nanoTime());
 		return uuid;

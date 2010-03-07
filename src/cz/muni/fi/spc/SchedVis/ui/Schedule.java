@@ -420,7 +420,8 @@ public final class Schedule implements Runnable {
 
 	@Override
 	public void run() {
-		final UUID globalUuid = Benchmark.startProfile("total", this.m);
+		final UUID globalUuid = Benchmark.startProfile("total", this.m,
+		    this.renderedEvent);
 		UUID uuid = Benchmark.startProfile("activity");
 		final boolean isActive = Machine.isActive(this.m, this.renderedEvent);
 		Benchmark.stopProfile(uuid);
