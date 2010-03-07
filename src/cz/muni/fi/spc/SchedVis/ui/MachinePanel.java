@@ -19,6 +19,7 @@
  */
 package cz.muni.fi.spc.SchedVis.ui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -45,6 +46,7 @@ public final class MachinePanel extends JPanel {
 		this.s = new Schedule(m, e);
 		this.numCPUs = m.getCPUs();
 		this.setOpaque(true);
+		this.setBackground(Color.WHITE);
 		this.d = new Dimension(Schedule.IMAGE_WIDTH, this.numCPUs
 		    * Schedule.NUM_PIXELS_PER_CPU);
 	}

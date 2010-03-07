@@ -176,25 +176,22 @@ public final class Schedule implements Runnable {
 			        Schedule.NUM_PIXELS_PER_CPU, Schedule.NUM_PIXELS_PER_CPU,
 			        Transparency.OPAQUE);
 			final Graphics2D g = (Graphics2D) texture.getGraphics();
-			g.setColor(background);
-			g.fill(Schedule.textureRectangle);
+			g.setBackground(background);
+			g.clearRect(0, 0, texture.getWidth(), texture.getHeight());
 			g.setColor(Color.WHITE);
 			if (jobHint == JobHint.ARRIVAL) {
 				// arrival; a plus is drawn
-				final int mid = (Schedule.NUM_PIXELS_PER_CPU / 2);
-				g.drawLine(1, mid, Schedule.NUM_PIXELS_PER_CPU - 2, mid);
-				g.drawLine(mid, 1, mid, Schedule.NUM_PIXELS_PER_CPU - 2);
+				final int mid = (texture.getHeight() / 2);
+				g.drawLine(1, mid, texture.getWidth() - 2, mid);
+				g.drawLine(mid, 1, mid, texture.getHeight() - 2);
 			} else if (jobHint == JobHint.MOVE_NOK) {
 				// bad move; a cross is drawn
-				g.drawLine(1, 1, Schedule.NUM_PIXELS_PER_CPU - 2,
-				    Schedule.NUM_PIXELS_PER_CPU - 2);
-				g.drawLine(1, Schedule.NUM_PIXELS_PER_CPU - 2,
-				    Schedule.NUM_PIXELS_PER_CPU - 2, 1);
+				g.drawLine(1, 1, texture.getWidth() - 2, texture.getHeight() - 2);
+				g.drawLine(1, texture.getHeight() - 2, texture.getWidth() - 2, 1);
 			} else {
 				// a good move; a tick is drawn
-				g.drawLine(1, 1, 1, Schedule.NUM_PIXELS_PER_CPU - 2);
-				g.drawLine(1, Schedule.NUM_PIXELS_PER_CPU - 2,
-				    Schedule.NUM_PIXELS_PER_CPU - 2, 1);
+				g.drawLine(1, 1, 1, texture.getHeight() - 2);
+				g.drawLine(1, texture.getHeight() - 2, texture.getWidth() - 2, 1);
 			}
 			Schedule.paints.put(textureId, new TexturePaint(texture,
 			    Schedule.textureRectangle));
@@ -320,23 +317,10 @@ public final class Schedule implements Runnable {
 	/**
 	 * Get the background for the schedule.
 	 * 
-	 * @param isActive
-	 *          Whether the background should indicate an active machine.
 	 * @return The background image.
 	 */
-	private void drawTemplate(final Graphics2D g, final boolean isActive) {
-		// draw background
-		if (isActive) {
-			g.setBackground(Color.WHITE);
-		} else {
-			g.setBackground(Color.DARK_GRAY);
-		}
-		// draw the grid
-		if (isActive) {
-			g.setColor(Color.LIGHT_GRAY);
-		} else {
-			g.setColor(Color.GRAY);
-		}
+	private void drawTemplate(final Graphics2D g) {
+		g.setColor(Color.LIGHT_GRAY);
 		// draw lines separating CPUs
 		for (int cpu = 0; cpu < (this.m.getCPUs() - 1); cpu++) {
 			final int yAxis = (cpu + 1) * Schedule.NUM_PIXELS_PER_CPU;
@@ -427,8 +411,7 @@ public final class Schedule implements Runnable {
 		Benchmark.stopProfile(uuid);
 
 		uuid = Benchmark.startProfile("template");
-		this.drawTemplate(this.getGraphics(), isActive);
-		this.getGraphics().setFont(Schedule.font);
+		this.drawTemplate(this.getGraphics());
 		Benchmark.stopProfile(uuid);
 
 		uuid = Benchmark.startProfile("schedule");
@@ -444,7 +427,7 @@ public final class Schedule implements Runnable {
 		if (!isActive) {
 			b.append(Messages.getString("ScheduleRenderer.19"));
 		}
-		this.getGraphics().setColor(isActive ? Color.BLACK : Color.WHITE);
+		this.getGraphics().setColor(Color.BLACK);
 		this.getGraphics().drawString(b.toString(), 1, 9);
 		Benchmark.stopProfile(uuid);
 		Benchmark.stopProfile(globalUuid);
@@ -452,6 +435,7 @@ public final class Schedule implements Runnable {
 
 	public void setTargetGraphics(final Graphics2D g) {
 		this.g = g;
+		g.setFont(Schedule.font);
 		g.setRenderingHint(RenderingHints.KEY_RENDERING,
 		    RenderingHints.VALUE_RENDER_SPEED);
 		g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,
