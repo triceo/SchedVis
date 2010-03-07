@@ -1,8 +1,9 @@
 package cz.muni.fi.spc.SchedVis.util;
 
 import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.Transparency;
 import java.awt.image.BufferedImage;
-import java.awt.image.IndexColorModel;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Formatter;
@@ -13,6 +14,8 @@ import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
@@ -63,22 +66,6 @@ public final class Benchmark {
 	private static boolean isEnabled = false;
 
 	private static ConcurrentMap<UUID, Intermediate> inters = new ConcurrentHashMap<UUID, Intermediate>();
-
-	/**
-	 * Index color model specifying 16 basic colors. This significantly improves
-	 * the speed of preparing the images, thus decreasing the time the benchmark
-	 * will take.
-	 */
-	public static final IndexColorModel model = new IndexColorModel(4, 16,
-	    new byte[] { (byte) 255, (byte) 255, (byte) 255, (byte) 255, (byte) 192,
-	        (byte) 128, (byte) 128, (byte) 128, (byte) 128, (byte) 0, (byte) 0,
-	        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0 }, new byte[] {
-	        (byte) 255, (byte) 255, (byte) 0, (byte) 0, (byte) 192, (byte) 128,
-	        (byte) 128, (byte) 0, (byte) 0, (byte) 255, (byte) 255, (byte) 128,
-	        (byte) 128, (byte) 0, (byte) 0, (byte) 0 }, new byte[] { (byte) 255,
-	        (byte) 0, (byte) 255, (byte) 0, (byte) 192, (byte) 128, (byte) 0,
-	        (byte) 128, (byte) 0, (byte) 255, (byte) 0, (byte) 128, (byte) 0,
-	        (byte) 255, (byte) 128, (byte) 0 });
 
 	public static void clearLogResults() {
 		Benchmark.timesByType.clear();
@@ -151,7 +138,7 @@ public final class Benchmark {
 	 * Runs some basic benchmarks. Basically renders some random schedules many,
 	 * many, many times and outputs the resulting time.
 	 */
-	public static void run() {
+	public static void run() throws Exception {
 		if (Benchmark.isEnabled) {
 			throw new IllegalStateException("Benchmark already running.");
 		}
@@ -191,18 +178,18 @@ public final class Benchmark {
 		return;
 	}
 
-	public static void runSingleSchedule(final Event e, final Machine m) {
-		final BufferedImage img = new BufferedImage(Schedule.IMAGE_WIDTH,
-		    Schedule.NUM_PIXELS_PER_CPU * m.getCPUs(),
-		    BufferedImage.TYPE_BYTE_BINARY, Benchmark.model);
+	public static void runSingleSchedule(final Event e, final Machine m)
+	    throws Exception {
+		final BufferedImage img = GraphicsEnvironment
+		    .getLocalGraphicsEnvironment()
+		    .getDefaultScreenDevice()
+		    .getDefaultConfiguration()
+		    .createCompatibleImage(Schedule.IMAGE_WIDTH,
+		        Schedule.NUM_PIXELS_PER_CPU * m.getCPUs(), Transparency.TRANSLUCENT);
 		final Graphics2D g = img.createGraphics();
-		try {
-			final Schedule s = new Schedule(m, e);
-			s.setTargetGraphics(g);
-			s.run();
-		} catch (final Exception ex) {
-			System.out.println("Thread caught exception: " + ex);
-		}
+		final Schedule s = new Schedule(m, e);
+		s.setTargetGraphics(g);
+		SwingUtilities.invokeAndWait(s);
 	}
 
 	public static UUID startProfile(final String id) {

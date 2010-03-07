@@ -22,11 +22,13 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.TexturePaint;
+import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.util.Formatter;
 import java.util.List;
@@ -168,9 +170,11 @@ public final class Schedule implements Runnable {
 		}
 		final String textureId = background.toString() + "---" + jobHint;
 		if (!Schedule.paints.containsKey(textureId)) {
-			final BufferedImage texture = new BufferedImage(
-			    Schedule.NUM_PIXELS_PER_CPU, Schedule.NUM_PIXELS_PER_CPU,
-			    BufferedImage.TYPE_INT_RGB);
+			final BufferedImage texture = GraphicsEnvironment
+			    .getLocalGraphicsEnvironment().getDefaultScreenDevice()
+			    .getDefaultConfiguration().createCompatibleImage(
+			        Schedule.NUM_PIXELS_PER_CPU, Schedule.NUM_PIXELS_PER_CPU,
+			        Transparency.OPAQUE);
 			final Graphics2D g = (Graphics2D) texture.getGraphics();
 			g.setColor(background);
 			g.fill(Schedule.textureRectangle);
