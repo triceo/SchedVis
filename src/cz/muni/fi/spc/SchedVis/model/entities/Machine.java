@@ -159,7 +159,6 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 			schedules.add(schedule);
 		}
 		rs.close();
-		Machine.s.clearParameters();
 		return schedules;
 	}
 
@@ -216,14 +215,13 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		}
 	}
 
-	public static synchronized boolean isActiveInternal(final Machine m,
+	private static synchronized boolean isActiveInternal(final Machine m,
 	    final Event evt) throws SQLException {
 		if (Machine.s2 == null) {
 			final String query = "SELECT MAX(id) FROM Event WHERE id IN (SELECT id FROM Event WHERE sourceMachine_id = ? AND eventTypeId IN (?, ?, ?, ?)) AND id < ?";
 			Machine.s2 = BaseEntity.getConnection(Database.getEntityManager())
 			    .prepareStatement(query);
 		}
-		Machine.s2.clearParameters();
 		Machine.s2.setInt(1, m.getId());
 		Integer i = 1;
 		for (final Integer id : Machine.machineEvents) {
@@ -235,26 +233,21 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 			return true;
 		}
 		rs.next();
-		if (rs.getObject(1) == null) {
-			return true;
-		}
-		return Machine.isActivityEvent(rs.getInt(1));
+		return (rs.getObject(1) == null) ? true : Machine.isActivityEvent(rs
+		    .getInt(1));
 	}
 
-	private static boolean isActivityEvent(final int eventId) throws SQLException {
+	private static synchronized boolean isActivityEvent(final int eventId)
+	    throws SQLException {
 		if (Machine.s3 == null) {
 			final String query = "SELECT id FROM Event WHERE id = ? AND eventTypeId = ?";
 			Machine.s3 = BaseEntity.getConnection(Database.getEntityManager())
 			    .prepareStatement(query);
 		}
-		Machine.s3.clearParameters();
 		Machine.s3.setInt(1, eventId);
 		Machine.s3.setInt(2, EventType.MACHINE_RESTART.getId());
 		final ResultSet rs = Machine.s3.executeQuery();
-		if (rs.isBeforeFirst()) {
-			return true;
-		}
-		return false;
+		return rs.isBeforeFirst();
 	}
 
 	private int internalId;
