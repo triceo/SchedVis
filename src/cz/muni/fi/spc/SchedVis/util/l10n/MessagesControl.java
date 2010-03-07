@@ -39,16 +39,18 @@ public class MessagesControl extends ResourceBundle.Control {
 
 	private Reader getResourceReader(final URL resourceURL) throws IOException {
 		try {
-			// This permission has already been checked by
-			// ClassLoader.getResource(String), which will return null
-			// in case the code has not enough privileges.
+			/*
+			 * This permission has already been checked by
+			 * ClassLoader.getResource(String), which will return null in case the
+			 * code has not enough privileges.
+			 */
 			return AccessController
 			    .doPrivileged(new PrivilegedExceptionAction<Reader>() {
 				    public Reader run() throws IOException {
 					    final URLConnection connection = resourceURL.openConnection();
 					    connection.setUseCaches(false);
 					    return new BufferedReader(new InputStreamReader(connection
-					        .getInputStream()));
+					        .getInputStream(), "UTF-8"));
 				    }
 			    });
 		} catch (final PrivilegedActionException x) {
