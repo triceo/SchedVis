@@ -29,7 +29,6 @@ import cz.muni.fi.spc.SchedVis.model.entities.Machine;
 import cz.muni.fi.spc.SchedVis.ui.MainFrame;
 import cz.muni.fi.spc.SchedVis.util.Benchmark;
 import cz.muni.fi.spc.SchedVis.util.Configuration;
-import cz.muni.fi.spc.SchedVis.util.Database;
 import cz.muni.fi.spc.SchedVis.util.Importer;
 import cz.muni.fi.spc.SchedVis.util.Player;
 import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
@@ -89,16 +88,13 @@ public final class Main {
 			Main.printUsageAndExit();
 		}
 		if ("benchmark".equals(args[0])) {
-			Database.use();
 			Main.warmup();
 			Benchmark.run();
 			System.exit(0);
 			return;
 		} else if ("run".equals(args[0])) {
 			final File dbFile = Configuration.getDatabaseFile();
-			if (dbFile.exists()) {
-				Database.use();
-			} else {
+			if (!dbFile.exists()) {
 				System.out.print(new Formatter().format(Messages.getString("Main.7"),
 				    dbFile.getAbsolutePath()));
 				Main.printUsageAndExit();
@@ -118,7 +114,6 @@ public final class Main {
 				    dataFile.getAbsolutePath()));
 				Main.printUsageAndExit();
 			}
-			Database.use();
 			Main.main.importData(new Importer(machinesFile, dataFile));
 		}
 	}

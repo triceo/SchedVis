@@ -47,6 +47,7 @@ public final class Database {
 	private static ThreadLocal<EntityManager> entityManager = new ThreadLocal<EntityManager>() {
 		@Override
 		protected synchronized EntityManager initialValue() {
+			Database.use();
 			return Database.currentEMF.createEntityManager();
 		}
 	};
@@ -164,7 +165,7 @@ public final class Database {
 	 * Creates the appropriate entity manager factory and an entity manager.
 	 * Calling this method more than once has no effect.
 	 */
-	public static synchronized void use() {
+	private static synchronized void use() {
 		if (Database.currentEMF == null) {
 			final Map<String, String> map = new HashMap<String, String>();
 			map.put("hibernate.connection.url", "jdbc:sqlite:/"
