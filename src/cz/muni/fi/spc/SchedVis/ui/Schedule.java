@@ -155,6 +155,63 @@ public final class Schedule implements Runnable {
 	private static final int BAR_DISTANCE = Math.max(1, Math
 	    .round(Schedule.TICKS_PER_GUIDING_BAR * Schedule.NUM_PIXELS_PER_TICK));
 
+	private static final int NUM_BARS = Schedule.IMAGE_WIDTH
+	    / Schedule.BAR_DISTANCE;
+
+	/**
+	 * Parse the CPUs that have been assigned to a given job.
+	 * 
+	 * @param schedule
+	 *          The job in question.
+	 * @return Numbers of assigned CPUs.
+	 */
+	private static Set<Integer> getAssignedCPUs(final Job schedule) {
+		// get assigned CPUs
+		final String raw = schedule.getAssignedCPUs();
+		if ((raw == null) || (raw.length() == 0)) {
+			return new TreeSet<Integer>();
+		}
+		// parse single numbers
+		final String[] rawParts = raw.split(",");
+		// store for returning
+		final Set<Integer> assignedCPUs = new TreeSet<Integer>();
+		for (final String num : rawParts) {
+			assignedCPUs.add(Integer.valueOf(num));
+		}
+		return assignedCPUs;
+	}
+
+	/**
+	 * Calculate the length of a job on the screen.
+	 * 
+	 * @param schedule
+	 *          The job in question.
+	 * @return Length in pixels.
+	 */
+	private static int getJobLength(final Job schedule) {
+		final Integer end = schedule.getExpectedEnd();
+		final Integer start = schedule.getExpectedStart();
+		if ((end == null) || (start == null)) {
+			return 0;
+		}
+		return (int) ((end - start) * Schedule.NUM_PIXELS_PER_TICK);
+	}
+
+	/**
+	 * Get the starting position for the event, when being rendered on the screen.
+	 * 
+	 * @param schedule
+	 *          The event in question.
+	 * @return The X starting coordinate.
+	 */
+	private static int getStartingPosition(final Job schedule, final int clock) {
+		final Integer start = schedule.getExpectedStart();
+		if (start == null) {
+			return Schedule.OVERFLOW_WIDTH;
+		}
+		return (int) (((start - clock) * Schedule.NUM_PIXELS_PER_TICK) + Schedule.OVERFLOW_WIDTH);
+	}
+
 	/**
 	 * Get texture for the event's box.
 	 * 
@@ -224,8 +281,8 @@ public final class Schedule implements Runnable {
 	 */
 	private void drawJobs(final Graphics2D g, final List<Job> jobs) {
 		for (final Job job : jobs) {
-			final Integer[] cpus = this.getAssignedCPUs(job)
-			    .toArray(new Integer[] {});
+			final Integer[] cpus = Schedule.getAssignedCPUs(job).toArray(
+			    new Integer[] {});
 			if (job.getBringsSchedule()) { // render jobs in a schedule, one by one
 				for (int i = 0; i < cpus.length; i++) {
 					final int crntCPU = cpus[i];
@@ -244,13 +301,14 @@ public final class Schedule implements Runnable {
 					}
 					final int numCPUs = cpus[i] - crntCPU + 1;
 					// now draw
-					final int jobStartX = this.getStartingPosition(job);
+					final int jobStartX = Schedule.getStartingPosition(job,
+					    this.renderedEvent.getClock());
 					if (jobStartX < 0) { // could be bad, may not be
 						Schedule.logger.info(new Formatter().format(Messages
 						    .getString("ScheduleRenderer.22"), new Object[] {
 						    this.m.getName(), this.renderedEvent.getId(), jobStartX }));
 					}
-					final int jobLength = this.getJobLength(job);
+					final int jobLength = Schedule.getJobLength(job);
 					final int ltY = crntCPU * Schedule.NUM_PIXELS_PER_CPU;
 					final int jobHgt = numCPUs * Schedule.NUM_PIXELS_PER_CPU;
 					final int deadline = job.getDeadline();
@@ -322,43 +380,23 @@ public final class Schedule implements Runnable {
 	private void drawTemplate(final Graphics2D g) {
 		g.setColor(Color.LIGHT_GRAY);
 		// draw lines separating CPUs
-		for (int cpu = 0; cpu < (this.m.getCPUs() - 1); cpu++) {
-			final int yAxis = (cpu + 1) * Schedule.NUM_PIXELS_PER_CPU;
-			g.drawLine(0, yAxis, Schedule.IMAGE_WIDTH - 2, yAxis);
+		for (int cpu = 1; cpu < this.m.getCPUs(); cpu += 2) {
+			// two lines at a time, reducing number of loops
+			final int yAxis = cpu * Schedule.NUM_PIXELS_PER_CPU;
+			g.drawRect(-1, yAxis, Schedule.IMAGE_WIDTH + 1, yAxis
+			    + Schedule.NUM_PIXELS_PER_CPU);
 		}
 		// draw bars showing position on the timeline
-		final int numBars = Schedule.IMAGE_WIDTH / Schedule.BAR_DISTANCE;
-		for (int bar = 0; bar < numBars; bar++) {
-			final int xAxis = Schedule.BAR_DISTANCE * (bar + 1);
-			g.drawLine(xAxis, 0, xAxis, this.IMAGE_HEIGHT - 2);
+		for (int bar = 1; bar <= Schedule.NUM_BARS; bar += 2) {
+			// two lines at a time, reducing number of loops
+			final int xAxis = Schedule.BAR_DISTANCE * bar;
+			g.drawRect(xAxis, -1, xAxis + Schedule.BAR_DISTANCE,
+			    this.IMAGE_HEIGHT + 1);
 		}
 		// draw a line in a place where "zero" (current clock) is.
 		g.setColor(Color.BLACK);
 		g.drawLine(Schedule.OVERFLOW_WIDTH, 0, Schedule.OVERFLOW_WIDTH,
 		    this.IMAGE_HEIGHT);
-	}
-
-	/**
-	 * Parse the CPUs that have been assigned to a given job.
-	 * 
-	 * @param schedule
-	 *          The job in question.
-	 * @return Numbers of assigned CPUs.
-	 */
-	private Set<Integer> getAssignedCPUs(final Job schedule) {
-		// get assigned CPUs
-		final String raw = schedule.getAssignedCPUs();
-		if ((raw == null) || (raw.length() == 0)) {
-			return new TreeSet<Integer>();
-		}
-		// parse single numbers
-		final String[] rawParts = raw.split(",");
-		// store for returning
-		final Set<Integer> assignedCPUs = new TreeSet<Integer>();
-		for (final String num : rawParts) {
-			assignedCPUs.add(Integer.valueOf(num));
-		}
-		return assignedCPUs;
 	}
 
 	/**
@@ -369,37 +407,6 @@ public final class Schedule implements Runnable {
 			throw new IllegalStateException("No graphics supplied for a schedule.");
 		}
 		return this.g;
-	}
-
-	/**
-	 * Calculate the length of a job on the screen.
-	 * 
-	 * @param schedule
-	 *          The job in question.
-	 * @return Length in pixels.
-	 */
-	private int getJobLength(final Job schedule) {
-		final Integer end = schedule.getExpectedEnd();
-		final Integer start = schedule.getExpectedStart();
-		if ((end == null) || (start == null)) {
-			return 0;
-		}
-		return (int) ((end - start) * Schedule.NUM_PIXELS_PER_TICK);
-	}
-
-	/**
-	 * Get the starting position for the event, when being rendered on the screen.
-	 * 
-	 * @param schedule
-	 *          The event in question.
-	 * @return The X starting coordinate.
-	 */
-	private int getStartingPosition(final Job schedule) {
-		final Integer start = schedule.getExpectedStart();
-		if (start == null) {
-			return Schedule.OVERFLOW_WIDTH;
-		}
-		return (int) (((start - this.renderedEvent.getClock()) * Schedule.NUM_PIXELS_PER_TICK) + Schedule.OVERFLOW_WIDTH);
 	}
 
 	@Override

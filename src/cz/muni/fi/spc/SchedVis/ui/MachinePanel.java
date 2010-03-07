@@ -39,15 +39,13 @@ public final class MachinePanel extends JPanel {
 
 	private static final long serialVersionUID = 1407665978399872917L;
 	private final Schedule s;
-	private final Integer numCPUs;
 	private final Dimension d;
 
 	public MachinePanel(final Machine m, final Event e) {
 		this.s = new Schedule(m, e);
-		this.numCPUs = m.getCPUs();
 		this.setOpaque(true);
 		this.setBackground(Color.WHITE);
-		this.d = new Dimension(Schedule.IMAGE_WIDTH, this.numCPUs
+		this.d = new Dimension(Schedule.IMAGE_WIDTH, m.getCPUs()
 		    * Schedule.NUM_PIXELS_PER_CPU);
 	}
 
