@@ -41,8 +41,6 @@ public final class TimelineSliderModel extends DefaultBoundedRangeModel {
 
 	private static TimelineSliderModel model = null;
 
-	private static Event event;
-
 	/**
 	 * Get the only instance of the class.
 	 * 
@@ -78,6 +76,8 @@ public final class TimelineSliderModel extends DefaultBoundedRangeModel {
 		return TimelineSliderModel.model;
 	}
 
+	private Event event;
+
 	/**
 	 * Class constructor.
 	 * 
@@ -98,7 +98,7 @@ public final class TimelineSliderModel extends DefaultBoundedRangeModel {
 	 * @return The event at which the model is "pointing".
 	 */
 	public Event getRichValue() {
-		return TimelineSliderModel.event;
+		return this.event;
 	}
 
 	/**
@@ -110,7 +110,7 @@ public final class TimelineSliderModel extends DefaultBoundedRangeModel {
 	 */
 	public void setValue(final Event evt) {
 		super.setValue(evt.getId());
-		TimelineSliderModel.event = evt;
+		this.event = evt;
 	}
 
 	@Override
