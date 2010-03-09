@@ -132,8 +132,8 @@ public final class Benchmark {
 		System.out
 		    .println(" ------------------------------------------------------------------------------------------------------");
 		for (final Entry<String, List<Long>> entry : times.entrySet()) {
-			DescriptiveStatistics stats = new DescriptiveStatistics();
-			for (double v : entry.getValue()) {
+			final DescriptiveStatistics stats = new DescriptiveStatistics();
+			for (final double v : entry.getValue()) {
 				stats.addValue(v);
 			}
 			// tabulate results
