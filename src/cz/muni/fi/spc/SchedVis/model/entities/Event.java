@@ -19,6 +19,7 @@ package cz.muni.fi.spc.SchedVis.model.entities;
 
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -50,10 +51,10 @@ import cz.muni.fi.spc.SchedVis.util.Database;
     "sourceMachine_id", "eventTypeId" }) })
 public final class Event extends BaseEntity implements Comparable<Event> {
 
-	private static Event firstEvent = null;
-	private static Event lastEvent = null;
+	private static volatile Event firstEvent = null;
+	private static volatile Event lastEvent = null;
 
-	private static Integer internalIdCounter = 0;
+	private static AtomicInteger internalIdCounter = new AtomicInteger(0);
 
 	/**
 	 * Get numbers of all existing events.
@@ -197,9 +198,7 @@ public final class Event extends BaseEntity implements Comparable<Event> {
 	private int internalId;
 
 	public Event() {
-		synchronized (Event.internalIdCounter) {
-			this.setInternalId(Event.internalIdCounter++);
-		}
+		this.setInternalId(Event.internalIdCounter.incrementAndGet());
 	}
 
 	@Override

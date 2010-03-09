@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -57,7 +58,7 @@ import cz.muni.fi.spc.SchedVis.util.Database;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public final class Machine extends BaseEntity implements Comparable<Machine> {
 
-	private static Integer internalIdCounter = 0;
+	private static AtomicInteger internalIdCounter = new AtomicInteger(0);
 
 	private static PreparedStatement s;
 	private static PreparedStatement s2;
@@ -266,9 +267,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	private MachineGroup group;
 
 	public Machine() {
-		synchronized (Machine.internalIdCounter) {
-			this.setInternalId(Machine.internalIdCounter++);
-		}
+		this.setInternalId(Machine.internalIdCounter.incrementAndGet());
 	}
 
 	@Override

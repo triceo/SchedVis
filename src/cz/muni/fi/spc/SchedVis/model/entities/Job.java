@@ -17,6 +17,8 @@
  */
 package cz.muni.fi.spc.SchedVis.model.entities;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -47,7 +49,7 @@ import cz.muni.fi.spc.SchedVis.util.Importer;
 public final class Job extends BaseEntity implements Comparable<Job> {
 
 	private static int maxJobSpan = -1;
-	private static Integer internalIdCounter = 0;
+	private static AtomicInteger internalIdCounter = new AtomicInteger(0);
 
 	/**
 	 * Get the maximum length of a job. Actually computed only first time, every
@@ -87,7 +89,7 @@ public final class Job extends BaseEntity implements Comparable<Job> {
 	private int jobHint = JobHint.NONE.getId();
 
 	public Job() {
-		this.setInternalId(Job.internalIdCounter++);
+		this.setInternalId(Job.internalIdCounter.incrementAndGet());
 	}
 
 	@Override

@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -49,7 +50,7 @@ import cz.muni.fi.spc.SchedVis.util.Database;
 public final class MachineGroup extends BaseEntity implements
     Comparable<MachineGroup> {
 
-	private static Integer internalIdCounter = 0;
+	private static AtomicInteger internalIdCounter = new AtomicInteger(0);
 
 	/**
 	 * Get all the machine groups.
@@ -131,9 +132,7 @@ public final class MachineGroup extends BaseEntity implements
 	private Set<Machine> machines;
 
 	public MachineGroup() {
-		synchronized (MachineGroup.internalIdCounter) {
-			this.setInternalId(MachineGroup.internalIdCounter++);
-		}
+		this.setInternalId(MachineGroup.internalIdCounter.incrementAndGet());
 	}
 
 	/**

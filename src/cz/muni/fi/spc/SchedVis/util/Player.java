@@ -56,6 +56,7 @@ public final class Player implements Runnable {
 		while (true) {
 			try {
 				this.l.await();
+				this.l = new CountDownLatch(1);
 			} catch (final Exception e) {
 				Logger.getLogger(Player.class).warn(
 				    new Formatter().format(Messages.getString("Player.0"), e
@@ -90,10 +91,7 @@ public final class Player implements Runnable {
 	public void toggleStatus() {
 		Logger.getLogger(Player.class).debug(Messages.getString("Player.4"));
 		Player.doesPlay = !Player.doesPlay;
-		synchronized (this.l) {
-			this.l.countDown();
-			this.l = new CountDownLatch(1);
-		}
+		this.l.countDown();
 		Logger.getLogger(Player.class).debug(Messages.getString("Player.5"));
 	}
 }
