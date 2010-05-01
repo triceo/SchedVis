@@ -60,7 +60,7 @@
 	</target>
 	<target name="compile" description="Compile the classes.">
 	  <mkdir dir="${dir.build}" />
-		<javac srcdir="${dir.src}" destdir="${dir.build}" classpathref="classpath.build" source="${java.target.version}" includeJavaRuntime="true" />
+		<javac srcdir="${dir.src}" destdir="${dir.build}" classpathref="classpath.build" source="${java.target.version}" includeJavaRuntime="true" debug="true"/>
 	</target>
   <target name="build" description="Build the SchedVis project" depends="-build,makedoc" />
 	<target name="-build" description="Build the SchedVis project" depends="compile,makejar" />
