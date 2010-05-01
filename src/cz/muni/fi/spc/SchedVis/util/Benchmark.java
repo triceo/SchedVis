@@ -6,6 +6,7 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Formatter;
 import java.util.List;
 import java.util.Map;
@@ -15,8 +16,9 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
-
-import javax.swing.SwingUtilities;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
@@ -72,12 +74,31 @@ public final class Benchmark {
 	private static final ConcurrentMap<String, List<Long>> timesByMachine = new ConcurrentSkipListMap<String, List<Long>>();
 	private static final ConcurrentMap<String, List<Long>> timesByEvent = new ConcurrentSkipListMap<String, List<Long>>();
 
-	private static boolean isEnabled = false;
+	private static AtomicBoolean isEnabled = new AtomicBoolean(false);
 
 	private static ConcurrentMap<UUID, Intermediate> inters = new ConcurrentHashMap<UUID, Intermediate>();
 
+	private static final Lock uuidLock = new ReentrantLock();
+
 	public static void clearLogResults() {
 		Benchmark.timesByType.clear();
+		Benchmark.timesByEvent.clear();
+		Benchmark.timesByMachine.clear();
+	}
+
+	private static UUID getRandomUUID() {
+		UUID uuid = null;
+		Benchmark.uuidLock.lock();
+		try {
+			uuid = UUID.randomUUID();
+		} finally {
+			Benchmark.uuidLock.unlock();
+		}
+		if (Benchmark.inters.containsKey(uuid)) {
+			// make sure the generated ID doesn't exist yet
+			return Benchmark.getRandomUUID();
+		}
+		return uuid;
 	}
 
 	/**
@@ -91,18 +112,21 @@ public final class Benchmark {
 	protected static void logTime(final Intermediate i, final long time) {
 		final String type = i.getId();
 		// log by type
-		Benchmark.timesByType.putIfAbsent(type, new ArrayList<Long>());
+		Benchmark.timesByType.putIfAbsent(type, Collections
+		    .synchronizedList(new ArrayList<Long>()));
 		Benchmark.timesByType.get(type).add(time);
 		// log by machine
 		if (i.getMachine() != null) {
 			final String machineName = i.getMachine().getName();
-			Benchmark.timesByMachine.putIfAbsent(machineName, new ArrayList<Long>());
+			Benchmark.timesByMachine.putIfAbsent(machineName, Collections
+			    .synchronizedList(new ArrayList<Long>()));
 			Benchmark.timesByMachine.get(machineName).add(time);
 		}
 		// log by event
 		if (i.getEvent() != null) {
 			final String eventName = Integer.toString(i.getEvent().getId());
-			Benchmark.timesByEvent.putIfAbsent(eventName, new ArrayList<Long>());
+			Benchmark.timesByEvent.putIfAbsent(eventName, Collections
+			    .synchronizedList(new ArrayList<Long>()));
 			Benchmark.timesByEvent.get(eventName).add(time);
 		}
 	}
@@ -156,10 +180,10 @@ public final class Benchmark {
 	 * many, many times and outputs the resulting time.
 	 */
 	public static void run() throws Exception {
-		if (Benchmark.isEnabled) {
+		if (Benchmark.isEnabled.get()) {
 			throw new IllegalStateException("Benchmark already running.");
 		}
-		Benchmark.isEnabled = true;
+		Benchmark.isEnabled.set(true);
 		System.out.println("Please press any key to start benchmark...");
 		try {
 			System.in.read();
@@ -191,7 +215,7 @@ public final class Benchmark {
 		System.out.println();
 		System.out.println(Messages.getString("Main.4"));
 		Benchmark.reportLogResults();
-		Benchmark.isEnabled = false;
+		Benchmark.isEnabled.set(false);
 		return;
 	}
 
@@ -206,15 +230,16 @@ public final class Benchmark {
 		final Graphics2D g = img.createGraphics();
 		final Schedule s = new Schedule(m, e);
 		s.setTargetGraphics(g);
-		SwingUtilities.invokeAndWait(s);
+		s.run();
+		Thread.sleep(0, 10);
 	}
 
 	public static UUID startProfile(final String id) {
-		if (!Benchmark.isEnabled) {
+		if (!Benchmark.isEnabled.get()) {
 			return null;
 		}
-		final UUID uuid = UUID.randomUUID();
 		final Intermediate i = new Intermediate(id);
+		UUID uuid = Benchmark.getRandomUUID();
 		Benchmark.inters.put(uuid, i);
 		i.setStartTime(System.nanoTime());
 		return uuid;
@@ -222,18 +247,18 @@ public final class Benchmark {
 
 	public static UUID startProfile(final String id, final Machine m,
 	    final Event e) {
-		if (!Benchmark.isEnabled) {
+		if (!Benchmark.isEnabled.get()) {
 			return null;
 		}
-		final UUID uuid = UUID.randomUUID();
 		final Intermediate i = new Intermediate(id, m, e);
+		UUID uuid = Benchmark.getRandomUUID();
 		Benchmark.inters.put(uuid, i);
 		i.setStartTime(System.nanoTime());
 		return uuid;
 	}
 
 	public static long stopProfile(final UUID uuid) {
-		if (!Benchmark.isEnabled) {
+		if (!Benchmark.isEnabled.get()) {
 			return 0;
 		}
 		final long now = System.nanoTime();
