@@ -226,7 +226,7 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		boolean result = true;
 		try {
 			result = Machine.isActiveInternal(m, evt);
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			result = true;
 		} finally {
 			Machine.activityLock.unlock();

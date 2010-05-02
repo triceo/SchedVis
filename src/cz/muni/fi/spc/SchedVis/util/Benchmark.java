@@ -248,7 +248,7 @@ public final class Benchmark {
 			return null;
 		}
 		final Intermediate i = new Intermediate(id);
-		UUID uuid = Benchmark.getRandomUUID();
+		final UUID uuid = Benchmark.getRandomUUID();
 		Benchmark.inters.put(uuid, i);
 		i.setStartTime(System.nanoTime());
 		return uuid;
@@ -260,7 +260,7 @@ public final class Benchmark {
 			return null;
 		}
 		final Intermediate i = new Intermediate(id, m, e);
-		UUID uuid = Benchmark.getRandomUUID();
+		final UUID uuid = Benchmark.getRandomUUID();
 		Benchmark.inters.put(uuid, i);
 		i.setStartTime(System.nanoTime());
 		return uuid;
