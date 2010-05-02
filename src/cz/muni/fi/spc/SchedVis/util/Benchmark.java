@@ -16,6 +16,10 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -79,6 +83,12 @@ public final class Benchmark {
 	private static ConcurrentMap<UUID, Intermediate> inters = new ConcurrentHashMap<UUID, Intermediate>();
 
 	private static final Lock uuidLock = new ReentrantLock();
+
+	private static final ExecutorService e = new ThreadPoolExecutor(Runtime
+	    .getRuntime().availableProcessors(), Runtime.getRuntime()
+	    .availableProcessors(), 10, TimeUnit.MINUTES,
+	    new SynchronousQueue<Runnable>(),
+	    new ThreadPoolExecutor.CallerRunsPolicy());
 
 	public static void clearLogResults() {
 		Benchmark.timesByType.clear();
@@ -230,8 +240,7 @@ public final class Benchmark {
 		final Graphics2D g = img.createGraphics();
 		final Schedule s = new Schedule(m, e);
 		s.setTargetGraphics(g);
-		s.run();
-		Thread.sleep(0, 10);
+		Benchmark.e.submit(s);
 	}
 
 	public static UUID startProfile(final String id) {

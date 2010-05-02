@@ -29,6 +29,8 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -78,6 +80,12 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		Arrays.sort(Machine.machineEvents);
 	}
 
+	private static final Lock activityLock = new ReentrantLock();
+
+	private static final Lock activityLock2 = new ReentrantLock();
+
+	private static final Lock scheduleLock = new ReentrantLock();
+
 	/**
 	 * Retrieve all the machines in a given group.
 	 * 
@@ -124,15 +132,20 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	 * @return Jobs in the schedule.
 	 */
 	public static List<Job> getLatestSchedule(final Machine which, final Event evt) {
+		Machine.scheduleLock.lock();
+		List<Job> list = null;
 		try {
-			return Machine.getLatestScheduleInternal(which, evt);
+			list = Machine.getLatestScheduleInternal(which, evt);
 		} catch (final SQLException ex) {
-			return new ArrayList<Job>();
+			list = new ArrayList<Job>();
+		} finally {
+			Machine.scheduleLock.unlock();
 		}
+		return list;
 	}
 
-	private synchronized static List<Job> getLatestScheduleInternal(
-	    final Machine which, final Event evt) throws SQLException {
+	private static List<Job> getLatestScheduleInternal(final Machine which,
+	    final Event evt) throws SQLException {
 		if (Machine.s == null) {
 			final String query = "SELECT id, assignedCPUs, deadline, number, jobHintId, expectedStart, expectedEnd, bringsSchedule FROM Job WHERE machine_id = ? AND parent = (SELECT max(parent) FROM Job WHERE machine_id = ? AND parent <= ?)";
 			Machine.s = BaseEntity.getConnection(Database.getEntityManager())
@@ -209,15 +222,20 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 	 * @throws SQLException
 	 */
 	public static boolean isActive(final Machine m, final Event evt) {
+		Machine.activityLock.lock();
+		boolean result = true;
 		try {
-			return Machine.isActiveInternal(m, evt);
-		} catch (final SQLException ex) {
-			return true;
+			result = Machine.isActiveInternal(m, evt);
+		} catch (SQLException e) {
+			result = true;
+		} finally {
+			Machine.activityLock.unlock();
 		}
+		return result;
 	}
 
-	private static synchronized boolean isActiveInternal(final Machine m,
-	    final Event evt) throws SQLException {
+	private static boolean isActiveInternal(final Machine m, final Event evt)
+	    throws SQLException {
 		if (Machine.s2 == null) {
 			final String query = "SELECT MAX(id) FROM Event WHERE id IN (SELECT id FROM Event WHERE sourceMachine_id = ? AND eventTypeId IN (?, ?, ?, ?)) AND id < ?";
 			Machine.s2 = BaseEntity.getConnection(Database.getEntityManager())
@@ -238,16 +256,21 @@ public final class Machine extends BaseEntity implements Comparable<Machine> {
 		    .getInt(1));
 	}
 
-	private static synchronized boolean isActivityEvent(final int eventId)
-	    throws SQLException {
-		if (Machine.s3 == null) {
-			final String query = "SELECT id FROM Event WHERE id = ? AND eventTypeId = ?";
-			Machine.s3 = BaseEntity.getConnection(Database.getEntityManager())
-			    .prepareStatement(query);
+	private static boolean isActivityEvent(final int eventId) throws SQLException {
+		Machine.activityLock2.lock();
+		ResultSet rs = null;
+		try {
+			if (Machine.s3 == null) {
+				final String query = "SELECT id FROM Event WHERE id = ? AND eventTypeId = ?";
+				Machine.s3 = BaseEntity.getConnection(Database.getEntityManager())
+				    .prepareStatement(query);
+			}
+			Machine.s3.setInt(1, eventId);
+			Machine.s3.setInt(2, EventType.MACHINE_RESTART.getId());
+			rs = Machine.s3.executeQuery();
+		} finally {
+			Machine.activityLock2.unlock();
 		}
-		Machine.s3.setInt(1, eventId);
-		Machine.s3.setInt(2, EventType.MACHINE_RESTART.getId());
-		final ResultSet rs = Machine.s3.executeQuery();
 		return rs.isBeforeFirst();
 	}
 
