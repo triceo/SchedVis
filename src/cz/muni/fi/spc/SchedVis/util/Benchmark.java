@@ -15,9 +15,9 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
@@ -76,8 +76,6 @@ public final class Benchmark {
 	private static boolean isEnabled = false;
 
 	private static ConcurrentMap<Integer, Intermediate> inters = new ConcurrentHashMap<Integer, Intermediate>();
-
-	private static final ExecutorService e = Executors.newFixedThreadPool(2);
 
 	private static AtomicInteger uuidGenerator = new AtomicInteger(0);
 
@@ -216,7 +214,15 @@ public final class Benchmark {
 		final Graphics2D g = img.createGraphics();
 		final Schedule s = new Schedule(m, e);
 		s.setTargetGraphics(g);
-		Benchmark.e.submit(s);
+		/*
+		 * Randomly decide whether to invoke now or later. This should be the best
+		 * emulation of what happens in the Swing GUI.
+		 */
+		if (Math.round((Math.random() * 10) % 2) == 0) {
+			SwingUtilities.invokeAndWait(s);
+		} else {
+			SwingUtilities.invokeLater(s);
+		}
 	}
 
 	public static Integer startProfile(final String id) {
