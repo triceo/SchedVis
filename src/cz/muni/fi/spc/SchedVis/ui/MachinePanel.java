@@ -61,7 +61,7 @@ public final class MachinePanel extends JPanel {
 			if (SwingUtilities.isEventDispatchThread()) {
 				this.s.run();
 			} else {
-				SwingUtilities.invokeAndWait(this.s);
+				SwingUtilities.invokeLater(this.s);
 			}
 		} catch (final Exception e) {
 			e.printStackTrace();
