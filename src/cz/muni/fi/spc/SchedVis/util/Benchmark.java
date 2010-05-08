@@ -17,9 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -84,11 +82,7 @@ public final class Benchmark {
 
 	private static final Lock uuidLock = new ReentrantLock();
 
-	private static final ExecutorService e = new ThreadPoolExecutor(Runtime
-	    .getRuntime().availableProcessors(), Runtime.getRuntime()
-	    .availableProcessors(), 10, TimeUnit.MINUTES,
-	    new SynchronousQueue<Runnable>(),
-	    new ThreadPoolExecutor.CallerRunsPolicy());
+	private static final ExecutorService e = Executors.newFixedThreadPool(2);
 
 	public static void clearLogResults() {
 		Benchmark.timesByType.clear();
