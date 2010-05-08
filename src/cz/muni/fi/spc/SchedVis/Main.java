@@ -143,7 +143,7 @@ public final class Main {
 	 * @param args
 	 */
 	private void gui() {
-		Executors.newFixedThreadPool(1).submit(Player.getInstance());
+		new Thread(Player.getInstance(), "PlayerThread").start();
 		/*
 		 * Schedule a job for the event-dispatching thread creating and showing this
 		 * application's GUI.
