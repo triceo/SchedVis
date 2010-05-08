@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -140,9 +139,15 @@ public final class Schedule implements Runnable {
 			if (this.done) {
 				return;
 			}
+			final Integer uuid = Benchmark.startProfile("schedule",
+			    this.getMachine(), this.getEvent());
 			this.jobs = Machine.getLatestSchedule(this.m, this.e);
+			Benchmark.stopProfile(uuid);
 			this.scheduleLatch.countDown();
+			final Integer uuid2 = Benchmark.startProfile("activity", this
+			    .getMachine(), this.getEvent());
 			this.isActive = Machine.isActive(this.m, this.e);
+			Benchmark.stopProfile(uuid2);
 			this.activityLatch.countDown();
 			this.done = true;
 		}
@@ -337,8 +342,8 @@ public final class Schedule implements Runnable {
 	 * @param g
 	 *          The graphics in question.
 	 */
-	private void drawJobs(final Graphics2D g, final List<Job> jobs) {
-		for (final Job job : jobs) {
+	private void drawJobs(final Graphics2D g) {
+		for (final Job job : this.data.getSchedule()) {
 			final Integer[] cpus = Schedule.getAssignedCPUs(job).toArray(
 			    new Integer[] {});
 			if (job.getBringsSchedule()) { // render jobs in a schedule, one by one
@@ -465,15 +470,15 @@ public final class Schedule implements Runnable {
 
 	@Override
 	public void run() {
-		final UUID globalUuid = Benchmark.startProfile("total", this.data
+		final Integer globalUuid = Benchmark.startProfile("total", this.data
 		    .getMachine(), this.data.getEvent());
 
-		UUID uuid = Benchmark.startProfile("template");
+		Integer uuid = Benchmark.startProfile("template");
 		this.drawTemplate(this.getGraphics());
 		Benchmark.stopProfile(uuid);
 
 		uuid = Benchmark.startProfile("rendering");
-		this.drawJobs(this.getGraphics(), this.data.getSchedule());
+		this.drawJobs(this.getGraphics());
 		// add machine info
 		final StringBuilder b = new StringBuilder().append(
 		    this.data.getMachine().getName()).append("@").append(

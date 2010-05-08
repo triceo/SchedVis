@@ -11,16 +11,13 @@ import java.util.Formatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
@@ -76,33 +73,18 @@ public final class Benchmark {
 	private static final ConcurrentMap<String, List<Long>> timesByMachine = new ConcurrentSkipListMap<String, List<Long>>();
 	private static final ConcurrentMap<String, List<Long>> timesByEvent = new ConcurrentSkipListMap<String, List<Long>>();
 
-	private static AtomicBoolean isEnabled = new AtomicBoolean(false);
+	private static boolean isEnabled = false;
 
-	private static ConcurrentMap<UUID, Intermediate> inters = new ConcurrentHashMap<UUID, Intermediate>();
-
-	private static final Lock uuidLock = new ReentrantLock();
+	private static ConcurrentMap<Integer, Intermediate> inters = new ConcurrentHashMap<Integer, Intermediate>();
 
 	private static final ExecutorService e = Executors.newFixedThreadPool(2);
+
+	private static AtomicInteger uuidGenerator = new AtomicInteger(0);
 
 	public static void clearLogResults() {
 		Benchmark.timesByType.clear();
 		Benchmark.timesByEvent.clear();
 		Benchmark.timesByMachine.clear();
-	}
-
-	private static UUID getRandomUUID() {
-		UUID uuid = null;
-		Benchmark.uuidLock.lock();
-		try {
-			uuid = UUID.randomUUID();
-		} finally {
-			Benchmark.uuidLock.unlock();
-		}
-		if (Benchmark.inters.containsKey(uuid)) {
-			// make sure the generated ID doesn't exist yet
-			return Benchmark.getRandomUUID();
-		}
-		return uuid;
 	}
 
 	/**
@@ -184,10 +166,10 @@ public final class Benchmark {
 	 * many, many times and outputs the resulting time.
 	 */
 	public static void run() throws Exception {
-		if (Benchmark.isEnabled.get()) {
+		if (Benchmark.isEnabled) {
 			throw new IllegalStateException("Benchmark already running.");
 		}
-		Benchmark.isEnabled.set(true);
+		Benchmark.isEnabled = true;
 		System.out.println("Please press any key to start benchmark...");
 		try {
 			System.in.read();
@@ -219,7 +201,7 @@ public final class Benchmark {
 		System.out.println();
 		System.out.println(Messages.getString("Main.4"));
 		Benchmark.reportLogResults();
-		Benchmark.isEnabled.set(false);
+		Benchmark.isEnabled = false;
 		return;
 	}
 
@@ -237,38 +219,46 @@ public final class Benchmark {
 		Benchmark.e.submit(s);
 	}
 
-	public static UUID startProfile(final String id) {
-		if (!Benchmark.isEnabled.get()) {
+	public static Integer startProfile(final String id) {
+		if (!Benchmark.isEnabled) {
 			return null;
 		}
 		final Intermediate i = new Intermediate(id);
-		final UUID uuid = Benchmark.getRandomUUID();
+		final Integer uuid = Benchmark.uuidGenerator.incrementAndGet();
 		Benchmark.inters.put(uuid, i);
 		i.setStartTime(System.nanoTime());
 		return uuid;
 	}
 
-	public static UUID startProfile(final String id, final Machine m,
+	public static Integer startProfile(final String id, final Machine m,
 	    final Event e) {
-		if (!Benchmark.isEnabled.get()) {
+		if (!Benchmark.isEnabled) {
 			return null;
 		}
 		final Intermediate i = new Intermediate(id, m, e);
-		final UUID uuid = Benchmark.getRandomUUID();
+		final Integer uuid = Benchmark.uuidGenerator.incrementAndGet();
 		Benchmark.inters.put(uuid, i);
 		i.setStartTime(System.nanoTime());
 		return uuid;
 	}
 
-	public static long stopProfile(final UUID uuid) {
-		if (!Benchmark.isEnabled.get()) {
+	public static long stopProfile(final Integer uuid) {
+		if (!Benchmark.isEnabled) {
 			return 0;
 		}
 		final long now = System.nanoTime();
-		final Intermediate i = Benchmark.inters.remove(uuid);
-		final long difference = now - i.getStartTime();
-		Benchmark.logTime(i, difference);
-		return difference;
+		try {
+			final Intermediate i = Benchmark.inters.remove(uuid);
+			final long difference = now - i.getStartTime();
+			Benchmark.logTime(i, difference);
+			return difference;
+		} catch (NullPointerException ex) {
+			/*
+			 * FIXME: This is synchronization problem when removing from the map.
+			 * However, no root cause has yet been found.
+			 */
+			return -1;
+		}
 	}
 
 	private Benchmark() {
