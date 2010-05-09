@@ -91,6 +91,11 @@ public final class Schedule implements Runnable {
 
 	}
 
+	/**
+	 * A class representing a holder for schedule data. Put into a thread pool to
+	 * fetch database data in background and use getWhatever() methods to retrieve
+	 * the fetched data.
+	 */
 	private static final class Data implements Runnable {
 
 		private final Machine m;
@@ -155,10 +160,11 @@ public final class Schedule implements Runnable {
 	}
 
 	/**
-	 * The executor for fetching schedule data.
+	 * The executor for fetching schedule data. It always creates at least one
+	 * thread, at most two less than the number of available processors.
 	 */
 	private static final ExecutorService e = Executors.newFixedThreadPool(Math
-	    .max(Runtime.getRuntime().availableProcessors() / 2, 1));
+	    .max(Runtime.getRuntime().availableProcessors() - 2, 1));
 
 	/**
 	 * How many pixels shall one CPU of a machine occupy on the y axis of the
@@ -472,7 +478,6 @@ public final class Schedule implements Runnable {
 	public void run() {
 		final Integer globalUuid = Benchmark.startProfile("total", this.data
 		    .getMachine(), this.data.getEvent());
-
 		Integer uuid = Benchmark.startProfile("template");
 		this.drawTemplate(this.getGraphics());
 		Benchmark.stopProfile(uuid);
