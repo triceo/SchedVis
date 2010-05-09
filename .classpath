@@ -10,8 +10,6 @@
 	<classpathentry kind="lib" path="lib/ext/commons-collections-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/ext/antlr-2.7.6.jar"/>
 	<classpathentry kind="lib" path="lib/ext/cglib-2.2.jar"/>
-	<classpathentry kind="lib" path="lib/ext/ehcache-core-1.7.2.jar"/>
-	<classpathentry kind="lib" path="lib/ext/hibernate-jpa-2.0-api-1.0.0-CR-1.jar"/>
 	<classpathentry kind="lib" path="lib/ext/hibernate3.jar"/>
 	<classpathentry kind="lib" path="lib/ext/commons-math-2.0.jar"/>
 	<classpathentry kind="lib" path="lib/ext/ehcache-core-2.0.1.jar"/>
@@ -22,6 +20,5 @@
 			<attribute name="owner.project.facets" value="jst.java"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/ext/sqlite-jdbc-3.6.20.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

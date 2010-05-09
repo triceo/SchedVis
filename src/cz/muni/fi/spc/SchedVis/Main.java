@@ -132,7 +132,7 @@ public final class Main {
 		System.out.println(Messages.getString("Main.13"));
 		final Event evt = Event.getFirst();
 		for (final Machine m : Machine.getAllGroupless()) {
-			Benchmark.runSingleSchedule(evt, m);
+			Benchmark.runSingleSchedule(evt, m, true);
 		}
 		Benchmark.clearLogResults();
 	}
