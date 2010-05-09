@@ -216,7 +216,6 @@ public final class Benchmark {
 	 */
 	private static void reportLogResults(final Map<String, List<Long>> times) {
 		// show globals
-		System.out.println("Entries: " + Benchmark.timesByType.get("total").size());
 		System.out
 		    .println(" task \\ time [ms] |    avg    |    1/50   |    1/4    |    1/2    |    3/4    |   49/50    | std. dev.");
 		System.out
@@ -239,6 +238,8 @@ public final class Benchmark {
 			                .nanoToMilli(stats.getPercentile(98)), Benchmark
 			                .nanoToMilli(stats.getStandardDeviation())));
 		}
+		System.out.println("Schedules processed: "
+		    + Benchmark.timesByType.get("total").size());
 	}
 
 	/**
@@ -271,6 +272,7 @@ public final class Benchmark {
 			ticks.add(Event.getWithId(eventId));
 		}
 		Integer i = 0;
+		Long time = System.nanoTime();
 		for (int count = 0; count < NUMBER_OF_BENCHES; count++) {
 			for (final Event tick : ticks) {
 				i++;
@@ -284,6 +286,8 @@ public final class Benchmark {
 		System.out.println();
 		System.out.println(Messages.getString("Main.4"));
 		Benchmark.reportLogResults();
+		time = (System.nanoTime() - time) / 1000 / 1000 / 1000;
+		System.out.println("Total time: " + time + " seconds.");
 		Benchmark.isEnabled = false;
 		return;
 	}
