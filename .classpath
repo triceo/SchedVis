@@ -1,24 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="lib/ext/slf4j-log4j12.jar"/>
-	<classpathentry kind="lib" path="lib/ext/log4j-1.2.15.jar"/>
-	<classpathentry kind="lib" path="lib/ext/slf4j-api-1.5.8.jar"/>
-	<classpathentry kind="lib" path="lib/ext/jta-1.1.jar"/>
-	<classpathentry kind="lib" path="lib/ext/javassist-3.9.0.GA.jar"/>
-	<classpathentry kind="lib" path="lib/ext/dom4j-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/ext/commons-collections-3.1.jar"/>
-	<classpathentry kind="lib" path="lib/ext/antlr-2.7.6.jar"/>
-	<classpathentry kind="lib" path="lib/ext/cglib-2.2.jar"/>
-	<classpathentry kind="lib" path="lib/ext/hibernate3.jar"/>
-	<classpathentry kind="lib" path="lib/ext/commons-math-2.0.jar"/>
-	<classpathentry kind="lib" path="lib/ext/ehcache-core-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/ext/hibernate-jpa-2.0-api-1.0.0.Final.jar"/>
-	<classpathentry kind="lib" path="lib/ext/sqlite-jdbc-3.6.23.1-SNAPSHOT.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+	<classpathentry kind="src" output="target/classes" path="src/main/java">
 		<attributes>
-			<attribute name="owner.project.facets" value="jst.java"/>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/java">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry excluding="**" kind="src" output="target/classes" path="src/main/resources">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>
