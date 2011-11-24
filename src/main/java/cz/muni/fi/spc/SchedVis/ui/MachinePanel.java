@@ -25,7 +25,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.entities.Machine;
@@ -58,11 +57,7 @@ public final class MachinePanel extends JPanel {
 	protected void paintComponent(final Graphics g) {
 		this.s.setTargetGraphics((Graphics2D) g);
 		try {
-			if (SwingUtilities.isEventDispatchThread()) {
-				this.s.run();
-			} else {
-				SwingUtilities.invokeLater(this.s);
-			}
+			this.s.run();
 		} catch (final Exception e) {
 			e.printStackTrace();
 		}

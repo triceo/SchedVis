@@ -78,9 +78,9 @@ public final class Schedule implements Runnable {
 
 		@Override
 		public Boolean call() throws Exception {
-			final Integer uuid2 = Benchmark.startProfile("activity", this.m, this.e);
+			final Integer uuid = Benchmark.startProfile("activity", this.m, this.e);
 			boolean isActive = Machine.isActive(this.m, this.e);
-			Benchmark.stopProfile(uuid2);
+			Benchmark.stopProfile(uuid);
 			return isActive;
 		}
 	}
