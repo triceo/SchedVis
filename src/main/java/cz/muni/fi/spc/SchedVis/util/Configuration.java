@@ -141,8 +141,8 @@ public final class Configuration {
 	protected synchronized static Properties getProperties() {
 		if (Configuration.p == null) {
 			try {
-				final InputStreamReader in = new InputStreamReader(Properties.class
-				    .getResourceAsStream("/config/config.properties"));
+				final InputStreamReader in = new InputStreamReader(Configuration.class
+				    .getResourceAsStream("/config.properties"));
 				Configuration.p = new Properties();
 				Configuration.p.load(in);
 			} catch (final Exception e) {
