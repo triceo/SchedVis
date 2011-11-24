@@ -22,7 +22,7 @@ package cz.muni.fi.spc.SchedVis.model.models;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.event.ChangeListener;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
@@ -69,7 +69,7 @@ public final class TimelineSliderModel extends DefaultBoundedRangeModel {
 			if (TimelineSliderModel.model.getChangeListeners().length == 0) {
 				TimelineSliderModel.model.addChangeListener(listener);
 			} else {
-				Logger.getLogger(TimelineSliderModel.class).warn(
+				LoggerFactory.getLogger(TimelineSliderModel.class).warn(
 				    Messages.getString("TimelineSliderModel.0"));
 			}
 		}

@@ -35,7 +35,7 @@ import java.util.Set;
 
 import javax.swing.SwingWorker;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cz.muni.fi.spc.SchedVis.model.EventType;
 import cz.muni.fi.spc.SchedVis.model.JobHint;
@@ -398,8 +398,9 @@ public final class Importer extends SwingWorker<Void, Void> {
 		try {
 			machineId = this.allJobs.get(jobId).getMachine().getName();
 		} catch (final NullPointerException ex) {
-			Logger.getLogger(Importer.class).warn(
-			    new Formatter().format(Messages.getString("Importer.22"), jobId));
+			LoggerFactory.getLogger(Importer.class).warn(
+			    new Formatter().format(Messages.getString("Importer.22"), jobId)
+			        .toString());
 		}
 		if (e.getName().equals("job-execution-start")) {
 			// execution starting
@@ -410,9 +411,9 @@ public final class Importer extends SwingWorker<Void, Void> {
 				    .asList(this.CPUstatus.get(machineId)));
 				final boolean isChanged = old.addAll(Arrays.asList(jobCPUs));
 				if (!isChanged) {
-					Logger.getLogger(Importer.class).warn(
+					LoggerFactory.getLogger(Importer.class).warn(
 					    new Formatter().format(Messages.getString("Importer.24"),
-					        new Object[] { jobId, machineId }));
+					        new Object[] { jobId, machineId }).toString());
 				}
 				this.CPUstatus.remove(machineId);
 				this.CPUstatus.put(machineId, old.toArray(new String[] {}));
@@ -423,9 +424,9 @@ public final class Importer extends SwingWorker<Void, Void> {
 			    .get(machineId)));
 			final boolean isChanged = old.removeAll(Arrays.asList(jobCPUs));
 			if (!isChanged) {
-				Logger.getLogger(Importer.class).warn(
+				LoggerFactory.getLogger(Importer.class).warn(
 				    new Formatter().format(Messages.getString("Importer.25"),
-				        new Object[] { jobId, machineId }));
+				        new Object[] { jobId, machineId }).toString());
 			}
 			this.CPUstatus.remove(machineId);
 			this.CPUstatus.put(machineId, old.toArray(new String[] {}));

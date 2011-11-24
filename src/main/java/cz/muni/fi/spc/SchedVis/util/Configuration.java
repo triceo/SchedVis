@@ -23,7 +23,7 @@ import java.io.InputStreamReader;
 import java.util.Formatter;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
 
@@ -147,9 +147,9 @@ public final class Configuration {
 				Configuration.p.load(in);
 			} catch (final Exception e) {
 				Configuration.p = new Properties();
-				Logger.getLogger(Configuration.class).error(
-				    new Formatter().format(Messages.getString("Configuration.17"), e
-				        .getLocalizedMessage()));
+				LoggerFactory.getLogger(Configuration.class).error(
+				    new Formatter().format(Messages.getString("Configuration.17"),
+				        e.getLocalizedMessage()).toString());
 			}
 		}
 		return Configuration.p;

@@ -19,7 +19,8 @@ package cz.muni.fi.spc.SchedVis.util;
 import java.util.Formatter;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
 import cz.muni.fi.spc.SchedVis.model.models.TimelineSliderModel;
@@ -39,6 +40,8 @@ public final class Player implements Runnable {
 	CountDownLatch l = new CountDownLatch(1);
 	private static boolean doesPlay = false;
 
+	private static final Logger logger = LoggerFactory.getLogger(Player.class);
+
 	/**
 	 * This is a singleton.
 	 * 
@@ -57,11 +60,11 @@ public final class Player implements Runnable {
 				this.l.await();
 				this.l = new CountDownLatch(1);
 			} catch (final Exception e) {
-				Logger.getLogger(Player.class).warn(
-				    new Formatter().format(Messages.getString("Player.0"), e
-				        .getLocalizedMessage()));
+				Player.logger
+				    .warn(new Formatter().format(Messages.getString("Player.0"),
+				        e.getLocalizedMessage()).toString());
 			}
-			Logger.getLogger(Player.class).debug(Messages.getString("Player.1"));
+			Player.logger.debug(Messages.getString("Player.1"));
 			while (Player.doesPlay) {
 				// invoke the code in the event-processing thread...
 				javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -74,12 +77,12 @@ public final class Player implements Runnable {
 				try {
 					Thread.sleep(Configuration.getPlayDelay());
 				} catch (final Exception e) {
-					Logger.getLogger(Player.class).warn(
-					    new Formatter().format(Messages.getString("Player.2"), e
-					        .getLocalizedMessage()));
+					Player.logger.warn(new Formatter().format(
+					    Messages.getString("Player.2"), e.getLocalizedMessage())
+					    .toString());
 				}
 			}
-			Logger.getLogger(Player.class).debug(Messages.getString("Player.3"));
+			Player.logger.debug(Messages.getString("Player.3"));
 		}
 	}
 
@@ -87,9 +90,9 @@ public final class Player implements Runnable {
 	 * Wake the thread from its sleep.
 	 */
 	public void toggleStatus() {
-		Logger.getLogger(Player.class).debug(Messages.getString("Player.4"));
+		Player.logger.debug(Messages.getString("Player.4"));
 		Player.doesPlay = !Player.doesPlay;
 		this.l.countDown();
-		Logger.getLogger(Player.class).debug(Messages.getString("Player.5"));
+		Player.logger.debug(Messages.getString("Player.5"));
 	}
 }

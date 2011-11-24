@@ -42,7 +42,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cz.muni.fi.spc.SchedVis.model.JobHint;
 import cz.muni.fi.spc.SchedVis.model.entities.Event;
@@ -174,7 +175,7 @@ public final class Schedule implements Runnable {
 	 */
 	private static final Font font = new Font("Monospaced", Font.PLAIN, 9);
 
-	private static final Logger logger = Logger.getLogger(Schedule.class);
+	private static final Logger logger = LoggerFactory.getLogger(Schedule.class);
 
 	/**
 	 * How many ticks per a guiding bar should there be on the schedule.
@@ -348,9 +349,10 @@ public final class Schedule implements Runnable {
 					final int jobStartX = Schedule.getStartingPosition(job, this.event
 					    .getClock());
 					if (jobStartX < 0) { // could be bad, may not be
-						Schedule.logger.info(new Formatter().format(Messages
-						    .getString("ScheduleRenderer.22"), new Object[] {
-						    this.machine.getName(), this.event.getId(), jobStartX }));
+						Schedule.logger.info(new Formatter().format(
+						    Messages.getString("ScheduleRenderer.22"),
+						    new Object[] { this.machine.getName(), this.event.getId(),
+						        jobStartX }).toString());
 					}
 					final int jobLength = Schedule.getJobLength(job);
 					final int ltY = crntCPU * Schedule.NUM_PIXELS_PER_CPU;
@@ -376,9 +378,10 @@ public final class Schedule implements Runnable {
 					final int rightBoundary = (jobStartX + jobLength)
 					    - Schedule.IMAGE_WIDTH;
 					if (rightBoundary > 0) {
-						Schedule.logger.warn(new Formatter().format(Messages
-						    .getString("ScheduleRenderer.23"), new Object[] {
-						    this.machine.getName(), this.event.getId(), rightBoundary }));
+						Schedule.logger.warn(new Formatter().format(
+						    Messages.getString("ScheduleRenderer.23"),
+						    new Object[] { this.machine.getName(), this.event.getId(),
+						        rightBoundary }).toString());
 					}
 				}
 			} else { // render CPU occupation
