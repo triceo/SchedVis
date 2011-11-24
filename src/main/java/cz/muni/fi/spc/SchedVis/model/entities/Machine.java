@@ -57,7 +57,7 @@ import cz.muni.fi.spc.SchedVis.util.Database;
  * 
  */
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 public final class Machine extends BaseEntity implements Comparable<Machine> {
 
 	private static AtomicInteger internalIdCounter = new AtomicInteger(0);

@@ -46,7 +46,7 @@ import cz.muni.fi.spc.SchedVis.util.Database;
  * @author Lukáš Petrovický <petrovicky@mail.muni.cz>
  */
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 public final class MachineGroup extends BaseEntity implements
     Comparable<MachineGroup> {
 

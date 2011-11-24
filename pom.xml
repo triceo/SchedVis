@@ -9,12 +9,12 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
-      <version>3.6.8.Final</version>
+      <version>${hibernate.version}</version>
     </dependency>
-    <dependency> <!--  FIXME switch to Infinispan -->
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache-core</artifactId>
-      <version>2.4.5</version>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-infinispan</artifactId>
+      <version>${hibernate.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -124,5 +124,6 @@
   </build>
   <properties>
   	<main.class>cz.muni.fi.spc.SchedVis.Main</main.class>
+  	<hibernate.version>3.6.8.Final</hibernate.version>
   </properties>
 </project>
