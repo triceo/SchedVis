@@ -1,3 +1,5 @@
 /Production.sqlite
 /Data-set.txt
 /machines.txt
+/target
+/dependency-reduced-pom.xml

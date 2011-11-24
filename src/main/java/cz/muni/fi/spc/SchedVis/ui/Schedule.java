@@ -30,15 +30,17 @@ import java.awt.Shape;
 import java.awt.TexturePaint;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
+import java.util.Collections;
 import java.util.Formatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
@@ -63,6 +65,25 @@ import cz.muni.fi.spc.SchedVis.util.l10n.Messages;
  * 
  */
 public final class Schedule implements Runnable {
+	private final static class ActivityRetriever implements Callable<Boolean> {
+
+		private final Machine m;
+		private final Event e;
+
+		public ActivityRetriever(final Machine m, final Event e) {
+			this.m = m;
+			this.e = e;
+		}
+
+		@Override
+		public Boolean call() throws Exception {
+			final Integer uuid2 = Benchmark.startProfile("activity", this.m, this.e);
+			boolean isActive = Machine.isActive(this.m, this.e);
+			Benchmark.stopProfile(uuid2);
+			return isActive;
+		}
+	}
+
 	private static final class Colors {
 
 		/**
@@ -91,80 +112,30 @@ public final class Schedule implements Runnable {
 
 	}
 
-	/**
-	 * A class representing a holder for schedule data. Put into a thread pool to
-	 * fetch database data in background and use getWhatever() methods to retrieve
-	 * the fetched data.
-	 */
-	private static final class Data implements Runnable {
+	private final static class ScheduleRetriever implements Callable<List<Job>> {
 
 		private final Machine m;
 		private final Event e;
 
-		private boolean isActive = true;
-		private List<Job> jobs = null;
-		private final CountDownLatch activityLatch = new CountDownLatch(1);
-		private final CountDownLatch scheduleLatch = new CountDownLatch(1);
-
-		private boolean done = false;
-
-		public Data(final Machine m, final Event e) {
+		public ScheduleRetriever(final Machine m, final Event e) {
 			this.m = m;
 			this.e = e;
 		}
 
-		public Event getEvent() {
-			return this.e;
-		}
-
-		public Machine getMachine() {
-			return this.m;
-		}
-
-		public List<Job> getSchedule() {
-			try {
-				this.scheduleLatch.await();
-			} catch (final InterruptedException e) {
-				return this.getSchedule();
-			}
-			return this.jobs;
-		}
-
-		public boolean isMachineActive() {
-			try {
-				this.activityLatch.await();
-			} catch (final InterruptedException e) {
-				return this.isMachineActive();
-			}
-			return this.isActive;
-		}
-
-		public void run() {
-			if (this.done) {
-				return;
-			}
-			final Integer uuid = Benchmark.startProfile("schedule",
-			    this.getMachine(), this.getEvent());
-			this.jobs = Machine.getLatestSchedule(this.m, this.e);
+		@Override
+		public List<Job> call() throws Exception {
+			final Integer uuid = Benchmark.startProfile("schedule", this.m, this.e);
+			List<Job> jobs = Machine.getLatestSchedule(this.m, this.e);
 			Benchmark.stopProfile(uuid);
-			this.scheduleLatch.countDown();
-			final Integer uuid2 = Benchmark.startProfile("activity", this
-			    .getMachine(), this.getEvent());
-			this.isActive = Machine.isActive(this.m, this.e);
-			Benchmark.stopProfile(uuid2);
-			this.activityLatch.countDown();
-			this.done = true;
+			return jobs;
 		}
-
 	}
 
 	/**
-	 * The executor for fetching schedule data. It always creates at least one
-	 * thread, at most two less than the number of available processors.
+	 * The executor for fetching schedule data.
 	 */
-	private static final ExecutorService e = Executors.newFixedThreadPool(Math
-	    .max(Runtime.getRuntime().availableProcessors() - 2, 1));
-
+	private static final ExecutorService executor = Executors
+	    .newCachedThreadPool();
 	/**
 	 * How many pixels shall one CPU of a machine occupy on the y axis of the
 	 * schedule.
@@ -186,6 +157,7 @@ public final class Schedule implements Runnable {
 	private static final int OVERFLOW_WIDTH = Double.valueOf(
 	    Math.floor((Job.getMaxSpan() * Schedule.NUM_PIXELS_PER_TICK) / 8))
 	    .intValue();
+
 	/**
 	 * Total length of the x axis of the schedule. If you need to change it,
 	 * please change the input values, possibly in the config file, and not the
@@ -324,7 +296,11 @@ public final class Schedule implements Runnable {
 	}
 
 	private Graphics2D g;
-	private final Data data;
+
+	private final Future<Boolean> isActive;
+	private final Future<List<Job>> latestSchedule;
+	private final Machine machine;
+	private final Event event;
 
 	/**
 	 * Class constructor.
@@ -335,8 +311,11 @@ public final class Schedule implements Runnable {
 	 *          A point in time in which we want the schedule rendered.
 	 */
 	public Schedule(final Machine m, final Event evt) {
-		this.data = new Data(m, evt);
-		Schedule.e.execute(this.data);
+		this.machine = m;
+		this.event = evt;
+		this.isActive = Schedule.executor.submit(new ActivityRetriever(m, evt));
+		this.latestSchedule = Schedule.executor
+		    .submit(new ScheduleRetriever(m, evt));
 		this.IMAGE_HEIGHT = m.getCPUs() * Schedule.NUM_PIXELS_PER_CPU;
 	}
 
@@ -348,7 +327,7 @@ public final class Schedule implements Runnable {
 	 *          The graphics in question.
 	 */
 	private void drawJobs(final Graphics2D g) {
-		for (final Job job : this.data.getSchedule()) {
+		for (final Job job : this.getLatestSchedule()) {
 			final Integer[] cpus = Schedule.getAssignedCPUs(job).toArray(
 			    new Integer[] {});
 			if (job.getBringsSchedule()) { // render jobs in a schedule, one by one
@@ -366,19 +345,18 @@ public final class Schedule implements Runnable {
 					}
 					final int numCPUs = (cpus[i] - crntCPU) + 1;
 					// now draw
-					final int jobStartX = Schedule.getStartingPosition(job, this.data
-					    .getEvent().getClock());
+					final int jobStartX = Schedule.getStartingPosition(job, this.event
+					    .getClock());
 					if (jobStartX < 0) { // could be bad, may not be
 						Schedule.logger.info(new Formatter().format(Messages
 						    .getString("ScheduleRenderer.22"), new Object[] {
-						    this.data.getMachine().getName(), this.data.getEvent().getId(),
-						    jobStartX }));
+						    this.machine.getName(), this.event.getId(), jobStartX }));
 					}
 					final int jobLength = Schedule.getJobLength(job);
 					final int ltY = crntCPU * Schedule.NUM_PIXELS_PER_CPU;
 					final int jobHgt = numCPUs * Schedule.NUM_PIXELS_PER_CPU;
 					final int deadline = job.getDeadline();
-					if ((deadline > -1) && (deadline < this.data.getEvent().getClock())) {
+					if ((deadline > -1) && (deadline < this.event.getClock())) {
 						g.setColor(Color.RED); // the job has a deadline and has missed it
 					} else {
 						g.setColor(Colors.getJobColor(job.getNumber())); // no deadline
@@ -387,7 +365,7 @@ public final class Schedule implements Runnable {
 					g.setPaint(Schedule.getTexture(g.getColor(), job.getHint()));
 					g.fill(s);
 					g.setColor(Color.BLACK);
-					if (this.data.getEvent().getId() == job.getNumber()) {
+					if (this.event.getId() == job.getNumber()) {
 						g.setStroke(Schedule.thickStroke);
 					} else {
 						g.setStroke(Schedule.thinStroke);
@@ -400,8 +378,7 @@ public final class Schedule implements Runnable {
 					if (rightBoundary > 0) {
 						Schedule.logger.warn(new Formatter().format(Messages
 						    .getString("ScheduleRenderer.23"), new Object[] {
-						    this.data.getMachine().getName(), this.data.getEvent().getId(),
-						    rightBoundary }));
+						    this.machine.getName(), this.event.getId(), rightBoundary }));
 					}
 				}
 			} else { // render CPU occupation
@@ -444,7 +421,7 @@ public final class Schedule implements Runnable {
 	private void drawTemplate(final Graphics2D g) {
 		g.setColor(Color.LIGHT_GRAY);
 		// draw lines separating CPUs
-		for (int cpu = 1; cpu < this.data.getMachine().getCPUs(); cpu += 2) {
+		for (int cpu = 1; cpu < this.machine.getCPUs(); cpu += 2) {
 			// two lines at a time, reducing number of loops
 			final int yAxis = cpu * Schedule.NUM_PIXELS_PER_CPU;
 			g.drawRect(-1, yAxis, Schedule.IMAGE_WIDTH + 1, yAxis
@@ -473,9 +450,27 @@ public final class Schedule implements Runnable {
 		return this.g;
 	}
 
+	private List<Job> getLatestSchedule() {
+		try {
+			return this.latestSchedule.get();
+		} catch (Exception e) {
+			Schedule.logger.warn("Exception while getting latest schedule", e);
+			return Collections.emptyList();
+		}
+	}
+
+	private Boolean isActive() {
+		try {
+			return this.isActive.get();
+		} catch (Exception e) {
+			Schedule.logger.warn("Exception while getting machine activity", e);
+			return false;
+		}
+	}
+
 	public void run() {
-		final Integer globalUuid = Benchmark.startProfile("total", this.data
-		    .getMachine(), this.data.getEvent());
+		final Integer globalUuid = Benchmark.startProfile("total", this.machine,
+		    this.event);
 		Integer uuid = Benchmark.startProfile("template");
 		this.drawTemplate(this.getGraphics());
 		Benchmark.stopProfile(uuid);
@@ -483,10 +478,9 @@ public final class Schedule implements Runnable {
 		uuid = Benchmark.startProfile("rendering");
 		this.drawJobs(this.getGraphics());
 		// add machine info
-		final StringBuilder b = new StringBuilder().append(
-		    this.data.getMachine().getName()).append("@").append(
-		    this.data.getEvent().getClock());
-		if (!this.data.isMachineActive()) {
+		final StringBuilder b = new StringBuilder().append(this.machine.getName())
+		    .append("@").append(this.event.getClock());
+		if (!this.isActive()) {
 			b.append(Messages.getString("ScheduleRenderer.19"));
 		}
 		this.getGraphics().setColor(Color.BLACK);
