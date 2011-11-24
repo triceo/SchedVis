@@ -114,8 +114,9 @@ public final class Importer extends SwingWorker<Void, Void> {
 	 * @return Number of lines in a file.
 	 */
 	private Integer countLines(final File file) {
+		LineNumberReader reader = null;
 		try {
-			final LineNumberReader reader = new LineNumberReader(new FileReader(file));
+			reader = new LineNumberReader(new FileReader(file));
 			Integer count = 0;
 			while (reader.readLine() != null) {
 				count++;
@@ -125,6 +126,12 @@ public final class Importer extends SwingWorker<Void, Void> {
 			return 0;
 		} catch (final IOException e) {
 			return 0;
+		} finally {
+			try {
+				reader.close();
+			} catch (IOException e) {
+				// nothing to do here
+			}
 		}
 	}
 
@@ -289,7 +296,7 @@ public final class Importer extends SwingWorker<Void, Void> {
 				// update progress
 				final Double progress = (((lineId * 100) / (double) totalEvents) / 2) + 50;
 				this.setProgress(progress.intValue());
-				if (eventId % 1000 == 0) { // persist some items
+				if ((eventId % 1000) == 0) { // persist some items
 					try {
 						Database.getEntityManager().getTransaction().commit();
 						Database.getEntityManager().clear(); // save some memory
